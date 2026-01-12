@@ -6,6 +6,7 @@ import AISettingsCard from './AISettingsCard';
 import TelegramSettingsCard from './TelegramSettingsCard';
 import ChatStatsCard from './ChatStatsCard';
 import PageSettingsCard from './PageSettingsCard';
+import WidgetSettingsCard from './WidgetSettingsCard';
 import { Document, BACKEND_URLS } from './types';
 import { useState, useMemo } from 'react';
 
@@ -109,6 +110,8 @@ const AdminView = ({ documents, isLoading, onFileUpload, onDeleteDocument }: Adm
           chatFunctionUrl={BACKEND_URLS.chat}
         />
       </div>
+
+      <WidgetSettingsCard />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <PageSettingsCard />
