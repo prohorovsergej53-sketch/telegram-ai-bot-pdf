@@ -13,7 +13,6 @@ import BulkUpdatePanel from './BulkUpdatePanel';
 import TenantsListTable from './TenantsListTable';
 import AdminUsersPanel from './AdminUsersPanel';
 import MessengersStatusCard from './MessengersStatusCard';
-import MessengersStatusCard from './MessengersStatusCard';
 
 interface Tenant {
   id: number;

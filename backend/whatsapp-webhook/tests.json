@@ -1,0 +1,16 @@
+{
+  "tests": [
+    {
+      "name": "Test webhook verification",
+      "method": "GET",
+      "queryParams": {
+        "hub.mode": "subscribe",
+        "hub.verify_token": "my_verify_token",
+        "hub.challenge": "test_challenge"
+      },
+      "expectedStatus": 200,
+      "expectedBody": "test_challenge",
+      "bodyMatcher": "exact"
+    }
+  ]
+}

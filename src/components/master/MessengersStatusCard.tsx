@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 
 interface MessengerStatus {
   telegram: boolean;
+  whatsapp: boolean;
   vk: boolean;
 }
 
@@ -13,6 +14,7 @@ interface Tenant {
   slug: string;
   name: string;
   telegram_connected?: boolean;
+  whatsapp_connected?: boolean;
   vk_connected?: boolean;
 }
 
@@ -29,6 +31,7 @@ const MessengersStatusCard = ({ tenants }: MessengersStatusCardProps) => {
     tenants.forEach(tenant => {
       newStatuses[tenant.id] = {
         telegram: tenant.telegram_connected || false,
+        whatsapp: tenant.whatsapp_connected || false,
         vk: tenant.vk_connected || false
       };
     });
@@ -36,7 +39,7 @@ const MessengersStatusCard = ({ tenants }: MessengersStatusCardProps) => {
     setStatuses(newStatuses);
   }, [tenants]);
 
-  const getTotalConnected = (messenger: 'telegram' | 'vk') => {
+  const getTotalConnected = (messenger: 'telegram' | 'whatsapp' | 'vk') => {
     return Object.values(statuses).filter(s => s[messenger]).length;
   };
 
@@ -48,12 +51,12 @@ const MessengersStatusCard = ({ tenants }: MessengersStatusCardProps) => {
           Статус мессенджеров
         </CardTitle>
         <CardDescription>
-          Подключение Telegram и VK ботов для всех тенантов
+          Подключение Telegram, WhatsApp и VK ботов для всех тенантов
         </CardDescription>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-3 gap-4">
             <div className="p-4 border rounded-lg bg-blue-50/50">
               <div className="flex items-center gap-3 mb-2">
                 <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
@@ -75,6 +78,31 @@ const MessengersStatusCard = ({ tenants }: MessengersStatusCardProps) => {
                 </div>
                 <span className="text-sm font-medium text-slate-700">
                   {tenants.length > 0 ? Math.round((getTotalConnected('telegram') / tenants.length) * 100) : 0}%
+                </span>
+              </div>
+            </div>
+
+            <div className="p-4 border rounded-lg bg-green-50/50">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                  <Icon name="MessageSquare" size={20} className="text-green-600" />
+                </div>
+                <div>
+                  <p className="font-semibold text-slate-900">WhatsApp</p>
+                  <p className="text-xs text-slate-600">
+                    {getTotalConnected('whatsapp')} из {tenants.length} подключено
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="flex-1 bg-slate-200 rounded-full h-2">
+                  <div 
+                    className="bg-green-600 h-2 rounded-full transition-all"
+                    style={{ width: `${tenants.length > 0 ? (getTotalConnected('whatsapp') / tenants.length) * 100 : 0}%` }}
+                  />
+                </div>
+                <span className="text-sm font-medium text-slate-700">
+                  {tenants.length > 0 ? Math.round((getTotalConnected('whatsapp') / tenants.length) * 100) : 0}%
                 </span>
               </div>
             </div>
@@ -122,6 +150,13 @@ const MessengersStatusCard = ({ tenants }: MessengersStatusCardProps) => {
                       >
                         <Icon name="Send" size={12} className="mr-1" />
                         TG
+                      </Badge>
+                      <Badge 
+                        variant={statuses[tenant.id]?.whatsapp ? 'default' : 'outline'}
+                        className={statuses[tenant.id]?.whatsapp ? 'bg-green-600' : ''}
+                      >
+                        <Icon name="Phone" size={12} className="mr-1" />
+                        WA
                       </Badge>
                       <Badge 
                         variant={statuses[tenant.id]?.vk ? 'default' : 'outline'}

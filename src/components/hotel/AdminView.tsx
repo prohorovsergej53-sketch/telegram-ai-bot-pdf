@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import AISettingsCard from './AISettingsCard';
 import TelegramSettingsCard from './TelegramSettingsCard';
-
+import WhatsAppSettingsCard from './WhatsAppSettingsCard';
 import VKSettingsCard from './VKSettingsCard';
 import MAXSettingsCard from './MAXSettingsCard';
 import ChatStatsCard from './ChatStatsCard';
@@ -126,10 +126,16 @@ const AdminView = ({ documents, isLoading, onFileUpload, onDeleteDocument }: Adm
         />
       </div>
 
-      <VKSettingsCard
-        webhookUrl={BACKEND_URLS.vkWebhook}
-        chatFunctionUrl={BACKEND_URLS.chat}
-      />
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <WhatsAppSettingsCard
+          webhookUrl={BACKEND_URLS.whatsappWebhook}
+          chatFunctionUrl={BACKEND_URLS.chat}
+        />
+        <VKSettingsCard
+          webhookUrl={BACKEND_URLS.vkWebhook}
+          chatFunctionUrl={BACKEND_URLS.chat}
+        />
+      </div>
 
       <MAXSettingsCard
         webhookUrl={BACKEND_URLS.maxWebhook}

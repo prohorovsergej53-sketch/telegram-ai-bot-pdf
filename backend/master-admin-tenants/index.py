@@ -30,8 +30,7 @@ def handler(event: dict, context) -> dict:
                     t.template_version, t.auto_update, t.status, t.created_at, t.updated_at,
                     (SELECT COUNT(*) FROM t_p56134400_telegram_ai_bot_pdf.tenant_documents WHERE tenant_id = t.id) as doc_count,
                     (SELECT COUNT(*) FROM t_p56134400_telegram_ai_bot_pdf.tenant_messages WHERE tenant_id = t.id) as message_count,
-                    ts.telegram_settings,
-                    COALESCE((ts.telegram_settings->>'vk_group_id')::text, '') as vk_status
+                    ts.telegram_settings
                 FROM t_p56134400_telegram_ai_bot_pdf.tenants t
                 LEFT JOIN t_p56134400_telegram_ai_bot_pdf.tenant_settings ts ON ts.tenant_id = t.id
                 ORDER BY t.created_at DESC
@@ -55,7 +54,8 @@ def handler(event: dict, context) -> dict:
                     'doc_count': row[11],
                     'message_count': row[12],
                     'telegram_connected': bool(telegram_settings.get('bot_token')),
-                    'vk_connected': bool(row[14] and row[14].strip())
+                    'whatsapp_connected': bool(telegram_settings.get('whatsapp_phone_id')),
+                    'vk_connected': bool(telegram_settings.get('vk_group_id'))
                 })
 
             cur.close()
