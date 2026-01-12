@@ -31,12 +31,35 @@ def handler(event: dict, context) -> dict:
         cur = conn.cursor()
 
         cur.execute("""
-            SELECT setting_key, setting_value 
-            FROM t_p56134400_telegram_ai_bot_pdf.ai_settings
+            SELECT model, temperature, top_p, frequency_penalty, 
+                   presence_penalty, max_tokens, system_priority, creative_mode
+            FROM t_p56134400_telegram_ai_bot_pdf.ai_model_settings
+            LIMIT 1
         """)
         
-        rows = cur.fetchall()
-        settings = {row[0]: row[1] for row in rows}
+        row = cur.fetchone()
+        if row:
+            settings = {
+                'model': row[0],
+                'temperature': float(row[1]),
+                'top_p': float(row[2]),
+                'frequency_penalty': float(row[3]),
+                'presence_penalty': float(row[4]),
+                'max_tokens': int(row[5]),
+                'system_priority': row[6],
+                'creative_mode': row[7]
+            }
+        else:
+            settings = {
+                'model': 'yandexgpt',
+                'temperature': 0.15,
+                'top_p': 1.0,
+                'frequency_penalty': 0,
+                'presence_penalty': 0,
+                'max_tokens': 600,
+                'system_priority': 'strict',
+                'creative_mode': 'off'
+            }
 
         cur.close()
         conn.close()
@@ -44,7 +67,7 @@ def handler(event: dict, context) -> dict:
         return {
             'statusCode': 200,
             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-            'body': json.dumps(settings),
+            'body': json.dumps({'settings': settings}),
             'isBase64Encoded': False
         }
 

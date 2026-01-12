@@ -7,6 +7,7 @@ import TelegramSettingsCard from './TelegramSettingsCard';
 import ChatStatsCard from './ChatStatsCard';
 import PageSettingsCard from './PageSettingsCard';
 import WidgetSettingsCard from './WidgetSettingsCard';
+import AiSettingsCard from './AiSettingsCard';
 import { Document, BACKEND_URLS } from './types';
 import { useState, useMemo } from 'react';
 
@@ -114,6 +115,7 @@ const AdminView = ({ documents, isLoading, onFileUpload, onDeleteDocument }: Adm
       <WidgetSettingsCard />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <AiSettingsCard />
         <PageSettingsCard />
         <Card className="shadow-xl">
           <CardHeader className="border-b bg-gradient-to-r from-slate-50 to-blue-50">

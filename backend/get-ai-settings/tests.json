@@ -5,7 +5,11 @@
       "method": "GET",
       "expectedStatus": 200,
       "expectedBody": {
-        "chat_provider": "string"
+        "settings": {
+          "model": "string",
+          "temperature": "number",
+          "max_tokens": "number"
+        }
       },
       "bodyMatcher": "partial"
     }

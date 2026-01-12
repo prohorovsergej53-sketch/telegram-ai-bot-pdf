@@ -39,6 +39,43 @@ export interface PageSettings {
   input_placeholder: string;
 }
 
+export interface AiModelSettings {
+  model: string;
+  temperature: number;
+  top_p: number;
+  frequency_penalty: number;
+  presence_penalty: number;
+  max_tokens: number;
+  system_priority?: string;
+  creative_mode?: string;
+}
+
+export const AI_MODELS = [
+  { value: 'yandexgpt', label: 'YandexGPT' },
+  { value: 'openai', label: 'OpenAI GPT-4' }
+] as const;
+
+export const DEFAULT_AI_SETTINGS: Record<string, AiModelSettings> = {
+  yandexgpt: {
+    model: 'yandexgpt',
+    temperature: 0.15,
+    top_p: 1.0,
+    frequency_penalty: 0,
+    presence_penalty: 0,
+    max_tokens: 600,
+    system_priority: 'strict',
+    creative_mode: 'off'
+  },
+  openai: {
+    model: 'openai',
+    temperature: 0.2,
+    top_p: 1.0,
+    frequency_penalty: 0,
+    presence_penalty: 0,
+    max_tokens: 600
+  }
+};
+
 export const BACKEND_URLS = {
   chat: 'https://functions.poehali.dev/7b58f4fb-5db0-4f85-bb3b-55bafa4cbf73',
   uploadPdf: 'https://functions.poehali.dev/1ecfd90c-5cef-40a0-af5b-3ba36d6c50c9',

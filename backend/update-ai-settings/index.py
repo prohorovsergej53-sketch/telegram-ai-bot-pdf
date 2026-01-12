@@ -42,14 +42,42 @@ def handler(event: dict, context) -> dict:
         conn = psycopg2.connect(os.environ['DATABASE_URL'])
         cur = conn.cursor()
 
-        for key, value in settings.items():
-            cur.execute("""
-                INSERT INTO t_p56134400_telegram_ai_bot_pdf.ai_settings 
-                (setting_key, setting_value, updated_at)
-                VALUES (%s, %s, %s)
-                ON CONFLICT (setting_key) 
-                DO UPDATE SET setting_value = %s, updated_at = %s
-            """, (key, value, datetime.now(), value, datetime.now()))
+        cur.execute("""
+            INSERT INTO t_p56134400_telegram_ai_bot_pdf.ai_model_settings 
+            (model, temperature, top_p, frequency_penalty, presence_penalty, 
+             max_tokens, system_priority, creative_mode, updated_at)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+            ON CONFLICT (id) 
+            DO UPDATE SET 
+                model = %s,
+                temperature = %s,
+                top_p = %s,
+                frequency_penalty = %s,
+                presence_penalty = %s,
+                max_tokens = %s,
+                system_priority = %s,
+                creative_mode = %s,
+                updated_at = %s
+        """, (
+            settings.get('model', 'yandexgpt'),
+            settings.get('temperature', 0.15),
+            settings.get('top_p', 1.0),
+            settings.get('frequency_penalty', 0),
+            settings.get('presence_penalty', 0),
+            settings.get('max_tokens', 600),
+            settings.get('system_priority', 'strict'),
+            settings.get('creative_mode', 'off'),
+            datetime.now(),
+            settings.get('model', 'yandexgpt'),
+            settings.get('temperature', 0.15),
+            settings.get('top_p', 1.0),
+            settings.get('frequency_penalty', 0),
+            settings.get('presence_penalty', 0),
+            settings.get('max_tokens', 600),
+            settings.get('system_priority', 'strict'),
+            settings.get('creative_mode', 'off'),
+            datetime.now()
+        ))
 
         conn.commit()
         cur.close()
