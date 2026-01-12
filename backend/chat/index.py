@@ -113,7 +113,19 @@ def handler(event: dict, context) -> dict:
                 )
                 emb_data = emb_response.json()
                 query_embedding = emb_data['embedding']
+            elif embedding_provider == 'openrouter':
+                # OpenRouter для embeddings (через OpenAI-совместимый API)
+                embedding_client = OpenAI(
+                    api_key=os.environ.get('OPENROUTER_API_KEY'),
+                    base_url="https://openrouter.ai/api/v1"
+                )
+                query_embedding_response = embedding_client.embeddings.create(
+                    model=embedding_model,
+                    input=user_message
+                )
+                query_embedding = query_embedding_response.data[0].embedding
             else:
+                # Для других провайдеров используем стандартный OpenAI API
                 embedding_client = OpenAI(api_key=os.environ.get('OPENAI_API_KEY'))
                 query_embedding_response = embedding_client.embeddings.create(
                     model=embedding_model,
@@ -274,28 +286,14 @@ def handler(event: dict, context) -> dict:
             )
             yandex_data = yandex_response.json()
             assistant_message = yandex_data['result']['alternatives'][0]['message']['text']
-        elif chat_provider == 'openai':
-            chat_client = OpenAI(api_key=os.environ.get('OPENAI_API_KEY'))
-            response = chat_client.chat.completions.create(
-                model='gpt-4',
-                messages=[
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": user_message}
-                ],
-                temperature=ai_temperature,
-                top_p=ai_top_p,
-                frequency_penalty=ai_frequency_penalty,
-                presence_penalty=ai_presence_penalty,
-                max_tokens=ai_max_tokens
-            )
-            assistant_message = response.choices[0].message.content
         else:
+            # OpenRouter для всех остальных моделей
             chat_client = OpenAI(
-                api_key=os.environ.get('DEEPSEEK_API_KEY'),
-                base_url="https://api.deepseek.com"
+                api_key=os.environ.get('OPENROUTER_API_KEY'),
+                base_url="https://openrouter.ai/api/v1"
             )
             response = chat_client.chat.completions.create(
-                model='deepseek-chat',
+                model=chat_provider,  # Передаём название модели напрямую (например, 'deepseek/deepseek-chat')
                 messages=[
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": user_message}
