@@ -20,7 +20,7 @@ STOPWORDS_EN = {
 }
 
 GATE_THRESHOLDS = {
-    "tariffs": {"min_len": 900, "min_sim": 0.40, "min_overlap_ru": 0.18, "min_overlap_en": 0.14},
+    "tariffs": {"min_len": 300, "min_sim": 0.35, "min_overlap_ru": 0.12, "min_overlap_en": 0.10},
     "rules":   {"min_len": 650, "min_sim": 0.34, "min_overlap_ru": 0.18, "min_overlap_en": 0.14},
     "services":{"min_len": 550, "min_sim": 0.32, "min_overlap_ru": 0.18, "min_overlap_en": 0.14},
     "default": {"min_len": 650, "min_sim": 0.34, "min_overlap_ru": 0.18, "min_overlap_en": 0.14},
