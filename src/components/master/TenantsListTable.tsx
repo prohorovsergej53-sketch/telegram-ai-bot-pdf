@@ -1,6 +1,8 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
+import { useNavigate } from 'react-router-dom';
 
 interface Tenant {
   id: number;
@@ -20,6 +22,8 @@ interface TenantsListTableProps {
 }
 
 const TenantsListTable = ({ tenants }: TenantsListTableProps) => {
+  const navigate = useNavigate();
+
   return (
     <Card>
       <CardHeader>
@@ -50,27 +54,47 @@ const TenantsListTable = ({ tenants }: TenantsListTableProps) => {
                 {tenant.description && (
                   <p className="text-sm text-slate-600 mb-2">{tenant.description}</p>
                 )}
-                <div className="flex items-center gap-4 text-xs text-slate-500">
-                  <span className="flex items-center gap-1">
-                    <Icon name="FileText" size={12} />
-                    {tenant.doc_count} документов
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <Icon name="MessageCircle" size={12} />
-                    {tenant.message_count} сообщений
-                  </span>
-                  {tenant.owner_email && (
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4 text-xs text-slate-500">
                     <span className="flex items-center gap-1">
-                      <Icon name="Mail" size={12} />
-                      {tenant.owner_email}
+                      <Icon name="FileText" size={12} />
+                      {tenant.doc_count} документов
                     </span>
-                  )}
-                  {tenant.auto_update && (
-                    <span className="flex items-center gap-1 text-orange-600">
-                      <Icon name="Zap" size={12} />
-                      Авто-обновление
+                    <span className="flex items-center gap-1">
+                      <Icon name="MessageCircle" size={12} />
+                      {tenant.message_count} сообщений
                     </span>
-                  )}
+                    {tenant.owner_email && (
+                      <span className="flex items-center gap-1">
+                        <Icon name="Mail" size={12} />
+                        {tenant.owner_email}
+                      </span>
+                    )}
+                    {tenant.auto_update && (
+                      <span className="flex items-center gap-1 text-orange-600">
+                        <Icon name="Zap" size={12} />
+                        Авто-обновление
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => navigate(`/${tenant.slug}/admin`)}
+                    >
+                      <Icon name="Settings" size={14} className="mr-1" />
+                      Админка
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => navigate(`/${tenant.slug}`)}
+                    >
+                      <Icon name="MessageSquare" size={14} className="mr-1" />
+                      Чат
+                    </Button>
+                  </div>
                 </div>
               </div>
             ))}
