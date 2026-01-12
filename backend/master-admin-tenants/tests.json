@@ -1,0 +1,13 @@
+{
+  "tests": [
+    {
+      "name": "Test get tenants list",
+      "method": "GET",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "tenants": "array"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

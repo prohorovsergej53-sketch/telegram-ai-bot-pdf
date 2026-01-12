@@ -1,0 +1,13 @@
+{
+  "tests": [
+    {
+      "name": "Test get versions list",
+      "method": "GET",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "versions": "array"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}
