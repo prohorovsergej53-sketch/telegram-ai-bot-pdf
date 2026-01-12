@@ -95,6 +95,10 @@ const AISettingsCard = ({ getSettingsUrl, updateSettingsUrl }: AISettingsCardPro
       { value: 'text-embedding-3-small', label: 'Text Embedding 3 Small (дешевая)' },
       { value: 'text-embedding-3-large', label: 'Text Embedding 3 Large (точная)' },
       { value: 'text-embedding-ada-002', label: 'Ada 002 (старая)' }
+    ],
+    yandexgpt: [
+      { value: 'text-search-doc', label: 'Text Search Doc (для документов)' },
+      { value: 'text-search-query', label: 'Text Search Query (для запросов)' }
     ]
   };
 
@@ -173,7 +177,8 @@ const AISettingsCard = ({ getSettingsUrl, updateSettingsUrl }: AISettingsCardPro
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="openai">OpenAI (только они поддерживают)</SelectItem>
+                <SelectItem value="openai">OpenAI</SelectItem>
+                <SelectItem value="yandexgpt">YandexGPT</SelectItem>
               </SelectContent>
             </Select>
           </div>

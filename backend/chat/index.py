@@ -57,20 +57,33 @@ def handler(event: dict, context) -> dict:
         embedding_provider = settings.get('embedding_provider', 'openai')
         embedding_model = settings.get('embedding_model', 'text-embedding-3-small')
 
-        if embedding_provider == 'openai':
-            embedding_client = OpenAI(api_key=os.environ.get('OPENAI_API_KEY'))
-        else:
-            embedding_client = OpenAI(
-                api_key=os.environ.get('DEEPSEEK_API_KEY'),
-                base_url="https://api.deepseek.com"
-            )
-
         try:
-            query_embedding_response = embedding_client.embeddings.create(
-                model=embedding_model,
-                input=user_message
-            )
-            query_embedding = query_embedding_response.data[0].embedding
+            if embedding_provider == 'yandexgpt':
+                import requests
+                yandex_api_key = os.environ.get('YANDEXGPT_API_KEY')
+                yandex_folder_id = os.environ.get('YANDEXGPT_FOLDER_ID')
+                
+                emb_response = requests.post(
+                    'https://llm.api.cloud.yandex.net/foundationModels/v1/textEmbedding',
+                    headers={
+                        'Authorization': f'Api-Key {yandex_api_key}',
+                        'Content-Type': 'application/json'
+                    },
+                    json={
+                        'modelUri': f'emb://{yandex_folder_id}/{embedding_model}/latest',
+                        'text': user_message
+                    }
+                )
+                emb_data = emb_response.json()
+                query_embedding = emb_data['embedding']
+            else:
+                embedding_client = OpenAI(api_key=os.environ.get('OPENAI_API_KEY'))
+                query_embedding_response = embedding_client.embeddings.create(
+                    model=embedding_model,
+                    input=user_message
+                )
+                query_embedding = query_embedding_response.data[0].embedding
+            
             query_embedding_json = json.dumps(query_embedding)
 
             cur.execute("""

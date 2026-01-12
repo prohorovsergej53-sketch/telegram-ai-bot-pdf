@@ -95,22 +95,35 @@ def handler(event: dict, context) -> dict:
         embedding_provider = settings.get('embedding_provider', 'openai')
         embedding_model = settings.get('embedding_model', 'text-embedding-3-small')
 
-        if embedding_provider == 'openai':
-            client = OpenAI(api_key=os.environ.get('OPENAI_API_KEY'))
-        else:
-            client = OpenAI(
-                api_key=os.environ.get('DEEPSEEK_API_KEY'),
-                base_url="https://api.deepseek.com"
-            )
-
         for idx, chunk_text in enumerate(chunks):
             try:
-                embedding_response = client.embeddings.create(
-                    model=embedding_model,
-                    input=chunk_text
-                )
-                embedding_vector = embedding_response.data[0].embedding
-                embedding_json = json.dumps(embedding_vector)
+                if embedding_provider == 'yandexgpt':
+                    import requests
+                    yandex_api_key = os.environ.get('YANDEXGPT_API_KEY')
+                    yandex_folder_id = os.environ.get('YANDEXGPT_FOLDER_ID')
+                    
+                    emb_response = requests.post(
+                        'https://llm.api.cloud.yandex.net/foundationModels/v1/textEmbedding',
+                        headers={
+                            'Authorization': f'Api-Key {yandex_api_key}',
+                            'Content-Type': 'application/json'
+                        },
+                        json={
+                            'modelUri': f'emb://{yandex_folder_id}/{embedding_model}/latest',
+                            'text': chunk_text
+                        }
+                    )
+                    emb_data = emb_response.json()
+                    embedding_vector = emb_data['embedding']
+                    embedding_json = json.dumps(embedding_vector)
+                else:
+                    client = OpenAI(api_key=os.environ.get('OPENAI_API_KEY'))
+                    embedding_response = client.embeddings.create(
+                        model=embedding_model,
+                        input=chunk_text
+                    )
+                    embedding_vector = embedding_response.data[0].embedding
+                    embedding_json = json.dumps(embedding_vector)
             except Exception as emb_error:
                 print(f"Embedding error for chunk {idx}: {emb_error}")
                 embedding_json = None
