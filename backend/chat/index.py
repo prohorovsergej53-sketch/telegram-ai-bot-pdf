@@ -127,8 +127,8 @@ def handler(event: dict, context) -> dict:
             query_embedding_json = json.dumps(query_embedding)
 
             cur.execute("""
-                SELECT chunk_text, embedding_text FROM t_p56134400_telegram_ai_bot_pdf.document_chunks 
-                WHERE embedding_text IS NOT NULL
+                SELECT chunk_text, embedding_text FROM t_p56134400_telegram_ai_bot_pdf.tenant_chunks 
+                WHERE tenant_id = 1 AND embedding_text IS NOT NULL
             """)
             all_chunks = cur.fetchall()
 
