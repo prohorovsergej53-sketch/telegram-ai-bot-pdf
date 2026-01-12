@@ -1,0 +1,122 @@
+import json
+import os
+import psycopg2
+from datetime import datetime, timedelta
+
+def handler(event: dict, context) -> dict:
+    """Получение статистики сообщений чата"""
+    method = event.get('httpMethod', 'GET')
+
+    if method == 'OPTIONS':
+        return {
+            'statusCode': 200,
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'GET, OPTIONS',
+                'Access-Control-Allow-Headers': 'Content-Type'
+            },
+            'body': '',
+            'isBase64Encoded': False
+        }
+
+    if method != 'GET':
+        return {
+            'statusCode': 405,
+            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+            'body': json.dumps({'error': 'Method not allowed'}),
+            'isBase64Encoded': False
+        }
+
+    try:
+        conn = psycopg2.connect(os.environ['DATABASE_URL'])
+        cur = conn.cursor()
+
+        cur.execute("""
+            SELECT COUNT(*) 
+            FROM t_p56134400_telegram_ai_bot_pdf.chat_messages 
+            WHERE role = 'user'
+        """)
+        total_messages = cur.fetchone()[0]
+
+        cur.execute("""
+            SELECT COUNT(DISTINCT session_id) 
+            FROM t_p56134400_telegram_ai_bot_pdf.chat_messages
+        """)
+        total_users = cur.fetchone()[0]
+
+        cur.execute("""
+            SELECT COUNT(*) 
+            FROM t_p56134400_telegram_ai_bot_pdf.chat_messages 
+            WHERE role = 'user' 
+            AND created_at >= NOW() - INTERVAL '24 hours'
+        """)
+        messages_today = cur.fetchone()[0]
+
+        cur.execute("""
+            SELECT COUNT(*) 
+            FROM t_p56134400_telegram_ai_bot_pdf.chat_messages 
+            WHERE role = 'user' 
+            AND created_at >= NOW() - INTERVAL '7 days'
+        """)
+        messages_week = cur.fetchone()[0]
+
+        cur.execute("""
+            SELECT content, COUNT(*) as count
+            FROM t_p56134400_telegram_ai_bot_pdf.chat_messages 
+            WHERE role = 'user'
+            GROUP BY content
+            ORDER BY count DESC
+            LIMIT 10
+        """)
+        popular_questions = cur.fetchall()
+        popular_questions_list = [{'question': q[0], 'count': q[1]} for q in popular_questions]
+
+        cur.execute("""
+            SELECT 
+                DATE_TRUNC('day', created_at) as day,
+                COUNT(*) as count
+            FROM t_p56134400_telegram_ai_bot_pdf.chat_messages 
+            WHERE role = 'user' 
+            AND created_at >= NOW() - INTERVAL '30 days'
+            GROUP BY day
+            ORDER BY day DESC
+        """)
+        daily_stats = cur.fetchall()
+        daily_stats_list = [{'date': d[0].strftime('%Y-%m-%d'), 'count': d[1]} for d in daily_stats]
+
+        cur.execute("""
+            SELECT session_id, COUNT(*) as message_count
+            FROM t_p56134400_telegram_ai_bot_pdf.chat_messages
+            WHERE role = 'user'
+            GROUP BY session_id
+            ORDER BY message_count DESC
+            LIMIT 5
+        """)
+        top_users = cur.fetchall()
+        top_users_list = [{'user': u[0], 'messages': u[1]} for u in top_users]
+
+        cur.close()
+        conn.close()
+
+        return {
+            'statusCode': 200,
+            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+            'body': json.dumps({
+                'totalMessages': total_messages,
+                'totalUsers': total_users,
+                'messagesToday': messages_today,
+                'messagesWeek': messages_week,
+                'popularQuestions': popular_questions_list,
+                'dailyStats': daily_stats_list,
+                'topUsers': top_users_list
+            }),
+            'isBase64Encoded': False
+        }
+
+    except Exception as e:
+        return {
+            'statusCode': 500,
+            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+            'body': json.dumps({'error': str(e)}),
+            'isBase64Encoded': False
+        }

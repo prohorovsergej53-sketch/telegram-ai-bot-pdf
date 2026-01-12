@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import AISettingsCard from './AISettingsCard';
 import TelegramSettingsCard from './TelegramSettingsCard';
+import ChatStatsCard from './ChatStatsCard';
 import { Document, BACKEND_URLS } from './types';
 import { useState, useMemo } from 'react';
 
@@ -138,6 +139,8 @@ const AdminView = ({ documents, isLoading, onFileUpload, onDeleteDocument }: Adm
           </CardContent>
         </Card>
       </div>
+
+      <ChatStatsCard />
 
       <Card className="shadow-xl">
         <CardHeader className="border-b bg-gradient-to-r from-slate-50 to-blue-50">
