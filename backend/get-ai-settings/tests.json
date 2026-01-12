@@ -1,0 +1,13 @@
+{
+  "tests": [
+    {
+      "name": "Test get AI settings",
+      "method": "GET",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "chat_provider": "string"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

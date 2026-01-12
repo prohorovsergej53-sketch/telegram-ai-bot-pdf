@@ -85,15 +85,28 @@ def handler(event: dict, context) -> dict:
             if chunk.strip():
                 chunks.append(chunk)
 
-        client = OpenAI(
-            api_key=os.environ.get('DEEPSEEK_API_KEY'),
-            base_url="https://api.deepseek.com"
-        )
+        cur.execute("""
+            SELECT setting_key, setting_value 
+            FROM t_p56134400_telegram_ai_bot_pdf.ai_settings
+        """)
+        settings_rows = cur.fetchall()
+        settings = {row[0]: row[1] for row in settings_rows}
+
+        embedding_provider = settings.get('embedding_provider', 'openai')
+        embedding_model = settings.get('embedding_model', 'text-embedding-3-small')
+
+        if embedding_provider == 'openai':
+            client = OpenAI(api_key=os.environ.get('OPENAI_API_KEY'))
+        else:
+            client = OpenAI(
+                api_key=os.environ.get('DEEPSEEK_API_KEY'),
+                base_url="https://api.deepseek.com"
+            )
 
         for idx, chunk_text in enumerate(chunks):
             try:
                 embedding_response = client.embeddings.create(
-                    model="text-embedding-3-small",
+                    model=embedding_model,
                     input=chunk_text
                 )
                 embedding_vector = embedding_response.data[0].embedding

@@ -1,0 +1,18 @@
+{
+  "tests": [
+    {
+      "name": "Test update AI settings",
+      "method": "POST",
+      "body": {
+        "settings": {
+          "chat_provider": "openai"
+        }
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

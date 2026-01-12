@@ -45,14 +45,29 @@ def handler(event: dict, context) -> dict:
         conn = psycopg2.connect(os.environ['DATABASE_URL'])
         cur = conn.cursor()
 
-        client = OpenAI(
-            api_key=os.environ.get('DEEPSEEK_API_KEY'),
-            base_url="https://api.deepseek.com"
-        )
+        cur.execute("""
+            SELECT setting_key, setting_value 
+            FROM t_p56134400_telegram_ai_bot_pdf.ai_settings
+        """)
+        settings_rows = cur.fetchall()
+        settings = {row[0]: row[1] for row in settings_rows}
+
+        chat_provider = settings.get('chat_provider', 'deepseek')
+        chat_model = settings.get('chat_model', 'deepseek-chat')
+        embedding_provider = settings.get('embedding_provider', 'openai')
+        embedding_model = settings.get('embedding_model', 'text-embedding-3-small')
+
+        if embedding_provider == 'openai':
+            embedding_client = OpenAI(api_key=os.environ.get('OPENAI_API_KEY'))
+        else:
+            embedding_client = OpenAI(
+                api_key=os.environ.get('DEEPSEEK_API_KEY'),
+                base_url="https://api.deepseek.com"
+            )
 
         try:
-            query_embedding_response = client.embeddings.create(
-                model="text-embedding-3-small",
+            query_embedding_response = embedding_client.embeddings.create(
+                model=embedding_model,
                 input=user_message
             )
             query_embedding = query_embedding_response.data[0].embedding
@@ -101,14 +116,22 @@ def handler(event: dict, context) -> dict:
         """, (session_id, 'user', user_message))
         conn.commit()
         
+        if chat_provider == 'openai':
+            chat_client = OpenAI(api_key=os.environ.get('OPENAI_API_KEY'))
+        else:
+            chat_client = OpenAI(
+                api_key=os.environ.get('DEEPSEEK_API_KEY'),
+                base_url="https://api.deepseek.com"
+            )
+
         system_prompt = f"""Ты виртуальный консьерж отеля. Отвечай доброжелательно и профессионально.
 Используй информацию из документов отеля для ответа.
 
 Доступная информация:
 {context if context else 'Документы пока не загружены'}"""
 
-        response = client.chat.completions.create(
-            model="deepseek-chat",
+        response = chat_client.chat.completions.create(
+            model=chat_model,
             messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_message}
