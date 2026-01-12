@@ -1,14 +1,16 @@
 import { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import Icon from '@/components/ui/icon';
+import MasterDashboardStats from './MasterDashboardStats';
+import VersionsList from './VersionsList';
+import BulkUpdatePanel from './BulkUpdatePanel';
+import TenantsListTable from './TenantsListTable';
 
 interface Tenant {
   id: number;
@@ -314,266 +316,27 @@ const MasterAdminView = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                <Icon name="Users" size={20} className="text-primary" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-slate-900">{tenants.length}</p>
-                <p className="text-xs text-slate-600">Всего тенантов</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-                <Icon name="CheckCircle" size={20} className="text-green-600" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-slate-900">
-                  {tenants.filter(t => t.status === 'active').length}
-                </p>
-                <p className="text-xs text-slate-600">Активных</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-                <Icon name="GitBranch" size={20} className="text-purple-600" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-slate-900">{versions.length}</p>
-                <p className="text-xs text-slate-600">Версий</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
-                <Icon name="Zap" size={20} className="text-orange-600" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-slate-900">
-                  {tenants.filter(t => t.auto_update).length}
-                </p>
-                <p className="text-xs text-slate-600">Авто-обновление</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      <MasterDashboardStats tenants={tenants} versionsCount={versions.length} />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Версии мастер-шаблона</CardTitle>
-            <CardDescription>История версий кода</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ScrollArea className="h-[400px]">
-              <div className="space-y-2">
-                {versions.map((version) => (
-                  <div
-                    key={version.version}
-                    className="p-4 border rounded-lg hover:bg-slate-50 transition-colors"
-                  >
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="font-mono font-semibold text-slate-900">{version.version}</span>
-                      <span className="text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded">
-                        {version.tenant_count} тенантов
-                      </span>
-                    </div>
-                    <p className="text-sm text-slate-600 mb-2">{version.description}</p>
-                    <div className="flex items-center gap-3 text-xs text-slate-500">
-                      <span>{new Date(version.created_at).toLocaleDateString('ru-RU')}</span>
-                      <span>•</span>
-                      <span>{version.created_by}</span>
-                      <span>•</span>
-                      <span className="font-mono">{version.code_hash}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </ScrollArea>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle>Массовое обновление</CardTitle>
-                <CardDescription>
-                  {selectedTenants.length > 0
-                    ? `Выбрано: ${selectedTenants.length} тенантов`
-                    : 'Обновить всех с авто-обновлением'}
-                </CardDescription>
-              </div>
-              <Dialog open={showBulkUpdateDialog} onOpenChange={setShowBulkUpdateDialog}>
-                <DialogTrigger asChild>
-                  <Button size="sm">
-                    <Icon name="RefreshCw" size={16} className="mr-2" />
-                    Обновить
-                  </Button>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>Массовое обновление тенантов</DialogTitle>
-                    <DialogDescription>
-                      {selectedTenants.length > 0
-                        ? `Будут обновлены ${selectedTenants.length} выбранных тенантов`
-                        : 'Будут обновлены все тенанты с включенным авто-обновлением'}
-                    </DialogDescription>
-                  </DialogHeader>
-                  <div className="space-y-4">
-                    <div>
-                      <Label>Целевая версия</Label>
-                      <select
-                        className="w-full mt-2 px-3 py-2 border rounded-lg"
-                        value={bulkUpdateTarget}
-                        onChange={(e) => setBulkUpdateTarget(e.target.value)}
-                      >
-                        <option value="">Выберите версию</option>
-                        {versions.map((v) => (
-                          <option key={v.version} value={v.version}>
-                            {v.version} - {v.description}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                    <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
-                      <p className="text-sm text-amber-800">
-                        <Icon name="AlertTriangle" size={16} className="inline mr-1" />
-                        Обновится только код, настройки тенантов не изменятся
-                      </p>
-                    </div>
-                    <Button onClick={handleBulkUpdate} disabled={isLoading} className="w-full">
-                      {isLoading ? 'Обновление...' : 'Подтвердить обновление'}
-                    </Button>
-                  </div>
-                </DialogContent>
-              </Dialog>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="flex gap-2 mb-4">
-              <Button size="sm" variant="outline" onClick={selectAll}>
-                Выбрать всех
-              </Button>
-              <Button size="sm" variant="outline" onClick={deselectAll}>
-                Сбросить
-              </Button>
-            </div>
-            <ScrollArea className="h-[340px]">
-              <div className="space-y-2">
-                {tenants.map((tenant) => (
-                  <div
-                    key={tenant.id}
-                    className={`p-3 border rounded-lg cursor-pointer transition-colors ${
-                      selectedTenants.includes(tenant.id)
-                        ? 'bg-blue-50 border-blue-300'
-                        : 'hover:bg-slate-50'
-                    }`}
-                    onClick={() => toggleTenantSelection(tenant.id)}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <input
-                          type="checkbox"
-                          checked={selectedTenants.includes(tenant.id)}
-                          onChange={() => {}}
-                          className="w-4 h-4"
-                        />
-                        <div>
-                          <p className="font-medium text-slate-900">{tenant.name}</p>
-                          <p className="text-xs text-slate-500">{tenant.slug}</p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        {tenant.auto_update && (
-                          <Icon name="Zap" size={14} className="text-orange-500" title="Авто-обновление" />
-                        )}
-                        <span className="text-xs font-mono text-slate-600">{tenant.template_version}</span>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </ScrollArea>
-          </CardContent>
-        </Card>
+        <VersionsList versions={versions} />
+        <BulkUpdatePanel
+          tenants={tenants}
+          versions={versions}
+          selectedTenants={selectedTenants}
+          bulkUpdateTarget={bulkUpdateTarget}
+          isLoading={isLoading}
+          showBulkUpdateDialog={showBulkUpdateDialog}
+          onToggleSelection={toggleTenantSelection}
+          onSelectAll={selectAll}
+          onDeselectAll={deselectAll}
+          onSetBulkUpdateTarget={setBulkUpdateTarget}
+          onBulkUpdate={handleBulkUpdate}
+          onSetShowDialog={setShowBulkUpdateDialog}
+        />
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Список тенантов</CardTitle>
-          <CardDescription>Все созданные пары админка+чат</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <ScrollArea className="h-[400px]">
-            <div className="space-y-2">
-              {tenants.map((tenant) => (
-                <div key={tenant.id} className="p-4 border rounded-lg hover:bg-slate-50 transition-colors">
-                  <div className="flex items-center justify-between mb-2">
-                    <div>
-                      <h4 className="font-semibold text-slate-900">{tenant.name}</h4>
-                      <p className="text-sm text-slate-600">/{tenant.slug}</p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className={`text-xs px-2 py-1 rounded ${
-                        tenant.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-700'
-                      }`}>
-                        {tenant.status}
-                      </span>
-                      <span className="text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded font-mono">
-                        {tenant.template_version}
-                      </span>
-                    </div>
-                  </div>
-                  {tenant.description && (
-                    <p className="text-sm text-slate-600 mb-2">{tenant.description}</p>
-                  )}
-                  <div className="flex items-center gap-4 text-xs text-slate-500">
-                    <span className="flex items-center gap-1">
-                      <Icon name="FileText" size={12} />
-                      {tenant.doc_count} документов
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <Icon name="MessageCircle" size={12} />
-                      {tenant.message_count} сообщений
-                    </span>
-                    {tenant.owner_email && (
-                      <span className="flex items-center gap-1">
-                        <Icon name="Mail" size={12} />
-                        {tenant.owner_email}
-                      </span>
-                    )}
-                    {tenant.auto_update && (
-                      <span className="flex items-center gap-1 text-orange-600">
-                        <Icon name="Zap" size={12} />
-                        Авто-обновление
-                      </span>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </ScrollArea>
-        </CardContent>
-      </Card>
+      <TenantsListTable tenants={tenants} />
     </div>
   );
 };
