@@ -87,7 +87,7 @@ const WidgetSettingsCard = () => {
   };
 
   const generateWidgetCode = () => {
-    const chatUrl = settings.chat_url || window.location.origin;
+    const chatUrl = settings.chat_url || 'https://p56134400.poehali.dev';
     
     return `<!-- AI Bot Widget - Вставьте этот код перед закрывающим тегом </body> -->
 <script>
@@ -343,14 +343,14 @@ const WidgetSettingsCard = () => {
               <h3 className="font-semibold text-sm">Дополнительно</h3>
 
               <div className="space-y-2">
-                <Label>URL чата (оставьте пустым для автоопределения)</Label>
+                <Label>URL чата</Label>
                 <Input
                   value={settings.chat_url || ''}
                   onChange={(e) => setSettings({ ...settings, chat_url: e.target.value || null })}
-                  placeholder="https://yourdomain.com"
+                  placeholder="https://p56134400.poehali.dev"
                 />
                 <p className="text-xs text-slate-500">
-                  Укажите URL вашего сайта с чатом. По умолчанию используется текущий домен.
+                  Укажите URL вашего сайта с чатом. Если пусто — используется p56134400.poehali.dev (текущий проект).
                 </p>
               </div>
 
