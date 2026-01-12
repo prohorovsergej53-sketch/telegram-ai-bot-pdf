@@ -58,23 +58,27 @@ def handler(event: dict, context) -> dict:
         conn = psycopg2.connect(os.environ['DATABASE_URL'])
         cur = conn.cursor()
 
+        # Получаем ai_settings из JSONB для tenant_id=1
         cur.execute("""
-            SELECT model, temperature, top_p, frequency_penalty, 
-                   presence_penalty, max_tokens, system_priority, creative_mode
-            FROM t_p56134400_telegram_ai_bot_pdf.ai_model_settings
-            LIMIT 1
+            SELECT ai_settings
+            FROM t_p56134400_telegram_ai_bot_pdf.tenant_settings
+            WHERE tenant_id = 1
         """)
-        model_row = cur.fetchone()
+        settings_row = cur.fetchone()
         
-        if model_row:
-            ai_model = model_row[0]
-            ai_temperature = float(model_row[1])
-            ai_top_p = float(model_row[2])
-            ai_frequency_penalty = float(model_row[3])
-            ai_presence_penalty = float(model_row[4])
-            ai_max_tokens = int(model_row[5])
-            ai_system_priority = model_row[6]
-            ai_creative_mode = model_row[7]
+        if settings_row and settings_row[0]:
+            settings = settings_row[0]
+            ai_model = settings.get('model', 'yandexgpt')
+            ai_temperature = float(settings.get('temperature', 0.15))
+            ai_top_p = float(settings.get('top_p', 1.0))
+            ai_frequency_penalty = float(settings.get('frequency_penalty', 0))
+            ai_presence_penalty = float(settings.get('presence_penalty', 0))
+            ai_max_tokens = int(settings.get('max_tokens', 600))
+            ai_system_priority = settings.get('system_priority', 'strict')
+            ai_creative_mode = settings.get('creative_mode', 'off')
+            embedding_provider = settings.get('embedding_provider', 'openai')
+            embedding_model = settings.get('embedding_model', 'text-embedding-3-small')
+            system_prompt_template = settings.get('system_prompt', 'Вы - вежливый и профессиональный консьерж отеля. Отвечайте на вопросы гостей, используя только информацию из базы знаний.')
         else:
             ai_model = 'yandexgpt'
             ai_temperature = 0.15
@@ -84,18 +88,11 @@ def handler(event: dict, context) -> dict:
             ai_max_tokens = 600
             ai_system_priority = 'strict'
             ai_creative_mode = 'off'
-
-        cur.execute("""
-            SELECT setting_key, setting_value 
-            FROM t_p56134400_telegram_ai_bot_pdf.ai_settings
-        """)
-        settings_rows = cur.fetchall()
-        settings = {row[0]: row[1] for row in settings_rows}
+            embedding_provider = 'openai'
+            embedding_model = 'text-embedding-3-small'
+            system_prompt_template = 'Вы - вежливый и профессиональный консьерж отеля. Отвечайте на вопросы гостей, используя только информацию из базы знаний.'
 
         chat_provider = ai_model
-        embedding_provider = settings.get('embedding_provider', 'openai')
-        embedding_model = settings.get('embedding_model', 'text-embedding-3-small')
-        system_prompt_template = settings.get('system_prompt', 'Вы - вежливый и профессиональный консьерж отеля. Отвечайте на вопросы гостей, используя только информацию из базы знаний.')
 
         try:
             if embedding_provider == 'yandexgpt':

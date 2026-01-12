@@ -30,24 +30,26 @@ def handler(event: dict, context) -> dict:
         conn = psycopg2.connect(os.environ['DATABASE_URL'])
         cur = conn.cursor()
 
+        # Получаем ai_settings из JSONB для tenant_id=1
         cur.execute("""
-            SELECT model, temperature, top_p, frequency_penalty, 
-                   presence_penalty, max_tokens, system_priority, creative_mode
-            FROM t_p56134400_telegram_ai_bot_pdf.ai_model_settings
-            LIMIT 1
+            SELECT ai_settings
+            FROM t_p56134400_telegram_ai_bot_pdf.tenant_settings
+            WHERE tenant_id = 1
         """)
         
         row = cur.fetchone()
-        if row:
+        if row and row[0]:
+            settings_raw = row[0]
+            # Преобразуем строковые значения в числа где нужно
             settings = {
-                'model': row[0],
-                'temperature': float(row[1]),
-                'top_p': float(row[2]),
-                'frequency_penalty': float(row[3]),
-                'presence_penalty': float(row[4]),
-                'max_tokens': int(row[5]),
-                'system_priority': row[6],
-                'creative_mode': row[7]
+                'model': settings_raw.get('model', 'yandexgpt'),
+                'temperature': float(settings_raw.get('temperature', 0.15)),
+                'top_p': float(settings_raw.get('top_p', 1.0)),
+                'frequency_penalty': float(settings_raw.get('frequency_penalty', 0)),
+                'presence_penalty': float(settings_raw.get('presence_penalty', 0)),
+                'max_tokens': int(settings_raw.get('max_tokens', 600)),
+                'system_priority': settings_raw.get('system_priority', 'strict'),
+                'creative_mode': settings_raw.get('creative_mode', 'off')
             }
         else:
             settings = {

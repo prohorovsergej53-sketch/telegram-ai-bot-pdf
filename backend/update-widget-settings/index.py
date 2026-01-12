@@ -31,40 +31,33 @@ def handler(event: dict, context) -> dict:
     conn = psycopg2.connect(dsn)
     cur = conn.cursor()
     
+    # Формируем JSONB объект с настройками виджета
+    widget_settings = {
+        'button_color': data.get('button_color', '#3b82f6'),
+        'button_color_end': data.get('button_color_end', '#1d4ed8'),
+        'button_size': data.get('button_size', 60),
+        'button_position': data.get('button_position', 'bottom-right'),
+        'button_icon': data.get('button_icon', 'MessageCircle'),
+        'window_width': data.get('window_width', 380),
+        'window_height': data.get('window_height', 600),
+        'header_title': data.get('header_title', 'AI Ассистент'),
+        'header_color': data.get('header_color', '#3b82f6'),
+        'header_color_end': data.get('header_color_end', '#1d4ed8'),
+        'border_radius': data.get('border_radius', 16),
+        'show_branding': data.get('show_branding', True),
+        'custom_css': data.get('custom_css'),
+        'chat_url': data.get('chat_url')
+    }
+    
+    widget_settings_json = json.dumps(widget_settings)
+    
+    # Обновляем widget_settings в JSONB для tenant_id=1
     cur.execute("""
-        UPDATE t_p56134400_telegram_ai_bot_pdf.widget_settings
-        SET button_color = %s,
-            button_color_end = %s,
-            button_size = %s,
-            button_position = %s,
-            button_icon = %s,
-            window_width = %s,
-            window_height = %s,
-            header_title = %s,
-            header_color = %s,
-            header_color_end = %s,
-            border_radius = %s,
-            show_branding = %s,
-            custom_css = %s,
-            chat_url = %s,
-            updated_at = NOW()
-        WHERE id = 1
-    """, (
-        data.get('button_color', '#3b82f6'),
-        data.get('button_color_end', '#1d4ed8'),
-        data.get('button_size', 60),
-        data.get('button_position', 'bottom-right'),
-        data.get('button_icon', 'MessageCircle'),
-        data.get('window_width', 380),
-        data.get('window_height', 600),
-        data.get('header_title', 'AI Ассистент'),
-        data.get('header_color', '#3b82f6'),
-        data.get('header_color_end', '#1d4ed8'),
-        data.get('border_radius', 16),
-        data.get('show_branding', True),
-        data.get('custom_css'),
-        data.get('chat_url')
-    ))
+        UPDATE t_p56134400_telegram_ai_bot_pdf.tenant_settings
+        SET widget_settings = %s::jsonb,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE tenant_id = 1
+    """, (widget_settings_json,))
     
     conn.commit()
     cur.close()

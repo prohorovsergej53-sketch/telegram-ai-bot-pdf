@@ -35,14 +35,16 @@ def handler(event: dict, context) -> dict:
         conn = psycopg2.connect(os.environ['DATABASE_URL'])
         cur = conn.cursor()
 
-        for key, value in settings.items():
-            cur.execute("""
-                INSERT INTO t_p56134400_telegram_ai_bot_pdf.page_settings (setting_key, setting_value, updated_at)
-                VALUES (%s, %s, %s)
-                ON CONFLICT (setting_key) 
-                DO UPDATE SET setting_value = EXCLUDED.setting_value, updated_at = EXCLUDED.updated_at
-            """, (key, value, datetime.now()))
+        # Обновляем page_settings в JSONB для tenant_id=1
+        settings_json = json.dumps(settings)
+        cur.execute("""
+            UPDATE t_p56134400_telegram_ai_bot_pdf.tenant_settings
+            SET page_settings = %s::jsonb,
+                updated_at = CURRENT_TIMESTAMP
+            WHERE tenant_id = 1
+        """, (settings_json,))
 
+        # Обновляем quick_questions (пока оставляем в отдельной таблице)
         cur.execute("DELETE FROM t_p56134400_telegram_ai_bot_pdf.quick_questions")
         
         for idx, q in enumerate(quick_questions):

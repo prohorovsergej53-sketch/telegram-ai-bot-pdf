@@ -22,35 +22,19 @@ def handler(event: dict, context) -> dict:
     conn = psycopg2.connect(dsn)
     cur = conn.cursor()
     
+    # Получаем widget_settings из JSONB для tenant_id=1
     cur.execute("""
-        SELECT button_color, button_color_end, button_size, button_position, button_icon,
-               window_width, window_height, header_title, header_color, 
-               header_color_end, border_radius, show_branding, custom_css, chat_url
-        FROM t_p56134400_telegram_ai_bot_pdf.widget_settings
-        WHERE id = 1
+        SELECT widget_settings
+        FROM t_p56134400_telegram_ai_bot_pdf.tenant_settings
+        WHERE tenant_id = 1
     """)
     
     result = cur.fetchone()
     cur.close()
     conn.close()
     
-    if result:
-        settings = {
-            'button_color': result[0],
-            'button_color_end': result[1],
-            'button_size': result[2],
-            'button_position': result[3],
-            'button_icon': result[4],
-            'window_width': result[5],
-            'window_height': result[6],
-            'header_title': result[7],
-            'header_color': result[8],
-            'header_color_end': result[9],
-            'border_radius': result[10],
-            'show_branding': result[11],
-            'custom_css': result[12],
-            'chat_url': result[13]
-        }
+    if result and result[0]:
+        settings = result[0]
     else:
         settings = {
             'button_color': '#3b82f6',

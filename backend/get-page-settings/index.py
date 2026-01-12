@@ -30,12 +30,14 @@ def handler(event: dict, context) -> dict:
         conn = psycopg2.connect(os.environ['DATABASE_URL'])
         cur = conn.cursor()
 
+        # Получаем page_settings из JSONB для tenant_id=1
         cur.execute("""
-            SELECT setting_key, setting_value 
-            FROM t_p56134400_telegram_ai_bot_pdf.page_settings
+            SELECT page_settings 
+            FROM t_p56134400_telegram_ai_bot_pdf.tenant_settings
+            WHERE tenant_id = 1
         """)
-        rows = cur.fetchall()
-        settings = {row[0]: row[1] for row in rows}
+        row = cur.fetchone()
+        settings = row[0] if row and row[0] else {}
 
         cur.execute("""
             SELECT id, text, question, icon, sort_order

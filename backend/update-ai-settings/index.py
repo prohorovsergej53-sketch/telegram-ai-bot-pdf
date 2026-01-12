@@ -42,42 +42,32 @@ def handler(event: dict, context) -> dict:
         conn = psycopg2.connect(os.environ['DATABASE_URL'])
         cur = conn.cursor()
 
+        # Формируем JSONB объект с AI настройками
+        ai_settings = {
+            'model': settings.get('model', 'yandexgpt'),
+            'temperature': str(settings.get('temperature', 0.15)),
+            'top_p': str(settings.get('top_p', 1.0)),
+            'frequency_penalty': str(settings.get('frequency_penalty', 0)),
+            'presence_penalty': str(settings.get('presence_penalty', 0)),
+            'max_tokens': settings.get('max_tokens', 600),
+            'system_priority': settings.get('system_priority', 'strict'),
+            'creative_mode': settings.get('creative_mode', 'off')
+        }
+        
+        # Добавляем дополнительные настройки если они есть
+        for key in ['chat_provider', 'chat_model', 'embedding_provider', 'embedding_model', 'system_prompt']:
+            if key in settings:
+                ai_settings[key] = settings[key]
+        
+        ai_settings_json = json.dumps(ai_settings)
+
+        # Обновляем ai_settings в JSONB для tenant_id=1
         cur.execute("""
-            INSERT INTO t_p56134400_telegram_ai_bot_pdf.ai_model_settings 
-            (model, temperature, top_p, frequency_penalty, presence_penalty, 
-             max_tokens, system_priority, creative_mode, updated_at)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
-            ON CONFLICT (id) 
-            DO UPDATE SET 
-                model = %s,
-                temperature = %s,
-                top_p = %s,
-                frequency_penalty = %s,
-                presence_penalty = %s,
-                max_tokens = %s,
-                system_priority = %s,
-                creative_mode = %s,
-                updated_at = %s
-        """, (
-            settings.get('model', 'yandexgpt'),
-            settings.get('temperature', 0.15),
-            settings.get('top_p', 1.0),
-            settings.get('frequency_penalty', 0),
-            settings.get('presence_penalty', 0),
-            settings.get('max_tokens', 600),
-            settings.get('system_priority', 'strict'),
-            settings.get('creative_mode', 'off'),
-            datetime.now(),
-            settings.get('model', 'yandexgpt'),
-            settings.get('temperature', 0.15),
-            settings.get('top_p', 1.0),
-            settings.get('frequency_penalty', 0),
-            settings.get('presence_penalty', 0),
-            settings.get('max_tokens', 600),
-            settings.get('system_priority', 'strict'),
-            settings.get('creative_mode', 'off'),
-            datetime.now()
-        ))
+            UPDATE t_p56134400_telegram_ai_bot_pdf.tenant_settings
+            SET ai_settings = %s::jsonb,
+                updated_at = CURRENT_TIMESTAMP
+            WHERE tenant_id = 1
+        """, (ai_settings_json,))
 
         conn.commit()
         cur.close()
