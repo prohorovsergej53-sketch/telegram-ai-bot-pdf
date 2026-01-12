@@ -13,7 +13,7 @@ const LandingPage = () => {
       <div className="container mx-auto px-4 py-20">
         <div className="text-center max-w-4xl mx-auto">
           <h1 className="text-5xl md:text-6xl font-bold text-slate-900 mb-6">
-            AI-консьерж для вашего бизнеса
+            AI-консультант для вашего бизнеса
           </h1>
           <p className="text-xl text-slate-600 mb-8">
             Умный чат-бот, который знает всё о вашей компании и отвечает на вопросы клиентов 24/7
@@ -32,7 +32,7 @@ const LandingPage = () => {
       {/* Features Section */}
       <div className="container mx-auto px-4 py-16">
         <h2 className="text-3xl font-bold text-center text-slate-900 mb-12">
-          Почему AI-консьерж?
+          Почему AI-консультант?
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <Card className="hover:shadow-xl transition-shadow">
@@ -246,7 +246,7 @@ const LandingPage = () => {
           <Card className="shadow-2xl">
             <CardContent className="pt-8">
               <h2 className="text-3xl font-bold text-slate-900 mb-2 text-center">
-                Заказать AI-консьержа
+                Заказать AI-консультанта
               </h2>
               <p className="text-slate-600 mb-8 text-center">
                 Оставьте заявку и мы свяжемся с вами в течение часа
@@ -358,7 +358,7 @@ const LandingPage = () => {
           </div>
 
           <div className="border-t border-slate-800 pt-8 text-center text-slate-400">
-            <p>© 2026 AI-консьерж. Все права защищены.</p>
+            <p>© 2026 AI-консультант. Все права защищены.</p>
           </div>
         </div>
       </div>
