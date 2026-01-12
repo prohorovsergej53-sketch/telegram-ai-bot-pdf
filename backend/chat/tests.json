@@ -1,0 +1,18 @@
+{
+  "tests": [
+    {
+      "name": "Test chat message",
+      "method": "POST",
+      "body": {
+        "message": "Привет",
+        "sessionId": "test-session"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "message": "string",
+        "sessionId": "string"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

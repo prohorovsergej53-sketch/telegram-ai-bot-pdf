@@ -1,10 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import Icon from '@/components/ui/icon';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useToast } from '@/hooks/use-toast';
 
 interface Message {
   id: string;
@@ -13,21 +13,57 @@ interface Message {
   timestamp: string;
 }
 
+interface Document {
+  id: number;
+  name: string;
+  size: string;
+  pages: number;
+  category: string;
+  status: string;
+  uploadedAt: string;
+}
+
+const BACKEND_URLS = {
+  chat: 'https://functions.poehali.dev/7b58f4fb-5db0-4f85-bb3b-55bafa4cbf73',
+  uploadPdf: 'https://functions.poehali.dev/1ecfd90c-5cef-40a0-af5b-3ba36d6c50c9',
+  processPdf: 'https://functions.poehali.dev/44b9c312-5377-4fa7-8b4c-522f4bbbf201',
+  getDocuments: 'https://functions.poehali.dev/7588840b-ea6f-4e3e-9f16-ae0ace5a59c6'
+};
+
 const Index = () => {
   const [view, setView] = useState<'guest' | 'admin'>('guest');
   const [messages, setMessages] = useState<Message[]>([
     { 
       id: '1', 
       role: 'assistant', 
-      content: 'Здравствуйте! Я виртуальный консьерж отеля. Чем могу помочь? Могу рассказать о номерах, услугах, ресторанах и инфраструктуре.', 
-      timestamp: '10:23' 
+      content: 'Здравствуйте! Я виртуальный консьерж отеля. Чем могу помочь?', 
+      timestamp: new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })
     }
   ]);
-
   const [inputMessage, setInputMessage] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [documents, setDocuments] = useState<Document[]>([]);
+  const [sessionId] = useState(() => `session-${Date.now()}`);
+  const { toast } = useToast();
 
-  const handleSendMessage = () => {
-    if (!inputMessage.trim()) return;
+  useEffect(() => {
+    if (view === 'admin') {
+      loadDocuments();
+    }
+  }, [view]);
+
+  const loadDocuments = async () => {
+    try {
+      const response = await fetch(BACKEND_URLS.getDocuments);
+      const data = await response.json();
+      setDocuments(data.documents || []);
+    } catch (error) {
+      console.error('Error loading documents:', error);
+    }
+  };
+
+  const handleSendMessage = async () => {
+    if (!inputMessage.trim() || isLoading) return;
 
     const newMessage: Message = {
       id: Date.now().toString(),
@@ -38,22 +74,112 @@ const Index = () => {
 
     setMessages([...messages, newMessage]);
     setInputMessage('');
+    setIsLoading(true);
 
-    setTimeout(() => {
-      const responses = [
-        'В отеле доступны номера категорий Standard, Deluxe и Suite. Все номера оборудованы кондиционером, мини-баром и Wi-Fi.',
-        'Завтрак подается в ресторане на 1 этаже с 7:00 до 11:00. Шведский стол включает горячие блюда, выпечку и фрукты.',
-        'SPA-центр работает с 9:00 до 22:00. Доступны массаж, сауна, хаммам и бассейн. Запись по телефону ресепшн.',
-        'Парковка бесплатная для гостей отеля, расположена на подземном уровне. Въезд с западной стороны здания.'
-      ];
-      const response: Message = {
-        id: (Date.now() + 1).toString(),
-        role: 'assistant',
-        content: responses[Math.floor(Math.random() * responses.length)],
-        timestamp: new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })
+    try {
+      const response = await fetch(BACKEND_URLS.chat, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          message: inputMessage,
+          sessionId 
+        })
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        const assistantMessage: Message = {
+          id: (Date.now() + 1).toString(),
+          role: 'assistant',
+          content: data.message,
+          timestamp: new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })
+        };
+        setMessages(prev => [...prev, assistantMessage]);
+      } else {
+        toast({
+          title: 'Ошибка',
+          description: data.error || 'Не удалось получить ответ',
+          variant: 'destructive'
+        });
+      }
+    } catch (error) {
+      toast({
+        title: 'Ошибка',
+        description: 'Ошибка сети',
+        variant: 'destructive'
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file || !file.name.endsWith('.pdf')) {
+      toast({
+        title: 'Ошибка',
+        description: 'Выберите PDF файл',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    setIsLoading(true);
+    toast({ title: 'Загрузка...', description: 'Отправляем файл' });
+
+    try {
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        const base64 = e.target?.result as string;
+        const base64Data = base64.split(',')[1];
+
+        const uploadResponse = await fetch(BACKEND_URLS.uploadPdf, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            fileName: file.name,
+            fileData: base64Data,
+            category: 'Общая'
+          })
+        });
+
+        const uploadData = await uploadResponse.json();
+
+        if (!uploadResponse.ok) {
+          throw new Error(uploadData.error);
+        }
+
+        toast({ title: 'Обработка...', description: 'Извлекаем текст из PDF' });
+
+        const processResponse = await fetch(BACKEND_URLS.processPdf, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ documentId: uploadData.documentId })
+        });
+
+        const processData = await processResponse.json();
+
+        if (processResponse.ok) {
+          toast({
+            title: 'Успешно!',
+            description: `Загружено ${processData.pages} страниц`
+          });
+          loadDocuments();
+        } else {
+          throw new Error(processData.error);
+        }
       };
-      setMessages(prev => [...prev, response]);
-    }, 1200);
+      reader.readAsDataURL(file);
+    } catch (error: any) {
+      toast({
+        title: 'Ошибка',
+        description: error.message || 'Не удалось загрузить файл',
+        variant: 'destructive'
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const quickQuestions = [
@@ -108,7 +234,6 @@ const Index = () => {
                         <div
                           key={msg.id}
                           className={`flex gap-3 animate-fade-in ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}
-                          style={{ animationDelay: `${idx * 0.1}s` }}
                         >
                           <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
                             msg.role === 'assistant' ? 'bg-primary' : 'bg-slate-300'
@@ -131,6 +256,16 @@ const Index = () => {
                           </div>
                         </div>
                       ))}
+                      {isLoading && (
+                        <div className="flex gap-3">
+                          <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
+                            <Icon name="Loader2" size={16} className="text-white animate-spin" />
+                          </div>
+                          <div className="bg-slate-100 px-4 py-3 rounded-2xl">
+                            <p className="text-sm text-slate-600">Думаю...</p>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </ScrollArea>
                   <div className="p-4 border-t bg-slate-50/50">
@@ -139,10 +274,11 @@ const Index = () => {
                         placeholder="Задайте вопрос..."
                         value={inputMessage}
                         onChange={(e) => setInputMessage(e.target.value)}
-                        onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+                        onKeyPress={(e) => e.key === 'Enter' && !isLoading && handleSendMessage()}
+                        disabled={isLoading}
                         className="flex-1 bg-white"
                       />
-                      <Button onClick={handleSendMessage} size="icon" className="flex-shrink-0">
+                      <Button onClick={handleSendMessage} size="icon" disabled={isLoading}>
                         <Icon name="Send" size={18} />
                       </Button>
                     </div>
@@ -170,6 +306,7 @@ const Index = () => {
                           setInputMessage(q.question);
                           setTimeout(() => handleSendMessage(), 100);
                         }}
+                        disabled={isLoading}
                       >
                         <Icon name={q.icon as any} size={20} className="text-primary" />
                         <span className="text-xs font-medium text-center">{q.text}</span>
@@ -228,7 +365,7 @@ const Index = () => {
                       <Icon name="FileText" size={20} className="text-primary" />
                     </div>
                     <div>
-                      <p className="text-2xl font-bold text-slate-900">5</p>
+                      <p className="text-2xl font-bold text-slate-900">{documents.length}</p>
                       <p className="text-xs text-slate-600">Документов</p>
                     </div>
                   </div>
@@ -239,11 +376,13 @@ const Index = () => {
                 <CardContent className="pt-6">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-                      <Icon name="Users" size={20} className="text-green-600" />
+                      <Icon name="BookOpen" size={20} className="text-green-600" />
                     </div>
                     <div>
-                      <p className="text-2xl font-bold text-slate-900">342</p>
-                      <p className="text-xs text-slate-600">Запросов гостей</p>
+                      <p className="text-2xl font-bold text-slate-900">
+                        {documents.reduce((sum, doc) => sum + (doc.pages || 0), 0)}
+                      </p>
+                      <p className="text-xs text-slate-600">Страниц</p>
                     </div>
                   </div>
                 </CardContent>
@@ -253,11 +392,13 @@ const Index = () => {
                 <CardContent className="pt-6">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-                      <Icon name="TrendingUp" size={20} className="text-purple-600" />
+                      <Icon name="CheckCircle" size={20} className="text-purple-600" />
                     </div>
                     <div>
-                      <p className="text-2xl font-bold text-slate-900">94%</p>
-                      <p className="text-xs text-slate-600">Точность</p>
+                      <p className="text-2xl font-bold text-slate-900">
+                        {documents.filter(d => d.status === 'ready').length}
+                      </p>
+                      <p className="text-xs text-slate-600">Готовы</p>
                     </div>
                   </div>
                 </CardContent>
@@ -267,11 +408,13 @@ const Index = () => {
                 <CardContent className="pt-6">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
-                      <Icon name="Zap" size={20} className="text-orange-600" />
+                      <Icon name="Loader2" size={20} className="text-orange-600" />
                     </div>
                     <div>
-                      <p className="text-2xl font-bold text-slate-900">1.8с</p>
-                      <p className="text-xs text-slate-600">Ср. ответ</p>
+                      <p className="text-2xl font-bold text-slate-900">
+                        {documents.filter(d => d.status === 'processing').length}
+                      </p>
+                      <p className="text-xs text-slate-600">Обработка</p>
                     </div>
                   </div>
                 </CardContent>
@@ -288,13 +431,25 @@ const Index = () => {
                   <CardDescription>Добавьте PDF с информацией об отеле</CardDescription>
                 </CardHeader>
                 <CardContent className="pt-6">
-                  <div className="border-2 border-dashed border-slate-300 rounded-xl p-12 text-center hover:border-primary hover:bg-blue-50/50 transition-all cursor-pointer group">
-                    <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
-                      <Icon name="Upload" size={24} className="text-primary" />
+                  <label htmlFor="file-upload" className="cursor-pointer">
+                    <div className="border-2 border-dashed border-slate-300 rounded-xl p-12 text-center hover:border-primary hover:bg-blue-50/50 transition-all group">
+                      <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                        <Icon name={isLoading ? 'Loader2' : 'Upload'} size={24} className={`text-primary ${isLoading ? 'animate-spin' : ''}`} />
+                      </div>
+                      <p className="font-medium text-slate-900 mb-1">
+                        {isLoading ? 'Загрузка...' : 'Выберите PDF файл'}
+                      </p>
+                      <p className="text-sm text-slate-600">или перетащите сюда</p>
                     </div>
-                    <p className="font-medium text-slate-900 mb-1">Выберите PDF файл</p>
-                    <p className="text-sm text-slate-600">или перетащите сюда</p>
-                  </div>
+                  </label>
+                  <input
+                    id="file-upload"
+                    type="file"
+                    accept=".pdf"
+                    className="hidden"
+                    onChange={handleFileUpload}
+                    disabled={isLoading}
+                  />
                 </CardContent>
               </Card>
 
@@ -304,41 +459,44 @@ const Index = () => {
                     <Icon name="Library" size={20} />
                     База знаний
                   </CardTitle>
-                  <CardDescription>Документы отеля</CardDescription>
+                  <CardDescription>{documents.length} документов</CardDescription>
                 </CardHeader>
                 <CardContent className="p-0">
                   <ScrollArea className="h-[320px]">
-                    <div className="p-4 space-y-2">
-                      {[
-                        { name: 'Описание номеров.pdf', size: '3.2 MB', category: 'Номера' },
-                        { name: 'Меню ресторана.pdf', size: '1.5 MB', category: 'Питание' },
-                        { name: 'SPA услуги.pdf', size: '2.1 MB', category: 'Услуги' },
-                        { name: 'Правила отеля.pdf', size: '0.8 MB', category: 'Правила' },
-                        { name: 'Инфраструктура.pdf', size: '4.3 MB', category: 'Общая' },
-                      ].map((doc, idx) => (
-                        <div
-                          key={idx}
-                          className="p-3 rounded-lg border border-slate-200 hover:border-slate-300 hover:shadow-md transition-all animate-fade-in"
-                          style={{ animationDelay: `${idx * 0.05}s` }}
-                        >
-                          <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                              <Icon name="FileText" size={18} className="text-primary" />
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <p className="font-medium text-sm text-slate-900 truncate">{doc.name}</p>
-                              <div className="flex items-center gap-2 mt-1">
-                                <span className="text-xs px-2 py-0.5 bg-slate-100 rounded text-slate-700">{doc.category}</span>
-                                <span className="text-xs text-slate-600">{doc.size}</span>
+                    {documents.length === 0 ? (
+                      <div className="p-8 text-center text-slate-500">
+                        <Icon name="FileText" size={48} className="mx-auto mb-3 opacity-30" />
+                        <p>Документы ещё не загружены</p>
+                      </div>
+                    ) : (
+                      <div className="p-4 space-y-2">
+                        {documents.map((doc, idx) => (
+                          <div
+                            key={doc.id}
+                            className="p-3 rounded-lg border border-slate-200 hover:border-slate-300 hover:shadow-md transition-all"
+                          >
+                            <div className="flex items-center gap-3">
+                              <div className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 ${
+                                doc.status === 'ready' ? 'bg-blue-100' : 'bg-orange-100'
+                              }`}>
+                                <Icon name={doc.status === 'ready' ? 'FileText' : 'Loader2'} 
+                                  size={18} 
+                                  className={`${doc.status === 'ready' ? 'text-primary' : 'text-orange-600 animate-spin'}`} 
+                                />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="font-medium text-sm text-slate-900 truncate">{doc.name}</p>
+                                <div className="flex items-center gap-2 mt-1">
+                                  <span className="text-xs px-2 py-0.5 bg-slate-100 rounded text-slate-700">{doc.category}</span>
+                                  {doc.pages > 0 && <span className="text-xs text-slate-600">{doc.pages} стр.</span>}
+                                  <span className="text-xs text-slate-600">{doc.size}</span>
+                                </div>
                               </div>
                             </div>
-                            <Button variant="ghost" size="icon" className="flex-shrink-0">
-                              <Icon name="Trash2" size={16} className="text-slate-400" />
-                            </Button>
                           </div>
-                        </div>
-                      ))}
-                    </div>
+                        ))}
+                      </div>
+                    )}
                   </ScrollArea>
                 </CardContent>
               </Card>
