@@ -25,7 +25,7 @@ def handler(event: dict, context) -> dict:
     cur.execute("""
         SELECT button_color, button_color_end, button_size, button_position,
                window_width, window_height, header_title, header_color, 
-               header_color_end, border_radius, show_branding, custom_css
+               header_color_end, border_radius, show_branding, custom_css, chat_url
         FROM t_p56134400_telegram_ai_bot_pdf.widget_settings
         WHERE id = 1
     """)
@@ -47,7 +47,8 @@ def handler(event: dict, context) -> dict:
             'header_color_end': result[8],
             'border_radius': result[9],
             'show_branding': result[10],
-            'custom_css': result[11]
+            'custom_css': result[11],
+            'chat_url': result[12]
         }
     else:
         settings = {
@@ -62,7 +63,8 @@ def handler(event: dict, context) -> dict:
             'header_color_end': '#764ba2',
             'border_radius': 16,
             'show_branding': True,
-            'custom_css': None
+            'custom_css': None,
+            'chat_url': None
         }
     
     return {

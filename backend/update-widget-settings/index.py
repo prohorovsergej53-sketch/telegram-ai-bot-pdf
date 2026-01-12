@@ -45,6 +45,7 @@ def handler(event: dict, context) -> dict:
             border_radius = %s,
             show_branding = %s,
             custom_css = %s,
+            chat_url = %s,
             updated_at = NOW()
         WHERE id = 1
     """, (
@@ -59,7 +60,8 @@ def handler(event: dict, context) -> dict:
         data.get('header_color_end', '#764ba2'),
         data.get('border_radius', 16),
         data.get('show_branding', True),
-        data.get('custom_css')
+        data.get('custom_css'),
+        data.get('chat_url')
     ))
     
     conn.commit()

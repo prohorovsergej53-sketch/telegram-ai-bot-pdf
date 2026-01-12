@@ -23,6 +23,7 @@ interface WidgetSettings {
   border_radius: number;
   show_branding: boolean;
   custom_css: string | null;
+  chat_url: string | null;
 }
 
 const WidgetSettingsCard = () => {
@@ -39,7 +40,8 @@ const WidgetSettingsCard = () => {
     header_color_end: '#764ba2',
     border_radius: 16,
     show_branding: true,
-    custom_css: null
+    custom_css: null,
+    chat_url: null
   });
   const [isLoading, setIsLoading] = useState(false);
   const [showCode, setShowCode] = useState(false);
@@ -85,7 +87,7 @@ const WidgetSettingsCard = () => {
   };
 
   const generateWidgetCode = () => {
-    const chatUrl = window.location.origin;
+    const chatUrl = settings.chat_url || window.location.origin;
     
     return `<!-- AI Bot Widget - Вставьте этот код перед закрывающим тегом </body> -->
 <script>
@@ -339,6 +341,18 @@ const WidgetSettingsCard = () => {
             {/* Дополнительные настройки */}
             <div className="space-y-4 border-t pt-4">
               <h3 className="font-semibold text-sm">Дополнительно</h3>
+
+              <div className="space-y-2">
+                <Label>URL чата (оставьте пустым для автоопределения)</Label>
+                <Input
+                  value={settings.chat_url || ''}
+                  onChange={(e) => setSettings({ ...settings, chat_url: e.target.value || null })}
+                  placeholder="https://yourdomain.com"
+                />
+                <p className="text-xs text-slate-500">
+                  Укажите URL вашего сайта с чатом. По умолчанию используется текущий домен.
+                </p>
+              </div>
 
               <div className="flex items-center justify-between">
                 <Label>Показывать брендинг</Label>
