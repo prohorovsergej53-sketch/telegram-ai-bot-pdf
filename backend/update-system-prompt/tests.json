@@ -1,0 +1,16 @@
+{
+  "tests": [
+    {
+      "name": "Update system prompt",
+      "method": "POST",
+      "body": {
+        "system_prompt": "Test prompt"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

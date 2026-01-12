@@ -1,4 +1,5 @@
 {
+  "update-system-prompt": "https://functions.poehali.dev/a47a69ec-f664-4f99-ac63-e1f133c1c9dc",
   "yookassa-webhook": "https://functions.poehali.dev/381d4828-88a8-44e7-a8d2-ef49c1ce8ab6",
   "yookassa-create-payment": "https://functions.poehali.dev/f4c127b8-2009-4d9b-b026-9fdf933b8b3a",
   "vk-webhook": "https://functions.poehali.dev/b008537a-2081-4b03-aaff-b39e8408818a",
