@@ -10,6 +10,9 @@ import { BACKEND_URLS, PageSettings, QuickQuestion } from './types';
 
 const PageSettingsCard = () => {
   const [settings, setSettings] = useState<PageSettings>({
+    header_icon: 'Hotel',
+    header_title: 'Отель Пушкин',
+    header_subtitle: 'AI Консьерж',
     page_title: 'Консьерж отеля',
     page_subtitle: 'Спросите о номерах, услугах и инфраструктуре',
     quick_questions_title: 'Быстрые вопросы',
@@ -109,6 +112,42 @@ const PageSettingsCard = () => {
       </CardHeader>
       <CardContent className="pt-6 space-y-6">
         <div className="space-y-4">
+          <div className="border-b pb-4">
+            <h3 className="text-sm font-semibold text-slate-900 mb-3">Шапка страницы</h3>
+            <div className="space-y-3">
+              <div>
+                <Label htmlFor="header_icon">Иконка</Label>
+                <div className="flex items-center gap-2">
+                  <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
+                    <Icon name={settings.header_icon} size={20} className="text-primary" />
+                  </div>
+                  <IconPicker
+                    selectedIcon={settings.header_icon}
+                    onSelectIcon={(icon) => setSettings({ ...settings, header_icon: icon })}
+                  />
+                </div>
+              </div>
+              <div>
+                <Label htmlFor="header_title">Название</Label>
+                <Input
+                  id="header_title"
+                  value={settings.header_title}
+                  onChange={(e) => setSettings({ ...settings, header_title: e.target.value })}
+                  placeholder="Отель Пушкин"
+                />
+              </div>
+              <div>
+                <Label htmlFor="header_subtitle">Слоган</Label>
+                <Input
+                  id="header_subtitle"
+                  value={settings.header_subtitle}
+                  onChange={(e) => setSettings({ ...settings, header_subtitle: e.target.value })}
+                  placeholder="AI Консьерж"
+                />
+              </div>
+            </div>
+          </div>
+
           <div className="border-b pb-4">
             <h3 className="text-sm font-semibold text-slate-900 mb-3">Заголовки чата</h3>
             <div className="space-y-3">

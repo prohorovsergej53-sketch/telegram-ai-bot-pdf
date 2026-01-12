@@ -24,6 +24,9 @@ export interface QuickQuestion {
 }
 
 export interface PageSettings {
+  header_icon: string;
+  header_title: string;
+  header_subtitle: string;
   page_title: string;
   page_subtitle: string;
   quick_questions_title: string;
