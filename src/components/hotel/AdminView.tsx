@@ -184,7 +184,7 @@ const AdminView = ({ documents, isLoading, onFileUpload, onDeleteDocument }: Adm
           />
         </CardContent>
         <CardContent className="p-0">
-          <ScrollArea className="h-[320px]">
+          <ScrollArea className="h-[800px]">
             {filteredDocuments.length === 0 ? (
               <div className="p-8 text-center text-slate-500">
                 <Icon name="FileText" size={48} className="mx-auto mb-3 opacity-30" />
