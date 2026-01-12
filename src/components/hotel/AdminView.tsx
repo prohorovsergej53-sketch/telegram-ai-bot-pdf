@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import AISettingsCard from './AISettingsCard';
 import { Document, BACKEND_URLS } from './types';
+import { useState, useMemo } from 'react';
 
 interface AdminViewProps {
   documents: Document[];
@@ -13,6 +14,22 @@ interface AdminViewProps {
 }
 
 const AdminView = ({ documents, isLoading, onFileUpload, onDeleteDocument }: AdminViewProps) => {
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [selectedStatus, setSelectedStatus] = useState<string>('all');
+
+  const categories = useMemo(() => {
+    const cats = new Set(documents.map(d => d.category));
+    return ['all', ...Array.from(cats)];
+  }, [documents]);
+
+  const filteredDocuments = useMemo(() => {
+    return documents.filter(doc => {
+      const categoryMatch = selectedCategory === 'all' || doc.category === selectedCategory;
+      const statusMatch = selectedStatus === 'all' || doc.status === selectedStatus;
+      return categoryMatch && statusMatch;
+    });
+  }, [documents, selectedCategory, selectedStatus]);
+
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -119,22 +136,48 @@ const AdminView = ({ documents, isLoading, onFileUpload, onDeleteDocument }: Adm
 
       <Card className="shadow-xl">
         <CardHeader className="border-b bg-gradient-to-r from-slate-50 to-blue-50">
-          <CardTitle className="flex items-center gap-2">
-            <Icon name="Library" size={20} />
-            База знаний
-          </CardTitle>
-          <CardDescription>{documents.length} документов</CardDescription>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <CardTitle className="flex items-center gap-2">
+                <Icon name="Library" size={20} />
+                База знаний
+              </CardTitle>
+              <CardDescription>{filteredDocuments.length} из {documents.length} документов</CardDescription>
+            </div>
+            <div className="flex gap-2 flex-wrap">
+              <select
+                value={selectedCategory}
+                onChange={(e) => setSelectedCategory(e.target.value)}
+                className="px-3 py-1.5 text-sm border border-slate-300 rounded-lg bg-white hover:border-slate-400 focus:outline-none focus:ring-2 focus:ring-primary"
+              >
+                {categories.map(cat => (
+                  <option key={cat} value={cat}>
+                    {cat === 'all' ? 'Все категории' : cat}
+                  </option>
+                ))}
+              </select>
+              <select
+                value={selectedStatus}
+                onChange={(e) => setSelectedStatus(e.target.value)}
+                className="px-3 py-1.5 text-sm border border-slate-300 rounded-lg bg-white hover:border-slate-400 focus:outline-none focus:ring-2 focus:ring-primary"
+              >
+                <option value="all">Все статусы</option>
+                <option value="ready">Готовы</option>
+                <option value="processing">Обработка</option>
+              </select>
+            </div>
+          </div>
         </CardHeader>
         <CardContent className="p-0">
           <ScrollArea className="h-[320px]">
-            {documents.length === 0 ? (
+            {filteredDocuments.length === 0 ? (
               <div className="p-8 text-center text-slate-500">
                 <Icon name="FileText" size={48} className="mx-auto mb-3 opacity-30" />
-                <p>Документы ещё не загружены</p>
+                <p>{documents.length === 0 ? 'Документы ещё не загружены' : 'Нет документов с выбранными фильтрами'}</p>
               </div>
             ) : (
               <div className="p-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                {documents.map((doc) => (
+                {filteredDocuments.map((doc) => (
                   <div
                     key={doc.id}
                     className="p-3 rounded-lg border border-slate-200 hover:border-slate-300 hover:shadow-md transition-all"
