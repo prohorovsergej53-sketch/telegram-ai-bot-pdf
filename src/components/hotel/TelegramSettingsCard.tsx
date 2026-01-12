@@ -1,9 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
+import { authenticatedFetch, getTenantId } from '@/lib/auth';
+import { BACKEND_URLS } from './types';
 
 interface TelegramSettingsCardProps {
   webhookUrl: string;
@@ -15,6 +17,38 @@ const TelegramSettingsCard = ({ webhookUrl, chatFunctionUrl }: TelegramSettingsC
   const [isLoading, setIsLoading] = useState(false);
   const [webhookStatus, setWebhookStatus] = useState<'not_set' | 'active' | 'error'>('not_set');
   const { toast } = useToast();
+
+  useEffect(() => {
+    loadSettings();
+  }, []);
+
+  const loadSettings = async () => {
+    try {
+      const tenantId = getTenantId();
+      const response = await authenticatedFetch(
+        `${BACKEND_URLS.messengerSettings}?tenant_id=${tenantId}&messenger_type=telegram`
+      );
+      const data = await response.json();
+      if (data.settings?.bot_token) {
+        setBotToken(data.settings.bot_token);
+      }
+    } catch (error) {
+      console.error('Error loading Telegram settings:', error);
+    }
+  };
+
+  const saveSettings = async (token: string) => {
+    const tenantId = getTenantId();
+    await authenticatedFetch(BACKEND_URLS.messengerSettings, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        tenant_id: tenantId,
+        messenger_type: 'telegram',
+        settings: { bot_token: token }
+      })
+    });
+  };
 
   const handleSetupBot = async () => {
     if (!botToken.trim()) {
@@ -35,10 +69,11 @@ const TelegramSettingsCard = ({ webhookUrl, chatFunctionUrl }: TelegramSettingsC
       const data = await response.json();
 
       if (data.ok) {
+        await saveSettings(botToken);
         setWebhookStatus('active');
         toast({
           title: 'Успешно!',
-          description: 'Telegram-бот подключен и готов к работе'
+          description: 'Telegram-бот подключен и сохранен'
         });
       } else {
         throw new Error(data.description || 'Ошибка подключения');

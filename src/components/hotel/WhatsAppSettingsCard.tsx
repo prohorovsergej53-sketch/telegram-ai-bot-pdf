@@ -1,9 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
+import { authenticatedFetch, getTenantId } from '@/lib/auth';
+import { BACKEND_URLS } from './types';
 
 interface WhatsAppSettingsCardProps {
   webhookUrl: string;
@@ -16,6 +18,39 @@ const WhatsAppSettingsCard = ({ webhookUrl, chatFunctionUrl }: WhatsAppSettingsC
   const [isLoading, setIsLoading] = useState(false);
   const [webhookStatus, setWebhookStatus] = useState<'not_set' | 'active' | 'error'>('not_set');
   const { toast } = useToast();
+
+  useEffect(() => {
+    loadSettings();
+  }, []);
+
+  const loadSettings = async () => {
+    try {
+      const tenantId = getTenantId();
+      const response = await authenticatedFetch(
+        `${BACKEND_URLS.messengerSettings}?tenant_id=${tenantId}&messenger_type=whatsapp`
+      );
+      const data = await response.json();
+      if (data.settings) {
+        setPhoneNumberId(data.settings.phone_number_id || '');
+        setAccessToken(data.settings.access_token || '');
+      }
+    } catch (error) {
+      console.error('Error loading WhatsApp settings:', error);
+    }
+  };
+
+  const saveSettings = async (phoneId: string, token: string) => {
+    const tenantId = getTenantId();
+    await authenticatedFetch(BACKEND_URLS.messengerSettings, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        tenant_id: tenantId,
+        messenger_type: 'whatsapp',
+        settings: { phone_number_id: phoneId, access_token: token }
+      })
+    });
+  };
 
   const handleSetupBot = async () => {
     if (!phoneNumberId.trim() || !accessToken.trim()) {
@@ -43,10 +78,11 @@ const WhatsAppSettingsCard = ({ webhookUrl, chatFunctionUrl }: WhatsAppSettingsC
       const data = await response.json();
 
       if (data.success) {
+        await saveSettings(phoneNumberId, accessToken);
         setWebhookStatus('active');
         toast({
           title: 'Успешно!',
-          description: 'WhatsApp-бот подключен и готов к работе'
+          description: 'WhatsApp-бот подключен и сохранен'
         });
       } else {
         throw new Error(data.error?.message || 'Ошибка подключения');

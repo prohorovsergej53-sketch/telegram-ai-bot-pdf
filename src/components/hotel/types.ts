@@ -99,7 +99,8 @@ export const BACKEND_URLS = {
   updateWidgetSettings: 'https://functions.poehali.dev/0cf37b7e-c359-4a9f-8e34-8f0ca8b69efb',
   getQualityGateStats: 'https://functions.poehali.dev/398c246e-01fc-4a9c-9206-995f7881960a',
   yookassaCreatePayment: 'https://functions.poehali.dev/f4c127b8-2009-4d9b-b026-9fdf933b8b3a',
-  yookassaWebhook: 'https://functions.poehali.dev/381d4828-88a8-44e7-a8d2-ef49c1ce8ab6'
+  yookassaWebhook: 'https://functions.poehali.dev/381d4828-88a8-44e7-a8d2-ef49c1ce8ab6',
+  messengerSettings: 'https://functions.poehali.dev/0993895c-dede-469e-94f6-18c2829df143'
 };
 
 export const quickQuestions = [

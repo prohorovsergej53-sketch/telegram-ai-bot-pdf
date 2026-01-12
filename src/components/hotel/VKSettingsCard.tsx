@@ -1,9 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
+import { authenticatedFetch, getTenantId } from '@/lib/auth';
+import { BACKEND_URLS } from './types';
 
 interface VKSettingsCardProps {
   webhookUrl: string;
@@ -17,6 +19,40 @@ const VKSettingsCard = ({ webhookUrl, chatFunctionUrl }: VKSettingsCardProps) =>
   const [isLoading, setIsLoading] = useState(false);
   const [webhookStatus, setWebhookStatus] = useState<'not_set' | 'active' | 'error'>('not_set');
   const { toast } = useToast();
+
+  useEffect(() => {
+    loadSettings();
+  }, []);
+
+  const loadSettings = async () => {
+    try {
+      const tenantId = getTenantId();
+      const response = await authenticatedFetch(
+        `${BACKEND_URLS.messengerSettings}?tenant_id=${tenantId}&messenger_type=vk`
+      );
+      const data = await response.json();
+      if (data.settings) {
+        setGroupId(data.settings.group_id || '');
+        setGroupToken(data.settings.group_token || '');
+        setSecretKey(data.settings.secret_key || '');
+      }
+    } catch (error) {
+      console.error('Error loading VK settings:', error);
+    }
+  };
+
+  const saveSettings = async (gId: string, gToken: string, sKey: string) => {
+    const tenantId = getTenantId();
+    await authenticatedFetch(BACKEND_URLS.messengerSettings, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        tenant_id: tenantId,
+        messenger_type: 'vk',
+        settings: { group_id: gId, group_token: gToken, secret_key: sKey }
+      })
+    });
+  };
 
   const handleSetupBot = async () => {
     if (!groupToken.trim() || !groupId.trim()) {
@@ -35,10 +71,11 @@ const VKSettingsCard = ({ webhookUrl, chatFunctionUrl }: VKSettingsCardProps) =>
       const data = await response.json();
 
       if (data.response && data.response.length > 0) {
+        await saveSettings(groupId, groupToken, secretKey);
         setWebhookStatus('active');
         toast({
           title: 'Успешно!',
-          description: 'VK-бот подключен и готов к работе'
+          description: 'VK-бот подключен и сохранен'
         });
       } else {
         throw new Error(data.error?.error_msg || 'Ошибка проверки токена');
