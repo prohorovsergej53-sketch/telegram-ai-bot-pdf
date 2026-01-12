@@ -17,7 +17,7 @@ from quality_gate import (
 )
 
 def handler(event: dict, context) -> dict:
-    """AI чат с поиском информации в документах"""
+    """AI чат с поиском информации в документах отеля"""
     method = event.get('httpMethod', 'POST')
 
     if method == 'OPTIONS':

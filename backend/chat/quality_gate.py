@@ -27,8 +27,8 @@ GATE_THRESHOLDS = {
 }
 
 RAG_DEBUG = os.environ.get('RAG_DEBUG', 'false').lower() == 'true'
-RAG_TOPK_DEFAULT = int(os.environ.get('RAG_TOPK_DEFAULT', '3'))
-RAG_TOPK_FALLBACK = int(os.environ.get('RAG_TOPK_FALLBACK', '5'))
+RAG_TOPK_DEFAULT = int(os.environ.get('RAG_TOPK_DEFAULT', '5'))
+RAG_TOPK_FALLBACK = int(os.environ.get('RAG_TOPK_FALLBACK', '7'))
 RAG_LOW_OVERLAP_WINDOW = int(os.environ.get('RAG_LOW_OVERLAP_WINDOW', '50'))
 RAG_LOW_OVERLAP_THRESHOLD = float(os.environ.get('RAG_LOW_OVERLAP_THRESHOLD', '0.25'))
 RAG_LOW_OVERLAP_START_TOPK5 = os.environ.get('RAG_LOW_OVERLAP_START_TOPK5', 'true').lower() == 'true'

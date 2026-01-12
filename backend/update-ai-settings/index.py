@@ -42,22 +42,35 @@ def handler(event: dict, context) -> dict:
         conn = psycopg2.connect(os.environ['DATABASE_URL'])
         cur = conn.cursor()
 
-        # Формируем JSONB объект с AI настройками
-        ai_settings = {
-            'model': settings.get('model', 'yandexgpt'),
-            'temperature': str(settings.get('temperature', 0.15)),
-            'top_p': str(settings.get('top_p', 1.0)),
-            'frequency_penalty': str(settings.get('frequency_penalty', 0)),
-            'presence_penalty': str(settings.get('presence_penalty', 0)),
-            'max_tokens': settings.get('max_tokens', 600),
-            'system_priority': settings.get('system_priority', 'strict'),
-            'creative_mode': settings.get('creative_mode', 'off')
-        }
+        # Получаем текущие настройки
+        cur.execute("""
+            SELECT ai_settings
+            FROM t_p56134400_telegram_ai_bot_pdf.tenant_settings
+            WHERE tenant_id = 1
+        """)
+        settings_row = cur.fetchone()
         
-        # Добавляем дополнительные настройки если они есть
-        for key in ['chat_provider', 'chat_model', 'embedding_provider', 'embedding_model', 'system_prompt']:
-            if key in settings:
-                ai_settings[key] = settings[key]
+        # Начинаем с текущих настроек или дефолтных
+        if settings_row and settings_row[0]:
+            ai_settings = settings_row[0]
+        else:
+            ai_settings = {
+                'model': 'yandexgpt',
+                'temperature': '0.15',
+                'top_p': '1.0',
+                'frequency_penalty': '0',
+                'presence_penalty': '0',
+                'max_tokens': 600,
+                'system_priority': 'strict',
+                'creative_mode': 'off'
+            }
+        
+        # Обновляем только переданные поля
+        for key, value in settings.items():
+            if key in ['temperature', 'top_p', 'frequency_penalty', 'presence_penalty']:
+                ai_settings[key] = str(value)
+            else:
+                ai_settings[key] = value
         
         ai_settings_json = json.dumps(ai_settings)
 
