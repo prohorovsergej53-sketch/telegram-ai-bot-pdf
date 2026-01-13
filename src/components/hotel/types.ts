@@ -102,7 +102,8 @@ export const BACKEND_URLS = {
   yookassaCreatePayment: 'https://functions.poehali.dev/f4c127b8-2009-4d9b-b026-9fdf933b8b3a',
   yookassaWebhook: 'https://functions.poehali.dev/381d4828-88a8-44e7-a8d2-ef49c1ce8ab6',
   messengerSettings: 'https://functions.poehali.dev/0993895c-dede-469e-94f6-18c2829df143',
-  tariffManagement: 'https://functions.poehali.dev/9aaca202-0192-4234-9f65-591df1552960'
+  tariffManagement: 'https://functions.poehali.dev/9aaca202-0192-4234-9f65-591df1552960',
+  yandexApiValidation: 'https://functions.poehali.dev/d7cc5843-8cc2-4c50-a819-04b1b43b744d'
 };
 
 export const quickQuestions = [

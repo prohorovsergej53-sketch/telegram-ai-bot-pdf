@@ -45,7 +45,7 @@ export const TARIFF_LIMITS: Record<string, TariffLimits> = {
   enterprise: {
     id: 'enterprise',
     name: 'Премиум',
-    maxPdfDocuments: -1,
+    maxPdfDocuments: 100,
     hasWebChat: true,
     hasTelegram: true,
     hasWhatsApp: true,

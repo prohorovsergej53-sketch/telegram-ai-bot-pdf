@@ -28,7 +28,7 @@ export const PricingSection = ({ onPlanSelect }: PricingSectionProps) => {
               <ul className="space-y-3 mb-6">
                 <li className="flex items-center gap-2 text-slate-600">
                   <Icon name="Check" size={20} className="text-green-600" />
-                  Web-чат для сайта
+                  Публичный web-чат
                 </li>
                 <li className="flex items-center gap-2 text-slate-600">
                   <Icon name="Check" size={20} className="text-green-600" />
@@ -36,7 +36,7 @@ export const PricingSection = ({ onPlanSelect }: PricingSectionProps) => {
                 </li>
                 <li className="flex items-center gap-2 text-slate-600">
                   <Icon name="Check" size={20} className="text-green-600" />
-                  Свой API ключ AI
+                  Ваш API ключ YandexGPT
                 </li>
                 <li className="flex items-center gap-2 text-slate-600">
                   <Icon name="Check" size={20} className="text-green-600" />
@@ -84,7 +84,7 @@ export const PricingSection = ({ onPlanSelect }: PricingSectionProps) => {
                 </li>
                 <li className="flex items-center gap-2 text-slate-600">
                   <Icon name="Check" size={20} className="text-green-600" />
-                  Полные настройки AI
+                  Ваш API ключ YandexGPT
                 </li>
                 <li className="flex items-center gap-2 text-slate-600">
                   <Icon name="Check" size={20} className="text-green-600" />
@@ -115,11 +115,11 @@ export const PricingSection = ({ onPlanSelect }: PricingSectionProps) => {
                 </li>
                 <li className="flex items-center gap-2 text-slate-600">
                   <Icon name="Check" size={20} className="text-green-600" />
-                  WhatsApp, VK, MAX (опционально)
+                  WhatsApp, VK, MAX (по вашим ключам)
                 </li>
                 <li className="flex items-center gap-2 text-slate-600">
                   <Icon name="Check" size={20} className="text-green-600" />
-                  Безлимит PDF документов
+                  До 100 PDF документов
                 </li>
                 <li className="flex items-center gap-2 text-slate-600">
                   <Icon name="Check" size={20} className="text-green-600" />

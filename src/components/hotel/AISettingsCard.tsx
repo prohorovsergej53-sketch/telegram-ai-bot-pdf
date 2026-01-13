@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
+import { BACKEND_URLS } from './types';
 
 interface APIBalance {
   balance: string;
@@ -31,12 +32,32 @@ const AISettingsCard = () => {
 
     setIsConnecting(true);
     try {
-      toast({
-        title: '✓ Ключ сохранен',
-        description: 'API ключ YandexGPT добавлен в секреты'
+      // Проверяем валидность ключа через backend
+      const response = await fetch(BACKEND_URLS.yandexApiValidation, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          api_key: apiKey,
+          folder_id: folderId
+        })
       });
-      setApiKey('');
-      setFolderId('');
+
+      const data = await response.json();
+
+      if (data.valid) {
+        toast({
+          title: '✓ Ключ успешно проверен',
+          description: 'API ключ YandexGPT работает корректно'
+        });
+        setApiKey('');
+        setFolderId('');
+      } else {
+        toast({
+          title: 'Ошибка валидации',
+          description: data.error || 'Проверьте правильность API ключа и Folder ID',
+          variant: 'destructive'
+        });
+      }
     } catch (error: any) {
       toast({
         title: 'Ошибка',
