@@ -5,6 +5,7 @@ import json
 import os
 import psycopg2
 from datetime import datetime
+from decimal import Decimal
 
 def handler(event: dict, context) -> dict:
     """Получение информации о подписке клиента"""
@@ -45,10 +46,10 @@ def handler(event: dict, context) -> dict:
                 t.tariff_id,
                 t.subscription_end_date,
                 tar.name as tariff_name,
-                tar.price as renewal_price,
+                tar.renewal_price,
                 tar.period
             FROM tenants t
-            LEFT JOIN tariffs tar ON t.tariff_id = tar.id
+            LEFT JOIN tariff_plans tar ON t.tariff_id = tar.id
             WHERE t.id = %s
         """, (tenant_id,))
         
@@ -65,20 +66,27 @@ def handler(event: dict, context) -> dict:
         
         # Вычисляем статус и оставшиеся дни
         if end_date:
-            end_datetime = datetime.fromisoformat(end_date.replace('Z', '+00:00'))
-            now = datetime.now(end_datetime.tzinfo)
+            # end_date уже datetime объект из БД
+            if isinstance(end_date, str):
+                end_datetime = datetime.fromisoformat(end_date.replace('Z', '+00:00'))
+            else:
+                end_datetime = end_date
+            
+            now = datetime.now()
             days_left = (end_datetime - now).days
             status = 'active' if days_left > 0 else 'expired'
+            end_date_str = end_datetime.isoformat()
         else:
             days_left = 0
             status = 'no_subscription'
+            end_date_str = None
         
         subscription = {
             'status': status,
-            'end_date': end_date,
+            'end_date': end_date_str,
             'tariff_id': tariff_id,
             'tariff_name': tariff_name or 'Не указан',
-            'renewal_price': renewal_price or 0,
+            'renewal_price': float(renewal_price) if renewal_price is not None else 0,
             'days_left': max(0, days_left),
             'period': period or 'месяц'
         }
