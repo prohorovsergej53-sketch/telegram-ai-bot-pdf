@@ -78,7 +78,7 @@ const SuperAdmin = () => {
 
   const handleEnterTenantAdmin = (tenant: Tenant) => {
     enterTenantAsSuper(tenant.id, tenant.tariff_id);
-    navigate('/admin');
+    navigate(`/${tenant.slug}/admin`);
     toast({
       title: 'Вход в админку бота',
       description: `Вы вошли в админ-панель ${tenant.name} с полными правами`,

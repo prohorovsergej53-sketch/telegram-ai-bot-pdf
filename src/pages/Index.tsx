@@ -36,9 +36,12 @@ const Index = () => {
       setIsAdminAuthenticated(true);
       console.log('[Index] User is authenticated. isSuperAdmin:', isSuperAdmin());
       
-      // Если супер-админ пытается зайти в обычную админку - редирект на мастер-панель
-      if (isSuperAdmin() && location.pathname.endsWith('/admin')) {
-        console.log('[Index] Super admin detected, redirecting to /super-admin');
+      // Проверяем, просматривает ли супер-админ чужой tenant
+      const isViewingOtherTenant = sessionStorage.getItem('superadmin_viewing_tenant') === 'true';
+      
+      // Если супер-админ НЕ просматривает чужой tenant и пытается зайти в админку - редирект
+      if (isSuperAdmin() && !isViewingOtherTenant && location.pathname.endsWith('/admin')) {
+        console.log('[Index] Super admin detected (not viewing tenant), redirecting to /super-admin');
         window.location.href = '/super-admin';
         return;
       }
