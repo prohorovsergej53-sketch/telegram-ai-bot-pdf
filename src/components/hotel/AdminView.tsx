@@ -116,12 +116,10 @@ const AdminView = ({ documents, isLoading, onFileUpload, onDeleteDocument }: Adm
 
       <WidgetSettingsCard />
 
-      {superAdmin && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <AiSettingsCard />
-          <PageSettingsCard />
-        </div>
-      )}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <AiSettingsCard />
+        {superAdmin && <PageSettingsCard />}
+      </div>
 
       <ChatStatsCard />
     </div>
