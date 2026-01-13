@@ -7,6 +7,10 @@ import { useToast } from '@/hooks/use-toast';
 import Icon from '@/components/ui/icon';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface Tariff {
   id: string;
@@ -94,19 +98,79 @@ const SuperAdmin = () => {
   };
 
   const handleManageTenant = (tenant: Tenant) => {
-    toast({
-      title: 'Управление клиентом',
-      description: `Открываю настройки для ${tenant.name}`,
-    });
-    console.log('Managing tenant:', tenant);
+    setEditingTenant(tenant);
   };
 
   const handleEditTariff = (tariff: Tariff) => {
-    toast({
-      title: 'Редактирование тарифа',
-      description: `Открываю редактор для ${tariff.name}`,
-    });
-    console.log('Editing tariff:', tariff);
+    setEditingTariff(tariff);
+  };
+
+  const saveTenantChanges = async () => {
+    if (!editingTenant) return;
+
+    try {
+      const response = await authenticatedFetch(BACKEND_URLS.tenants, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: editingTenant.id,
+          tariff_id: editingTenant.tariff_id,
+          subscription_end_date: editingTenant.subscription_end_date
+        })
+      });
+
+      if (response.ok) {
+        toast({
+          title: 'Успешно',
+          description: `Клиент ${editingTenant.name} обновлён`,
+        });
+        setEditingTenant(null);
+        loadTenants();
+      } else {
+        throw new Error('Failed to update tenant');
+      }
+    } catch (error) {
+      toast({
+        title: 'Ошибка',
+        description: 'Не удалось обновить клиента',
+        variant: 'destructive'
+      });
+    }
+  };
+
+  const saveTariffChanges = async () => {
+    if (!editingTariff) return;
+
+    try {
+      const response = await authenticatedFetch(BACKEND_URLS.tariffs, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: editingTariff.id,
+          name: editingTariff.name,
+          price: editingTariff.price,
+          period: editingTariff.period,
+          is_active: editingTariff.is_active
+        })
+      });
+
+      if (response.ok) {
+        toast({
+          title: 'Успешно',
+          description: `Тариф ${editingTariff.name} обновлён`,
+        });
+        setEditingTariff(null);
+        loadTariffs();
+      } else {
+        throw new Error('Failed to update tariff');
+      }
+    } catch (error) {
+      toast({
+        title: 'Ошибка',
+        description: 'Не удалось обновить тариф',
+        variant: 'destructive'
+      });
+    }
   };
 
   return (
@@ -294,6 +358,144 @@ const SuperAdmin = () => {
           </TabsContent>
         </Tabs>
       </div>
+
+      {/* Модальное окно редактирования клиента */}
+      <Dialog open={!!editingTenant} onOpenChange={() => setEditingTenant(null)}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Управление клиентом</DialogTitle>
+            <DialogDescription>
+              Редактирование настроек для {editingTenant?.name}
+            </DialogDescription>
+          </DialogHeader>
+          {editingTenant && (
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label>Название</Label>
+                <Input value={editingTenant.name} disabled className="bg-slate-50" />
+              </div>
+              <div className="space-y-2">
+                <Label>Slug</Label>
+                <Input value={editingTenant.slug} disabled className="bg-slate-50" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="tariff">Тариф</Label>
+                <Select 
+                  value={editingTenant.tariff_id} 
+                  onValueChange={(value) => setEditingTenant({...editingTenant, tariff_id: value})}
+                >
+                  <SelectTrigger id="tariff">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {tariffs.map(t => (
+                      <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="subscription">Подписка до</Label>
+                <Input 
+                  id="subscription"
+                  type="date" 
+                  value={editingTenant.subscription_end_date?.split('T')[0] || ''}
+                  onChange={(e) => setEditingTenant({...editingTenant, subscription_end_date: e.target.value})}
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4 pt-2">
+                <Card className="p-3">
+                  <div className="text-sm text-muted-foreground">Документов</div>
+                  <div className="text-2xl font-semibold">{editingTenant.documents_count}</div>
+                </Card>
+                <Card className="p-3">
+                  <div className="text-sm text-muted-foreground">Админов</div>
+                  <div className="text-2xl font-semibold">{editingTenant.admins_count}</div>
+                </Card>
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditingTenant(null)}>
+              Отмена
+            </Button>
+            <Button onClick={saveTenantChanges}>
+              Сохранить изменения
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Модальное окно редактирования тарифа */}
+      <Dialog open={!!editingTariff} onOpenChange={() => setEditingTariff(null)}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Редактирование тарифа</DialogTitle>
+            <DialogDescription>
+              Изменение цен и параметров тарифного плана
+            </DialogDescription>
+          </DialogHeader>
+          {editingTariff && (
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label htmlFor="name">Название тарифа</Label>
+                <Input 
+                  id="name"
+                  value={editingTariff.name}
+                  onChange={(e) => setEditingTariff({...editingTariff, name: e.target.value})}
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="price">Цена (₽)</Label>
+                  <Input 
+                    id="price"
+                    type="number"
+                    value={editingTariff.price}
+                    onChange={(e) => setEditingTariff({...editingTariff, price: Number(e.target.value)})}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="period">Период</Label>
+                  <Select 
+                    value={editingTariff.period} 
+                    onValueChange={(value) => setEditingTariff({...editingTariff, period: value})}
+                  >
+                    <SelectTrigger id="period">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="месяц">месяц</SelectItem>
+                      <SelectItem value="год">год</SelectItem>
+                      <SelectItem value="навсегда">навсегда</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  id="is_active"
+                  checked={editingTariff.is_active}
+                  onChange={(e) => setEditingTariff({...editingTariff, is_active: e.target.checked})}
+                  className="w-4 h-4"
+                />
+                <Label htmlFor="is_active" className="cursor-pointer">
+                  Тариф активен
+                </Label>
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditingTariff(null)}>
+              Отмена
+            </Button>
+            <Button onClick={saveTariffChanges}>
+              Сохранить изменения
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
