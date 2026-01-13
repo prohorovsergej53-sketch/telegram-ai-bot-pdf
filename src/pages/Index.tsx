@@ -410,27 +410,7 @@ const Index = () => {
         )}
 
         <footer className="mt-8 text-center text-sm text-slate-600 animate-fade-in">
-          {view === 'admin' ? (
-            <div className="space-y-3">
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-6 text-sm">
-                <div>
-                  <p className="font-medium text-slate-700">Контакты</p>
-                  <a href="mailto:info@298100.ru" className="hover:text-primary transition-colors">info@298100.ru</a>
-                  <br />
-                  <a href="tel:+79787236035" className="hover:text-primary transition-colors">+7 (978) 723-60-35</a>
-                  <br />
-                  <span className="text-xs">Республика Крым, г. Феодосия</span>
-                </div>
-                <div className="border-l border-slate-300 h-16 hidden sm:block"></div>
-                <div>
-                  <p className="font-medium text-slate-700">Реквизиты</p>
-                  <p className="text-xs">Плательщик НПД</p>
-                  <p className="text-xs">Прохоров С. В.</p>
-                  <p className="text-xs">ИНН: 910800040469</p>
-                </div>
-              </div>
-            </div>
-          ) : (
+          {view === 'guest' && (
             <a 
               href="https://max.ru/u/f9LHodD0cOIrknUlAYx1LxuVyfuHRhIq-OHhkpPMbwJ_WcjW4dhTFpEEez0"
               target="_blank"
