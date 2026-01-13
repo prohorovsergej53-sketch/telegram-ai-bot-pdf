@@ -57,7 +57,7 @@ export const FeaturesSection = () => {
     {
       icon: 'MessageSquare',
       title: 'Все каналы',
-      description: 'Web-чат, виджет для сайта, Telegram, WhatsApp, VK — отвечает в любом канале. Один бот — всюду',
+      description: 'Web-чат, виджет для сайта, Telegram, VK, MAX — отвечает в любом канале. Один бот — всюду',
       bgColor: 'bg-orange-100',
       iconColor: 'text-orange-600',
       value: '5',

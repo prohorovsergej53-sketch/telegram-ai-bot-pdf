@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import AISettingsCard from './AISettingsCard';
 import TelegramSettingsCard from './TelegramSettingsCard';
-import WhatsAppSettingsCard from './WhatsAppSettingsCard';
 import VKSettingsCard from './VKSettingsCard';
 import MAXSettingsCard from './MAXSettingsCard';
 import ChatStatsCard from './ChatStatsCard';
@@ -154,18 +153,7 @@ const AdminView = ({ documents, isLoading, onFileUpload, onDeleteDocument, curre
             ) : (
               <UpgradeCard feature="Интеграция с Telegram" />
             )}
-            
-            {(superAdmin || hasFeatureAccess('hasWhatsApp', tariffId)) ? (
-              <WhatsAppSettingsCard
-                webhookUrl={BACKEND_URLS.whatsappWebhook}
-                chatFunctionUrl={BACKEND_URLS.chat}
-              />
-            ) : (
-              <UpgradeCard feature="Интеграция с WhatsApp" />
-            )}
-          </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {(superAdmin || hasFeatureAccess('hasVK', tariffId)) ? (
               <VKSettingsCard
                 webhookUrl={BACKEND_URLS.vkWebhook}
@@ -174,7 +162,9 @@ const AdminView = ({ documents, isLoading, onFileUpload, onDeleteDocument, curre
             ) : (
               <UpgradeCard feature="Интеграция с VK" />
             )}
+          </div>
 
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {(superAdmin || hasFeatureAccess('hasMAX', tariffId)) ? (
               <MAXSettingsCard
                 webhookUrl={BACKEND_URLS.maxWebhook}

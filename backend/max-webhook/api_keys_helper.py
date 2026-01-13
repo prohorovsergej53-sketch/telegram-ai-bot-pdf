@@ -9,7 +9,7 @@ def get_tenant_api_key(tenant_id: int, provider: str, key_name: str) -> tuple[st
     
     Args:
         tenant_id: ID клиента
-        provider: Провайдер (yandexgpt, openai, deepseek, telegram, whatsapp, max, vk)
+        provider: Провайдер (yandexgpt, openai, deepseek, telegram, max, vk)
         key_name: Название ключа (api_key, folder_id, bot_token, access_token, phone_number_id, group_token, secret_key)
     
     Returns:

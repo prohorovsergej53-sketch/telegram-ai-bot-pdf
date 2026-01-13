@@ -31,7 +31,7 @@ export const HowItWorksSection = () => {
       number: '4',
       icon: 'Link',
       title: 'Подключение каналов',
-      description: 'Копируете ссылку на web-чат или виджет для сайта. На Бизнес/Премиум — подключаете Telegram, WhatsApp, VK по инструкции.',
+      description: 'Копируете ссылку на web-чат или виджет для сайта. На Бизнес/Премиум — подключаете Telegram, VK, MAX по инструкции.',
       time: '2-5 мин',
       gradient: 'from-orange-500 to-red-500'
     },

@@ -6,7 +6,7 @@ from auth_middleware import get_tenant_id_from_request, require_auth
 
 
 def handler(event: dict, context) -> dict:
-    """Получение и сохранение настроек мессенджеров (Telegram, WhatsApp, VK)"""
+    """Получение и сохранение настроек мессенджеров (Telegram, VK, MAX)"""
     
     method = event.get('httpMethod', 'GET')
     

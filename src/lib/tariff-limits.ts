@@ -4,7 +4,6 @@ export interface TariffLimits {
   maxPdfDocuments: number;
   hasWebChat: boolean;
   hasTelegram: boolean;
-  hasWhatsApp: boolean;
   hasVK: boolean;
   hasMAX: boolean;
   hasAISettings: boolean;
@@ -20,7 +19,6 @@ export const TARIFF_LIMITS: Record<string, TariffLimits> = {
     maxPdfDocuments: 10,
     hasWebChat: true,
     hasTelegram: false,
-    hasWhatsApp: false,
     hasVK: false,
     hasMAX: false,
     hasAISettings: true,
@@ -34,7 +32,6 @@ export const TARIFF_LIMITS: Record<string, TariffLimits> = {
     maxPdfDocuments: 25,
     hasWebChat: true,
     hasTelegram: true,
-    hasWhatsApp: false,
     hasVK: false,
     hasMAX: false,
     hasAISettings: true,
@@ -48,7 +45,6 @@ export const TARIFF_LIMITS: Record<string, TariffLimits> = {
     maxPdfDocuments: 100,
     hasWebChat: true,
     hasTelegram: true,
-    hasWhatsApp: true,
     hasVK: true,
     hasMAX: true,
     hasAISettings: true,

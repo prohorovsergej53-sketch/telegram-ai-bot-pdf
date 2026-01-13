@@ -11,7 +11,6 @@
   "setup-cronjob": "https://functions.poehali.dev/5d34eeb6-9825-4d73-80eb-bc6c1ded58c9",
   "check-subscriptions": "https://functions.poehali.dev/2b45e5d6-8138-4bae-9236-237fe424ef95",
   "get-messenger-settings": "https://functions.poehali.dev/0993895c-dede-469e-94f6-18c2829df143",
-  "whatsapp-webhook": "https://functions.poehali.dev/ce0fabbc-e13a-4162-aab0-d571e661b9c6",
   "admin-users-manage": "https://functions.poehali.dev/c9e558c6-9e35-48fd-9948-69e7fc9ba377",
   "yookassa-webhook": "https://functions.poehali.dev/381d4828-88a8-44e7-a8d2-ef49c1ce8ab6",
   "yookassa-create-payment": "https://functions.poehali.dev/f4c127b8-2009-4d9b-b026-9fdf933b8b3a",

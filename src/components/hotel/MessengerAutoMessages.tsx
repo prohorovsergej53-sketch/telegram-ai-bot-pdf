@@ -23,7 +23,7 @@ interface MessengerConfig {
   repeat_delay_seconds: number;
 }
 
-type MessengerType = 'telegram' | 'whatsapp' | 'vk' | 'max' | 'widget';
+type MessengerType = 'telegram' | 'vk' | 'max' | 'widget';
 
 interface MessengerSettings {
   [key: string]: MessengerConfig;
@@ -32,7 +32,6 @@ interface MessengerSettings {
 const MESSENGERS: Array<{ id: MessengerType; label: string; icon: string }> = [
   { id: 'widget', label: 'Виджет', icon: 'MessageCircle' },
   { id: 'telegram', label: 'Telegram', icon: 'Send' },
-  { id: 'whatsapp', label: 'WhatsApp', icon: 'MessageSquare' },
   { id: 'vk', label: 'VK', icon: 'Users' },
   { id: 'max', label: 'MAX', icon: 'Mail' }
 ];

@@ -5,7 +5,6 @@ import { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import AiSettingsCard from '../hotel/AiSettingsCard';
 import TelegramSettingsCard from '../hotel/TelegramSettingsCard';
-import WhatsAppSettingsCard from '../hotel/WhatsAppSettingsCard';
 import VKSettingsCard from '../hotel/VKSettingsCard';
 import MAXSettingsCard from '../hotel/MAXSettingsCard';
 import WidgetSettingsCard from '../hotel/WidgetSettingsCard';
@@ -86,10 +85,6 @@ export const BotTemplateTab = () => {
                 <Icon name="Send" size={14} className="mr-1" />
                 Telegram
               </TabsTrigger>
-              <TabsTrigger value="whatsapp" className="text-xs">
-                <Icon name="MessageCircle" size={14} className="mr-1" />
-                WhatsApp
-              </TabsTrigger>
               <TabsTrigger value="vk" className="text-xs">
                 <Icon name="Users" size={14} className="mr-1" />
                 VK
@@ -119,13 +114,6 @@ export const BotTemplateTab = () => {
             <TabsContent value="telegram" className="space-y-4">
               <TelegramSettingsCard
                 webhookUrl={BACKEND_URLS.telegramWebhook}
-                chatFunctionUrl={BACKEND_URLS.chat}
-              />
-            </TabsContent>
-
-            <TabsContent value="whatsapp" className="space-y-4">
-              <WhatsAppSettingsCard
-                webhookUrl={BACKEND_URLS.whatsappWebhook}
                 chatFunctionUrl={BACKEND_URLS.chat}
               />
             </TabsContent>
