@@ -167,6 +167,63 @@
             const iframe = document.getElementById('ai-bot-iframe');
             
             let isOpen = false;
+            let lastActivityTime = Date.now();
+            let autoMessageTimer = null;
+            let autoMessageSettings = null;
+            let autoMessageShown = false;
+
+            // Загрузка настроек автосообщений
+            async function loadAutoMessageSettings() {
+                try {
+                    const response = await fetch(CHAT_URL + '/api/widget-settings');
+                    const settings = await response.json();
+                    autoMessageSettings = settings;
+                } catch (error) {
+                    console.error('Failed to load auto-message settings:', error);
+                }
+            }
+
+            // Отправка автосообщения
+            function sendAutoMessage() {
+                if (!autoMessageSettings || !autoMessageSettings.auto_message_enabled) return;
+                if (!isOpen || autoMessageShown) return;
+                
+                const text = autoMessageSettings.auto_message_text || 'Могу помочь с выбором? 😊';
+                
+                // Отправляем сообщение в iframe
+                iframe.contentWindow.postMessage({
+                    type: 'AUTO_MESSAGE',
+                    text: text
+                }, '*');
+                
+                autoMessageShown = true;
+                
+                // Если включены повторы — запускаем новый таймер
+                if (autoMessageSettings.auto_message_repeat) {
+                    scheduleAutoMessage(autoMessageSettings.auto_message_repeat_delay_seconds * 1000);
+                }
+            }
+
+            // Планирование автосообщения
+            function scheduleAutoMessage(delay) {
+                clearTimeout(autoMessageTimer);
+                autoMessageTimer = setTimeout(() => {
+                    const timeSinceActivity = Date.now() - lastActivityTime;
+                    if (timeSinceActivity >= delay) {
+                        sendAutoMessage();
+                    }
+                }, delay);
+            }
+
+            // Сброс таймера при активности пользователя
+            function resetAutoMessageTimer() {
+                lastActivityTime = Date.now();
+                autoMessageShown = false;
+                
+                if (autoMessageSettings && autoMessageSettings.auto_message_enabled) {
+                    scheduleAutoMessage(autoMessageSettings.auto_message_delay_seconds * 1000);
+                }
+            }
 
             // Toggle chat
             function toggleChat() {
@@ -176,11 +233,25 @@
                     // Load iframe only when opened for the first time
                     if (!iframe.src) {
                         iframe.src = CHAT_URL;
+                        // Загружаем настройки при первом открытии
+                        loadAutoMessageSettings().then(() => {
+                            resetAutoMessageTimer();
+                        });
+                    } else {
+                        resetAutoMessageTimer();
                     }
                 } else {
                     chat.classList.remove('open');
+                    clearTimeout(autoMessageTimer);
                 }
             }
+
+            // Слушаем сообщения от iframe (когда пользователь отправляет сообщение)
+            window.addEventListener('message', function(event) {
+                if (event.data && event.data.type === 'USER_MESSAGE_SENT') {
+                    resetAutoMessageTimer();
+                }
+            });
 
             // Event listeners
             button.addEventListener('click', toggleChat);

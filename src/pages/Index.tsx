@@ -31,6 +31,24 @@ const Index = () => {
   const [quickQuestions, setQuickQuestions] = useState<QuickQuestion[]>([]);
   const { toast } = useToast();
 
+  // Слушатель автосообщений от виджета
+  useEffect(() => {
+    const handleAutoMessage = (event: MessageEvent) => {
+      if (event.data && event.data.type === 'AUTO_MESSAGE') {
+        const autoMessage: Message = {
+          id: `auto-${Date.now()}`,
+          role: 'assistant',
+          content: event.data.text,
+          timestamp: new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })
+        };
+        setMessages(prev => [...prev, autoMessage]);
+      }
+    };
+
+    window.addEventListener('message', handleAutoMessage);
+    return () => window.removeEventListener('message', handleAutoMessage);
+  }, []);
+
   useEffect(() => {
     if (isAuthenticated()) {
       setIsAdminAuthenticated(true);
@@ -140,6 +158,11 @@ const Index = () => {
     setMessages([...messages, newMessage]);
     setInputMessage('');
     setIsLoading(true);
+    
+    // Уведомляем виджет о пользовательском сообщении
+    if (window.parent !== window) {
+      window.parent.postMessage({ type: 'USER_MESSAGE_SENT' }, '*');
+    }
 
     try {
       const response = await fetch(BACKEND_URLS.chat, {
@@ -161,6 +184,11 @@ const Index = () => {
           timestamp: new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })
         };
         setMessages(prev => [...prev, assistantMessage]);
+        
+        // Уведомляем виджет о пользовательском сообщении
+        if (window.parent !== window) {
+          window.parent.postMessage({ type: 'USER_MESSAGE_SENT' }, '*');
+        }
       } else {
         toast({
           title: 'Ошибка',

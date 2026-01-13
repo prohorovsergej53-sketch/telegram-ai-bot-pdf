@@ -37,33 +37,56 @@ def handler(event: dict, context) -> dict:
         conn = psycopg2.connect(dsn)
         cur = conn.cursor()
     
-    # Формируем JSONB объект с настройками виджета
-    widget_settings = {
-        'button_color': data.get('button_color', '#3b82f6'),
-        'button_color_end': data.get('button_color_end', '#1d4ed8'),
-        'button_size': data.get('button_size', 60),
-        'button_position': data.get('button_position', 'bottom-right'),
-        'button_icon': data.get('button_icon', 'MessageCircle'),
-        'window_width': data.get('window_width', 380),
-        'window_height': data.get('window_height', 600),
-        'header_title': data.get('header_title', 'AI Ассистент'),
-        'header_color': data.get('header_color', '#3b82f6'),
-        'header_color_end': data.get('header_color_end', '#1d4ed8'),
-        'border_radius': data.get('border_radius', 16),
-        'show_branding': data.get('show_branding', True),
-        'custom_css': data.get('custom_css'),
-        'chat_url': data.get('chat_url')
-    }
+        # Формируем JSONB объект с настройками виджета
+        widget_settings = {
+            'button_color': data.get('button_color', '#3b82f6'),
+            'button_color_end': data.get('button_color_end', '#1d4ed8'),
+            'button_size': data.get('button_size', 60),
+            'button_position': data.get('button_position', 'bottom-right'),
+            'button_icon': data.get('button_icon', 'MessageCircle'),
+            'window_width': data.get('window_width', 380),
+            'window_height': data.get('window_height', 600),
+            'header_title': data.get('header_title', 'AI Ассистент'),
+            'header_color': data.get('header_color', '#3b82f6'),
+            'header_color_end': data.get('header_color_end', '#1d4ed8'),
+            'border_radius': data.get('border_radius', 16),
+            'show_branding': data.get('show_branding', True),
+            'custom_css': data.get('custom_css'),
+            'chat_url': data.get('chat_url')
+        }
     
-    widget_settings_json = json.dumps(widget_settings)
-    
-        # Обновляем widget_settings в JSONB
-        cur.execute("""
+        widget_settings_json = json.dumps(widget_settings)
+        
+        # Обновляем widget_settings и настройки автосообщений
+        update_fields = ['widget_settings = %s::jsonb']
+        update_values = [widget_settings_json]
+        
+        # Добавляем автосообщения, если переданы
+        if 'auto_message_enabled' in data:
+            update_fields.append('auto_message_enabled = %s')
+            update_values.append(data['auto_message_enabled'])
+        if 'auto_message_delay_seconds' in data:
+            update_fields.append('auto_message_delay_seconds = %s')
+            update_values.append(data['auto_message_delay_seconds'])
+        if 'auto_message_text' in data:
+            update_fields.append('auto_message_text = %s')
+            update_values.append(data['auto_message_text'])
+        if 'auto_message_repeat' in data:
+            update_fields.append('auto_message_repeat = %s')
+            update_values.append(data['auto_message_repeat'])
+        if 'auto_message_repeat_delay_seconds' in data:
+            update_fields.append('auto_message_repeat_delay_seconds = %s')
+            update_values.append(data['auto_message_repeat_delay_seconds'])
+        
+        update_values.append(tenant_id)
+        
+        query = f"""
             UPDATE t_p56134400_telegram_ai_bot_pdf.tenant_settings
-            SET widget_settings = %s::jsonb,
-                updated_at = CURRENT_TIMESTAMP
+            SET {', '.join(update_fields)}, updated_at = CURRENT_TIMESTAMP
             WHERE tenant_id = %s
-        """, (widget_settings_json, tenant_id))
+        """
+        
+        cur.execute(query, tuple(update_values))
     
         conn.commit()
         cur.close()
