@@ -43,7 +43,9 @@ export const isAuthenticated = (): boolean => {
 
 export const isSuperAdmin = (): boolean => {
   const user = getAdminUser();
-  return user?.role === 'super_admin';
+  const result = user?.role === 'super_admin';
+  console.log('[auth] isSuperAdmin check:', { user, result });
+  return result;
 };
 
 export const getTenantId = (): number | null => {
@@ -53,7 +55,9 @@ export const getTenantId = (): number | null => {
 
 export const getTariffId = (): string | null => {
   const user = getAdminUser();
-  return user?.tariff_id ?? null;
+  const tariffId = user?.tariff_id ?? null;
+  console.log('[auth] getTariffId:', { user, tariffId });
+  return tariffId;
 };
 
 export const logout = () => {
