@@ -9,6 +9,7 @@ import { Tariff, Tenant, BACKEND_URLS } from '@/components/superadmin/types';
 import { DashboardTab } from '@/components/superadmin/DashboardTab';
 import { TenantsTab } from '@/components/superadmin/TenantsTab';
 import { TariffsTab } from '@/components/superadmin/TariffsTab';
+import { BotTemplateTab } from '@/components/superadmin/BotTemplateTab';
 import { TenantEditDialog } from '@/components/superadmin/TenantEditDialog';
 import { TariffEditDialog } from '@/components/superadmin/TariffEditDialog';
 
@@ -191,6 +192,10 @@ const SuperAdmin = () => {
               <Icon name="DollarSign" size={16} className="mr-2" />
               Тарифы
             </TabsTrigger>
+            <TabsTrigger value="template">
+              <Icon name="Package" size={16} className="mr-2" />
+              Шаблон ботов
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="dashboard" className="space-y-6">
@@ -210,6 +215,10 @@ const SuperAdmin = () => {
               tariffs={tariffs}
               onEditTariff={handleEditTariff}
             />
+          </TabsContent>
+
+          <TabsContent value="template" className="space-y-6">
+            <BotTemplateTab />
           </TabsContent>
         </Tabs>
       </div>

@@ -91,22 +91,23 @@ def handler(event: dict, context) -> dict:
                 
                 tenant_id = cur.fetchone()[0]
                 
-                # Копируем настройки из дефолтного бота (tenant_id=1)
+                # Копируем настройки из ШАБЛОНА (tenant_id=1: template)
+                # Шаблон содержит все настройки по умолчанию: AI, промпт, виджет, мессенджеры, автосообщения
                 cur.execute("""
                     SELECT ai_settings, widget_settings, messenger_settings, page_settings
                     FROM t_p56134400_telegram_ai_bot_pdf.tenant_settings
                     WHERE tenant_id = 1
                 """)
-                default_settings = cur.fetchone()
+                template_settings = cur.fetchone()
                 
-                if default_settings:
+                if template_settings:
                     cur.execute("""
                         INSERT INTO t_p56134400_telegram_ai_bot_pdf.tenant_settings 
                         (tenant_id, ai_settings, widget_settings, messenger_settings, page_settings)
                         VALUES (%s, %s, %s, %s, %s)
-                    """, (tenant_id, default_settings[0], default_settings[1], default_settings[2], default_settings[3]))
+                    """, (tenant_id, template_settings[0], template_settings[1], template_settings[2], template_settings[3]))
                 else:
-                    # Fallback: создаем пустую запись, если дефолтные настройки не найдены
+                    # Fallback: создаем пустую запись, если шаблон не найден
                     cur.execute("""
                         INSERT INTO t_p56134400_telegram_ai_bot_pdf.tenant_settings (tenant_id)
                         VALUES (%s)
