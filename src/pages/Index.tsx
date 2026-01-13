@@ -434,6 +434,7 @@ const Index = () => {
             isLoading={isLoading}
             onFileUpload={handleFileUpload}
             onDeleteDocument={handleDeleteDocument}
+            currentTenantId={currentTenantId}
           />
         )}
 

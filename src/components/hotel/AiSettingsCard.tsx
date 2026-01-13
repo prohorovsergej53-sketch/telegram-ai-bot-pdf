@@ -11,7 +11,11 @@ import { AI_PRESETS } from './AiSettingsPresets';
 import AiSettingsSliders from './AiSettingsSliders';
 import { authenticatedFetch, getTenantId } from '@/lib/auth';
 
-const AiSettingsCard = () => {
+interface AiSettingsCardProps {
+  currentTenantId?: number | null;
+}
+
+const AiSettingsCard = ({ currentTenantId }: AiSettingsCardProps) => {
   const [selectedModel, setSelectedModel] = useState<string>('yandexgpt');
   const [settings, setSettings] = useState<AiModelSettings>(DEFAULT_AI_SETTINGS.yandexgpt);
   const [selectedPreset, setSelectedPreset] = useState<string>('');
@@ -24,7 +28,7 @@ const AiSettingsCard = () => {
 
   const loadSettings = async () => {
     try {
-      const tenantId = getTenantId();
+      const tenantId = currentTenantId || getTenantId();
       const url = tenantId ? `${BACKEND_URLS.getAiSettings}?tenant_id=${tenantId}` : BACKEND_URLS.getAiSettings;
       const response = await authenticatedFetch(url);
       const data = await response.json();
@@ -67,7 +71,7 @@ const AiSettingsCard = () => {
   const handleSaveSettings = async () => {
     setIsLoading(true);
     try {
-      const tenantId = getTenantId();
+      const tenantId = currentTenantId || getTenantId();
       const url = tenantId ? `${BACKEND_URLS.updateAiSettings}?tenant_id=${tenantId}` : BACKEND_URLS.updateAiSettings;
       const response = await authenticatedFetch(url, {
         method: 'POST',

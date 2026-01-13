@@ -24,9 +24,10 @@ interface AdminViewProps {
   isLoading: boolean;
   onFileUpload: (event: React.ChangeEvent<HTMLInputElement>) => void;
   onDeleteDocument: (documentId: number) => void;
+  currentTenantId: number | null;
 }
 
-const AdminView = ({ documents, isLoading, onFileUpload, onDeleteDocument }: AdminViewProps) => {
+const AdminView = ({ documents, isLoading, onFileUpload, onDeleteDocument, currentTenantId }: AdminViewProps) => {
   const navigate = useNavigate();
   const tenantId = getTenantId();
   const tariffId = getTariffId();
@@ -172,7 +173,7 @@ const AdminView = ({ documents, isLoading, onFileUpload, onDeleteDocument }: Adm
       <PageSettingsCard />
 
       {superAdmin && (
-        <AiSettingsCard />
+        <AiSettingsCard currentTenantId={currentTenantId} />
       )}
 
       {superAdmin && isViewingOtherTenant && (
