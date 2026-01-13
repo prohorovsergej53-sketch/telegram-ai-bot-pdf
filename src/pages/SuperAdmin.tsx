@@ -20,6 +20,9 @@ const SuperAdmin = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [editingTenant, setEditingTenant] = useState<Tenant | null>(null);
   const [editingTariff, setEditingTariff] = useState<Tariff | null>(null);
+  const [activeTab, setActiveTab] = useState<string>(() => {
+    return sessionStorage.getItem('superadmin_active_tab') || 'dashboard';
+  });
 
   useEffect(() => {
     if (!isSuperAdmin()) {
@@ -28,6 +31,10 @@ const SuperAdmin = () => {
     }
     loadData();
   }, [navigate]);
+
+  useEffect(() => {
+    sessionStorage.setItem('superadmin_active_tab', activeTab);
+  }, [activeTab]);
 
   const loadData = async () => {
     setIsLoading(true);
@@ -177,7 +184,7 @@ const SuperAdmin = () => {
           </div>
         </div>
 
-        <Tabs defaultValue="dashboard" className="space-y-6">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <TabsList className="bg-white shadow-sm">
             <TabsTrigger value="dashboard">
               <Icon name="LayoutDashboard" size={16} className="mr-2" />
