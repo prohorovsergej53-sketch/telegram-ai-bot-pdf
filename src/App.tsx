@@ -9,6 +9,8 @@ import NotFound from "./pages/NotFound";
 import LandingPage from "./components/landing/LandingPage";
 import MasterAdminView from "./components/master/MasterAdminView";
 import ContentEditor from "./pages/ContentEditor";
+import PaymentPage from "./pages/PaymentPage";
+import PaymentSuccess from "./pages/PaymentSuccess";
 
 const queryClient = new QueryClient();
 
@@ -20,6 +22,8 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<LandingPage />} />
+          <Route path="/payment" element={<PaymentPage />} />
+          <Route path="/payment/success" element={<PaymentSuccess />} />
           <Route path="/master-admin" element={<MasterAdminView />} />
           <Route path="/content-editor" element={<ContentEditor />} />
           <Route path="/:tenantSlug" element={<Index />} />

@@ -5,6 +5,9 @@ import hashlib
 import secrets
 import string
 import smtplib
+import requests
+import uuid
+from base64 import b64encode
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from datetime import datetime
@@ -38,6 +41,10 @@ def handler(event: dict, context) -> dict:
             return handle_create_user(method, event, cur, conn)
         elif action == 'public_content':
             return handle_public_content(method, event, cur, conn)
+        elif action == 'create_payment':
+            cur.close()
+            conn.close()
+            return handle_create_payment(method, event)
 
         if method == 'GET':
             cur.execute("""
@@ -391,3 +398,64 @@ def send_email(to_email: str, subject: str, body: str) -> bool:
     except Exception as e:
         print(f'Ошибка отправки email: {str(e)}')
         return False
+
+def handle_create_payment(method, event):
+    """Создание платежа в ЮKassa"""
+    if method != 'POST':
+        return {'statusCode': 405, 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}, 'body': json.dumps({'error': 'Method not allowed'}), 'isBase64Encoded': False}
+    
+    try:
+        body = json.loads(event.get('body', '{}'))
+        
+        amount = body.get('amount')
+        description = body.get('description', 'Оплата подписки')
+        metadata = body.get('metadata', {})
+
+        if not amount:
+            return {'statusCode': 400, 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}, 'body': json.dumps({'error': 'amount required'}), 'isBase64Encoded': False}
+
+        shop_id = os.environ.get('YOOKASSA_SHOP_ID')
+        secret_key = os.environ.get('YOOKASSA_SECRET_KEY')
+
+        if not shop_id or not secret_key:
+            return {'statusCode': 500, 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}, 'body': json.dumps({'error': 'ЮKassa credentials not configured'}), 'isBase64Encoded': False}
+
+        idempotence_key = str(uuid.uuid4())
+        
+        auth_string = f"{shop_id}:{secret_key}"
+        auth_bytes = auth_string.encode('utf-8')
+        auth_b64 = b64encode(auth_bytes).decode('utf-8')
+
+        payment_data = {
+            'amount': {
+                'value': str(amount),
+                'currency': 'RUB'
+            },
+            'confirmation': {
+                'type': 'redirect',
+                'return_url': 'https://your-domain.com/payment/success'
+            },
+            'capture': True,
+            'description': description,
+            'metadata': metadata
+        }
+
+        response = requests.post(
+            'https://api.yookassa.ru/v3/payments',
+            json=payment_data,
+            headers={
+                'Authorization': f'Basic {auth_b64}',
+                'Idempotence-Key': idempotence_key,
+                'Content-Type': 'application/json'
+            }
+        )
+
+        if response.status_code == 200:
+            payment = response.json()
+            return {'statusCode': 200, 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}, 'body': json.dumps({'payment_id': payment['id'], 'confirmation_url': payment['confirmation']['confirmation_url'], 'status': payment['status']}), 'isBase64Encoded': False}
+        else:
+            error_data = response.json()
+            return {'statusCode': response.status_code, 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}, 'body': json.dumps({'error': error_data}), 'isBase64Encoded': False}
+
+    except Exception as e:
+        return {'statusCode': 500, 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}, 'body': json.dumps({'error': str(e)}), 'isBase64Encoded': False}
