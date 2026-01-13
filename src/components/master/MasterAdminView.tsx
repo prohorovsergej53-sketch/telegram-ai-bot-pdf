@@ -15,6 +15,8 @@ import AdminUsersPanel from './AdminUsersPanel';
 import MessengersStatusCard from './MessengersStatusCard';
 import DefaultSettingsPanel from './DefaultSettingsPanel';
 import CreateTenantWithUserPanel from './CreateTenantWithUserPanel';
+import TariffManagementPanel from './TariffManagementPanel';
+import UsersManagementPanel from './UsersManagementPanel';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 interface Tenant {
@@ -330,11 +332,13 @@ const MasterAdminView = () => {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full max-w-3xl grid-cols-4">
+        <TabsList className="grid w-full max-w-4xl grid-cols-6">
           <TabsTrigger value="dashboard">Дашборд</TabsTrigger>
-          <TabsTrigger value="create">Создать пару</TabsTrigger>
-          <TabsTrigger value="settings">Дефолтные настройки</TabsTrigger>
           <TabsTrigger value="users">Пользователи</TabsTrigger>
+          <TabsTrigger value="tariffs">Тарифы</TabsTrigger>
+          <TabsTrigger value="create">Создать пару</TabsTrigger>
+          <TabsTrigger value="settings">Настройки</TabsTrigger>
+          <TabsTrigger value="admins">Админы</TabsTrigger>
         </TabsList>
         
         <TabsContent value="dashboard" className="space-y-6">
@@ -360,6 +364,14 @@ const MasterAdminView = () => {
           <TenantsListTable tenants={tenants} onUpdate={loadTenants} />
         </TabsContent>
 
+        <TabsContent value="users">
+          <UsersManagementPanel />
+        </TabsContent>
+
+        <TabsContent value="tariffs">
+          <TariffManagementPanel />
+        </TabsContent>
+
         <TabsContent value="create">
           <CreateTenantWithUserPanel />
         </TabsContent>
@@ -368,7 +380,7 @@ const MasterAdminView = () => {
           <DefaultSettingsPanel />
         </TabsContent>
 
-        <TabsContent value="users">
+        <TabsContent value="admins">
           <AdminUsersPanel />
         </TabsContent>
       </Tabs>

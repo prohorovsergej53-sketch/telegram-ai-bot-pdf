@@ -82,7 +82,9 @@ const DefaultSettingsPanel = () => {
     'smtp_host': 'SMTP сервер',
     'smtp_port': 'SMTP порт',
     'smtp_user': 'SMTP пользователь (email)',
-    'smtp_password': 'SMTP пароль приложения'
+    'smtp_password': 'SMTP пароль приложения',
+    'yookassa_shop_id': 'ЮKassa Shop ID',
+    'yookassa_secret_key': 'ЮKassa Secret Key'
   };
 
   const settingCategories: { [key: string]: string } = {
@@ -91,10 +93,12 @@ const DefaultSettingsPanel = () => {
     'smtp_host': 'smtp',
     'smtp_port': 'smtp',
     'smtp_user': 'smtp',
-    'smtp_password': 'smtp'
+    'smtp_password': 'smtp',
+    'yookassa_shop_id': 'yookassa',
+    'yookassa_secret_key': 'yookassa'
   };
 
-  const isSmallInput = (key: string) => ['smtp_host', 'smtp_port', 'smtp_user', 'smtp_password'].includes(key);
+  const isSmallInput = (key: string) => ['smtp_host', 'smtp_port', 'smtp_user', 'smtp_password', 'yookassa_shop_id', 'yookassa_secret_key'].includes(key);
 
   if (isLoading) {
     return (
@@ -199,6 +203,52 @@ const DefaultSettingsPanel = () => {
                 <>
                   <Icon name="Save" className="mr-2" size={16} />
                   Сохранить SMTP настройки
+                </>
+              )}
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+
+      <div>
+        <h3 className="text-xl font-semibold mb-4">💳 ЮKassa настройки</h3>
+        <Card>
+          <CardHeader>
+            <CardTitle>Интеграция с платежной системой</CardTitle>
+            <CardDescription>
+              Настройте ЮKassa для приема платежей за подписку
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {Object.keys(settings).filter(key => settingCategories[key] === 'yookassa').map(key => (
+              <div key={key}>
+                <Label htmlFor={key}>{settingLabels[key] || key}</Label>
+                <Input
+                  id={key}
+                  type={key === 'yookassa_secret_key' ? 'password' : 'text'}
+                  value={editedSettings[key] || ''}
+                  onChange={(e) => setEditedSettings({ ...editedSettings, [key]: e.target.value })}
+                  placeholder={key === 'yookassa_shop_id' ? '123456' : 'live_xxxxx или test_xxxxx'}
+                  className="font-mono"
+                />
+              </div>
+            ))}
+            <Button
+              onClick={() => {
+                ['yookassa_shop_id', 'yookassa_secret_key'].forEach(key => handleSave(key));
+              }}
+              disabled={isSaving}
+              className="w-full"
+            >
+              {isSaving ? (
+                <>
+                  <Icon name="Loader2" className="animate-spin mr-2" size={16} />
+                  Сохранение...
+                </>
+              ) : (
+                <>
+                  <Icon name="Save" className="mr-2" size={16} />
+                  Сохранить ЮKassa настройки
                 </>
               )}
             </Button>

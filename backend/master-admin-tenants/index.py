@@ -45,6 +45,14 @@ def handler(event: dict, context) -> dict:
             cur.close()
             conn.close()
             return handle_create_payment(method, event)
+        elif action == 'users_list':
+            return handle_users_list(method, event, cur, conn)
+        elif action == 'toggle_user_status':
+            return handle_toggle_user_status(method, event, cur, conn)
+        elif action == 'toggle_tenant_public':
+            return handle_toggle_tenant_public(method, event, cur, conn)
+        elif action == 'tariffs':
+            return handle_tariffs(method, event, cur, conn)
 
         if method == 'GET':
             cur.execute("""
@@ -405,6 +413,25 @@ def handle_create_payment(method, event):
         return {'statusCode': 405, 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}, 'body': json.dumps({'error': 'Method not allowed'}), 'isBase64Encoded': False}
     
     try:
+        conn = psycopg2.connect(os.environ['DATABASE_URL'])
+        cur = conn.cursor()
+        
+        cur.execute("""
+            SELECT setting_value FROM t_p56134400_telegram_ai_bot_pdf.default_settings
+            WHERE setting_key IN ('yookassa_shop_id', 'yookassa_secret_key')
+        """)
+        settings_rows = cur.fetchall()
+        if len(settings_rows) < 2:
+            cur.close()
+            conn.close()
+            return {'statusCode': 500, 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}, 'body': json.dumps({'error': 'ЮKassa credentials not configured in database'}), 'isBase64Encoded': False}
+        
+        shop_id = settings_rows[0][0] if settings_rows[0][0] else None
+        secret_key = settings_rows[1][0] if settings_rows[1][0] else None
+        
+        cur.close()
+        conn.close()
+        
         body = json.loads(event.get('body', '{}'))
         
         amount = body.get('amount')
@@ -413,9 +440,6 @@ def handle_create_payment(method, event):
 
         if not amount:
             return {'statusCode': 400, 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}, 'body': json.dumps({'error': 'amount required'}), 'isBase64Encoded': False}
-
-        shop_id = os.environ.get('YOOKASSA_SHOP_ID')
-        secret_key = os.environ.get('YOOKASSA_SECRET_KEY')
 
         if not shop_id or not secret_key:
             return {'statusCode': 500, 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}, 'body': json.dumps({'error': 'ЮKassa credentials not configured'}), 'isBase64Encoded': False}
@@ -459,3 +483,152 @@ def handle_create_payment(method, event):
 
     except Exception as e:
         return {'statusCode': 500, 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}, 'body': json.dumps({'error': str(e)}), 'isBase64Encoded': False}
+
+def handle_users_list(method, event, cur, conn):
+    """Список пользователей с подписками"""
+    if method != 'GET':
+        return {'statusCode': 405, 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}, 'body': json.dumps({'error': 'Method not allowed'}), 'isBase64Encoded': False}
+    
+    try:
+        cur.execute("""
+            SELECT 
+                u.id, u.username, u.email, u.role, u.tenant_id, u.is_active,
+                u.subscription_status, u.subscription_end_date, u.tariff_id, u.created_at,
+                t.name as tenant_name, t.slug as tenant_slug, t.is_public
+            FROM t_p56134400_telegram_ai_bot_pdf.admin_users u
+            JOIN t_p56134400_telegram_ai_bot_pdf.tenants t ON t.id = u.tenant_id
+            WHERE u.role = 'content_editor'
+            ORDER BY u.created_at DESC
+        """)
+        rows = cur.fetchall()
+        users = []
+        for row in rows:
+            users.append({
+                'id': row[0],
+                'username': row[1],
+                'email': row[2],
+                'role': row[3],
+                'tenant_id': row[4],
+                'is_active': row[5],
+                'subscription_status': row[6],
+                'subscription_end_date': row[7].isoformat() if row[7] else None,
+                'tariff_id': row[8],
+                'created_at': row[9].isoformat() if row[9] else None,
+                'tenant_name': row[10],
+                'tenant_slug': row[11],
+                'is_public': row[12]
+            })
+        cur.close()
+        conn.close()
+        return {'statusCode': 200, 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}, 'body': json.dumps({'users': users}), 'isBase64Encoded': False}
+    except Exception as e:
+        cur.close()
+        conn.close()
+        return {'statusCode': 500, 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}, 'body': json.dumps({'error': str(e)}), 'isBase64Encoded': False}
+
+def handle_toggle_user_status(method, event, cur, conn):
+    """Переключение статуса пользователя"""
+    if method != 'POST':
+        return {'statusCode': 405, 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}, 'body': json.dumps({'error': 'Method not allowed'}), 'isBase64Encoded': False}
+    
+    try:
+        body = json.loads(event.get('body', '{}'))
+        user_id = body.get('user_id')
+        is_active = body.get('is_active')
+        
+        if user_id is None or is_active is None:
+            return {'statusCode': 400, 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}, 'body': json.dumps({'error': 'user_id and is_active required'}), 'isBase64Encoded': False}
+        
+        cur.execute("""
+            UPDATE t_p56134400_telegram_ai_bot_pdf.admin_users
+            SET is_active = %s
+            WHERE id = %s
+        """, (is_active, user_id))
+        conn.commit()
+        cur.close()
+        conn.close()
+        return {'statusCode': 200, 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}, 'body': json.dumps({'success': True}), 'isBase64Encoded': False}
+    except Exception as e:
+        cur.close()
+        conn.close()
+        return {'statusCode': 500, 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}, 'body': json.dumps({'error': str(e)}), 'isBase64Encoded': False}
+
+def handle_toggle_tenant_public(method, event, cur, conn):
+    """Переключение публичной видимости тенанта"""
+    if method != 'POST':
+        return {'statusCode': 405, 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}, 'body': json.dumps({'error': 'Method not allowed'}), 'isBase64Encoded': False}
+    
+    try:
+        body = json.loads(event.get('body', '{}'))
+        tenant_id = body.get('tenant_id')
+        is_public = body.get('is_public')
+        
+        if tenant_id is None or is_public is None:
+            return {'statusCode': 400, 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}, 'body': json.dumps({'error': 'tenant_id and is_public required'}), 'isBase64Encoded': False}
+        
+        cur.execute("""
+            UPDATE t_p56134400_telegram_ai_bot_pdf.tenants
+            SET is_public = %s
+            WHERE id = %s
+        """, (is_public, tenant_id))
+        conn.commit()
+        cur.close()
+        conn.close()
+        return {'statusCode': 200, 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}, 'body': json.dumps({'success': True}), 'isBase64Encoded': False}
+    except Exception as e:
+        cur.close()
+        conn.close()
+        return {'statusCode': 500, 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}, 'body': json.dumps({'error': str(e)}), 'isBase64Encoded': False}
+
+def handle_tariffs(method, event, cur, conn):
+    """Управление тарифами"""
+    if method == 'GET':
+        try:
+            cur.execute("""
+                SELECT id, name, price, period, features, is_popular, is_active, sort_order
+                FROM t_p56134400_telegram_ai_bot_pdf.tariff_plans
+                ORDER BY sort_order
+            """)
+            rows = cur.fetchall()
+            tariffs = []
+            for row in rows:
+                tariffs.append({
+                    'id': row[0],
+                    'name': row[1],
+                    'price': float(row[2]),
+                    'period': row[3],
+                    'features': row[4],
+                    'is_popular': row[5],
+                    'is_active': row[6],
+                    'sort_order': row[7]
+                })
+            cur.close()
+            conn.close()
+            return {'statusCode': 200, 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}, 'body': json.dumps({'tariffs': tariffs}), 'isBase64Encoded': False}
+        except Exception as e:
+            cur.close()
+            conn.close()
+            return {'statusCode': 500, 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}, 'body': json.dumps({'error': str(e)}), 'isBase64Encoded': False}
+    elif method == 'PUT':
+        try:
+            body = json.loads(event.get('body', '{}'))
+            tariff_id = body.get('id')
+            
+            cur.execute("""
+                UPDATE t_p56134400_telegram_ai_bot_pdf.tariff_plans
+                SET name = %s, price = %s, period = %s, features = %s, 
+                    is_popular = %s, is_active = %s, sort_order = %s, updated_at = NOW()
+                WHERE id = %s
+            """, (
+                body.get('name'), body.get('price'), body.get('period'), 
+                json.dumps(body.get('features')), body.get('is_popular'), 
+                body.get('is_active'), body.get('sort_order', 0), tariff_id
+            ))
+            conn.commit()
+            cur.close()
+            conn.close()
+            return {'statusCode': 200, 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}, 'body': json.dumps({'success': True}), 'isBase64Encoded': False}
+        except Exception as e:
+            cur.close()
+            conn.close()
+            return {'statusCode': 500, 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}, 'body': json.dumps({'error': str(e)}), 'isBase64Encoded': False}

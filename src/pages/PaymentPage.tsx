@@ -16,56 +16,12 @@ interface TariffPlan {
   price: number;
   period: string;
   features: string[];
-  popular?: boolean;
+  is_popular?: boolean;
+  is_active?: boolean;
 }
 
-const tariffs: TariffPlan[] = [
-  {
-    id: 'basic',
-    name: 'Базовый',
-    price: 2990,
-    period: 'месяц',
-    features: [
-      'AI-консьерж в Telegram',
-      'До 1000 сообщений в месяц',
-      'Загрузка до 10 документов',
-      'Базовая аналитика',
-      'Email поддержка'
-    ]
-  },
-  {
-    id: 'professional',
-    name: 'Профессиональный',
-    price: 5990,
-    period: 'месяц',
-    popular: true,
-    features: [
-      'AI-консьерж в Telegram, WhatsApp, VK',
-      'До 5000 сообщений в месяц',
-      'Безлимитная загрузка документов',
-      'Расширенная аналитика',
-      'Настройка промптов и моделей',
-      'Приоритетная поддержка'
-    ]
-  },
-  {
-    id: 'enterprise',
-    name: 'Корпоративный',
-    price: 14990,
-    period: 'месяц',
-    features: [
-      'Все возможности Professional',
-      'Безлимитные сообщения',
-      'Несколько ботов (до 5)',
-      'Кастомизация интерфейса',
-      'Интеграция с CRM',
-      'Персональный менеджер',
-      'SLA 99.9%'
-    ]
-  }
-];
-
 const PaymentPage = () => {
+  const [tariffs, setTariffs] = useState<TariffPlan[]>([]);
   const [selectedTariff, setSelectedTariff] = useState<string>('professional');
   const [formData, setFormData] = useState({
     tenant_name: '',
@@ -74,8 +30,31 @@ const PaymentPage = () => {
     owner_phone: ''
   });
   const [isLoading, setIsLoading] = useState(false);
-  const { toast } = useToast();
+  const [isLoadingTariffs, setIsLoadingTariffs] = useState(true);
+  const { toast} = useToast();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    loadTariffs();
+  }, []);
+
+  const loadTariffs = async () => {
+    try {
+      const response = await fetch(`${BACKEND_URL}?action=tariffs`);
+      const data = await response.json();
+      const activeTariffs = (data.tariffs || []).filter((t: TariffPlan) => t.is_active);
+      setTariffs(activeTariffs);
+      if (activeTariffs.length > 0) {
+        const popular = activeTariffs.find((t: TariffPlan) => t.is_popular);
+        setSelectedTariff(popular?.id || activeTariffs[0].id);
+      }
+    } catch (error) {
+      console.error('Error loading tariffs:', error);
+      toast({ title: 'Ошибка', description: 'Не удалось загрузить тарифы', variant: 'destructive' });
+    } finally {
+      setIsLoadingTariffs(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -148,6 +127,14 @@ const PaymentPage = () => {
     }
   };
 
+  if (isLoadingTariffs) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
+        <Icon name="Loader2" className="animate-spin" size={48} />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-4">
       <div className="max-w-6xl mx-auto">
@@ -164,10 +151,10 @@ const PaymentPage = () => {
               key={tariff.id}
               className={`relative cursor-pointer transition-all hover:shadow-lg ${
                 selectedTariff === tariff.id ? 'ring-2 ring-primary' : ''
-              } ${tariff.popular ? 'border-primary' : ''}`}
+              } ${tariff.is_popular ? 'border-primary' : ''}`}
               onClick={() => setSelectedTariff(tariff.id)}
             >
-              {tariff.popular && (
+              {tariff.is_popular && (
                 <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
                   <span className="bg-primary text-primary-foreground px-3 py-1 rounded-full text-xs font-semibold">
                     Популярный

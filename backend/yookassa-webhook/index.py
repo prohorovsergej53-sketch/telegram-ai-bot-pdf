@@ -7,7 +7,7 @@ import string
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-from datetime import datetime
+from datetime import datetime, timedelta
 
 def handler(event: dict, context) -> dict:
     """Webhook для получения уведомлений от ЮKassa о статусе платежей"""
@@ -75,13 +75,19 @@ def handler(event: dict, context) -> dict:
             owner_phone = metadata.get('owner_phone', '')
             
             if owner_email:
+                tariff_id = metadata.get('tariff_id', 'basic')
+                
+                # Вычисляем дату окончания подписки (через 30 дней)
+                subscription_end = datetime.utcnow() + timedelta(days=30)
+                
                 # Создаем тенант
                 cur.execute("""
                     INSERT INTO t_p56134400_telegram_ai_bot_pdf.tenants 
-                    (slug, name, description, owner_email, owner_phone, template_version, auto_update, status)
-                    VALUES (%s, %s, %s, %s, %s, '1.0.0', false, 'active')
+                    (slug, name, description, owner_email, owner_phone, template_version, auto_update, status, 
+                     is_public, subscription_status, subscription_end_date, tariff_id)
+                    VALUES (%s, %s, %s, %s, %s, '1.0.0', false, 'active', true, 'active', %s, %s)
                     RETURNING id
-                """, (tenant_slug, tenant_name, f'Создан после оплаты {payment_id}', owner_email, owner_phone))
+                """, (tenant_slug, tenant_name, f'Создан после оплаты {payment_id}', owner_email, owner_phone, subscription_end, tariff_id))
                 
                 tenant_id = cur.fetchone()[0]
                 
@@ -98,12 +104,19 @@ def handler(event: dict, context) -> dict:
                 
                 cur.execute("""
                     INSERT INTO t_p56134400_telegram_ai_bot_pdf.admin_users 
-                    (username, password_hash, email, role, tenant_id, is_active)
-                    VALUES (%s, %s, %s, 'content_editor', %s, true)
+                    (username, password_hash, email, role, tenant_id, is_active, subscription_status, subscription_end_date, tariff_id)
+                    VALUES (%s, %s, %s, 'content_editor', %s, true, 'active', %s, %s)
                     RETURNING id
-                """, (username, password_hash, owner_email, tenant_id))
+                """, (username, password_hash, owner_email, tenant_id, subscription_end, tariff_id))
                 
                 user_id = cur.fetchone()[0]
+                
+                # Записываем платеж в таблицу подписок
+                cur.execute("""
+                    INSERT INTO t_p56134400_telegram_ai_bot_pdf.subscription_payments
+                    (tenant_id, payment_id, amount, status, tariff_id, payment_type)
+                    VALUES (%s, %s, %s, %s, %s, 'initial')
+                """, (tenant_id, payment_id, amount, status, tariff_id))
                 
                 # Обновляем запись платежа с tenant_id
                 cur.execute(f"""
