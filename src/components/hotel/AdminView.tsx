@@ -8,7 +8,6 @@ import PageSettingsCard from './PageSettingsCard';
 import WidgetSettingsCard from './WidgetSettingsCard';
 import AiSettingsCard from './AiSettingsCard';
 import SubscriptionWidget from './SubscriptionWidget';
-import ApiKeysCard from './ApiKeysCard';
 import MessengerAutoMessages from './MessengerAutoMessages';
 import { DocumentStatsCards } from './DocumentStatsCards';
 import { DocumentsPanel } from './DocumentsPanel';
@@ -162,8 +161,6 @@ const AdminView = ({ documents, isLoading, onFileUpload, onDeleteDocument }: Adm
       ) : (
         <UpgradeCard feature="Интеграция с MAX.ru" />
       )}
-
-      <ApiKeysCard />
 
       <WidgetSettingsCard />
 
