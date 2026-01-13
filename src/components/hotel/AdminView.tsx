@@ -36,6 +36,7 @@ const AdminView = ({ documents, isLoading, onFileUpload, onDeleteDocument }: Adm
 
   const handleExitTenantView = () => {
     exitTenantView();
+    sessionStorage.setItem('superadmin_active_tab', 'tenants');
     navigate('/super-admin');
   };
 
