@@ -345,8 +345,8 @@ const Index = () => {
                   }}
                   className="gap-2"
                 >
-                  <Icon name="Shield" size={18} />
-                  Суперадмин
+                  <Icon name="Crown" size={18} />
+                  Мастер-панель
                 </Button>
               )}
               <Button 
