@@ -18,7 +18,7 @@ export const FooterSection = () => {
               </a>
               <p className="flex items-start">
                 <Icon name="MapPin" size={16} className="inline mr-2 mt-1 flex-shrink-0" />
-                <span>298100, Республика Крым, г. Феодосия, ул. Федько, д. 43</span>
+                <span>Республика Крым, г. Феодосия</span>
               </p>
             </div>
           </div>
