@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 
 interface PricingSectionProps {
-  onPlanSelect: () => void;
+  onPlanSelect: (tariffId: string) => void;
 }
 
 export const PricingSection = ({ onPlanSelect }: PricingSectionProps) => {
@@ -23,12 +23,12 @@ export const PricingSection = ({ onPlanSelect }: PricingSectionProps) => {
                   <span className="text-4xl font-bold text-slate-900">9 975₽</span>
                   <span className="text-slate-600">/мес</span>
                 </div>
-                <div className="text-sm text-slate-500 mt-1">продление 2 000₽/мес</div>
+                <div className="text-sm text-slate-500 mt-1">продление 1 975₽/мес</div>
               </div>
               <ul className="space-y-3 mb-6">
                 <li className="flex items-center gap-2 text-slate-600">
                   <Icon name="Check" size={20} className="text-green-600" />
-                  Публичный web-чат
+                  Web-чат на отдельной странице и на Ваш сайт
                 </li>
                 <li className="flex items-center gap-2 text-slate-600">
                   <Icon name="Check" size={20} className="text-green-600" />
@@ -47,7 +47,7 @@ export const PricingSection = ({ onPlanSelect }: PricingSectionProps) => {
                   Без мессенджеров
                 </li>
               </ul>
-              <Button className="w-full" variant="outline" onClick={onPlanSelect}>
+              <Button className="w-full" variant="outline" onClick={() => onPlanSelect('basic')}>
                 Выбрать
               </Button>
             </CardContent>
@@ -64,10 +64,10 @@ export const PricingSection = ({ onPlanSelect }: PricingSectionProps) => {
               <p className="text-slate-600 mb-4">Для растущих компаний</p>
               <div className="mb-6">
                 <div>
-                  <span className="text-4xl font-bold text-slate-900">19 990₽</span>
+                  <span className="text-4xl font-bold text-slate-900">19 975₽</span>
                   <span className="text-slate-600">/мес</span>
                 </div>
-                <div className="text-sm text-slate-500 mt-1">продление 5 000₽/мес</div>
+                <div className="text-sm text-slate-500 mt-1">продление 4 975₽/мес</div>
               </div>
               <ul className="space-y-3 mb-6">
                 <li className="flex items-center gap-2 text-slate-600">
@@ -91,7 +91,7 @@ export const PricingSection = ({ onPlanSelect }: PricingSectionProps) => {
                   Приоритетная поддержка
                 </li>
               </ul>
-              <Button className="w-full" onClick={onPlanSelect}>
+              <Button className="w-full" onClick={() => onPlanSelect('professional')}>
                 Выбрать
               </Button>
             </CardContent>
@@ -103,10 +103,10 @@ export const PricingSection = ({ onPlanSelect }: PricingSectionProps) => {
               <p className="text-slate-600 mb-4">Для крупного бизнеса</p>
               <div className="mb-6">
                 <div>
-                  <span className="text-4xl font-bold text-slate-900">49 990₽</span>
+                  <span className="text-4xl font-bold text-slate-900">49 975₽</span>
                   <span className="text-slate-600">/мес</span>
                 </div>
-                <div className="text-sm text-slate-500 mt-1">продление 15 000₽/мес</div>
+                <div className="text-sm text-slate-500 mt-1">продление 14 975₽/мес</div>
               </div>
               <ul className="space-y-3 mb-6">
                 <li className="flex items-center gap-2 text-slate-600">
@@ -134,8 +134,8 @@ export const PricingSection = ({ onPlanSelect }: PricingSectionProps) => {
                   Кастомизация под задачи
                 </li>
               </ul>
-              <Button className="w-full" variant="outline" onClick={onPlanSelect}>
-                Связаться
+              <Button className="w-full" variant="outline" onClick={() => onPlanSelect('enterprise')}>
+                Выбрать
               </Button>
             </CardContent>
           </Card>

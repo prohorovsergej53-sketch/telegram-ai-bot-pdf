@@ -1,25 +1,35 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 
 const YOOKASSA_CREATE_PAYMENT_URL = 'https://functions.poehali.dev/f4c127b8-2009-4d9b-b026-9fdf933b8b3a';
 
-export const OrderFormSection = () => {
+interface OrderFormSectionProps {
+  selectedTariff?: string;
+}
+
+export const OrderFormSection = ({ selectedTariff }: OrderFormSectionProps) => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     phone: '',
-    tariff: 'basic',
+    tariff: selectedTariff || 'basic',
     comment: ''
   });
+
+  useEffect(() => {
+    if (selectedTariff) {
+      setFormData(prev => ({ ...prev, tariff: selectedTariff }));
+    }
+  }, [selectedTariff]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
   const tariffs = {
-    basic: { name: 'Старт', price: 9975, description: 'Старт (9 975₽/мес)', renewal: 2000 },
-    professional: { name: 'Бизнес', price: 19990, description: 'Бизнес (19 990₽/мес)', renewal: 5000 },
-    enterprise: { name: 'Премиум', price: 49990, description: 'Премиум (49 990₽/мес)', renewal: 15000 }
+    basic: { name: 'Старт', price: 9975, description: 'Старт (9 975₽/мес)', renewal: 1975 },
+    professional: { name: 'Бизнес', price: 19975, description: 'Бизнес (19 975₽/мес)', renewal: 4975 },
+    enterprise: { name: 'Премиум', price: 49975, description: 'Премиум (49 975₽/мес)', renewal: 14975 }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -128,9 +138,9 @@ export const OrderFormSection = () => {
                   onChange={(e) => setFormData({ ...formData, tariff: e.target.value })}
                   className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                 >
-                  <option value="basic">{tariffs.basic.description} + продление 2000₽/мес</option>
-                  <option value="professional">{tariffs.professional.description} + продление 5000₽/мес</option>
-                  <option value="enterprise">{tariffs.enterprise.description} + продление 15000₽/мес</option>
+                  <option value="basic">{tariffs.basic.description} + продление 1975₽/мес</option>
+                  <option value="professional">{tariffs.professional.description} + продление 4975₽/мес</option>
+                  <option value="enterprise">{tariffs.enterprise.description} + продление 14975₽/мес</option>
                 </select>
               </div>
               <div>
