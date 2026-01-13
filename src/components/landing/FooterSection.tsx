@@ -30,21 +30,21 @@ export const FooterSection = () => {
                 Политика конфиденциальности
               </Link>
               <Link to="/terms-of-service" className="block hover:text-white transition-colors">
-                Пользовательское соглашение
+                Оферта
               </Link>
             </div>
           </div>
           <div>
             <h3 className="text-lg font-semibold mb-4">Реквизиты</h3>
             <div className="space-y-2 text-slate-400">
-              <p>ИП Нехорошев Антон Александрович</p>
-              <p>ИНН: 910800040469</p>
-              <p>Республика Крым, г. Феодосия</p>
+              <p>Самозанятый (НПД)</p>
+              <p>Прохоров Сергей Валериевич</p>
+              <p>ИНН: 920412274860</p>
             </div>
           </div>
         </div>
         <div className="border-t border-slate-800 pt-8 text-center text-slate-400">
-          <p>&copy; {new Date().getFullYear()} ИП Нехорошев А.А. Все права защищены.</p>
+          <p>&copy; {new Date().getFullYear()} Прохоров С.В. Все права защищены.</p>
         </div>
       </div>
     </div>

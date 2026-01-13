@@ -31,6 +31,7 @@ const App = () => (
           <Route path="/payment/success" element={<PaymentSuccess />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/terms-of-service" element={<TermsOfService />} />
+          <Route path="/oferta" element={<TermsOfService />} />
           <Route path="/master-admin" element={<MasterAdminView />} />
           <Route path="/super-admin" element={<SuperAdmin />} />
           <Route path="/content-editor" element={<ContentEditor />} />
