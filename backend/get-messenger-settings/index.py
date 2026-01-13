@@ -2,6 +2,7 @@ import json
 import os
 import psycopg2
 from psycopg2.extras import RealDictCursor
+from auth_middleware import get_tenant_id_from_request, require_auth
 
 
 def handler(event: dict, context) -> dict:
@@ -15,7 +16,7 @@ def handler(event: dict, context) -> dict:
             'headers': {
                 'Access-Control-Allow-Origin': '*',
                 'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-                'Access-Control-Allow-Headers': 'Content-Type, X-Authorization'
+                'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Authorization'
             },
             'body': ''
         }
@@ -51,8 +52,11 @@ def handler(event: dict, context) -> dict:
 def handle_get(event: dict, dsn: str) -> dict:
     """Обработка GET запроса - получение настроек"""
     try:
+        tenant_id, auth_error = get_tenant_id_from_request(event)
+        if auth_error:
+            return auth_error
+        
         query_params = event.get('queryStringParameters') or {}
-        tenant_id = int(query_params.get('tenant_id', 1))
         messenger_type = query_params.get('messenger_type')
         
         if messenger_type and messenger_type not in ['telegram', 'whatsapp', 'vk']:
@@ -135,10 +139,13 @@ def handle_get(event: dict, dsn: str) -> dict:
 def handle_post(event: dict, dsn: str) -> dict:
     """Обработка POST запроса - сохранение настроек"""
     try:
+        tenant_id, auth_error = get_tenant_id_from_request(event)
+        if auth_error:
+            return auth_error
+        
         body_str = event.get('body', '{}')
         body = json.loads(body_str) if isinstance(body_str, str) else body_str
         
-        tenant_id = body.get('tenant_id', 1)
         messenger_type = body.get('messenger_type')
         settings = body.get('settings', {})
         

@@ -17,6 +17,7 @@
   "master-admin-versions": "https://functions.poehali.dev/7f6c3892-47f2-47aa-91b0-541f0de7c211",
   "master-admin-tenants": "https://functions.poehali.dev/2163d682-19a2-462b-b577-7f04219cc3c8",
   "get-quality-gate-stats": "https://functions.poehali.dev/398c246e-01fc-4a9c-9206-995f7881960a",
+  "get-widget-settings": "https://functions.poehali.dev/7ca040c5-91c5-403c-9d60-baa0f7e390a0",
   "update-page-settings": "https://functions.poehali.dev/83326caa-63b4-4bfa-a3f1-b0fee1d4baf9",
   "get-page-settings": "https://functions.poehali.dev/0534411b-d900-45d2-9082-a9485b33cf20",
   "auth-admin": "https://functions.poehali.dev/20be465d-cf04-4dc0-bbd3-1fc7ffb67ada",
