@@ -66,10 +66,11 @@ const PageSettingsCard = () => {
   const handleSaveSettings = async () => {
     setIsLoading(true);
     try {
+      const tenantId = getTenantId();
       const response = await authenticatedFetch(BACKEND_URLS.updatePageSettings, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ settings, quickQuestions })
+        body: JSON.stringify({ settings, quickQuestions, tenant_id: tenantId })
       });
 
       const data = await response.json();

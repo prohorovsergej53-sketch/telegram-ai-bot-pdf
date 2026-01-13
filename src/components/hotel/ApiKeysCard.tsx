@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import Icon from '@/components/ui/icon';
 import { authenticatedFetch } from '@/lib/auth';
+import { BACKEND_URLS } from './types';
 
 interface ApiKey {
   provider: string;
@@ -34,10 +35,16 @@ const ApiKeysCard = () => {
 
   const loadKeys = async () => {
     try {
-      // TODO: создать backend функцию для загрузки ключей
-      // const response = await authenticatedFetch('/api/get-api-keys');
-      // const data = await response.json();
-      // setKeys(data.keys);
+      const response = await authenticatedFetch(BACKEND_URLS.manageApiKeys);
+      const data = await response.json();
+      if (data.keys) {
+        const loadedKeys: Record<string, string> = {};
+        data.keys.forEach((key: any) => {
+          const keyId = `${key.provider}_${key.key_name}`;
+          loadedKeys[keyId] = key.has_value ? '********' : '';
+        });
+        setKeys(loadedKeys);
+      }
     } catch (error) {
       console.error('Error loading API keys:', error);
     }
@@ -58,20 +65,26 @@ const ApiKeysCard = () => {
 
     setIsLoading(true);
     try {
-      // TODO: создать backend функцию для сохранения ключей
-      // await authenticatedFetch('/api/save-api-key', {
-      //   method: 'POST',
-      //   body: JSON.stringify({ provider, key_name: keyName, key_value: value })
-      // });
-
-      toast({
-        title: 'Успешно',
-        description: 'API ключ сохранён'
+      const response = await authenticatedFetch(BACKEND_URLS.manageApiKeys, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ provider, key_name: keyName, key_value: value })
       });
-    } catch (error) {
+
+      if (response.ok) {
+        toast({
+          title: 'Успешно',
+          description: 'API ключ сохранён'
+        });
+        setKeys(prev => ({ ...prev, [keyId]: '********' }));
+      } else {
+        const data = await response.json();
+        throw new Error(data.error || 'Ошибка сохранения');
+      }
+    } catch (error: any) {
       toast({
         title: 'Ошибка',
-        description: 'Не удалось сохранить ключ',
+        description: error.message || 'Не удалось сохранить ключ',
         variant: 'destructive'
       });
     } finally {

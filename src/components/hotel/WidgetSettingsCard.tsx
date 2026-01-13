@@ -64,10 +64,11 @@ const WidgetSettingsCard = () => {
   const handleSave = async () => {
     setIsLoading(true);
     try {
+      const tenantId = getTenantId();
       const response = await authenticatedFetch(BACKEND_URLS.updateWidgetSettings, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(settings)
+        body: JSON.stringify({ ...settings, tenant_id: tenantId })
       });
 
       if (response.ok) {
