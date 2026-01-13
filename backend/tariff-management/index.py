@@ -49,18 +49,17 @@ def handler(event: dict, context) -> dict:
                     'isBase64Encoded': False
                 }
             
-            # Обновляем тариф у тенанта
+            # Обновляем тариф у тенанта и его владельца
             cur.execute(f"""
                 UPDATE {schema}.tenants
                 SET tariff_id = %s, updated_at = CURRENT_TIMESTAMP
                 WHERE id = %s
             """, (new_tariff_id, tenant_id))
             
-            # Обновляем тариф у всех пользователей этого тенанта
             cur.execute(f"""
                 UPDATE {schema}.admin_users
                 SET tariff_id = %s, updated_at = CURRENT_TIMESTAMP
-                WHERE tenant_id = %s
+                WHERE tenant_id = %s AND role = 'content_editor'
             """, (new_tariff_id, tenant_id))
             
             conn.commit()
