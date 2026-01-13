@@ -4,15 +4,16 @@ import psycopg2
 from datetime import datetime
 
 def handler(event: dict, context) -> dict:
-    """API для управления тарифами (только для суперадмина)"""
+    """API для управления тарифами и изменения тарифов клиентов (только для суперадмина)"""
     method = event.get('httpMethod', 'GET')
+    action = event.get('queryStringParameters', {}).get('action', '')
 
     if method == 'OPTIONS':
         return {
             'statusCode': 200,
             'headers': {
                 'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Methods': 'GET, POST, PUT, OPTIONS',
+                'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
                 'Access-Control-Allow-Headers': 'Content-Type, X-Authorization'
             },
             'body': '',
@@ -33,6 +34,45 @@ def handler(event: dict, context) -> dict:
         conn = psycopg2.connect(os.environ['DATABASE_URL'])
         cur = conn.cursor()
         schema = 't_p56134400_telegram_ai_bot_pdf'
+
+        # Смена тарифа для тенанта (суперадмин)
+        if method == 'POST' and action == 'change_tariff':
+            body = json.loads(event.get('body', '{}'))
+            tenant_id = body.get('tenant_id')
+            new_tariff_id = body.get('new_tariff_id')
+            
+            if not tenant_id or not new_tariff_id:
+                return {
+                    'statusCode': 400,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'success': False, 'error': 'tenant_id и new_tariff_id обязательны'}),
+                    'isBase64Encoded': False
+                }
+            
+            # Обновляем тариф у тенанта
+            cur.execute(f"""
+                UPDATE {schema}.tenants
+                SET tariff_id = %s, updated_at = CURRENT_TIMESTAMP
+                WHERE id = %s
+            """, (new_tariff_id, tenant_id))
+            
+            # Обновляем тариф у всех пользователей этого тенанта
+            cur.execute(f"""
+                UPDATE {schema}.admin_users
+                SET tariff_id = %s, updated_at = CURRENT_TIMESTAMP
+                WHERE tenant_id = %s
+            """, (new_tariff_id, tenant_id))
+            
+            conn.commit()
+            cur.close()
+            conn.close()
+            
+            return {
+                'statusCode': 200,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({'success': True, 'message': f'Тариф изменен на {new_tariff_id}'}),
+                'isBase64Encoded': False
+            }
 
         if method == 'GET':
             # Получить все тарифы

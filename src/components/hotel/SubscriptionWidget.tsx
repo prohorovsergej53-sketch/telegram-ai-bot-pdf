@@ -8,8 +8,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import Icon from '@/components/ui/icon';
+import { isSuperAdmin } from '@/lib/auth';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const BACKEND_URL = 'https://functions.poehali.dev/2163d682-19a2-462b-b577-7f04219cc3c8';
+const TARIFF_CHANGE_URL = 'https://functions.poehali.dev/9aaca202-0192-4234-9f65-591df1552960';
 
 interface SubscriptionInfo {
   status: string;
@@ -24,8 +27,12 @@ const SubscriptionWidget = ({ tenantId }: { tenantId: number }) => {
   const [subscription, setSubscription] = useState<SubscriptionInfo | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [showRenewalDialog, setShowRenewalDialog] = useState(false);
+  const [showTariffDialog, setShowTariffDialog] = useState(false);
   const [renewalMonths, setRenewalMonths] = useState(1);
+  const [newTariffId, setNewTariffId] = useState('');
+  const [isUpdating, setIsUpdating] = useState(false);
   const { toast } = useToast();
+  const superAdmin = isSuperAdmin();
 
   useEffect(() => {
     loadSubscription();
@@ -68,6 +75,37 @@ const SubscriptionWidget = ({ tenantId }: { tenantId: number }) => {
       }
     } catch (error: any) {
       toast({ title: 'Ошибка', description: error.message, variant: 'destructive' });
+    }
+  };
+
+  const handleChangeTariff = async () => {
+    if (!newTariffId) return;
+    
+    setIsUpdating(true);
+    try {
+      const response = await fetch(`${TARIFF_CHANGE_URL}?action=change_tariff`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          tenant_id: tenantId,
+          new_tariff_id: newTariffId
+        })
+      });
+
+      const data = await response.json();
+      
+      if (data.success) {
+        toast({ title: 'Успешно', description: 'Тарифный план изменен' });
+        setShowTariffDialog(false);
+        await loadSubscription();
+        window.location.reload();
+      } else {
+        throw new Error(data.error || 'Не удалось изменить тариф');
+      }
+    } catch (error: any) {
+      toast({ title: 'Ошибка', description: error.message, variant: 'destructive' });
+    } finally {
+      setIsUpdating(false);
     }
   };
 
@@ -146,14 +184,29 @@ const SubscriptionWidget = ({ tenantId }: { tenantId: number }) => {
             </div>
           )}
 
-          <Button
-            className="w-full"
-            variant={subscription.status === 'expired' ? 'default' : 'outline'}
-            onClick={() => setShowRenewalDialog(true)}
-          >
-            <Icon name="RefreshCw" className="mr-2" size={16} />
-            Продлить подписку
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              className="flex-1"
+              variant={subscription.status === 'expired' ? 'default' : 'outline'}
+              onClick={() => setShowRenewalDialog(true)}
+            >
+              <Icon name="RefreshCw" className="mr-2" size={16} />
+              Продлить подписку
+            </Button>
+            
+            {superAdmin && (
+              <Button
+                variant="secondary"
+                onClick={() => {
+                  setNewTariffId(subscription.tariff_id || 'basic');
+                  setShowTariffDialog(true);
+                }}
+              >
+                <Icon name="Settings" className="mr-2" size={16} />
+                Сменить тариф
+              </Button>
+            )}
+          </div>
         </CardContent>
       </Card>
 
@@ -197,6 +250,55 @@ const SubscriptionWidget = ({ tenantId }: { tenantId: number }) => {
                 Перейти к оплате
               </Button>
               <Button variant="outline" onClick={() => setShowRenewalDialog(false)}>
+                Отмена
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showTariffDialog} onOpenChange={setShowTariffDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Смена тарифного плана</DialogTitle>
+            <DialogDescription>
+              Изменение тарифа без оплаты (режим суперадмина)
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="new_tariff">Новый тарифный план</Label>
+              <Select value={newTariffId} onValueChange={setNewTariffId}>
+                <SelectTrigger id="new_tariff">
+                  <SelectValue placeholder="Выберите тариф" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="basic">Старт</SelectItem>
+                  <SelectItem value="professional">Бизнес</SelectItem>
+                  <SelectItem value="enterprise">Премиум</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="bg-amber-50 border border-amber-200 rounded p-4 text-sm text-amber-800">
+              <Icon name="AlertCircle" className="inline mr-2" size={16} />
+              Смена тарифа произойдет без подтверждения оплаты. Изменения вступят в силу немедленно.
+            </div>
+
+            <div className="flex gap-2">
+              <Button 
+                onClick={handleChangeTariff} 
+                className="flex-1"
+                disabled={isUpdating || !newTariffId}
+              >
+                {isUpdating ? (
+                  <Icon name="Loader2" className="mr-2 animate-spin" size={16} />
+                ) : (
+                  <Icon name="Check" className="mr-2" size={16} />
+                )}
+                Применить
+              </Button>
+              <Button variant="outline" onClick={() => setShowTariffDialog(false)} disabled={isUpdating}>
                 Отмена
               </Button>
             </div>

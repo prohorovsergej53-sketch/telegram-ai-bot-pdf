@@ -29,6 +29,7 @@ interface AdminViewProps {
 const AdminView = ({ documents, isLoading, onFileUpload, onDeleteDocument }: AdminViewProps) => {
   const tenantId = getTenantId();
   const tariffId = getTariffId();
+  const superAdmin = isSuperAdmin();
 
   const UpgradeCard = ({ feature }: { feature: string }) => (
     <Card className="border-amber-500 bg-amber-50">
@@ -67,7 +68,7 @@ const AdminView = ({ documents, isLoading, onFileUpload, onDeleteDocument }: Adm
       />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {hasFeatureAccess('hasAISettings', tariffId) ? (
+        {(superAdmin || hasFeatureAccess('hasAISettings', tariffId)) ? (
           <AISettingsCard
             getSettingsUrl={BACKEND_URLS.getAiSettings}
             updateSettingsUrl={BACKEND_URLS.updateAiSettings}
@@ -76,7 +77,7 @@ const AdminView = ({ documents, isLoading, onFileUpload, onDeleteDocument }: Adm
           <UpgradeCard feature="Настройка AI провайдеров" />
         )}
         
-        {hasFeatureAccess('hasTelegram', tariffId) ? (
+        {(superAdmin || hasFeatureAccess('hasTelegram', tariffId)) ? (
           <TelegramSettingsCard
             webhookUrl={BACKEND_URLS.telegramWebhook}
             chatFunctionUrl={BACKEND_URLS.chat}
@@ -86,29 +87,27 @@ const AdminView = ({ documents, isLoading, onFileUpload, onDeleteDocument }: Adm
         )}
       </div>
 
-      {(hasFeatureAccess('hasWhatsApp', tariffId) || hasFeatureAccess('hasVK', tariffId)) && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {hasFeatureAccess('hasWhatsApp', tariffId) ? (
-            <WhatsAppSettingsCard
-              webhookUrl={BACKEND_URLS.whatsappWebhook}
-              chatFunctionUrl={BACKEND_URLS.chat}
-            />
-          ) : (
-            <UpgradeCard feature="Интеграция с WhatsApp" />
-          )}
-          
-          {hasFeatureAccess('hasVK', tariffId) ? (
-            <VKSettingsCard
-              webhookUrl={BACKEND_URLS.vkWebhook}
-              chatFunctionUrl={BACKEND_URLS.chat}
-            />
-          ) : (
-            <UpgradeCard feature="Интеграция с VK" />
-          )}
-        </div>
-      )}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {(superAdmin || hasFeatureAccess('hasWhatsApp', tariffId)) ? (
+          <WhatsAppSettingsCard
+            webhookUrl={BACKEND_URLS.whatsappWebhook}
+            chatFunctionUrl={BACKEND_URLS.chat}
+          />
+        ) : (
+          <UpgradeCard feature="Интеграция с WhatsApp" />
+        )}
+        
+        {(superAdmin || hasFeatureAccess('hasVK', tariffId)) ? (
+          <VKSettingsCard
+            webhookUrl={BACKEND_URLS.vkWebhook}
+            chatFunctionUrl={BACKEND_URLS.chat}
+          />
+        ) : (
+          <UpgradeCard feature="Интеграция с VK" />
+        )}
+      </div>
 
-      {hasFeatureAccess('hasMAX', tariffId) ? (
+      {(superAdmin || hasFeatureAccess('hasMAX', tariffId)) ? (
         <MAXSettingsCard
           webhookUrl={BACKEND_URLS.maxWebhook}
           chatFunctionUrl={BACKEND_URLS.chat}
