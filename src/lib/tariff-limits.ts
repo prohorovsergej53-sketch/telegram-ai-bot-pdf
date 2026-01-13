@@ -66,12 +66,18 @@ export function getTariffLimits(tariffId: string | null): TariffLimits {
 }
 
 export function canUploadMoreDocuments(currentCount: number, tariffId: string | null): boolean {
+  const isSuperAdminViewing = sessionStorage.getItem('superadmin_viewing_tenant') === 'true';
+  if (isSuperAdminViewing) return true;
+  
   const limits = getTariffLimits(tariffId);
   if (limits.maxPdfDocuments === -1) return true;
   return currentCount < limits.maxPdfDocuments;
 }
 
 export function hasFeatureAccess(feature: keyof Omit<TariffLimits, 'id' | 'name' | 'maxPdfDocuments'>, tariffId: string | null): boolean {
+  const isSuperAdminViewing = sessionStorage.getItem('superadmin_viewing_tenant') === 'true';
+  if (isSuperAdminViewing) return true;
+  
   const limits = getTariffLimits(tariffId);
   return limits[feature];
 }
