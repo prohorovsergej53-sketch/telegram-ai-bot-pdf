@@ -99,20 +99,25 @@ const Index = () => {
       return;
     }
     
-    try {
-      const response = await authenticatedFetch('https://functions.poehali.dev/2163d682-19a2-462b-b577-7f04219cc3c8');
-      const data = await response.json();
-      if (data.tenants) {
-        const tenant = data.tenants.find((t: any) => t.slug === tenantSlug);
-        if (tenant) {
-          console.log(`[Index] Loaded tenant: ${tenant.name} (ID: ${tenant.id}, slug: ${tenantSlug})`);
-          setCurrentTenantId(tenant.id);
-        } else {
-          console.warn(`[Index] Tenant not found for slug: ${tenantSlug}`);
-        }
+    // Hardcoded mapping (пока не создана публичная функция для slug→tenant_id)
+    const slugToTenantMap: Record<string, { id: number, tariffId: string }> = {
+      'sales': { id: 1, tariffId: 'premium' },
+      // Добавь другие тенанты по необходимости
+    };
+    
+    const tenantInfo = slugToTenantMap[tenantSlug];
+    if (tenantInfo) {
+      console.log(`[Index] Loaded tenant from map: slug=${tenantSlug}, ID=${tenantInfo.id}`);
+      setCurrentTenantId(tenantInfo.id);
+      
+      // Сохраняем в sessionStorage для super admin
+      if (isSuperAdmin()) {
+        sessionStorage.setItem('superadmin_viewing_tenant', 'true');
+        sessionStorage.setItem('superadmin_viewing_tenant_id', tenantInfo.id.toString());
+        sessionStorage.setItem('superadmin_viewing_tariff_id', tenantInfo.tariffId);
       }
-    } catch (error) {
-      console.error('Error loading tenant info:', error);
+    } else {
+      console.warn(`[Index] Tenant not found for slug: ${tenantSlug}`);
     }
   };
 
