@@ -6,7 +6,7 @@ import GuestView from '@/components/hotel/GuestView';
 import AdminView from '@/components/hotel/AdminView';
 import AdminLoginForm from '@/components/hotel/AdminLoginForm';
 import { Message, Document, BACKEND_URLS, PageSettings, QuickQuestion } from '@/components/hotel/types';
-import { isAuthenticated, logout, authenticatedFetch, getTenantId } from '@/lib/auth';
+import { isAuthenticated, logout, authenticatedFetch, getTenantId, isSuperAdmin } from '@/lib/auth';
 
 const Index = () => {
   const [view, setView] = useState<'guest' | 'admin'>('guest');
@@ -299,6 +299,16 @@ const Index = () => {
               </div>
             </div>
             <div className="flex gap-2">
+              {isSuperAdmin() && (
+                <Button 
+                  variant="outline"
+                  onClick={() => window.location.href = '/super-admin'}
+                  className="gap-2"
+                >
+                  <Icon name="Shield" size={18} />
+                  Суперадмин
+                </Button>
+              )}
               <Button 
                 variant={view === 'admin' ? 'default' : 'outline'}
                 onClick={() => setView(view === 'guest' ? 'admin' : 'guest')}

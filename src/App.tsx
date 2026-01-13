@@ -11,6 +11,7 @@ import MasterAdminView from "./components/master/MasterAdminView";
 import ContentEditor from "./pages/ContentEditor";
 import PaymentPage from "./pages/PaymentPage";
 import PaymentSuccess from "./pages/PaymentSuccess";
+import SuperAdmin from "./pages/SuperAdmin";
 
 const queryClient = new QueryClient();
 
@@ -25,6 +26,7 @@ const App = () => (
           <Route path="/payment" element={<PaymentPage />} />
           <Route path="/payment/success" element={<PaymentSuccess />} />
           <Route path="/master-admin" element={<MasterAdminView />} />
+          <Route path="/super-admin" element={<SuperAdmin />} />
           <Route path="/content-editor" element={<ContentEditor />} />
           <Route path="/:tenantSlug" element={<Index />} />
           <Route path="/:tenantSlug/admin" element={<Index />} />
