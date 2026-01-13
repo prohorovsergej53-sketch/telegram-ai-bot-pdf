@@ -4,10 +4,13 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import Icon from '@/components/ui/icon';
-import IconPicker from './IconPicker';
 import { useToast } from '@/hooks/use-toast';
 import { BACKEND_URLS, PageSettings, QuickQuestion } from './types';
 import { authenticatedFetch, getTenantId } from '@/lib/auth';
+import { HeaderSettingsSection } from './HeaderSettingsSection';
+import { ChatSettingsSection } from './ChatSettingsSection';
+import { ContactsSettingsSection } from './ContactsSettingsSection';
+import { QuickQuestionsSection } from './QuickQuestionsSection';
 
 const PageSettingsCard = () => {
   const [settings, setSettings] = useState<PageSettings>({
@@ -125,6 +128,10 @@ const PageSettingsCard = () => {
     setQuickQuestions(updated);
   };
 
+  const handleQuickQuestionsTitle = (title: string) => {
+    setSettings({ ...settings, quick_questions_title: title });
+  };
+
   return (
     <Card className="shadow-xl">
       <CardHeader className="border-b bg-gradient-to-r from-slate-50 to-blue-50">
@@ -136,177 +143,33 @@ const PageSettingsCard = () => {
       </CardHeader>
       <CardContent className="pt-6 space-y-6">
         <div className="space-y-4">
-          <div className="border-b pb-4">
-            <h3 className="text-sm font-semibold text-slate-900 mb-3">Шапка страницы</h3>
+          <HeaderSettingsSection
+            settings={settings}
+            onSettingsChange={setSettings}
+          />
+
+          <ChatSettingsSection
+            settings={settings}
+            onSettingsChange={setSettings}
+          />
+
+          <ContactsSettingsSection
+            settings={settings}
+            onSettingsChange={setSettings}
+          />
+
+          <QuickQuestionsSection
+            title={settings.quick_questions_title}
+            questions={quickQuestions}
+            onTitleChange={handleQuickQuestionsTitle}
+            onAddQuestion={handleAddQuestion}
+            onRemoveQuestion={handleRemoveQuestion}
+            onUpdateQuestion={handleUpdateQuestion}
+          />
+
+          <div className="pt-4">
+            <h3 className="text-sm font-semibold text-slate-900 mb-3">Футер</h3>
             <div className="space-y-3">
-              <div>
-                <Label htmlFor="header_icon">Иконка</Label>
-                <div className="flex items-center gap-2">
-                  <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
-                    <Icon name={settings.header_icon} size={20} className="text-primary" />
-                  </div>
-                  <IconPicker
-                    selectedIcon={settings.header_icon}
-                    onSelectIcon={(icon) => setSettings({ ...settings, header_icon: icon })}
-                  />
-                </div>
-              </div>
-              <div>
-                <Label htmlFor="header_title">Название</Label>
-                <Input
-                  id="header_title"
-                  value={settings.header_title}
-                  onChange={(e) => setSettings({ ...settings, header_title: e.target.value })}
-                  placeholder="Отель Пушкин"
-                />
-              </div>
-              <div>
-                <Label htmlFor="header_subtitle">Слоган</Label>
-                <Input
-                  id="header_subtitle"
-                  value={settings.header_subtitle}
-                  onChange={(e) => setSettings({ ...settings, header_subtitle: e.target.value })}
-                  placeholder="AI Консьерж"
-                />
-              </div>
-            </div>
-          </div>
-
-          <div className="border-b pb-4">
-            <h3 className="text-sm font-semibold text-slate-900 mb-3">Заголовки чата</h3>
-            <div className="space-y-3">
-              <div>
-                <Label htmlFor="page_title">Заголовок чата</Label>
-                <Input
-                  id="page_title"
-                  value={settings.page_title}
-                  onChange={(e) => setSettings({ ...settings, page_title: e.target.value })}
-                />
-              </div>
-              <div>
-                <Label htmlFor="page_subtitle">Подзаголовок чата</Label>
-                <Input
-                  id="page_subtitle"
-                  value={settings.page_subtitle}
-                  onChange={(e) => setSettings({ ...settings, page_subtitle: e.target.value })}
-                />
-              </div>
-              <div>
-                <Label htmlFor="input_placeholder">Текст в поле ввода</Label>
-                <Input
-                  id="input_placeholder"
-                  value={settings.input_placeholder}
-                  onChange={(e) => setSettings({ ...settings, input_placeholder: e.target.value })}
-                />
-              </div>
-            </div>
-          </div>
-
-          <div className="border-b pb-4">
-            <h3 className="text-sm font-semibold text-slate-900 mb-3">Контакты</h3>
-            <div className="space-y-3">
-              <div className="grid grid-cols-2 gap-2">
-                <div>
-                  <Label htmlFor="contact_phone_label">Название телефона</Label>
-                  <Input
-                    id="contact_phone_label"
-                    value={settings.contact_phone_label}
-                    onChange={(e) => setSettings({ ...settings, contact_phone_label: e.target.value })}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="contact_phone_value">Номер телефона</Label>
-                  <Input
-                    id="contact_phone_value"
-                    value={settings.contact_phone_value}
-                    onChange={(e) => setSettings({ ...settings, contact_phone_value: e.target.value })}
-                  />
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-2">
-                <div>
-                  <Label htmlFor="contact_email_label">Название email</Label>
-                  <Input
-                    id="contact_email_label"
-                    value={settings.contact_email_label}
-                    onChange={(e) => setSettings({ ...settings, contact_email_label: e.target.value })}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="contact_email_value">Email адрес</Label>
-                  <Input
-                    id="contact_email_value"
-                    value={settings.contact_email_value}
-                    onChange={(e) => setSettings({ ...settings, contact_email_value: e.target.value })}
-                  />
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-2">
-                <div>
-                  <Label htmlFor="contact_address_label">Название адреса</Label>
-                  <Input
-                    id="contact_address_label"
-                    value={settings.contact_address_label}
-                    onChange={(e) => setSettings({ ...settings, contact_address_label: e.target.value })}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="contact_address_value">Адрес</Label>
-                  <Input
-                    id="contact_address_value"
-                    value={settings.contact_address_value}
-                    onChange={(e) => setSettings({ ...settings, contact_address_value: e.target.value })}
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="border-b pb-4">
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="text-sm font-semibold text-slate-900">Быстрые вопросы</h3>
-              <Button onClick={handleAddQuestion} size="sm" variant="outline">
-                <Icon name="Plus" size={16} className="mr-1" />
-                Добавить
-              </Button>
-            </div>
-            <div className="space-y-2">
-              {quickQuestions.map((q, idx) => (
-                <div key={idx} className="border rounded-lg p-3 space-y-2 bg-slate-50">
-                  <div className="grid grid-cols-[1fr_auto_40px] gap-2">
-                    <Input
-                      placeholder="Текст кнопки"
-                      value={q.text}
-                      onChange={(e) => handleUpdateQuestion(idx, 'text', e.target.value)}
-                    />
-                    <div className="w-[180px]">
-                      <IconPicker
-                        value={q.icon}
-                        onChange={(value) => handleUpdateQuestion(idx, 'icon', value)}
-                      />
-                    </div>
-                    <Button
-                      onClick={() => handleRemoveQuestion(idx)}
-                      size="icon"
-                      variant="ghost"
-                      className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                    >
-                      <Icon name="X" size={16} />
-                    </Button>
-                  </div>
-                  <Input
-                    placeholder="Вопрос, который отправится боту"
-                    value={q.question}
-                    onChange={(e) => handleUpdateQuestion(idx, 'question', e.target.value)}
-                  />
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div>
-            <h3 className="text-sm font-semibold text-slate-900 mb-3">Подвал (ссылка на создателя)</h3>
-            <div className="space-y-2">
               <div>
                 <Label htmlFor="footer_text">Текст ссылки</Label>
                 <Input
@@ -321,23 +184,23 @@ const PageSettingsCard = () => {
                   id="footer_link"
                   value={settings.footer_link}
                   onChange={(e) => setSettings({ ...settings, footer_link: e.target.value })}
-                  placeholder="https://max.im/+79787236035"
+                  placeholder="https://..."
                 />
               </div>
             </div>
           </div>
         </div>
 
-        <div className="pt-4 border-t">
-          <Button onClick={handleSaveSettings} disabled={isLoading} className="w-full">
+        <div className="flex justify-end pt-4 border-t">
+          <Button onClick={handleSaveSettings} disabled={isLoading} size="lg">
             {isLoading ? (
               <>
-                <Icon name="Loader2" size={16} className="mr-2 animate-spin" />
+                <Icon name="Loader2" className="mr-2 animate-spin" size={16} />
                 Сохранение...
               </>
             ) : (
               <>
-                <Icon name="Save" size={16} className="mr-2" />
+                <Icon name="Save" className="mr-2" size={16} />
                 Сохранить настройки
               </>
             )}
