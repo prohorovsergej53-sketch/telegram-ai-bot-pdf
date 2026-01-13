@@ -101,6 +101,20 @@ const GuestView = ({
           </CardContent>
         </Card>
 
+        {pageSettings?.public_description && (
+          <Card className="shadow-xl animate-scale-in" style={{ animationDelay: '0.15s' }}>
+            <CardHeader className="border-b bg-gradient-to-r from-slate-50 to-blue-50">
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <Icon name="FileText" size={18} />
+                О нас
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-4">
+              <p className="text-sm text-slate-700 whitespace-pre-wrap">{pageSettings.public_description}</p>
+            </CardContent>
+          </Card>
+        )}
+
         <Card className="shadow-xl animate-scale-in" style={{ animationDelay: '0.2s' }}>
           <CardHeader className="border-b bg-gradient-to-r from-slate-50 to-blue-50">
             <CardTitle className="flex items-center gap-2 text-lg">

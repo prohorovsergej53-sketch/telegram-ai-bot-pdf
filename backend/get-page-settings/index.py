@@ -35,14 +35,18 @@ def handler(event: dict, context) -> dict:
         conn = psycopg2.connect(os.environ['DATABASE_URL'])
         cur = conn.cursor()
 
-        # Получаем page_settings из JSONB
+        # Получаем page_settings и public_description из JSONB
         cur.execute("""
-            SELECT page_settings 
+            SELECT page_settings, public_description 
             FROM t_p56134400_telegram_ai_bot_pdf.tenant_settings
             WHERE tenant_id = %s
         """, (tenant_id,))
         row = cur.fetchone()
         settings = row[0] if row and row[0] else {}
+        
+        # Добавляем public_description в settings
+        if row and row[1]:
+            settings['public_description'] = row[1]
 
         cur.execute("""
             SELECT id, text, question, icon, sort_order

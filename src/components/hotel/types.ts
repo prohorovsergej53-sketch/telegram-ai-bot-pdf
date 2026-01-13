@@ -40,6 +40,7 @@ export interface PageSettings {
   footer_text: string;
   footer_link: string;
   input_placeholder: string;
+  public_description?: string;
 }
 
 export interface AiModelSettings {

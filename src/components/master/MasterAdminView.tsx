@@ -13,6 +13,8 @@ import BulkUpdatePanel from './BulkUpdatePanel';
 import TenantsListTable from './TenantsListTable';
 import AdminUsersPanel from './AdminUsersPanel';
 import MessengersStatusCard from './MessengersStatusCard';
+import DefaultSettingsPanel from './DefaultSettingsPanel';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 interface Tenant {
   id: number;
@@ -53,6 +55,7 @@ const MasterAdminView = () => {
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [showBulkUpdateDialog, setShowBulkUpdateDialog] = useState(false);
   const [showVersionDialog, setShowVersionDialog] = useState(false);
+  const [activeTab, setActiveTab] = useState('dashboard');
   const { toast } = useToast();
 
   const [newTenant, setNewTenant] = useState({
@@ -325,31 +328,44 @@ const MasterAdminView = () => {
         </div>
       </div>
 
-      <MasterDashboardStats tenants={tenants} versionsCount={versions.length} />
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList className="grid w-full max-w-2xl grid-cols-3">
+          <TabsTrigger value="dashboard">Дашборд</TabsTrigger>
+          <TabsTrigger value="settings">Дефолтные настройки</TabsTrigger>
+          <TabsTrigger value="users">Пользователи</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="dashboard" className="space-y-6">
+          <MasterDashboardStats tenants={tenants} versionsCount={versions.length} />
+          <MessengersStatusCard tenants={tenants} />
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <VersionsList versions={versions} />
+            <BulkUpdatePanel
+              tenants={tenants}
+              versions={versions}
+              selectedTenants={selectedTenants}
+              bulkUpdateTarget={bulkUpdateTarget}
+              isLoading={isLoading}
+              showBulkUpdateDialog={showBulkUpdateDialog}
+              onToggleSelection={toggleTenantSelection}
+              onSelectAll={selectAll}
+              onDeselectAll={deselectAll}
+              onSetBulkUpdateTarget={setBulkUpdateTarget}
+              onBulkUpdate={handleBulkUpdate}
+              onSetShowDialog={setShowBulkUpdateDialog}
+            />
+          </div>
+          <TenantsListTable tenants={tenants} onUpdate={loadTenants} />
+        </TabsContent>
 
-      <MessengersStatusCard tenants={tenants} />
+        <TabsContent value="settings">
+          <DefaultSettingsPanel />
+        </TabsContent>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <VersionsList versions={versions} />
-        <BulkUpdatePanel
-          tenants={tenants}
-          versions={versions}
-          selectedTenants={selectedTenants}
-          bulkUpdateTarget={bulkUpdateTarget}
-          isLoading={isLoading}
-          showBulkUpdateDialog={showBulkUpdateDialog}
-          onToggleSelection={toggleTenantSelection}
-          onSelectAll={selectAll}
-          onDeselectAll={deselectAll}
-          onSetBulkUpdateTarget={setBulkUpdateTarget}
-          onBulkUpdate={handleBulkUpdate}
-          onSetShowDialog={setShowBulkUpdateDialog}
-        />
-      </div>
-
-      <TenantsListTable tenants={tenants} onUpdate={loadTenants} />
-
-      <AdminUsersPanel />
+        <TabsContent value="users">
+          <AdminUsersPanel />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };
