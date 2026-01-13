@@ -29,7 +29,10 @@ def handler(event: dict, context) -> dict:
         }
 
     try:
+        print(f"DEBUG: Event query params: {event.get('queryStringParameters')}")
+        print(f"DEBUG: Event headers: {event.get('headers')}")
         tenant_id, auth_error = get_tenant_id_from_request(event)
+        print(f"DEBUG: Extracted tenant_id: {tenant_id}, error: {auth_error}")
         if auth_error:
             return auth_error
         
