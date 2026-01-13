@@ -131,10 +131,11 @@ const AdminView = ({ documents, isLoading, onFileUpload, onDeleteDocument }: Adm
 
       <ChatStatsCard />
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <PageSettingsCard />
+
+      {superAdmin && (
         <AiSettingsCard />
-        {superAdmin && <PageSettingsCard />}
-      </div>
+      )}
     </div>
   );
 };
