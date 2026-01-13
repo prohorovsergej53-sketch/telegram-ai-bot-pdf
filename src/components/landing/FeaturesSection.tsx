@@ -73,13 +73,13 @@ export const FeaturesSection = () => {
       valueLabel: 'защита'
     },
     {
-      icon: 'BarChart',
-      title: 'Умная аналитика',
-      description: 'Видите что спрашивают, что интересует. Принимайте решения на данных',
+      icon: 'Rocket',
+      title: 'Запуск за 1 день',
+      description: 'Не нужно нанимать программистов. Загружаете документы — и бот готов работать',
       bgColor: 'bg-indigo-100',
       iconColor: 'text-indigo-600',
-      value: '∞',
-      valueLabel: 'инсайтов'
+      value: '24ч',
+      valueLabel: 'до запуска'
     }
   ];
 
