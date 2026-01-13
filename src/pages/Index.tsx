@@ -100,7 +100,7 @@ const Index = () => {
     }
     
     try {
-      const response = await fetch('https://functions.poehali.dev/2163d682-19a2-462b-b577-7f04219cc3c8');
+      const response = await authenticatedFetch('https://functions.poehali.dev/2163d682-19a2-462b-b577-7f04219cc3c8');
       const data = await response.json();
       if (data.tenants) {
         const tenant = data.tenants.find((t: any) => t.slug === tenantSlug);
