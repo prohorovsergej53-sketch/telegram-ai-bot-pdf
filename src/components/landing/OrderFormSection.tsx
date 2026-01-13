@@ -43,7 +43,7 @@ export const OrderFormSection = () => {
         body: JSON.stringify({
           amount: selectedTariff.price,
           description: `Подписка ${selectedTariff.name} - ${formData.name || formData.email}`,
-          return_url: window.location.origin,
+          return_url: `${window.location.origin}/payment/success`,
           metadata: {
             tenant_name: formData.name || formData.email.split('@')[0],
             tenant_slug: tenantSlug,
