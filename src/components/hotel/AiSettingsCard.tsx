@@ -20,11 +20,37 @@ const AiSettingsCard = ({ currentTenantId }: AiSettingsCardProps) => {
   const [settings, setSettings] = useState<AiModelSettings>(DEFAULT_AI_SETTINGS.yandexgpt);
   const [selectedPreset, setSelectedPreset] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
+  const [configStatus, setConfigStatus] = useState<'not_set' | 'active' | 'error'>('not_set');
   const { toast } = useToast();
 
   useEffect(() => {
     loadSettings();
   }, []);
+
+  const getStatusBadge = () => {
+    if (configStatus === 'active') {
+      return (
+        <span className="inline-flex items-center gap-1 px-2 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full">
+          <Icon name="CheckCircle" size={12} />
+          Настроено
+        </span>
+      );
+    }
+    if (configStatus === 'error') {
+      return (
+        <span className="inline-flex items-center gap-1 px-2 py-1 bg-red-100 text-red-700 text-xs font-medium rounded-full">
+          <Icon name="XCircle" size={12} />
+          Ошибка
+        </span>
+      );
+    }
+    return (
+      <span className="inline-flex items-center gap-1 px-2 py-1 bg-gray-100 text-gray-600 text-xs font-medium rounded-full">
+        <Icon name="Circle" size={12} />
+        По умолчанию
+      </span>
+    );
+  };
 
   const loadSettings = async () => {
     try {
@@ -35,9 +61,11 @@ const AiSettingsCard = ({ currentTenantId }: AiSettingsCardProps) => {
       if (data.settings) {
         setSelectedModel(data.settings.model);
         setSettings(data.settings);
+        setConfigStatus('active');
       }
     } catch (error) {
       console.error('Error loading AI settings:', error);
+      setConfigStatus('error');
     }
   };
 
@@ -84,14 +112,17 @@ const AiSettingsCard = ({ currentTenantId }: AiSettingsCardProps) => {
       const data = await response.json();
 
       if (response.ok) {
+        setConfigStatus('active');
         toast({
           title: 'Сохранено!',
           description: 'Настройки AI обновлены'
         });
       } else {
+        setConfigStatus('error');
         throw new Error(data.error);
       }
     } catch (error: any) {
+      setConfigStatus('error');
       toast({
         title: 'Ошибка',
         description: error.message || 'Не удалось сохранить настройки',
@@ -109,9 +140,12 @@ const AiSettingsCard = ({ currentTenantId }: AiSettingsCardProps) => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Icon name="Brain" size={24} />
-          Настройки AI
+        <CardTitle className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Icon name="Brain" size={24} />
+            Настройки AI
+          </div>
+          {getStatusBadge()}
         </CardTitle>
         <CardDescription>
           Параметры языковой модели для генерации ответов

@@ -18,6 +18,7 @@ const AISettingsCard = () => {
   const [isConnecting, setIsConnecting] = useState(false);
   const [isCheckingBalance, setIsCheckingBalance] = useState(false);
   const [balance, setBalance] = useState<APIBalance | null>(null);
+  const [connectionStatus, setConnectionStatus] = useState<'not_set' | 'active' | 'error'>('not_set');
   const { toast } = useToast();
 
   const handleConnect = async () => {
@@ -45,6 +46,7 @@ const AISettingsCard = () => {
       const data = await response.json();
 
       if (data.valid) {
+        setConnectionStatus('active');
         toast({
           title: '✓ Ключ успешно проверен',
           description: 'API ключ YandexGPT работает корректно'
@@ -54,6 +56,7 @@ const AISettingsCard = () => {
         // Сразу проверяем баланс после успешной валидации
         checkBalance();
       } else {
+        setConnectionStatus('error');
         toast({
           title: 'Ошибка валидации',
           description: data.error || 'Проверьте правильность API ключа и Folder ID',
@@ -61,6 +64,7 @@ const AISettingsCard = () => {
         });
       }
     } catch (error: any) {
+      setConnectionStatus('error');
       toast({
         title: 'Ошибка',
         description: error.message || 'Не удалось подключить API',
@@ -69,6 +73,31 @@ const AISettingsCard = () => {
     } finally {
       setIsConnecting(false);
     }
+  };
+
+  const getStatusBadge = () => {
+    if (connectionStatus === 'active') {
+      return (
+        <span className="inline-flex items-center gap-1 px-2 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full">
+          <Icon name="CheckCircle" size={12} />
+          Подключено
+        </span>
+      );
+    }
+    if (connectionStatus === 'error') {
+      return (
+        <span className="inline-flex items-center gap-1 px-2 py-1 bg-red-100 text-red-700 text-xs font-medium rounded-full">
+          <Icon name="XCircle" size={12} />
+          Ошибка
+        </span>
+      );
+    }
+    return (
+      <span className="inline-flex items-center gap-1 px-2 py-1 bg-gray-100 text-gray-600 text-xs font-medium rounded-full">
+        <Icon name="Circle" size={12} />
+        Не настроено
+      </span>
+    );
   };
 
   const checkBalance = async () => {
@@ -90,9 +119,12 @@ const AISettingsCard = () => {
   return (
     <Card className="shadow-xl">
       <CardHeader className="border-b bg-gradient-to-r from-slate-50 to-blue-50">
-        <CardTitle className="flex items-center gap-2">
-          <Icon name="Key" size={20} />
-          Подключение AI
+        <CardTitle className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Icon name="Key" size={20} />
+            Подключение AI
+          </div>
+          {getStatusBadge()}
         </CardTitle>
         <CardDescription>Добавьте свой API ключ для работы с AI моделями</CardDescription>
       </CardHeader>
