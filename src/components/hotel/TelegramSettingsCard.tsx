@@ -24,13 +24,13 @@ const TelegramSettingsCard = ({ webhookUrl, chatFunctionUrl }: TelegramSettingsC
 
   const loadSettings = async () => {
     try {
-      const tenantId = getTenantId();
-      const response = await authenticatedFetch(
-        `${BACKEND_URLS.messengerSettings}?tenant_id=${tenantId}&messenger_type=telegram`
-      );
+      const response = await authenticatedFetch(BACKEND_URLS.manageApiKeys);
       const data = await response.json();
-      if (data.settings?.bot_token) {
-        setBotToken(data.settings.bot_token);
+      if (data.keys) {
+        const token = data.keys.find((k: any) => k.provider === 'telegram' && k.key_name === 'bot_token');
+        if (token?.has_value) {
+          setBotToken('********');
+        }
       }
     } catch (error) {
       console.error('Error loading Telegram settings:', error);
@@ -38,14 +38,13 @@ const TelegramSettingsCard = ({ webhookUrl, chatFunctionUrl }: TelegramSettingsC
   };
 
   const saveSettings = async (token: string) => {
-    const tenantId = getTenantId();
-    await authenticatedFetch(BACKEND_URLS.messengerSettings, {
+    await authenticatedFetch(BACKEND_URLS.manageApiKeys, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        tenant_id: tenantId,
-        messenger_type: 'telegram',
-        settings: { bot_token: token }
+        provider: 'telegram',
+        key_name: 'bot_token',
+        key_value: token
       })
     });
   };

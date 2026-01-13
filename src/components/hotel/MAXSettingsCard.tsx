@@ -24,13 +24,13 @@ const MAXSettingsCard = ({ webhookUrl, chatFunctionUrl }: MAXSettingsCardProps) 
 
   const loadSettings = async () => {
     try {
-      const tenantId = getTenantId();
-      const response = await authenticatedFetch(
-        `${BACKEND_URLS.messengerSettings}?tenant_id=${tenantId}&messenger_type=max`
-      );
+      const response = await authenticatedFetch(BACKEND_URLS.manageApiKeys);
       const data = await response.json();
-      if (data.settings?.bot_token) {
-        setBotToken(data.settings.bot_token);
+      if (data.keys) {
+        const token = data.keys.find((k: any) => k.provider === 'max' && k.key_name === 'bot_token');
+        if (token?.has_value) {
+          setBotToken('********');
+        }
       }
     } catch (error) {
       console.error('Error loading MAX settings:', error);
@@ -38,14 +38,13 @@ const MAXSettingsCard = ({ webhookUrl, chatFunctionUrl }: MAXSettingsCardProps) 
   };
 
   const saveSettings = async (token: string) => {
-    const tenantId = getTenantId();
-    await authenticatedFetch(BACKEND_URLS.messengerSettings, {
+    await authenticatedFetch(BACKEND_URLS.manageApiKeys, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        tenant_id: tenantId,
-        messenger_type: 'max',
-        settings: { bot_token: token }
+        provider: 'max',
+        key_name: 'bot_token',
+        key_value: token
       })
     });
   };

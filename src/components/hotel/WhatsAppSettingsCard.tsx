@@ -25,14 +25,13 @@ const WhatsAppSettingsCard = ({ webhookUrl, chatFunctionUrl }: WhatsAppSettingsC
 
   const loadSettings = async () => {
     try {
-      const tenantId = getTenantId();
-      const response = await authenticatedFetch(
-        `${BACKEND_URLS.messengerSettings}?tenant_id=${tenantId}&messenger_type=whatsapp`
-      );
+      const response = await authenticatedFetch(BACKEND_URLS.manageApiKeys);
       const data = await response.json();
-      if (data.settings) {
-        setPhoneNumberId(data.settings.phone_number_id || '');
-        setAccessToken(data.settings.access_token || '');
+      if (data.keys) {
+        const phoneId = data.keys.find((k: any) => k.provider === 'whatsapp' && k.key_name === 'phone_number_id');
+        const token = data.keys.find((k: any) => k.provider === 'whatsapp' && k.key_name === 'access_token');
+        if (phoneId?.has_value) setPhoneNumberId('********');
+        if (token?.has_value) setAccessToken('********');
       }
     } catch (error) {
       console.error('Error loading WhatsApp settings:', error);
@@ -40,16 +39,18 @@ const WhatsAppSettingsCard = ({ webhookUrl, chatFunctionUrl }: WhatsAppSettingsC
   };
 
   const saveSettings = async (phoneId: string, token: string) => {
-    const tenantId = getTenantId();
-    await authenticatedFetch(BACKEND_URLS.messengerSettings, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        tenant_id: tenantId,
-        messenger_type: 'whatsapp',
-        settings: { phone_number_id: phoneId, access_token: token }
+    await Promise.all([
+      authenticatedFetch(BACKEND_URLS.manageApiKeys, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ provider: 'whatsapp', key_name: 'phone_number_id', key_value: phoneId })
+      }),
+      authenticatedFetch(BACKEND_URLS.manageApiKeys, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ provider: 'whatsapp', key_name: 'access_token', key_value: token })
       })
-    });
+    ]);
   };
 
   const handleSetupBot = async () => {
