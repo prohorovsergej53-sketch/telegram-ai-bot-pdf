@@ -171,6 +171,26 @@ const AdminView = ({ documents, isLoading, onFileUpload, onDeleteDocument }: Adm
       {superAdmin && (
         <AiSettingsCard />
       )}
+
+      {superAdmin && isViewingOtherTenant && (
+        <Card className="border-purple-500 bg-purple-50">
+          <CardContent className="py-6 text-center">
+            <Icon name="Crown" size={32} className="mx-auto text-purple-600 mb-3" />
+            <h3 className="text-lg font-semibold text-purple-900 mb-2">
+              Режим суперадмина активен
+            </h3>
+            <p className="text-sm text-purple-700">
+              У вас полный доступ ко всем функциям и настройкам этого бота, включая:
+            </p>
+            <ul className="mt-3 text-sm text-purple-700 space-y-1">
+              <li>• Редактирование системных промптов и AI моделей</li>
+              <li>• Настройка футера страницы</li>
+              <li>• Все интеграции (Telegram, WhatsApp, VK, MAX)</li>
+              <li>• Безлимитная загрузка документов</li>
+            </ul>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 };
