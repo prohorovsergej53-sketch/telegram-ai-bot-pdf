@@ -97,22 +97,26 @@ export const FAQSection = () => {
                   Остались вопросы?
                 </h3>
                 <p className="text-blue-100 mb-6">
-                  Напишите нам — ответим в течение часа
+                  Напишите в MAX.ru или чат-боту — ответим мгновенно
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
                   <a
-                    href="mailto:info@298100.ru"
+                    href="https://max.ru/spa/ai-ru"
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="inline-flex items-center gap-2 px-6 py-3 bg-white text-primary rounded-lg font-semibold hover:bg-blue-50 transition-colors"
                   >
-                    <Icon name="Mail" size={20} />
-                    info@298100.ru
+                    <Icon name="MessageSquare" size={20} />
+                    Открыть MAX.ru
                   </a>
                   <a
-                    href="tel:+79787236035"
+                    href="https://chat.ai-ru.ru"
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="inline-flex items-center gap-2 px-6 py-3 bg-white text-primary rounded-lg font-semibold hover:bg-blue-50 transition-colors"
                   >
-                    <Icon name="Phone" size={20} />
-                    +7 (978) 723-60-35
+                    <Icon name="Bot" size={20} />
+                    Чат-бот AI-ру
                   </a>
                 </div>
               </CardContent>

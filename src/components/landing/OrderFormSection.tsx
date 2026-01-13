@@ -168,31 +168,91 @@ export const OrderFormSection = ({ selectedTariff }: OrderFormSectionProps) => {
                   {error}
                 </div>
               )}
-              <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-4 mb-6">
-                <div className="flex items-start gap-3">
-                  <Icon name="Info" size={20} className="text-primary mt-1 flex-shrink-0" />
-                  <div className="text-sm text-slate-700">
-                    <p className="font-semibold mb-1">Что будет дальше:</p>
-                    {formData.tariff === 'enterprise' ? (
-                      <ul className="space-y-1 list-disc list-inside">
-                        <li>Оплатите тариф Премиум</li>
-                        <li>Система автоматически создаст ваш аккаунт</li>
-                        <li>Личный менеджер свяжется с вами в течение 2 часов</li>
-                        <li>Настроим всё под ключ: загрузим документы, настроим мессенджеры</li>
-                        <li>Вы получите готового AI-консультанта с полной поддержкой</li>
+              {formData.tariff === 'enterprise' ? (
+                <div className="bg-gradient-to-br from-purple-50 to-pink-50 border-2 border-purple-300 rounded-xl p-6 mb-6 shadow-lg">
+                  <div className="flex items-start gap-4">
+                    <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center flex-shrink-0">
+                      <Icon name="Crown" size={24} className="text-white" />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-lg font-bold text-purple-900 mb-3 flex items-center gap-2">
+                        Тариф Премиум — делаем всё за вас
+                        <span className="text-xs bg-purple-200 text-purple-800 px-2 py-1 rounded-full">VIP</span>
+                      </h3>
+                      <ul className="space-y-2.5 text-sm text-slate-700">
+                        <li className="flex items-start gap-2">
+                          <Icon name="Check" size={18} className="text-green-600 mt-0.5 flex-shrink-0" />
+                          <span><strong>Шаг 1:</strong> Оплатите тариф Премиум прямо сейчас</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <Icon name="Check" size={18} className="text-green-600 mt-0.5 flex-shrink-0" />
+                          <span><strong>Шаг 2:</strong> Система автоматически создаст ваш аккаунт за 30 секунд</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <Icon name="Check" size={18} className="text-green-600 mt-0.5 flex-shrink-0" />
+                          <span><strong>Шаг 3:</strong> Личный менеджер свяжется с вами в течение 2 часов</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <Icon name="Check" size={18} className="text-green-600 mt-0.5 flex-shrink-0" />
+                          <span><strong>Шаг 4:</strong> Настроим всё под ключ: загрузим документы, подключим все мессенджеры</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <Icon name="Check" size={18} className="text-green-600 mt-0.5 flex-shrink-0" />
+                          <span><strong>Готово!</strong> Получите работающего AI-консультанта с полной поддержкой</span>
+                        </li>
                       </ul>
-                    ) : (
-                      <ul className="space-y-1 list-disc list-inside">
-                        <li>Оплатите выбранный тариф</li>
-                        <li>Система автоматически создаст ваш аккаунт за 30 секунд</li>
-                        <li>Вы сразу получите доступ в личный кабинет</li>
-                        <li>Загрузите документы и настройте бота самостоятельно</li>
-                        <li>Начните принимать вопросы клиентов уже сегодня</li>
-                      </ul>
-                    )}
+                      <div className="mt-4 p-3 bg-white/60 rounded-lg">
+                        <p className="text-xs text-purple-900 font-semibold flex items-center gap-2">
+                          <Icon name="Sparkles" size={16} />
+                          Вам не нужно ничего делать — мы всё настроим сами!
+                        </p>
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
+              ) : (
+                <div className="bg-gradient-to-br from-blue-50 to-cyan-50 border-2 border-blue-300 rounded-xl p-6 mb-6 shadow-lg">
+                  <div className="flex items-start gap-4">
+                    <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center flex-shrink-0">
+                      <Icon name="Zap" size={24} className="text-white" />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-lg font-bold text-blue-900 mb-3 flex items-center gap-2">
+                        {formData.tariff === 'basic' ? 'Тариф Старт' : 'Тариф Бизнес'} — запуск за 5 минут
+                        <span className="text-xs bg-blue-200 text-blue-800 px-2 py-1 rounded-full">Самостоятельно</span>
+                      </h3>
+                      <ul className="space-y-2.5 text-sm text-slate-700">
+                        <li className="flex items-start gap-2">
+                          <Icon name="Check" size={18} className="text-green-600 mt-0.5 flex-shrink-0" />
+                          <span><strong>Шаг 1:</strong> Оплатите выбранный тариф прямо сейчас</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <Icon name="Check" size={18} className="text-green-600 mt-0.5 flex-shrink-0" />
+                          <span><strong>Шаг 2:</strong> Система автоматически создаст ваш аккаунт за 30 секунд</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <Icon name="Check" size={18} className="text-green-600 mt-0.5 flex-shrink-0" />
+                          <span><strong>Шаг 3:</strong> Вы сразу получите доступ в личный кабинет</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <Icon name="Check" size={18} className="text-green-600 mt-0.5 flex-shrink-0" />
+                          <span><strong>Шаг 4:</strong> Загрузите PDF документы и настройте бота за 5 минут</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <Icon name="Check" size={18} className="text-green-600 mt-0.5 flex-shrink-0" />
+                          <span><strong>Готово!</strong> Начните принимать вопросы клиентов уже сегодня</span>
+                        </li>
+                      </ul>
+                      <div className="mt-4 p-3 bg-white/60 rounded-lg">
+                        <p className="text-xs text-blue-900 font-semibold flex items-center gap-2">
+                          <Icon name="Info" size={16} />
+                          Простой интерфейс — настроите сами без технических знаний!
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
               <Button type="submit" size="lg" className="w-full text-xl py-7 shadow-xl" disabled={isLoading}>
                 {isLoading ? (
                   <>
