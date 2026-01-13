@@ -28,8 +28,8 @@ const AiSettingsCard = ({ currentTenantId }: AiSettingsCardProps) => {
 
   const loadSettings = async () => {
     try {
-      const tenantId = currentTenantId || getTenantId();
-      const url = tenantId ? `${BACKEND_URLS.getAiSettings}?tenant_id=${tenantId}` : BACKEND_URLS.getAiSettings;
+      const tenantId = currentTenantId !== null && currentTenantId !== undefined ? currentTenantId : getTenantId();
+      const url = tenantId !== null && tenantId !== undefined ? `${BACKEND_URLS.getAiSettings}?tenant_id=${tenantId}` : BACKEND_URLS.getAiSettings;
       const response = await authenticatedFetch(url);
       const data = await response.json();
       if (data.settings) {
@@ -71,9 +71,9 @@ const AiSettingsCard = ({ currentTenantId }: AiSettingsCardProps) => {
   const handleSaveSettings = async () => {
     setIsLoading(true);
     try {
-      const tenantId = currentTenantId || getTenantId();
+      const tenantId = currentTenantId !== null && currentTenantId !== undefined ? currentTenantId : getTenantId();
       console.log('[AiSettingsCard] Save: currentTenantId=', currentTenantId, 'getTenantId()=', getTenantId(), 'final tenantId=', tenantId);
-      const url = tenantId ? `${BACKEND_URLS.updateAiSettings}?tenant_id=${tenantId}` : BACKEND_URLS.updateAiSettings;
+      const url = tenantId !== null && tenantId !== undefined ? `${BACKEND_URLS.updateAiSettings}?tenant_id=${tenantId}` : BACKEND_URLS.updateAiSettings;
       console.log('[AiSettingsCard] Saving to URL:', url);
       const response = await authenticatedFetch(url, {
         method: 'POST',
