@@ -68,10 +68,11 @@ const AiSettingsCard = () => {
     setIsLoading(true);
     try {
       const tenantId = getTenantId();
-      const response = await authenticatedFetch(BACKEND_URLS.updateAiSettings, {
+      const url = tenantId ? `${BACKEND_URLS.updateAiSettings}?tenant_id=${tenantId}` : BACKEND_URLS.updateAiSettings;
+      const response = await authenticatedFetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ settings, tenant_id: tenantId })
+        body: JSON.stringify({ settings })
       });
 
       const data = await response.json();
