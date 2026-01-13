@@ -108,22 +108,26 @@ const ChatStatsCard = () => {
           </h3>
           <ScrollArea className="h-64 border rounded-lg">
             <div className="p-3 space-y-2">
-              {stats.popularQuestions.map((q, idx) => (
-                <div
-                  key={idx}
-                  className="flex items-start justify-between p-3 rounded-lg bg-slate-50 hover:bg-slate-100 transition-colors"
-                >
-                  <div className="flex items-start gap-3 flex-1 min-w-0">
-                    <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                      <span className="text-xs font-bold text-primary">{idx + 1}</span>
+              {stats.popularQuestions && stats.popularQuestions.length > 0 ? (
+                stats.popularQuestions.map((q, idx) => (
+                  <div
+                    key={idx}
+                    className="flex items-start justify-between p-3 rounded-lg bg-slate-50 hover:bg-slate-100 transition-colors"
+                  >
+                    <div className="flex items-start gap-3 flex-1 min-w-0">
+                      <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                        <span className="text-xs font-bold text-primary">{idx + 1}</span>
+                      </div>
+                      <p className="text-sm text-slate-700 break-words">{q.question}</p>
                     </div>
-                    <p className="text-sm text-slate-700 break-words">{q.question}</p>
+                    <span className="ml-3 px-2 py-1 bg-primary/10 text-primary text-xs font-medium rounded flex-shrink-0">
+                      {q.count}×
+                    </span>
                   </div>
-                  <span className="ml-3 px-2 py-1 bg-primary/10 text-primary text-xs font-medium rounded flex-shrink-0">
-                    {q.count}×
-                  </span>
-                </div>
-              ))}
+                ))
+              ) : (
+                <p className="text-sm text-slate-500 text-center py-8">Нет данных о популярных вопросах</p>
+              )}
             </div>
           </ScrollArea>
         </div>
@@ -136,12 +140,16 @@ const ChatStatsCard = () => {
             </h3>
             <ScrollArea className="h-48 border rounded-lg">
               <div className="p-3 space-y-2">
-                {stats.dailyStats.map((day, idx) => (
-                  <div key={idx} className="flex items-center justify-between p-2 rounded bg-slate-50">
-                    <span className="text-sm text-slate-700">{day.date}</span>
-                    <span className="text-sm font-medium text-slate-900">{day.count} сообщ.</span>
-                  </div>
-                ))}
+                {stats.dailyStats && stats.dailyStats.length > 0 ? (
+                  stats.dailyStats.map((day, idx) => (
+                    <div key={idx} className="flex items-center justify-between p-2 rounded bg-slate-50">
+                      <span className="text-sm text-slate-700">{day.date}</span>
+                      <span className="text-sm font-medium text-slate-900">{day.count} сообщ.</span>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-sm text-slate-500 text-center py-8">Нет данных</p>
+                )}
               </div>
             </ScrollArea>
           </div>
@@ -153,17 +161,21 @@ const ChatStatsCard = () => {
             </h3>
             <ScrollArea className="h-48 border rounded-lg">
               <div className="p-3 space-y-2">
-                {stats.topUsers.map((user, idx) => (
-                  <div key={idx} className="flex items-center justify-between p-2 rounded bg-slate-50">
-                    <div className="flex items-center gap-2">
-                      <div className="w-6 h-6 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center">
-                        <span className="text-xs font-bold text-white">{idx + 1}</span>
+                {stats.topUsers && stats.topUsers.length > 0 ? (
+                  stats.topUsers.map((user, idx) => (
+                    <div key={idx} className="flex items-center justify-between p-2 rounded bg-slate-50">
+                      <div className="flex items-center gap-2">
+                        <div className="w-6 h-6 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center">
+                          <span className="text-xs font-bold text-white">{idx + 1}</span>
+                        </div>
+                        <span className="text-sm text-slate-700 truncate">{user.user}</span>
                       </div>
-                      <span className="text-sm text-slate-700 truncate">{user.user}</span>
+                      <span className="text-sm font-medium text-slate-900">{user.messages} сообщ.</span>
                     </div>
-                    <span className="text-sm font-medium text-slate-900">{user.messages} сообщ.</span>
-                  </div>
-                ))}
+                  ))
+                ) : (
+                  <p className="text-sm text-slate-500 text-center py-8">Нет данных</p>
+                )}
               </div>
             </ScrollArea>
           </div>
