@@ -39,6 +39,8 @@ const SuperAdmin = () => {
   const [tariffs, setTariffs] = useState<Tariff[]>([]);
   const [tenants, setTenants] = useState<Tenant[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [editingTenant, setEditingTenant] = useState<Tenant | null>(null);
+  const [editingTariff, setEditingTariff] = useState<Tariff | null>(null);
 
   useEffect(() => {
     if (!isSuperAdmin()) {
@@ -89,6 +91,22 @@ const SuperAdmin = () => {
     } catch (error) {
       console.error('Error loading tenants:', error);
     }
+  };
+
+  const handleManageTenant = (tenant: Tenant) => {
+    toast({
+      title: 'Управление клиентом',
+      description: `Открываю настройки для ${tenant.name}`,
+    });
+    console.log('Managing tenant:', tenant);
+  };
+
+  const handleEditTariff = (tariff: Tariff) => {
+    toast({
+      title: 'Редактирование тарифа',
+      description: `Открываю редактор для ${tariff.name}`,
+    });
+    console.log('Editing tariff:', tariff);
   };
 
   return (
@@ -221,7 +239,11 @@ const SuperAdmin = () => {
                           )}
                         </div>
                       </div>
-                      <Button variant="outline" size="sm">
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => handleManageTenant(tenant)}
+                      >
                         <Icon name="Settings" size={16} className="mr-2" />
                         Управление
                       </Button>
@@ -256,7 +278,11 @@ const SuperAdmin = () => {
                           {tariff.price.toLocaleString('ru-RU')} ₽ / {tariff.period}
                         </div>
                       </div>
-                      <Button variant="outline" size="sm">
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => handleEditTariff(tariff)}
+                      >
                         <Icon name="Edit" size={16} className="mr-2" />
                         Редактировать
                       </Button>
