@@ -16,6 +16,9 @@ import AdminUsersPanel from '@/components/master/AdminUsersPanel';
 import MessengersStatusCard from '@/components/master/MessengersStatusCard';
 import CreateTenantWithUserPanel from '@/components/master/CreateTenantWithUserPanel';
 import DefaultSettingsPanel from '@/components/master/DefaultSettingsPanel';
+import VersionsList from '@/components/master/VersionsList';
+import BulkUpdatePanel from '@/components/master/BulkUpdatePanel';
+import UsersManagementPanel from '@/components/master/UsersManagementPanel';
 
 interface CompanyInfo {
   name: string;
@@ -34,7 +37,21 @@ interface Tenant {
   owner_email: string;
 }
 
+interface Version {
+  version: string;
+  description: string;
+  code_hash: string;
+  created_at: string;
+  created_by: string;
+  tenant_count: number;
+}
+
 const STORAGE_KEY = 'company_info';
+const BACKEND_URLS = {
+  tenants: 'https://functions.poehali.dev/2163d682-19a2-462b-b577-7f04219cc3c8',
+  bulkUpdate: 'https://functions.poehali.dev/06059507-42f3-4144-bcb9-b152556cd5ae',
+  versions: 'https://functions.poehali.dev/7f6c3892-47f2-47aa-91b0-541f0de7c211'
+};
 
 const SuperAdmin = () => {
   const navigate = useNavigate();
@@ -48,6 +65,7 @@ const SuperAdmin = () => {
     legalForm: 'Плательщик НПД'
   });
   const [tenants, setTenants] = useState<Tenant[]>([]);
+  const [versions, setVersions] = useState<Version[]>([]);
   const [selectedTenant, setSelectedTenant] = useState<string>('');
   const [isLoading, setIsLoading] = useState(true);
 
@@ -60,11 +78,12 @@ const SuperAdmin = () => {
       setCompanyInfo(JSON.parse(saved));
     }
     loadTenants();
+    loadVersions();
   }, [navigate]);
 
   const loadTenants = async () => {
     try {
-      const response = await fetch('https://functions.poehali.dev/2163d682-19a2-462b-b577-7f04219cc3c8');
+      const response = await fetch(BACKEND_URLS.tenants);
       const data = await response.json();
       if (data.tenants) {
         setTenants(data.tenants);
@@ -73,6 +92,16 @@ const SuperAdmin = () => {
       console.error('Error loading tenants:', error);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const loadVersions = async () => {
+    try {
+      const response = await fetch(BACKEND_URLS.versions);
+      const data = await response.json();
+      setVersions(data.versions || []);
+    } catch (error) {
+      console.error('Error loading versions:', error);
     }
   };
 
@@ -105,7 +134,7 @@ const SuperAdmin = () => {
         </div>
 
         <Tabs defaultValue="dashboard" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5 lg:w-auto">
+          <TabsList className="grid w-full grid-cols-8 lg:w-auto">
             <TabsTrigger value="dashboard">
               <Icon name="LayoutDashboard" size={16} className="mr-2" />
               Дашборд
@@ -114,9 +143,21 @@ const SuperAdmin = () => {
               <Icon name="Users" size={16} className="mr-2" />
               Клиенты
             </TabsTrigger>
+            <TabsTrigger value="versions">
+              <Icon name="GitBranch" size={16} className="mr-2" />
+              Версии
+            </TabsTrigger>
+            <TabsTrigger value="bulk-update">
+              <Icon name="RefreshCw" size={16} className="mr-2" />
+              Массовое обновление
+            </TabsTrigger>
             <TabsTrigger value="admins">
               <Icon name="Shield" size={16} className="mr-2" />
               Админы
+            </TabsTrigger>
+            <TabsTrigger value="users">
+              <Icon name="UserCog" size={16} className="mr-2" />
+              Пользователи
             </TabsTrigger>
             <TabsTrigger value="tariffs">
               <Icon name="Package" size={16} className="mr-2" />
@@ -140,6 +181,18 @@ const SuperAdmin = () => {
 
           <TabsContent value="admins" className="space-y-6">
             <AdminUsersPanel />
+          </TabsContent>
+
+          <TabsContent value="versions" className="space-y-6">
+            <VersionsList versions={versions} onRefresh={loadVersions} />
+          </TabsContent>
+
+          <TabsContent value="bulk-update" className="space-y-6">
+            <BulkUpdatePanel tenants={tenants} />
+          </TabsContent>
+
+          <TabsContent value="users" className="space-y-6">
+            <UsersManagementPanel />
           </TabsContent>
 
           <TabsContent value="tariffs" className="space-y-6">
