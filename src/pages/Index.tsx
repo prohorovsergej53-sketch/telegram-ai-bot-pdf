@@ -101,7 +101,7 @@ const Index = () => {
     
     // Hardcoded mapping (пока не создана публичная функция для slug→tenant_id)
     const slugToTenantMap: Record<string, { id: number, tariffId: string }> = {
-      'sales': { id: 1, tariffId: 'premium' },
+      'sales': { id: 0, tariffId: 'premium' },
       // Добавь другие тенанты по необходимости
     };
     
