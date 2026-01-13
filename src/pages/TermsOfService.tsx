@@ -227,6 +227,17 @@ const TermsOfService = () => {
             </section>
           </CardContent>
         </Card>
+        
+        <div className="text-center mt-8 pb-8">
+          <a 
+            href="https://max.ru/u/f9LHodD0cOIrknUlAYx1LxuVyfuHRhIq-OHhkpPMbwJ_WcjW4dhTFpEEez0" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="text-blue-600 hover:text-blue-700 transition-colors underline text-lg font-medium"
+          >
+            Хочу такой бот!
+          </a>
+        </div>
       </div>
     </div>
   );
