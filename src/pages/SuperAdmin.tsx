@@ -178,7 +178,12 @@ const SuperAdmin = () => {
                 </Select>
               </div>
               <Button 
-                onClick={() => selectedTenant && navigate(`/${selectedTenant}/admin`)}
+                onClick={() => {
+                  if (selectedTenant) {
+                    sessionStorage.setItem('superadmin_viewing_tenant', 'true');
+                    navigate(`/${selectedTenant}/admin`);
+                  }
+                }}
                 disabled={!selectedTenant}
                 className="w-full"
               >

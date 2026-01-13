@@ -339,7 +339,10 @@ const Index = () => {
               {isSuperAdmin() && (
                 <Button 
                   variant="outline"
-                  onClick={() => window.location.href = '/super-admin'}
+                  onClick={() => {
+                    sessionStorage.removeItem('superadmin_viewing_tenant');
+                    window.location.href = '/super-admin';
+                  }}
                   className="gap-2"
                 >
                   <Icon name="Shield" size={18} />
