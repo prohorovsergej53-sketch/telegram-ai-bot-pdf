@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useParams, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
@@ -9,8 +10,11 @@ import { Message, Document, BACKEND_URLS, PageSettings, QuickQuestion } from '@/
 import { isAuthenticated, logout, authenticatedFetch, getTenantId, isSuperAdmin } from '@/lib/auth';
 
 const Index = () => {
+  const { tenantSlug } = useParams<{ tenantSlug: string }>();
+  const location = useLocation();
   const [view, setView] = useState<'guest' | 'admin'>('guest');
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
+  const [currentTenantId, setCurrentTenantId] = useState<number | null>(null);
   const [messages, setMessages] = useState<Message[]>([
     { 
       id: '1', 
@@ -30,24 +34,56 @@ const Index = () => {
   useEffect(() => {
     if (isAuthenticated()) {
       setIsAdminAuthenticated(true);
-    } else {
-      logout();
     }
-  }, []);
+    if (location.pathname.endsWith('/admin')) {
+      setView('admin');
+    }
+  }, [location.pathname]);
+
+  useEffect(() => {
+    if (tenantSlug) {
+      loadTenantInfo();
+    }
+  }, [tenantSlug]);
 
   useEffect(() => {
     loadPageSettings();
-  }, []);
+  }, [currentTenantId]);
 
   useEffect(() => {
     if (view === 'admin' && isAdminAuthenticated) {
       loadDocuments();
     }
-  }, [view, isAdminAuthenticated]);
+  }, [view, isAdminAuthenticated, currentTenantId]);
+
+  const loadTenantInfo = async () => {
+    if (!tenantSlug) {
+      setCurrentTenantId(getTenantId());
+      return;
+    }
+    
+    try {
+      const response = await fetch('https://functions.poehali.dev/2163d682-19a2-462b-b577-7f04219cc3c8');
+      const data = await response.json();
+      if (data.tenants) {
+        const tenant = data.tenants.find((t: any) => t.slug === tenantSlug);
+        if (tenant) {
+          console.log(`[Index] Loaded tenant: ${tenant.name} (ID: ${tenant.id}, slug: ${tenantSlug})`);
+          setCurrentTenantId(tenant.id);
+        } else {
+          console.warn(`[Index] Tenant not found for slug: ${tenantSlug}`);
+        }
+      }
+    } catch (error) {
+      console.error('Error loading tenant info:', error);
+    }
+  };
 
   const loadPageSettings = async () => {
     try {
-      const response = await fetch(BACKEND_URLS.getPageSettings);
+      const tenantId = currentTenantId || getTenantId();
+      const url = tenantId ? `${BACKEND_URLS.getPageSettings}?tenant_id=${tenantId}` : BACKEND_URLS.getPageSettings;
+      const response = await fetch(url);
       const data = await response.json();
       if (data.settings) {
         setPageSettings(data.settings);
@@ -62,7 +98,7 @@ const Index = () => {
 
   const loadDocuments = async () => {
     try {
-      const tenantId = getTenantId();
+      const tenantId = currentTenantId || getTenantId();
       const url = tenantId ? `${BACKEND_URLS.getDocuments}?tenant_id=${tenantId}` : BACKEND_URLS.getDocuments;
       const response = await authenticatedFetch(url);
       const data = await response.json();
