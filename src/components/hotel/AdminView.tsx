@@ -6,7 +6,6 @@ import MAXSettingsCard from './MAXSettingsCard';
 import ChatStatsCard from './ChatStatsCard';
 import PageSettingsCard from './PageSettingsCard';
 import WidgetSettingsCard from './WidgetSettingsCard';
-import AiSettingsCard from './AiSettingsCard';
 import SubscriptionWidget from './SubscriptionWidget';
 import ApiKeysCard from './ApiKeysCard';
 import MessengerAutoMessages from './MessengerAutoMessages';
@@ -172,10 +171,6 @@ const AdminView = ({ documents, isLoading, onFileUpload, onDeleteDocument }: Adm
       <ChatStatsCard />
 
       <PageSettingsCard />
-
-      {superAdmin && (
-        <AiSettingsCard />
-      )}
 
       {superAdmin && isViewingOtherTenant && (
         <Card className="border-purple-500 bg-purple-50">
