@@ -1,7 +1,10 @@
 import Icon from '@/components/ui/icon';
 import { Link } from 'react-router-dom';
+import { getCompanyInfo } from '@/lib/company-info';
 
 export const FooterSection = () => {
+  const company = getCompanyInfo();
+  
   return (
     <div className="bg-slate-900 text-white py-12">
       <div className="container mx-auto px-4">
@@ -9,17 +12,17 @@ export const FooterSection = () => {
           <div>
             <h3 className="text-lg font-semibold mb-4">Контакты</h3>
             <div className="space-y-2 text-slate-400">
-              <a href="mailto:info@298100.ru" className="block hover:text-white transition-colors">
+              <a href={`mailto:${company.email}`} className="block hover:text-white transition-colors">
                 <Icon name="Mail" size={16} className="inline mr-2" />
-                info@298100.ru
+                {company.email}
               </a>
-              <a href="tel:+79787236035" className="block hover:text-white transition-colors">
+              <a href={`tel:${company.phone.replace(/\D/g, '')}`} className="block hover:text-white transition-colors">
                 <Icon name="Phone" size={16} className="inline mr-2" />
-                +7 (978) 723-60-35
+                {company.phone}
               </a>
               <p className="flex items-start">
                 <Icon name="MapPin" size={16} className="inline mr-2 mt-1 flex-shrink-0" />
-                <span>Республика Крым, г. Феодосия</span>
+                <span>{company.address}</span>
               </p>
             </div>
           </div>
@@ -37,14 +40,14 @@ export const FooterSection = () => {
           <div>
             <h3 className="text-lg font-semibold mb-4">Реквизиты</h3>
             <div className="space-y-2 text-slate-400">
-              <p>Самозанятый (НПД)</p>
-              <p>Прохоров Сергей Валериевич</p>
-              <p>ИНН: 920412274860</p>
+              <p>{company.legalForm}</p>
+              <p>{company.name}</p>
+              <p>ИНН: {company.inn}</p>
             </div>
           </div>
         </div>
         <div className="border-t border-slate-800 pt-8 text-center text-slate-400">
-          <p>&copy; {new Date().getFullYear()} Прохоров С.В. Все права защищены.</p>
+          <p>&copy; {new Date().getFullYear()} {company.name} Все права защищены.</p>
         </div>
       </div>
     </div>

@@ -2,9 +2,11 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useNavigate } from 'react-router-dom';
 import Icon from '@/components/ui/icon';
+import { getCompanyInfo } from '@/lib/company-info';
 
 const TermsOfService = () => {
   const navigate = useNavigate();
+  const company = getCompanyInfo();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 py-12 px-4">
@@ -27,8 +29,7 @@ const TermsOfService = () => {
             <section>
               <h2 className="text-xl font-semibold mb-3">1. Общие положения</h2>
               <p>
-                Настоящая оферта (далее — Оферта) является публичным предложением самозанятого (НПД) 
-                Прохорова Сергея Валериевича, ИНН 920412274860 (далее — Исполнитель), 
+                Настоящая оферта (далее — Оферта) является публичным предложением {company.legalForm} {company.name}, ИНН {company.inn} (далее — Исполнитель), 
                 заключить договор оказания услуг с любым лицом (далее — Заказчик),
                 которое примет условия Оферты путем использования сервиса AI-консультант, 
                 размещенного по адресу ai-ru.ru (далее — Сервис).
@@ -217,11 +218,11 @@ const TermsOfService = () => {
               <h2 className="text-xl font-semibold mb-3">11. Контактная информация</h2>
               <div className="bg-blue-50 p-4 rounded-lg">
                 <p><strong>Исполнитель:</strong></p>
-                <p>Самозанятый (НПД)</p>
-                <p>Прохоров Сергей Валериевич</p>
-                <p>ИНН: 920412274860</p>
-                <p>Email: <a href="mailto:info@298100.ru" className="text-blue-600 hover:underline">info@298100.ru</a></p>
-                <p>Телефон: <a href="tel:+79787236035" className="text-blue-600 hover:underline">+7 (978) 723-60-35</a></p>
+                <p>{company.legalForm}</p>
+                <p>{company.name}</p>
+                <p>ИНН: {company.inn}</p>
+                <p>Email: <a href={`mailto:${company.email}`} className="text-blue-600 hover:underline">{company.email}</a></p>
+                <p>Телефон: <a href={`tel:${company.phone.replace(/\D/g, '')}`} className="text-blue-600 hover:underline">{company.phone}</a></p>
               </div>
             </section>
           </CardContent>

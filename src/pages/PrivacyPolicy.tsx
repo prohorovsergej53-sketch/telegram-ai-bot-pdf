@@ -2,9 +2,11 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useNavigate } from 'react-router-dom';
 import Icon from '@/components/ui/icon';
+import { getCompanyInfo } from '@/lib/company-info';
 
 const PrivacyPolicy = () => {
   const navigate = useNavigate();
+  const company = getCompanyInfo();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 py-12 px-4">
@@ -151,11 +153,11 @@ const PrivacyPolicy = () => {
               <h2 className="text-xl font-semibold mb-3">10. Контактная информация</h2>
               <div className="bg-blue-50 p-4 rounded-lg">
                 <p><strong>Оператор персональных данных:</strong></p>
-                <p>Самозанятый (НПД)</p>
-                <p>Прохоров Сергей Валериевич</p>
-                <p>ИНН: 920412274860</p>
-                <p>Email: <a href="mailto:info@298100.ru" className="text-blue-600 hover:underline">info@298100.ru</a></p>
-                <p>Телефон: <a href="tel:+79787236035" className="text-blue-600 hover:underline">+7 (978) 723-60-35</a></p>
+                <p>{company.legalForm}</p>
+                <p>{company.name}</p>
+                <p>ИНН: {company.inn}</p>
+                <p>Email: <a href={`mailto:${company.email}`} className="text-blue-600 hover:underline">{company.email}</a></p>
+                <p>Телефон: <a href={`tel:${company.phone.replace(/\D/g, '')}`} className="text-blue-600 hover:underline">{company.phone}</a></p>
               </div>
             </section>
 
