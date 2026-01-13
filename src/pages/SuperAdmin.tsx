@@ -48,6 +48,7 @@ const SuperAdmin = () => {
   });
   const [tenants, setTenants] = useState<Tenant[]>([]);
   const [selectedTenant, setSelectedTenant] = useState<string>('');
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     if (!isSuperAdmin()) {
@@ -69,6 +70,8 @@ const SuperAdmin = () => {
       }
     } catch (error) {
       console.error('Error loading tenants:', error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -82,6 +85,14 @@ const SuperAdmin = () => {
 
   if (!isSuperAdmin()) {
     return null;
+  }
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-slate-100 flex items-center justify-center">
+        <Icon name="Loader2" className="animate-spin" size={48} />
+      </div>
+    );
   }
 
   return (
