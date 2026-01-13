@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import AISettingsCard from './AISettingsCard';
 import TelegramSettingsCard from './TelegramSettingsCard';
 import WhatsAppSettingsCard from './WhatsAppSettingsCard';
@@ -17,6 +18,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { hasFeatureAccess } from '@/lib/tariff-limits';
 import { Card, CardContent } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Icon from '@/components/ui/icon';
 
 interface AdminViewProps {
@@ -34,10 +36,11 @@ const AdminView = ({ documents, isLoading, onFileUpload, onDeleteDocument, curre
   const superAdmin = isSuperAdmin();
   const currentUser = getAdminUser();
   const isViewingOtherTenant = sessionStorage.getItem('superadmin_viewing_tenant') === 'true';
+  const [activeTab, setActiveTab] = useState('documents');
 
   const handleExitTenantView = () => {
     exitTenantView();
-    sessionStorage.setItem('superadmin_active_tab', 'tenants');
+    sessionStorage.setItem('superadmin_active_tab', 'users');
     navigate('/super-admin');
   };
 
@@ -77,9 +80,6 @@ const AdminView = ({ documents, isLoading, onFileUpload, onDeleteDocument, curre
                   • Логин: {currentUser.username}
                 </span>
                 <span className={`text-sm ${superAdmin ? "text-purple-700" : "text-blue-700"}`}>
-                  • Роль: {currentUser.role === 'super_admin' ? 'Суперадмин' : 'Админ бота'}
-                </span>
-                <span className={`text-sm ${superAdmin ? "text-purple-700" : "text-blue-700"}`}>
                   • Tenant ID: {tenantId}
                 </span>
                 <span className={`text-sm ${superAdmin ? "text-purple-700" : "text-blue-700"}`}>
@@ -102,79 +102,120 @@ const AdminView = ({ documents, isLoading, onFileUpload, onDeleteDocument, curre
         </Card>
       )}
 
-      {tenantId && (
+      {tenantId !== null && tenantId !== undefined && (
         <SubscriptionWidget tenantId={tenantId} />
       )}
-      
-      <DocumentStatsCards documents={documents} />
 
-      <DocumentsPanel
-        documents={documents}
-        isLoading={isLoading}
-        onFileUpload={onFileUpload}
-        onDeleteDocument={onDeleteDocument}
-      />
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+        <TabsList className="bg-white shadow-sm grid grid-cols-4 lg:grid-cols-6">
+          <TabsTrigger value="documents">
+            <Icon name="FileText" size={16} className="mr-2" />
+            <span className="hidden sm:inline">Документы</span>
+          </TabsTrigger>
+          <TabsTrigger value="messengers">
+            <Icon name="MessageCircle" size={16} className="mr-2" />
+            <span className="hidden sm:inline">Мессенджеры</span>
+          </TabsTrigger>
+          <TabsTrigger value="ai">
+            <Icon name="Brain" size={16} className="mr-2" />
+            <span className="hidden sm:inline">AI</span>
+          </TabsTrigger>
+          <TabsTrigger value="page">
+            <Icon name="Layout" size={16} className="mr-2" />
+            <span className="hidden sm:inline">Страница</span>
+          </TabsTrigger>
+          <TabsTrigger value="widget">
+            <Icon name="Code" size={16} className="mr-2" />
+            <span className="hidden sm:inline">Виджет</span>
+          </TabsTrigger>
+          <TabsTrigger value="stats">
+            <Icon name="BarChart" size={16} className="mr-2" />
+            <span className="hidden sm:inline">Статистика</span>
+          </TabsTrigger>
+        </TabsList>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {(superAdmin || hasFeatureAccess('hasAISettings', tariffId)) ? (
-          <AISettingsCard
-            getSettingsUrl={BACKEND_URLS.getAiSettings}
-            updateSettingsUrl={BACKEND_URLS.updateAiSettings}
+        <TabsContent value="documents" className="space-y-6">
+          <DocumentStatsCards documents={documents} />
+          <DocumentsPanel
+            documents={documents}
+            isLoading={isLoading}
+            onFileUpload={onFileUpload}
+            onDeleteDocument={onDeleteDocument}
           />
-        ) : (
-          <UpgradeCard feature="Настройка AI провайдеров" />
-        )}
-        
-        {(superAdmin || hasFeatureAccess('hasTelegram', tariffId)) ? (
-          <TelegramSettingsCard
-            webhookUrl={BACKEND_URLS.telegramWebhook}
-            chatFunctionUrl={BACKEND_URLS.chat}
-          />
-        ) : (
-          <UpgradeCard feature="Интеграция с Telegram" />
-        )}
-      </div>
+        </TabsContent>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {(superAdmin || hasFeatureAccess('hasWhatsApp', tariffId)) ? (
-          <WhatsAppSettingsCard
-            webhookUrl={BACKEND_URLS.whatsappWebhook}
-            chatFunctionUrl={BACKEND_URLS.chat}
-          />
-        ) : (
-          <UpgradeCard feature="Интеграция с WhatsApp" />
-        )}
-        
-        {(superAdmin || hasFeatureAccess('hasVK', tariffId)) ? (
-          <VKSettingsCard
-            webhookUrl={BACKEND_URLS.vkWebhook}
-            chatFunctionUrl={BACKEND_URLS.chat}
-          />
-        ) : (
-          <UpgradeCard feature="Интеграция с VK" />
-        )}
-      </div>
+        <TabsContent value="messengers" className="space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {(superAdmin || hasFeatureAccess('hasTelegram', tariffId)) ? (
+              <TelegramSettingsCard
+                webhookUrl={BACKEND_URLS.telegramWebhook}
+                chatFunctionUrl={BACKEND_URLS.chat}
+              />
+            ) : (
+              <UpgradeCard feature="Интеграция с Telegram" />
+            )}
+            
+            {(superAdmin || hasFeatureAccess('hasWhatsApp', tariffId)) ? (
+              <WhatsAppSettingsCard
+                webhookUrl={BACKEND_URLS.whatsappWebhook}
+                chatFunctionUrl={BACKEND_URLS.chat}
+              />
+            ) : (
+              <UpgradeCard feature="Интеграция с WhatsApp" />
+            )}
+          </div>
 
-      {(superAdmin || hasFeatureAccess('hasMAX', tariffId)) ? (
-        <MAXSettingsCard
-          webhookUrl={BACKEND_URLS.maxWebhook}
-          chatFunctionUrl={BACKEND_URLS.chat}
-        />
-      ) : (
-        <UpgradeCard feature="Интеграция с MAX.ru" />
-      )}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {(superAdmin || hasFeatureAccess('hasVK', tariffId)) ? (
+              <VKSettingsCard
+                webhookUrl={BACKEND_URLS.vkWebhook}
+                chatFunctionUrl={BACKEND_URLS.chat}
+              />
+            ) : (
+              <UpgradeCard feature="Интеграция с VK" />
+            )}
 
-      <WidgetSettingsCard />
+            {(superAdmin || hasFeatureAccess('hasMAX', tariffId)) ? (
+              <MAXSettingsCard
+                webhookUrl={BACKEND_URLS.maxWebhook}
+                chatFunctionUrl={BACKEND_URLS.chat}
+              />
+            ) : (
+              <UpgradeCard feature="Интеграция с MAX.ru" />
+            )}
+          </div>
 
-      <MessengerAutoMessages isSuperAdmin={superAdmin} />
+          <MessengerAutoMessages isSuperAdmin={superAdmin} />
+        </TabsContent>
 
-      <ChatStatsCard />
+        <TabsContent value="ai" className="space-y-6">
+          {(superAdmin || hasFeatureAccess('hasAISettings', tariffId)) ? (
+            <div className="space-y-6">
+              <AISettingsCard
+                getSettingsUrl={BACKEND_URLS.getAiSettings}
+                updateSettingsUrl={BACKEND_URLS.updateAiSettings}
+              />
+              {superAdmin && (
+                <AiSettingsCard currentTenantId={currentTenantId} />
+              )}
+            </div>
+          ) : (
+            <UpgradeCard feature="Настройка AI провайдеров" />
+          )}
+        </TabsContent>
 
-      <PageSettingsCard />
+        <TabsContent value="page" className="space-y-6">
+          <PageSettingsCard />
+        </TabsContent>
 
-      {superAdmin && (
-        <AiSettingsCard currentTenantId={currentTenantId} />
-      )}
+        <TabsContent value="widget" className="space-y-6">
+          <WidgetSettingsCard />
+        </TabsContent>
+
+        <TabsContent value="stats" className="space-y-6">
+          <ChatStatsCard />
+        </TabsContent>
+      </Tabs>
 
       {superAdmin && isViewingOtherTenant && (
         <Card className="border-purple-500 bg-purple-50">
@@ -184,14 +225,8 @@ const AdminView = ({ documents, isLoading, onFileUpload, onDeleteDocument, curre
               Режим суперадмина активен
             </h3>
             <p className="text-sm text-purple-700">
-              У вас полный доступ ко всем функциям и настройкам этого бота, включая:
+              У вас полный доступ ко всем функциям и настройкам этого бота
             </p>
-            <ul className="mt-3 text-sm text-purple-700 space-y-1">
-              <li>• Редактирование системных промптов и AI моделей</li>
-              <li>• Настройка футера страницы</li>
-              <li>• Все интеграции (Telegram, WhatsApp, VK, MAX)</li>
-              <li>• Безлимитная загрузка документов</li>
-            </ul>
           </CardContent>
         </Card>
       )}

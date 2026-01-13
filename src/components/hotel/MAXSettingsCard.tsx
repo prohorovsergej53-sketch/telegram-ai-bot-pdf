@@ -134,12 +134,40 @@ const MAXSettingsCard = ({ webhookUrl, chatFunctionUrl }: MAXSettingsCardProps) 
     }
   };
 
+  const getStatusBadge = () => {
+    if (webhookStatus === 'active') {
+      return (
+        <span className="inline-flex items-center gap-1 px-2 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full">
+          <Icon name="CheckCircle" size={12} />
+          Подключено
+        </span>
+      );
+    }
+    if (webhookStatus === 'error') {
+      return (
+        <span className="inline-flex items-center gap-1 px-2 py-1 bg-red-100 text-red-700 text-xs font-medium rounded-full">
+          <Icon name="XCircle" size={12} />
+          Ошибка
+        </span>
+      );
+    }
+    return (
+      <span className="inline-flex items-center gap-1 px-2 py-1 bg-gray-100 text-gray-600 text-xs font-medium rounded-full">
+        <Icon name="Circle" size={12} />
+        Не настроено
+      </span>
+    );
+  };
+
   return (
     <Card className="shadow-xl">
       <CardHeader className="border-b bg-gradient-to-r from-slate-50 to-purple-50">
-        <CardTitle className="flex items-center gap-2">
-          <Icon name="Bot" size={20} />
-          MAX-бот
+        <CardTitle className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Icon name="Bot" size={20} />
+            MAX-бот
+          </div>
+          {getStatusBadge()}
         </CardTitle>
         <CardDescription>Подключите бота для работы через MAX (max.ru)</CardDescription>
       </CardHeader>
