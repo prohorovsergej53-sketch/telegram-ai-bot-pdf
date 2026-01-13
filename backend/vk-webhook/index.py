@@ -1,7 +1,12 @@
 import json
 import os
+import sys
 import requests
 import hashlib
+import psycopg2
+
+sys.path.append('/function/code')
+from api_keys_helper import get_tenant_api_key
 
 def handler(event: dict, context) -> dict:
     """Webhook для VK-бота: принимает сообщения и отвечает через AI-консьержа"""
@@ -29,9 +34,10 @@ def handler(event: dict, context) -> dict:
 
     try:
         body = json.loads(event.get('body', '{}'))
+        tenant_id = 1
         
-        secret_key = os.environ.get('VK_SECRET_KEY', '')
-        if secret_key:
+        secret_key, error = get_tenant_api_key(tenant_id, 'vk', 'secret_key')
+        if not error and secret_key:
             received_secret = body.get('secret', '')
             if received_secret != secret_key:
                 return {
@@ -44,7 +50,9 @@ def handler(event: dict, context) -> dict:
         event_type = body.get('type')
 
         if event_type == 'confirmation':
-            group_id = os.environ.get('VK_GROUP_ID')
+            group_id, error = get_tenant_api_key(tenant_id, 'vk', 'group_id')
+            if error:
+                return error
             confirmation_code = f'vk_confirm_{group_id}'
             return {
                 'statusCode': 200,
@@ -68,13 +76,14 @@ def handler(event: dict, context) -> dict:
                 }
 
             session_id = f"vk-{user_id}"
-            chat_function_url = os.environ.get('CHAT_FUNCTION_URL')
+            chat_function_url = 'https://functions.poehali.dev/7b58f4fb-5db0-4f85-bb3b-55bafa4cbf73'
 
             chat_response = requests.post(
                 chat_function_url,
                 json={
                     'message': user_message,
-                    'sessionId': session_id
+                    'sessionId': session_id,
+                    'tenantId': tenant_id
                 },
                 headers={'Content-Type': 'application/json'},
                 timeout=30
@@ -86,9 +95,9 @@ def handler(event: dict, context) -> dict:
             chat_data = chat_response.json()
             ai_message = chat_data.get('message', 'Извините, не могу ответить')
 
-            group_token = os.environ.get('VK_GROUP_TOKEN')
-            if not group_token:
-                raise Exception('VK_GROUP_TOKEN not configured')
+            group_token, error = get_tenant_api_key(tenant_id, 'vk', 'group_token')
+            if error:
+                return error
 
             vk_api_url = 'https://api.vk.com/method/messages.send'
             vk_response = requests.post(

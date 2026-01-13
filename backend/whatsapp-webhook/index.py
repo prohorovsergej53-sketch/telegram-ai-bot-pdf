@@ -1,6 +1,11 @@
 import json
 import os
+import sys
 import requests
+import psycopg2
+
+sys.path.append('/function/code')
+from api_keys_helper import get_tenant_api_key
 
 def handler(event: dict, context) -> dict:
     """Webhook для WhatsApp Business API: принимает сообщения и отвечает через AI-консьержа"""
@@ -106,6 +111,7 @@ def handler(event: dict, context) -> dict:
         user_message = message['text']['body']
         
         session_id = f"whatsapp-{user_phone}"
+        tenant_id = 1
 
         # Вызываем chat функцию
         chat_function_url = 'https://functions.poehali.dev/7b58f4fb-5db0-4f85-bb3b-55bafa4cbf73'
@@ -114,7 +120,8 @@ def handler(event: dict, context) -> dict:
             chat_function_url,
             json={
                 'message': user_message,
-                'sessionId': session_id
+                'sessionId': session_id,
+                'tenantId': tenant_id
             },
             headers={'Content-Type': 'application/json'},
             timeout=30
@@ -126,12 +133,13 @@ def handler(event: dict, context) -> dict:
         chat_data = chat_response.json()
         ai_message = chat_data.get('message', 'Извините, не могу ответить')
 
-        # Получаем данные для WhatsApp API
-        phone_number_id = os.environ.get('WHATSAPP_PHONE_NUMBER_ID')
-        access_token = os.environ.get('WHATSAPP_ACCESS_TOKEN')
-        
-        if not phone_number_id or not access_token:
-            raise Exception('WhatsApp credentials not configured')
+        # Получаем данные для WhatsApp API из tenant_api_keys
+        phone_number_id, error = get_tenant_api_key(tenant_id, 'whatsapp', 'phone_number_id')
+        if error:
+            return error
+        access_token, error = get_tenant_api_key(tenant_id, 'whatsapp', 'access_token')
+        if error:
+            return error
 
         # Отправляем ответ через WhatsApp API
         whatsapp_api_url = f'https://graph.facebook.com/v18.0/{phone_number_id}/messages'
