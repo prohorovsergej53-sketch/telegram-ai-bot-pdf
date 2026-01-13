@@ -167,14 +167,14 @@ const TariffManagementCard = () => {
                 <div>
                   <p className="text-xs text-slate-500 mb-2">Возможности:</p>
                   <div className="flex flex-wrap gap-2">
-                    {tariff.features.slice(0, 3).map((feature, idx) => (
+                    {(tariff.features || []).slice(0, 3).map((feature, idx) => (
                       <Badge key={idx} variant="outline" className="text-xs">
                         {feature}
                       </Badge>
                     ))}
-                    {tariff.features.length > 3 && (
+                    {(tariff.features || []).length > 3 && (
                       <Badge variant="outline" className="text-xs">
-                        +{tariff.features.length - 3} ещё
+                        +{(tariff.features || []).length - 3} ещё
                       </Badge>
                     )}
                   </div>
