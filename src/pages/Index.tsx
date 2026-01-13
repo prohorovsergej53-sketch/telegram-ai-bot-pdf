@@ -34,6 +34,7 @@ const Index = () => {
   useEffect(() => {
     if (isAuthenticated()) {
       setIsAdminAuthenticated(true);
+      console.log('[Index] User is authenticated. isSuperAdmin:', isSuperAdmin());
     }
     if (location.pathname.endsWith('/admin')) {
       setView('admin');
