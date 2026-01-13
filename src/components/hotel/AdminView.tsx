@@ -52,6 +52,19 @@ const AdminView = ({ documents, isLoading, onFileUpload, onDeleteDocument }: Adm
 
   return (
     <div className="space-y-6 animate-fade-in">
+      {superAdmin && (
+        <Card className="border-purple-500 bg-purple-50">
+          <CardContent className="py-4">
+            <div className="flex items-center gap-2">
+              <Icon name="ShieldCheck" size={20} className="text-purple-600" />
+              <span className="font-semibold text-purple-900">Режим суперадмина</span>
+              <span className="text-sm text-purple-700">• Tenant ID: {tenantId}</span>
+              <span className="text-sm text-purple-700">• Tariff: {tariffId || 'не установлен'}</span>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {tenantId && (
         <SubscriptionWidget tenantId={tenantId} />
       )}

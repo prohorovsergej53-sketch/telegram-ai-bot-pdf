@@ -129,7 +129,7 @@ const SuperAdmin = () => {
           </TabsList>
 
           <TabsContent value="dashboard" className="space-y-6">
-            <MasterDashboardStats tenants={tenants} versionsCount={1} />
+            <MasterDashboardStats tenants={tenants} />
             <MessengersStatusCard tenants={tenants} />
           </TabsContent>
 

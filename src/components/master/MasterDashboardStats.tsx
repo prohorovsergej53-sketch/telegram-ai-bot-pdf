@@ -9,10 +9,10 @@ interface Tenant {
 
 interface MasterDashboardStatsProps {
   tenants: Tenant[];
-  versionsCount: number;
+  versionsCount?: number;
 }
 
-const MasterDashboardStats = ({ tenants, versionsCount }: MasterDashboardStatsProps) => {
+const MasterDashboardStats = ({ tenants, versionsCount = 0 }: MasterDashboardStatsProps) => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
       <Card>
