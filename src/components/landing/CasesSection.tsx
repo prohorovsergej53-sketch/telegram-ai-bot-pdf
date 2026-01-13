@@ -110,46 +110,6 @@ export const CasesSection = () => {
             </Card>
           ))}
         </div>
-
-        <Card className="bg-gradient-to-br from-primary via-blue-600 to-blue-700 border-0 shadow-2xl max-w-4xl mx-auto">
-          <CardContent className="py-12">
-            <div className="text-center">
-              <div className="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-6">
-                <Icon name="Bot" size={40} className="text-white" />
-              </div>
-              <h3 className="text-3xl font-bold text-white mb-4">
-                Суперворонка-чат: комбо AI + живой менеджер
-              </h3>
-              <p className="text-xl text-blue-100 mb-6 max-w-2xl mx-auto">
-                AI-консультант квалифицирует клиента, отвечает на базовые вопросы и передаёт "горячего" лида менеджеру. 
-                Вы не тратите время на холодные запросы, а работаете только с готовыми к покупке клиентами.
-              </p>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                <div className="bg-white/10 backdrop-blur rounded-lg p-4">
-                  <div className="text-3xl font-bold text-white mb-1">3x</div>
-                  <div className="text-blue-100 text-sm">больше обработанных лидов</div>
-                </div>
-                <div className="bg-white/10 backdrop-blur rounded-lg p-4">
-                  <div className="text-3xl font-bold text-white mb-1">-70%</div>
-                  <div className="text-blue-100 text-sm">времени менеджера на рутину</div>
-                </div>
-                <div className="bg-white/10 backdrop-blur rounded-lg p-4">
-                  <div className="text-3xl font-bold text-white mb-1">24/7</div>
-                  <div className="text-blue-100 text-sm">приём заявок без выходных</div>
-                </div>
-              </div>
-              <a
-                href="https://chat.ai-ru.ru"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-8 py-4 bg-white text-primary rounded-lg font-bold text-lg hover:bg-blue-50 transition-all shadow-xl hover:shadow-2xl"
-              >
-                <Icon name="MessageCircle" size={24} />
-                Попробовать суперворонку прямо сейчас
-              </a>
-            </div>
-          </CardContent>
-        </Card>
       </div>
     </div>
   );
