@@ -72,7 +72,9 @@ const AiSettingsCard = ({ currentTenantId }: AiSettingsCardProps) => {
     setIsLoading(true);
     try {
       const tenantId = currentTenantId || getTenantId();
+      console.log('[AiSettingsCard] Save: currentTenantId=', currentTenantId, 'getTenantId()=', getTenantId(), 'final tenantId=', tenantId);
       const url = tenantId ? `${BACKEND_URLS.updateAiSettings}?tenant_id=${tenantId}` : BACKEND_URLS.updateAiSettings;
+      console.log('[AiSettingsCard] Saving to URL:', url);
       const response = await authenticatedFetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
