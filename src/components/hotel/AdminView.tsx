@@ -107,30 +107,30 @@ const AdminView = ({ documents, isLoading, onFileUpload, onDeleteDocument, curre
       )}
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="bg-white shadow-sm grid grid-cols-4 lg:grid-cols-6">
-          <TabsTrigger value="documents">
-            <Icon name="FileText" size={16} className="mr-2" />
-            <span className="hidden sm:inline">Документы</span>
+        <TabsList className="bg-gradient-to-r from-blue-500 to-purple-500 shadow-lg p-2 grid grid-cols-3 lg:grid-cols-6 gap-2 h-auto">
+          <TabsTrigger value="documents" className="data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=inactive]:text-white py-3 px-4 text-base font-semibold">
+            <Icon name="FileText" size={20} className="mr-2" />
+            <span>Документы</span>
           </TabsTrigger>
-          <TabsTrigger value="messengers">
-            <Icon name="MessageCircle" size={16} className="mr-2" />
-            <span className="hidden sm:inline">Мессенджеры</span>
+          <TabsTrigger value="messengers" className="data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=inactive]:text-white py-3 px-4 text-base font-semibold">
+            <Icon name="MessageCircle" size={20} className="mr-2" />
+            <span>Мессенджеры</span>
           </TabsTrigger>
-          <TabsTrigger value="ai">
-            <Icon name="Brain" size={16} className="mr-2" />
-            <span className="hidden sm:inline">AI</span>
+          <TabsTrigger value="ai" className="data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=inactive]:text-white py-3 px-4 text-base font-semibold">
+            <Icon name="Brain" size={20} className="mr-2" />
+            <span>AI</span>
           </TabsTrigger>
-          <TabsTrigger value="page">
-            <Icon name="Layout" size={16} className="mr-2" />
-            <span className="hidden sm:inline">Страница</span>
+          <TabsTrigger value="page" className="data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=inactive]:text-white py-3 px-4 text-base font-semibold">
+            <Icon name="Layout" size={20} className="mr-2" />
+            <span>Страница</span>
           </TabsTrigger>
-          <TabsTrigger value="widget">
-            <Icon name="Code" size={16} className="mr-2" />
-            <span className="hidden sm:inline">Виджет</span>
+          <TabsTrigger value="widget" className="data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=inactive]:text-white py-3 px-4 text-base font-semibold">
+            <Icon name="Code" size={20} className="mr-2" />
+            <span>Виджет</span>
           </TabsTrigger>
-          <TabsTrigger value="stats">
-            <Icon name="BarChart" size={16} className="mr-2" />
-            <span className="hidden sm:inline">Статистика</span>
+          <TabsTrigger value="stats" className="data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=inactive]:text-white py-3 px-4 text-base font-semibold">
+            <Icon name="BarChart" size={20} className="mr-2" />
+            <span>Статистика</span>
           </TabsTrigger>
         </TabsList>
 
