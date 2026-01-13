@@ -9,6 +9,7 @@ import { Tariff, Tenant, BACKEND_URLS } from '@/components/superadmin/types';
 import { DashboardTab } from '@/components/superadmin/DashboardTab';
 import { TenantsTab } from '@/components/superadmin/TenantsTab';
 import { TariffsTab } from '@/components/superadmin/TariffsTab';
+import { BotTemplateTab } from '@/components/superadmin/BotTemplateTab';
 import { TenantEditDialog } from '@/components/superadmin/TenantEditDialog';
 import { TariffEditDialog } from '@/components/superadmin/TariffEditDialog';
 
@@ -20,9 +21,6 @@ const SuperAdmin = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [editingTenant, setEditingTenant] = useState<Tenant | null>(null);
   const [editingTariff, setEditingTariff] = useState<Tariff | null>(null);
-  const [activeTab, setActiveTab] = useState<string>(() => {
-    return sessionStorage.getItem('superadmin_active_tab') || 'dashboard';
-  });
 
   useEffect(() => {
     if (!isSuperAdmin()) {
@@ -31,10 +29,6 @@ const SuperAdmin = () => {
     }
     loadData();
   }, [navigate]);
-
-  useEffect(() => {
-    sessionStorage.setItem('superadmin_active_tab', activeTab);
-  }, [activeTab]);
 
   const loadData = async () => {
     setIsLoading(true);
@@ -184,7 +178,7 @@ const SuperAdmin = () => {
           </div>
         </div>
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+        <Tabs defaultValue="dashboard" className="space-y-6">
           <TabsList className="bg-white shadow-sm">
             <TabsTrigger value="dashboard">
               <Icon name="LayoutDashboard" size={16} className="mr-2" />
@@ -197,6 +191,10 @@ const SuperAdmin = () => {
             <TabsTrigger value="tariffs">
               <Icon name="DollarSign" size={16} className="mr-2" />
               Тарифы
+            </TabsTrigger>
+            <TabsTrigger value="template">
+              <Icon name="Package" size={16} className="mr-2" />
+              Шаблон ботов
             </TabsTrigger>
           </TabsList>
 
@@ -217,6 +215,10 @@ const SuperAdmin = () => {
               tariffs={tariffs}
               onEditTariff={handleEditTariff}
             />
+          </TabsContent>
+
+          <TabsContent value="template" className="space-y-6">
+            <BotTemplateTab />
           </TabsContent>
         </Tabs>
       </div>
