@@ -1,12 +1,8 @@
 import { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Switch } from '@/components/ui/switch';
-import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import Icon from '@/components/ui/icon';
+import { TariffEditForm } from './TariffEditForm';
+import { TariffCard } from './TariffCard';
 
 const BACKEND_URL = 'https://functions.poehali.dev/2163d682-19a2-462b-b577-7f04219cc3c8';
 
@@ -67,20 +63,6 @@ const TariffManagementPanel = () => {
     }
   };
 
-  const updateFeature = (features: string[], index: number, value: string) => {
-    const newFeatures = [...features];
-    newFeatures[index] = value;
-    return newFeatures;
-  };
-
-  const addFeature = (features: string[]) => {
-    return [...features, ''];
-  };
-
-  const removeFeature = (features: string[], index: number) => {
-    return features.filter((_, i) => i !== index);
-  };
-
   if (isLoading) {
     return (
       <div className="flex items-center justify-center p-8">
@@ -91,139 +73,12 @@ const TariffManagementPanel = () => {
 
   if (editingTariff) {
     return (
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-bold">Редактирование тарифа</h2>
-          <Button variant="outline" onClick={() => setEditingTariff(null)}>
-            <Icon name="X" className="mr-2" size={16} />
-            Отмена
-          </Button>
-        </div>
-
-        <Card>
-          <CardContent className="pt-6 space-y-4">
-            <div>
-              <Label htmlFor="name">Название тарифа</Label>
-              <Input
-                id="name"
-                value={editingTariff.name}
-                onChange={(e) => setEditingTariff({ ...editingTariff, name: e.target.value })}
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="price">Начальная цена (₽)</Label>
-                <Input
-                  id="price"
-                  type="number"
-                  value={editingTariff.price}
-                  onChange={(e) => setEditingTariff({ ...editingTariff, price: parseFloat(e.target.value) })}
-                />
-                <p className="text-xs text-muted-foreground mt-1">
-                  Включает setup fee + первый период
-                </p>
-              </div>
-              <div>
-                <Label htmlFor="period">Период</Label>
-                <Input
-                  id="period"
-                  value={editingTariff.period}
-                  onChange={(e) => setEditingTariff({ ...editingTariff, period: e.target.value })}
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="renewal_price">Цена продления (₽/мес)</Label>
-                <Input
-                  id="renewal_price"
-                  type="number"
-                  value={editingTariff.renewal_price}
-                  onChange={(e) => setEditingTariff({ ...editingTariff, renewal_price: parseFloat(e.target.value) })}
-                />
-                <p className="text-xs text-muted-foreground mt-1">
-                  Ежемесячный платеж после первого
-                </p>
-              </div>
-              <div>
-                <Label htmlFor="setup_fee">Setup Fee (₽)</Label>
-                <Input
-                  id="setup_fee"
-                  type="number"
-                  value={editingTariff.setup_fee}
-                  onChange={(e) => setEditingTariff({ ...editingTariff, setup_fee: parseFloat(e.target.value) })}
-                />
-                <p className="text-xs text-muted-foreground mt-1">
-                  Единоразовая плата за создание
-                </p>
-              </div>
-            </div>
-
-            <div>
-              <Label>Возможности тарифа</Label>
-              <div className="space-y-2 mt-2">
-                {editingTariff.features.map((feature, index) => (
-                  <div key={index} className="flex gap-2">
-                    <Input
-                      value={feature}
-                      onChange={(e) => setEditingTariff({
-                        ...editingTariff,
-                        features: updateFeature(editingTariff.features, index, e.target.value)
-                      })}
-                      placeholder="Описание возможности"
-                    />
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      onClick={() => setEditingTariff({
-                        ...editingTariff,
-                        features: removeFeature(editingTariff.features, index)
-                      })}
-                    >
-                      <Icon name="Trash2" size={16} />
-                    </Button>
-                  </div>
-                ))}
-                <Button
-                  variant="outline"
-                  onClick={() => setEditingTariff({
-                    ...editingTariff,
-                    features: addFeature(editingTariff.features)
-                  })}
-                >
-                  <Icon name="Plus" className="mr-2" size={16} />
-                  Добавить возможность
-                </Button>
-              </div>
-            </div>
-
-            <div className="flex items-center justify-between">
-              <Label htmlFor="is_popular">Популярный тариф</Label>
-              <Switch
-                id="is_popular"
-                checked={editingTariff.is_popular}
-                onCheckedChange={(checked) => setEditingTariff({ ...editingTariff, is_popular: checked })}
-              />
-            </div>
-
-            <div className="flex items-center justify-between">
-              <Label htmlFor="is_active">Активен</Label>
-              <Switch
-                id="is_active"
-                checked={editingTariff.is_active}
-                onCheckedChange={(checked) => setEditingTariff({ ...editingTariff, is_active: checked })}
-              />
-            </div>
-
-            <Button className="w-full" onClick={() => handleSaveTariff(editingTariff)}>
-              <Icon name="Save" className="mr-2" size={16} />
-              Сохранить тариф
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
+      <TariffEditForm
+        tariff={editingTariff}
+        onSave={handleSaveTariff}
+        onCancel={() => setEditingTariff(null)}
+        onChange={setEditingTariff}
+      />
     );
   }
 
@@ -238,47 +93,11 @@ const TariffManagementPanel = () => {
 
       <div className="grid md:grid-cols-3 gap-6">
         {tariffs.map((tariff) => (
-          <Card key={tariff.id} className={!tariff.is_active ? 'opacity-50' : ''}>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle>{tariff.name}</CardTitle>
-                {tariff.is_popular && (
-                  <span className="bg-primary text-primary-foreground px-2 py-1 rounded text-xs">
-                    Популярный
-                  </span>
-                )}
-              </div>
-              <CardDescription>
-                <div className="space-y-1">
-                  <div>
-                    <span className="text-2xl font-bold">{tariff.price.toLocaleString('ru-RU')} ₽</span>
-                    <span className="text-sm"> (первый платеж)</span>
-                  </div>
-                  <div className="text-sm text-muted-foreground">
-                    Продление: {tariff.renewal_price.toLocaleString('ru-RU')} ₽/{tariff.period}
-                  </div>
-                </div>
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <ul className="space-y-2">
-                {tariff.features.map((feature, index) => (
-                  <li key={index} className="flex items-start gap-2 text-sm">
-                    <Icon name="Check" size={16} className="text-green-600 mt-1 flex-shrink-0" />
-                    <span>{feature}</span>
-                  </li>
-                ))}
-              </ul>
-              <Button
-                variant="outline"
-                className="w-full"
-                onClick={() => setEditingTariff(tariff)}
-              >
-                <Icon name="Edit" className="mr-2" size={16} />
-                Редактировать
-              </Button>
-            </CardContent>
-          </Card>
+          <TariffCard
+            key={tariff.id}
+            tariff={tariff}
+            onEdit={setEditingTariff}
+          />
         ))}
       </div>
     </div>
