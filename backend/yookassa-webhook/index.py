@@ -4,10 +4,10 @@ import psycopg2
 import hashlib
 import secrets
 import string
-import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
+import requests
 from datetime import datetime, timedelta
+
+SEND_EMAIL_URL = 'https://functions.poehali.dev/38938588-b119-4fcc-99d9-952e16dd8d6a'
 
 def handler(event: dict, context) -> dict:
     """Webhook для получения уведомлений от ЮKassa о статусе платежей"""
@@ -127,8 +127,21 @@ def handler(event: dict, context) -> dict:
                 
                 conn.commit()
                 
-                # Отправляем email с доступами
-                email_sent = send_welcome_email(owner_email, username, password, tenant_id, cur)
+                # Отправляем email уведомление через отдельный сервис
+                tariff_names = {
+                    'basic': 'Старт',
+                    'professional': 'Бизнес',
+                    'enterprise': 'Премиум'
+                }
+                email_sent = send_order_notification(
+                    customer_email=owner_email,
+                    customer_name=metadata.get('tenant_name', ''),
+                    customer_phone=owner_phone,
+                    tariff_name=tariff_names.get(tariff_id, tariff_id),
+                    amount=float(amount),
+                    payment_id=payment_id,
+                    tenant_slug=tenant_slug
+                )
                 
                 print(f'Tenant {tenant_id} and user {user_id} created for payment {payment_id}. Email sent: {email_sent}')
         
@@ -198,4 +211,32 @@ def send_welcome_email(to_email: str, username: str, password: str, tenant_id: i
         return True
     except Exception as e:
         print(f'Ошибка отправки welcome email: {str(e)}')
+        return False
+
+def send_order_notification(customer_email: str, customer_name: str, customer_phone: str, 
+                           tariff_name: str, amount: float, payment_id: str, tenant_slug: str) -> bool:
+    """Отправка email уведомления через отдельный сервис"""
+    try:
+        response = requests.post(
+            SEND_EMAIL_URL,
+            json={
+                'customer_email': customer_email,
+                'customer_name': customer_name,
+                'customer_phone': customer_phone,
+                'tariff_name': tariff_name,
+                'amount': amount,
+                'payment_id': payment_id,
+                'tenant_slug': tenant_slug
+            },
+            timeout=10
+        )
+        
+        if response.status_code == 200:
+            print(f'Email notifications sent successfully for {customer_email}')
+            return True
+        else:
+            print(f'Failed to send email: {response.text}')
+            return False
+    except Exception as e:
+        print(f'Error sending email notification: {e}')
         return False

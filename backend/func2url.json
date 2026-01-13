@@ -1,4 +1,5 @@
 {
+  "send-order-email": "https://functions.poehali.dev/38938588-b119-4fcc-99d9-952e16dd8d6a",
   "yandex-api-validation": "https://functions.poehali.dev/d7cc5843-8cc2-4c50-a819-04b1b43b744d",
   "tariff-management": "https://functions.poehali.dev/9aaca202-0192-4234-9f65-591df1552960",
   "setup-cronjob": "https://functions.poehali.dev/5d34eeb6-9825-4d73-80eb-bc6c1ded58c9",
