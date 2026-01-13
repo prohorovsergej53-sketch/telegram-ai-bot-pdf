@@ -146,6 +146,7 @@ def create_customer_email(name: str, email: str, tariff: str, amount: float, ten
                     <h3>🔑 Доступ к админ-панели:</h3>
                     <p><strong>Логин:</strong> <code style="background: white; padding: 4px 8px; border-radius: 3px;">{username}</code></p>
                     <p><strong>Пароль:</strong> <code style="background: white; padding: 4px 8px; border-radius: 3px;">{password}</code></p>
+                    <p style="font-size: 12px; color: #64748b; margin-top: 10px;">💡 При необходимости вы можете сменить пароль в настройках админ-панели</p>
                     <p><a href="{login_url}" class="button" style="display: inline-block; background: #0284c7; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; margin-top: 10px;">Войти в админ-панель</a></p>
                 </div>''' if username and password else ''}
                 
