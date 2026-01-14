@@ -22,5 +22,6 @@ export interface Tenant {
 
 export const BACKEND_URLS = {
   tariffs: 'https://functions.poehali.dev/9aaca202-0192-4234-9f65-591df1552960',
-  tenants: 'https://functions.poehali.dev/b1bdd2fb-cf88-4093-a3d7-15d273763e4c'
+  tenants: 'https://functions.poehali.dev/b1bdd2fb-cf88-4093-a3d7-15d273763e4c',
+  migrateAiSettings: 'https://functions.poehali.dev/dc75d5d8-430e-451b-80e0-73989472efeb'
 };

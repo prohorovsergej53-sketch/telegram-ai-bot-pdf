@@ -1,8 +1,10 @@
+import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import Icon from '@/components/ui/icon';
-import { Tariff } from './types';
+import { Tariff, BACKEND_URLS } from './types';
+import { useToast } from '@/hooks/use-toast';
 
 interface TariffsTabProps {
   tariffs: Tariff[];
@@ -10,11 +12,56 @@ interface TariffsTabProps {
 }
 
 export const TariffsTab = ({ tariffs, onEditTariff }: TariffsTabProps) => {
+  const [isMigrating, setIsMigrating] = useState(false);
+  const { toast } = useToast();
+
+  const handleMigrateSettings = async () => {
+    setIsMigrating(true);
+    try {
+      const response = await fetch(BACKEND_URLS.migrateAiSettings, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok && data.success) {
+        toast({
+          title: 'Синхронизация выполнена',
+          description: data.message || `Обновлено настроек: ${data.updated_count}`,
+        });
+      } else {
+        throw new Error(data.error || 'Ошибка синхронизации');
+      }
+    } catch (error) {
+      toast({
+        title: 'Ошибка',
+        description: error instanceof Error ? error.message : 'Не удалось выполнить синхронизацию',
+        variant: 'destructive'
+      });
+    } finally {
+      setIsMigrating(false);
+    }
+  };
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Управление тарифами</CardTitle>
-        <CardDescription>Редактирование цен, лимитов и характеристик тарифов</CardDescription>
+        <div className="flex items-center justify-between">
+          <div>
+            <CardTitle>Управление тарифами</CardTitle>
+            <CardDescription>Редактирование цен, лимитов и характеристик тарифов</CardDescription>
+          </div>
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={handleMigrateSettings}
+            disabled={isMigrating}
+          >
+            <Icon name="RefreshCw" size={16} className="mr-2" />
+            {isMigrating ? 'Синхронизация...' : 'Синхронизировать настройки AI'}
+          </Button>
+        </div>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
