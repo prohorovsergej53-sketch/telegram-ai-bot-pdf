@@ -57,11 +57,16 @@ const TenantUrlEditor = ({ tenantId, currentSlug, tenantName, onSlugUpdated }: T
       if (response.ok && data.success) {
         toast({
           title: 'Успешно',
-          description: data.message
+          description: `${data.message}. Переход на новый URL...`
         });
         if (onSlugUpdated) {
           onSlugUpdated(data.slug);
         }
+        
+        // Редирект на новый URL после успешного обновления
+        setTimeout(() => {
+          window.location.href = `/${data.slug}/admin`;
+        }, 1500);
       } else {
         throw new Error(data.error || 'Не удалось обновить URL');
       }
