@@ -113,7 +113,45 @@ def handler(event: dict, context) -> dict:
             body = json.loads(event.get('body', '{}'))
             action = body.get('action')
             
-            if action == 'test':
+            if action == 'create':
+                template_key = body.get('template_key')
+                subject = body.get('subject')
+                body_text = body.get('body')
+                description = body.get('description', '')
+                
+                if not template_key or not subject or not body_text:
+                    return {
+                        'statusCode': 400,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Missing required fields: template_key, subject, body'})
+                    }
+                
+                cur.execute('''
+                    INSERT INTO email_templates (template_key, subject, body, description)
+                    VALUES (%s, %s, %s, %s)
+                    RETURNING id, template_key, subject, body, description, created_at
+                ''', (template_key, subject, body_text, description))
+                
+                row = cur.fetchone()
+                conn.commit()
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({
+                        'success': True,
+                        'template': {
+                            'id': row[0],
+                            'template_key': row[1],
+                            'subject': row[2],
+                            'body': row[3],
+                            'description': row[4],
+                            'created_at': row[5].isoformat() if row[5] else None
+                        }
+                    })
+                }
+            
+            elif action == 'test':
                 template_id = body.get('template_id')
                 test_email = body.get('test_email')
                 test_data = body.get('test_data', {})

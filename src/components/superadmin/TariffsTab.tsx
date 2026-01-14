@@ -31,13 +31,13 @@ export const TariffsTab = ({ tariffs, onEditTariff }: TariffsTabProps) => {
                 </div>
                 <div className="space-y-1 text-sm text-muted-foreground">
                   <div>
-                    <span className="font-medium">Подключение:</span> {(tariff.setup_fee || 0).toLocaleString('ru-RU')} ₽
+                    <span className="font-medium">Цена за настройку:</span> <span className="text-slate-900 font-semibold">{(tariff.setup_fee || 0).toLocaleString('ru-RU')} ₽</span>
                   </div>
                   <div>
-                    <span className="font-medium">Первоначальная оплата:</span> {tariff.price.toLocaleString('ru-RU')} ₽ / {tariff.period}
+                    <span className="font-medium">Ежемесячная оплата:</span> <span className="text-green-600 font-bold text-base">{(tariff.renewal_price || 0).toLocaleString('ru-RU')} ₽/мес</span>
                   </div>
-                  <div>
-                    <span className="font-medium">Продление:</span> {(tariff.renewal_price || 0).toLocaleString('ru-RU')} ₽/мес
+                  <div className="text-xs text-slate-400">
+                    (Первоначально: {(tariff.price + tariff.setup_fee).toLocaleString('ru-RU')} ₽, далее {(tariff.renewal_price || 0).toLocaleString('ru-RU')} ₽/мес)
                   </div>
                 </div>
               </div>

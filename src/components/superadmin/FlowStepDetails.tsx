@@ -106,16 +106,25 @@ const FlowStepDetails = () => {
             <div className="bg-purple-50 p-6 rounded-lg border-2 border-purple-200">
               <h3 className="text-xl font-bold text-purple-900 mb-3 flex items-center gap-2">
                 <Icon name="Mail" size={20} />
-                Клиент получает доступы
+                Email-уведомления
               </h3>
               <div className="space-y-2 text-sm">
-                <p className="text-slate-700"><strong>Email содержит:</strong></p>
+                <p className="text-slate-700"><strong>Backend:</strong> <code className="bg-white px-2 py-1 rounded">/backend/send-order-email/</code></p>
+                <div className="bg-white p-3 rounded mt-2 border border-purple-300">
+                  <p className="font-semibold text-purple-800">📧 Система email-шаблонов:</p>
+                  <ul className="list-disc list-inside text-slate-700 space-y-1">
+                    <li><strong>Хранение:</strong> шаблоны в БД (таблица email_templates)</li>
+                    <li><strong>Редактирование:</strong> суперадминка → вкладка "Email-шаблоны"</li>
+                    <li><strong>Переменные:</strong> {'{'}{'{'} email {'}'}{'}'},  {'{'}{'{'} password {'}'}{'}'},  {'{'}{'{'} login_url {'}'}{'}'}  </li>
+                    <li><strong>Тестирование:</strong> кнопка отправки на любой email</li>
+                  </ul>
+                </div>
                 <div className="bg-white p-3 rounded mt-2 border border-purple-300 space-y-2">
-                  <p className="text-slate-700">✉️ <strong>Тема:</strong> "Ваш бот готов к настройке!"</p>
+                  <p className="font-semibold text-purple-800">✉️ Клиенту отправляется:</p>
                   <p className="text-slate-700">🔗 <strong>URL админки:</strong> <code className="bg-slate-100 px-2 py-1">https://mysite.com/[slug]/admin</code></p>
-                  <p className="text-slate-700">👤 <strong>Логин:</strong> admin</p>
-                  <p className="text-slate-700">🔑 <strong>Пароль:</strong> [сгенерированный случайный]</p>
-                  <p className="text-slate-700">📱 <strong>Публичная страница бота:</strong> <code className="bg-slate-100 px-2 py-1">https://mysite.com/[slug]</code></p>
+                  <p className="text-slate-700">👤 <strong>Email:</strong> email клиента</p>
+                  <p className="text-slate-700">🔑 <strong>Пароль:</strong> сгенерированный случайный</p>
+                  <p className="text-slate-700">💬 <strong>Сообщение:</strong> "С вами свяжется менеджер для уточнения деталей"</p>
                 </div>
               </div>
             </div>
@@ -247,10 +256,44 @@ const FlowStepDetails = () => {
             </div>
           </div>
 
-          {/* Этап 7: Работа бота */}
+          {/* Этап 7: Ежемесячное продление */}
+          <div className="relative pl-8 pb-8 border-l-4 border-orange-500">
+            <div className="absolute -left-4 top-0 w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center text-white font-bold shadow-lg">
+              7
+            </div>
+            <div className="bg-orange-50 p-6 rounded-lg border-2 border-orange-200">
+              <h3 className="text-xl font-bold text-orange-900 mb-3 flex items-center gap-2">
+                <Icon name="Calendar" size={20} />
+                Ежемесячное продление подписки
+              </h3>
+              <div className="space-y-2 text-sm">
+                <p className="text-slate-700"><strong>Backend:</strong> <code className="bg-white px-2 py-1 rounded">/backend/check-subscriptions/</code></p>
+                <div className="bg-white p-3 rounded mt-2 border border-orange-300">
+                  <p className="font-semibold text-orange-800">⏰ Автоматическая проверка:</p>
+                  <ul className="list-disc list-inside text-slate-700 space-y-1">
+                    <li><strong>Запуск:</strong> каждый день через cron (setup-cronjob)</li>
+                    <li><strong>Проверка:</strong> subscription_end_date приближается (за 3 дня)</li>
+                    <li><strong>Email-напоминание:</strong> отправка шаблона "subscription_reminder"</li>
+                    <li><strong>После истечения:</strong> subscription_end_date прошла → блокировка доступа</li>
+                    <li><strong>Платёж:</strong> создание ссылки ЮKassa на renewal_price</li>
+                  </ul>
+                </div>
+                <div className="bg-white p-3 rounded mt-2 border border-orange-300">
+                  <p className="font-semibold text-orange-800">💳 Цены продления:</p>
+                  <ul className="list-disc list-inside text-slate-700 space-y-1">
+                    <li><strong>Старт:</strong> 4 990 ₽/мес (первоначальная оплата + 1000 ₽ настройка)</li>
+                    <li><strong>Бизнес:</strong> 7 990 ₽/мес (первоначальная оплата + 2000 ₽ настройка)</li>
+                    <li><strong>Премиум:</strong> 11 990 ₽/мес (первоначальная оплата + 3000 ₽ настройка)</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Этап 8: Работа бота */}
           <div className="relative pl-8">
             <div className="absolute -left-4 top-0 w-8 h-8 bg-green-600 rounded-full flex items-center justify-center text-white font-bold shadow-lg">
-              7
+              8
             </div>
             <div className="bg-green-50 p-6 rounded-lg border-2 border-green-300">
               <h3 className="text-xl font-bold text-green-900 mb-3 flex items-center gap-2">
