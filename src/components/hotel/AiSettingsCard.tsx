@@ -240,22 +240,39 @@ const AiSettingsCard = ({ currentTenantId, isSuperAdmin = false }: AiSettingsCar
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent>
-                  {currentModels.map((model) => (
-                    <SelectItem key={model.value} value={model.value}>
-                      <div className="flex flex-col">
-                        <span>{model.label}</span>
-                        {model.price && (
-                          <span className="text-xs text-muted-foreground">{model.price}</span>
-                        )}
+                <SelectContent className="max-h-[400px]">
+                  {(() => {
+                    const categories = Array.from(new Set(currentModels.map(m => m.category || 'Другие')));
+                    return categories.map((category) => (
+                      <div key={category}>
+                        <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground bg-muted/50">
+                          {category}
+                        </div>
+                        {currentModels
+                          .filter(m => (m.category || 'Другие') === category)
+                          .map((model) => (
+                            <SelectItem key={model.value} value={model.value}>
+                              <div className="flex flex-col py-1">
+                                <span>{model.label}</span>
+                                {model.price && (
+                                  <span className="text-xs text-muted-foreground">{model.price}</span>
+                                )}
+                              </div>
+                            </SelectItem>
+                          ))}
                       </div>
-                    </SelectItem>
-                  ))}
+                    ));
+                  })()}
                 </SelectContent>
               </Select>
               {settings.provider === 'openrouter' && (
                 <p className="text-xs text-muted-foreground">
-                  💰 Цены: вход/выход токенов. Бесплатные модели имеют лимиты.
+                  💰 Цены: вход/выход за 1M токенов
+                </p>
+              )}
+              {settings.provider === 'yandex' && (
+                <p className="text-xs text-muted-foreground">
+                  💰 Актуальные цены на yandex.cloud
                 </p>
               )}
             </div>

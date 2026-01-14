@@ -61,32 +61,37 @@ export const AI_PROVIDERS = [
   { value: 'openrouter', label: 'OpenRouter' }
 ] as const;
 
-export const AI_MODELS_BY_PROVIDER: Record<string, Array<{value: string, label: string, apiModel: string, price?: string}>> = {
+export interface ModelOption {
+  value: string;
+  label: string;
+  apiModel: string;
+  price?: string;
+  category?: string;
+}
+
+export const AI_MODELS_BY_PROVIDER: Record<string, ModelOption[]> = {
   yandex: [
-    { value: 'yandexgpt', label: 'YandexGPT', apiModel: 'yandexgpt' },
-    { value: 'yandexgpt-lite', label: 'YandexGPT Lite', apiModel: 'yandexgpt-lite' }
+    { value: 'yandexgpt', label: 'YandexGPT', apiModel: 'yandexgpt', price: ''от ₽1 за 1000 токенов', category: 'Стандартные' },
+    { value: 'yandexgpt-lite', label: 'YandexGPT Lite', apiModel: 'yandexgpt-lite', price: '₽0.12 за 1000 токенов', category: 'Экономные' }
   ],
   openrouter: [
-    // Бесплатные модели
-    { value: 'llama-3.1-8b', label: 'Meta Llama 3.1 8B (Free)', apiModel: 'meta-llama/llama-3.1-8b-instruct:free', price: 'Бесплатно' },
-    { value: 'gemma-2-9b', label: 'Google Gemma 2 9B (Free)', apiModel: 'google/gemma-2-9b-it:free', price: 'Бесплатно' },
-    { value: 'qwen-2.5-7b', label: 'Qwen 2.5 7B (Free)', apiModel: 'qwen/qwen-2.5-7b-instruct:free', price: 'Бесплатно' },
-    { value: 'phi-3-medium', label: 'Microsoft Phi-3 Medium (Free)', apiModel: 'microsoft/phi-3-medium-128k-instruct:free', price: 'Бесплатно' },
-    { value: 'deepseek-r1', label: 'DeepSeek R1 (Free)', apiModel: 'deepseek/deepseek-r1:free', price: 'Бесплатно' },
+    { value: 'llama-3.1-8b', label: 'Meta Llama 3.1 8B', apiModel: 'meta-llama/llama-3.1-8b-instruct:free', price: 'Бесплатно', category: '⚡ Бесплатные' },
+    { value: 'gemma-2-9b', label: 'Google Gemma 2 9B', apiModel: 'google/gemma-2-9b-it:free', price: 'Бесплатно', category: '⚡ Бесплатные' },
+    { value: 'qwen-2.5-7b', label: 'Qwen 2.5 7B', apiModel: 'qwen/qwen-2.5-7b-instruct:free', price: 'Бесплатно', category: '⚡ Бесплатные' },
+    { value: 'phi-3-medium', label: 'Microsoft Phi-3 Medium', apiModel: 'microsoft/phi-3-medium-128k-instruct:free', price: 'Бесплатно', category: '⚡ Бесплатные' },
+    { value: 'deepseek-r1', label: 'DeepSeek R1', apiModel: 'deepseek/deepseek-r1:free', price: 'Бесплатно', category: '⚡ Бесплатные' },
     
-    // Топовые платные модели
-    { value: 'gpt-4o', label: 'GPT-4o (Топ)', apiModel: 'openai/gpt-4o', price: '$2.50/$10.00 за 1M токенов' },
-    { value: 'gpt-4-turbo', label: 'GPT-4 Turbo', apiModel: 'openai/gpt-4-turbo', price: '$10.00/$30.00 за 1M токенов' },
-    { value: 'claude-3.5-sonnet', label: 'Claude 3.5 Sonnet (Топ)', apiModel: 'anthropic/claude-3.5-sonnet', price: '$3.00/$15.00 за 1M токенов' },
-    { value: 'claude-3-opus', label: 'Claude 3 Opus', apiModel: 'anthropic/claude-3-opus', price: '$15.00/$75.00 за 1M токенов' },
-    { value: 'gemini-pro-1.5', label: 'Google Gemini Pro 1.5', apiModel: 'google/gemini-pro-1.5', price: '$1.25/$5.00 за 1M токенов' },
+    { value: 'gpt-4o', label: 'GPT-4o', apiModel: 'openai/gpt-4o', price: '$2.50/$10.00 за 1M', category: '💎 Топовые' },
+    { value: 'gpt-4-turbo', label: 'GPT-4 Turbo', apiModel: 'openai/gpt-4-turbo', price: '$10.00/$30.00 за 1M', category: '💎 Топовые' },
+    { value: 'claude-3.5-sonnet', label: 'Claude 3.5 Sonnet', apiModel: 'anthropic/claude-3.5-sonnet', price: '$3.00/$15.00 за 1M', category: '💎 Топовые' },
+    { value: 'claude-3-opus', label: 'Claude 3 Opus', apiModel: 'anthropic/claude-3-opus', price: '$15.00/$75.00 за 1M', category: '💎 Топовые' },
+    { value: 'gemini-pro-1.5', label: 'Google Gemini Pro 1.5', apiModel: 'google/gemini-pro-1.5', price: '$1.25/$5.00 за 1M', category: '💎 Топовые' },
     
-    // Очень дешевые платные модели
-    { value: 'llama-3.1-70b', label: 'Meta Llama 3.1 70B', apiModel: 'meta-llama/llama-3.1-70b-instruct', price: '$0.52/$0.75 за 1M токенов' },
-    { value: 'mixtral-8x7b', label: 'Mixtral 8x7B', apiModel: 'mistralai/mixtral-8x7b-instruct', price: '$0.24/$0.24 за 1M токенов' },
-    { value: 'claude-3-haiku', label: 'Claude 3 Haiku (Дешево)', apiModel: 'anthropic/claude-3-haiku', price: '$0.25/$1.25 за 1M токенов' },
-    { value: 'gpt-3.5-turbo', label: 'GPT-3.5 Turbo (Дешево)', apiModel: 'openai/gpt-3.5-turbo', price: '$0.50/$1.50 за 1M токенов' },
-    { value: 'gemini-flash-1.5', label: 'Google Gemini Flash 1.5 (Дешево)', apiModel: 'google/gemini-flash-1.5', price: '$0.075/$0.30 за 1M токенов' }
+    { value: 'llama-3.1-70b', label: 'Meta Llama 3.1 70B', apiModel: 'meta-llama/llama-3.1-70b-instruct', price: '$0.52/$0.75 за 1M', category: '💰 Дешевые' },
+    { value: 'mixtral-8x7b', label: 'Mixtral 8x7B', apiModel: 'mistralai/mixtral-8x7b-instruct', price: '$0.24/$0.24 за 1M', category: '💰 Дешевые' },
+    { value: 'claude-3-haiku', label: 'Claude 3 Haiku', apiModel: 'anthropic/claude-3-haiku', price: '$0.25/$1.25 за 1M', category: '💰 Дешевые' },
+    { value: 'gpt-3.5-turbo', label: 'GPT-3.5 Turbo', apiModel: 'openai/gpt-3.5-turbo', price: '$0.50/$1.50 за 1M', category: '💰 Дешевые' },
+    { value: 'gemini-flash-1.5', label: 'Google Gemini Flash 1.5', apiModel: 'google/gemini-flash-1.5', price: '$0.075/$0.30 за 1M', category: '💰 Дешевые' }
   ]
 };
 
