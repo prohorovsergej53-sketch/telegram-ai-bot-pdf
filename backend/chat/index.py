@@ -24,7 +24,7 @@ from quality_gate import (
 MODEL_PROVIDER_MAP = {
     'yandexgpt': {'provider': 'yandex', 'model_name': 'yandexgpt'},
     'yandexgpt-lite': {'provider': 'yandex', 'model_name': 'yandexgpt-lite'},
-    'deepseek-chat': {'provider': 'openrouter', 'model_name': 'deepseek/deepseek-chat:free'},
+    'deepseek-chat': {'provider': 'openrouter', 'model_name': 'deepseek/deepseek-chat'},
     'openrouter-llama-3.1-8b': {'provider': 'openrouter', 'model_name': 'meta-llama/llama-3.1-8b-instruct:free'},
     'openrouter-gemma-2-9b': {'provider': 'openrouter', 'model_name': 'google/gemma-2-9b-it:free'},
     'openrouter-qwen-2.5-7b': {'provider': 'openrouter', 'model_name': 'qwen/qwen-2.5-7b-instruct:free'},
