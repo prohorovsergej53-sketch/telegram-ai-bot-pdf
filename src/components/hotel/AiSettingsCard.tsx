@@ -265,15 +265,16 @@ const AiSettingsCard = ({ currentTenantId, isSuperAdmin = false }: AiSettingsCar
                   {currentModels.map((model, index) => {
                     const prevModel = index > 0 ? currentModels[index - 1] : null;
                     const showCategoryHeader = !prevModel || prevModel.category !== model.category;
-                    const categoryLabel = showCategoryHeader && model.category ? `${model.category} ─ ` : '';
                     
                     return (
                       <SelectItem key={model.value} value={model.value}>
                         <div className="flex flex-col py-0.5">
-                          <span>
-                            {categoryLabel && <span className="text-primary font-semibold">{categoryLabel}</span>}
-                            {model.label}
-                          </span>
+                          {showCategoryHeader && model.category && (
+                            <div className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1 -mt-1">
+                              {model.category}
+                            </div>
+                          )}
+                          <span className="font-medium">{model.label}</span>
                           {model.price && (
                             <span className="text-xs text-muted-foreground">{model.price}</span>
                           )}
