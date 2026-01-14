@@ -140,52 +140,45 @@ const AdminView = ({ documents, isLoading, onFileUpload, onDeleteDocument, curre
         </TabsContent>
 
         <TabsContent value="ai" className="space-y-6">
-          {(superAdmin || hasFeatureAccess('hasAISettings', tariffId)) ? (
+          {superAdmin ? (
             <div className="space-y-6">
-              {superAdmin && (
+              <AiSettingsCard
+                currentTenantId={currentTenantId}
+                isSuperAdmin={superAdmin}
+              />
+              {currentTenantId && tenantName && (
                 <>
-                  <AiSettingsCard
-                    currentTenantId={currentTenantId}
-                    isSuperAdmin={superAdmin}
+                  <ApiKeysGuideCard />
+                  <TenantApiKeysCard
+                    tenantId={currentTenantId}
+                    tenantName={tenantName}
                   />
-                  {currentTenantId && tenantName && (
-                    <>
-                      <ApiKeysGuideCard />
-                      <TenantApiKeysCard
-                        tenantId={currentTenantId}
-                        tenantName={tenantName}
-                      />
-                      <ChatTestCard
-                        tenantId={currentTenantId}
-                        tenantName={tenantName}
-                      />
-                    </>
-                  )}
-                  {currentTenantId && currentSlug && tenantName && (
-                    <TenantUrlEditor
-                      tenantId={currentTenantId}
-                      currentSlug={currentSlug}
-                      tenantName={tenantName}
-                      onSlugUpdated={(newSlug) => setCurrentSlug(newSlug)}
-                    />
-                  )}
+                  <ChatTestCard
+                    tenantId={currentTenantId}
+                    tenantName={tenantName}
+                  />
                 </>
+              )}
+              {currentTenantId && currentSlug && tenantName && (
+                <TenantUrlEditor
+                  tenantId={currentTenantId}
+                  currentSlug={currentSlug}
+                  tenantName={tenantName}
+                  onSlugUpdated={(newSlug) => setCurrentSlug(newSlug)}
+                />
               )}
             </div>
           ) : (
-            <UpgradeCard feature="Настройки AI" />
+            <UpgradeCard feature="Настройки AI (доступно только суперадмину)" />
           )}
         </TabsContent>
 
         <TabsContent value="page" className="space-y-6">
-          {(superAdmin || hasFeatureAccess('hasPageSettings', tariffId)) ? (
-            <PageSettingsCard
-              currentTenantId={currentTenantId}
-              currentTenantName={tenantName || null}
-            />
-          ) : (
-            <UpgradeCard feature="Настройки страницы" />
-          )}
+          <PageSettingsCard
+            currentTenantId={currentTenantId}
+            currentTenantName={tenantName || null}
+            hasFullAccess={superAdmin || hasFeatureAccess('hasPageSettings', tariffId)}
+          />
         </TabsContent>
 
         <TabsContent value="widget" className="space-y-6">
