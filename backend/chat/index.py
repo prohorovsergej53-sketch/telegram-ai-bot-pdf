@@ -29,7 +29,7 @@ MODEL_API_NAMES = {
     'gemma-2-9b': 'google/gemma-2-9b-it:free',
     'qwen-2.5-7b': 'qwen/qwen-2.5-7b-instruct:free',
     'phi-3-medium': 'microsoft/phi-3-medium-128k-instruct:free',
-    'deepseek-r1': 'deepseek/deepseek-r1:free',
+    'deepseek-r1': 'deepseek/deepseek-r1-distill-llama-70b',
     # Топовые платные модели
     'gpt-4o': 'openai/gpt-4o',
     'gpt-4-turbo': 'openai/gpt-4-turbo',
@@ -47,7 +47,7 @@ MODEL_API_NAMES = {
     'openrouter-gemma-2-9b': 'google/gemma-2-9b-it:free',
     'openrouter-qwen-2.5-7b': 'qwen/qwen-2.5-7b-instruct:free',
     'openrouter-phi-3-medium': 'microsoft/phi-3-medium-128k-instruct:free',
-    'openrouter-deepseek-r1': 'deepseek/deepseek-r1:free',
+    'openrouter-deepseek-r1': 'deepseek/deepseek-r1-distill-llama-70b',
     'deepseek-chat': 'deepseek/deepseek-chat'
 }
 
@@ -61,7 +61,7 @@ def handler(event: dict, context) -> dict:
             'headers': {
                 'Access-Control-Allow-Origin': '*',
                 'Access-Control-Allow-Methods': 'POST, OPTIONS',
-                'Access-Control-Allow-Headers': 'Content-Type'
+                'Access-Control-Allow-Headers': 'Content-Type, Authorization'
             },
             'body': '',
             'isBase64Encoded': False

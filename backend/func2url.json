@@ -1,5 +1,4 @@
 {
-  "migrate-ai-settings": "https://functions.poehali.dev/dc75d5d8-430e-451b-80e0-73989472efeb",
   "update-tenant-slug": "https://functions.poehali.dev/2a327e72-9483-40d1-99d2-a42292695993",
   "get-tenant-by-slug": "https://functions.poehali.dev/7d6bc169-78bf-43cd-a0d6-562bc5a6c9ad",
   "messenger-auto-messages": "https://functions.poehali.dev/a5c44dff-b325-43e4-9c89-020d5c116178",
