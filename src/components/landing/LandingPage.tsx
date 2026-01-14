@@ -3,7 +3,6 @@ import { useLocation } from 'react-router-dom';
 import { HeroSection } from './HeroSection';
 import { FeaturesSection } from './FeaturesSection';
 import { HowItWorksSection } from './HowItWorksSection';
-import { DemoBotSection } from './DemoBotSection';
 import { CalculatorSection } from './CalculatorSection';
 import { CasesSection } from './CasesSection';
 import { TestimonialsSection } from './TestimonialsSection';
@@ -39,7 +38,6 @@ const LandingPage = () => {
       <HeroSection onOrderClick={() => scrollToForm('basic')} />
       <FeaturesSection />
       <HowItWorksSection />
-      <DemoBotSection />
       <CalculatorSection />
       <CasesSection />
       <TestimonialsSection />

@@ -85,7 +85,7 @@ export const FeaturesSection = () => {
 
   return (
     <>
-      <div className="bg-gradient-to-br from-red-50 via-orange-50 to-red-50 py-20">
+      <div id="features" className="bg-gradient-to-br from-red-50 via-orange-50 to-red-50 py-20">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <div className="inline-block mb-4 px-6 py-3 bg-gradient-to-r from-red-500 to-orange-500 rounded-full shadow-lg">
