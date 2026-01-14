@@ -25,6 +25,8 @@ const RevectorizationProgress = ({ currentTenantId, onComplete }: Revectorizatio
     total: 0
   });
   const [isPolling, setIsPolling] = useState(false);
+  const [startTime, setStartTime] = useState<number | null>(null);
+  const [estimatedTimeLeft, setEstimatedTimeLeft] = useState<string>('');
 
   useEffect(() => {
     loadStatus();
@@ -55,6 +57,30 @@ const RevectorizationProgress = ({ currentTenantId, onComplete }: Revectorizatio
         total: data.total || 0,
         error: data.error
       };
+      
+      // Запомнить время старта
+      if (newStatus.status === 'processing' && !startTime) {
+        setStartTime(Date.now());
+      }
+      
+      // Рассчитать оставшееся время
+      if (newStatus.status === 'processing' && startTime && newStatus.progress > 0) {
+        const elapsed = Date.now() - startTime;
+        const avgTimePerDoc = elapsed / newStatus.progress;
+        const remaining = avgTimePerDoc * (newStatus.total - newStatus.progress);
+        
+        const minutes = Math.floor(remaining / 60000);
+        const seconds = Math.floor((remaining % 60000) / 1000);
+        
+        if (minutes > 0) {
+          setEstimatedTimeLeft(`~${minutes} мин ${seconds} сек`);
+        } else {
+          setEstimatedTimeLeft(`~${seconds} сек`);
+        }
+      } else if (newStatus.status !== 'processing') {
+        setStartTime(null);
+        setEstimatedTimeLeft('');
+      }
       
       setStatus(newStatus);
       
@@ -131,9 +157,24 @@ const RevectorizationProgress = ({ currentTenantId, onComplete }: Revectorizatio
         {status.status === 'processing' && (
           <>
             <Progress value={getProgressPercentage()} className="h-3" />
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-slate-600">Прогресс: {getProgressPercentage()}%</span>
-              <span className="text-slate-500">{status.progress} / {status.total}</span>
+            <div className="grid grid-cols-2 gap-4 text-sm">
+              <div>
+                <p className="text-slate-500 text-xs mb-1">Прогресс</p>
+                <p className="font-semibold text-slate-700">{getProgressPercentage()}%</p>
+              </div>
+              <div>
+                <p className="text-slate-500 text-xs mb-1">Документов</p>
+                <p className="font-semibold text-slate-700">{status.progress} / {status.total}</p>
+              </div>
+              {estimatedTimeLeft && (
+                <div className="col-span-2">
+                  <p className="text-slate-500 text-xs mb-1">Осталось времени</p>
+                  <p className="font-semibold text-blue-700 flex items-center gap-1">
+                    <Icon name="Clock" size={14} />
+                    {estimatedTimeLeft}
+                  </p>
+                </div>
+              )}
             </div>
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
               <div className="flex items-start gap-2">

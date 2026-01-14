@@ -6,9 +6,10 @@ import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
 import { BACKEND_URLS } from './types';
 
-interface APIBalance {
-  balance: string;
-  status: 'success' | 'error';
+interface APIConnectionStatus {
+  provider: 'yandex' | 'openai' | 'openrouter';
+  connected: boolean;
+  lastChecked?: string;
   error?: string;
 }
 
@@ -16,8 +17,8 @@ const AISettingsCard = () => {
   const [apiKey, setApiKey] = useState('');
   const [folderId, setFolderId] = useState('');
   const [isConnecting, setIsConnecting] = useState(false);
-  const [isCheckingBalance, setIsCheckingBalance] = useState(false);
-  const [balance, setBalance] = useState<APIBalance | null>(null);
+  const [isCheckingStatus, setIsCheckingStatus] = useState(false);
+  const [apiStatus, setApiStatus] = useState<APIConnectionStatus | null>(null);
   const [connectionStatus, setConnectionStatus] = useState<'not_set' | 'active' | 'error'>('not_set');
   const { toast } = useToast();
 
@@ -53,8 +54,8 @@ const AISettingsCard = () => {
         });
         setApiKey('');
         setFolderId('');
-        // Сразу проверяем баланс после успешной валидации
-        checkBalance();
+        // Сразу проверяем статус после успешной валидации
+        checkApiStatus('yandex');
       } else {
         setConnectionStatus('error');
         toast({
@@ -100,19 +101,33 @@ const AISettingsCard = () => {
     );
   };
 
-  const checkBalance = async () => {
-    setIsCheckingBalance(true);
+  const checkApiStatus = async (provider: 'yandex' | 'openai' | 'openrouter') => {
+    setIsCheckingStatus(true);
     try {
-      const mockBalance: APIBalance = {
-        balance: '1,250 ₽',
-        status: 'success'
-      };
+      // Проверка подключения к API
+      const response = await fetch(BACKEND_URLS.yandexApiValidation, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'check_status' })
+      });
 
-      setBalance(mockBalance);
+      const data = await response.json();
+
+      setApiStatus({
+        provider,
+        connected: data.valid || false,
+        lastChecked: new Date().toLocaleString('ru-RU'),
+        error: data.error
+      });
     } catch (error) {
-      console.error('Error checking balance:', error);
+      console.error('Error checking API status:', error);
+      setApiStatus({
+        provider,
+        connected: false,
+        error: 'Не удалось проверить статус'
+      });
     } finally {
-      setIsCheckingBalance(false);
+      setIsCheckingStatus(false);
     }
   };
 
@@ -192,14 +207,14 @@ const AISettingsCard = () => {
 
         <div className="border-t pt-6">
           <div className="flex items-center justify-between mb-4">
-            <h4 className="text-sm font-medium text-slate-700">Баланс API</h4>
+            <h4 className="text-sm font-medium text-slate-700">Статус подключения</h4>
             <Button
               variant="outline"
               size="sm"
-              onClick={checkBalance}
-              disabled={isCheckingBalance}
+              onClick={() => checkApiStatus('yandex')}
+              disabled={isCheckingStatus}
             >
-              {isCheckingBalance ? (
+              {isCheckingStatus ? (
                 <>
                   <Icon name="Loader2" size={14} className="mr-2 animate-spin" />
                   Проверка...
@@ -207,31 +222,45 @@ const AISettingsCard = () => {
               ) : (
                 <>
                   <Icon name="RefreshCw" size={14} className="mr-2" />
-                  Проверить баланс
+                  Проверить статус
                 </>
               )}
             </Button>
           </div>
 
-          {balance && (
+          {apiStatus && (
             <div
-              className={`flex items-center justify-between p-3 rounded-lg ${
-                balance.status === 'success' ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'
+              className={`p-4 rounded-lg ${
+                apiStatus.connected ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'
               }`}
             >
-              <div className="flex items-center gap-2">
-                <Icon
-                  name={balance.status === 'success' ? 'CheckCircle' : 'XCircle'}
-                  size={16}
-                  className={balance.status === 'success' ? 'text-green-600' : 'text-red-600'}
-                />
-                <span className="text-sm font-medium text-slate-900">YandexGPT</span>
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <Icon
+                    name={apiStatus.connected ? 'CheckCircle' : 'XCircle'}
+                    size={20}
+                    className={apiStatus.connected ? 'text-green-600' : 'text-red-600'}
+                  />
+                  <span className="text-sm font-semibold text-slate-900">
+                    {apiStatus.provider === 'yandex' ? 'YandexGPT' : apiStatus.provider === 'openai' ? 'OpenAI' : 'OpenRouter'}
+                  </span>
+                </div>
+                <span className={`text-sm font-semibold ${
+                  apiStatus.connected ? 'text-green-700' : 'text-red-700'
+                }`}>
+                  {apiStatus.connected ? 'Подключено' : 'Не подключено'}
+                </span>
               </div>
-              <span className={`text-sm font-semibold ${
-                balance.status === 'success' ? 'text-green-700' : 'text-red-700'
-              }`}>
-                {balance.status === 'success' ? balance.balance : balance.error}
-              </span>
+              {apiStatus.lastChecked && (
+                <p className="text-xs text-slate-600 mt-2">
+                  Последняя проверка: {apiStatus.lastChecked}
+                </p>
+              )}
+              {apiStatus.error && !apiStatus.connected && (
+                <p className="text-xs text-red-700 mt-2">
+                  Ошибка: {apiStatus.error}
+                </p>
+              )}
             </div>
           )}
         </div>
