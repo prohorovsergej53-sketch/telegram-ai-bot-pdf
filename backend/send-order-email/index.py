@@ -61,9 +61,41 @@ def handler(event: dict, context) -> dict:
                 'isBase64Encoded': False
             }
         
-        # Email клиенту
-        customer_msg = create_customer_email(customer_name, customer_email, tariff_name, amount, tenant_slug, username, password, login_url)
-        send_email(smtp_host, smtp_port, smtp_user, smtp_password, customer_email, 'Подтверждение заказа AI-консультанта', customer_msg)
+        # Email клиенту через шаблоны из БД
+        if username and password and login_url:
+            import psycopg2
+            dsn = os.environ.get('DATABASE_URL')
+            if dsn:
+                try:
+                    conn = psycopg2.connect(dsn)
+                    cur = conn.cursor()
+                    cur.execute("SELECT subject, body FROM email_templates WHERE template_key = 'tariff_created'")
+                    row = cur.fetchone()
+                    cur.close()
+                    conn.close()
+                    
+                    if row:
+                        subject, body_html = row
+                        # Подстановка переменных
+                        subject = subject.replace('{{email}}', customer_email)
+                        body_html = body_html.replace('{{email}}', customer_email)
+                        body_html = body_html.replace('{{password}}', password)
+                        body_html = body_html.replace('{{login_url}}', login_url)
+                        send_email(smtp_host, smtp_port, smtp_user, smtp_password, customer_email, subject, body_html)
+                    else:
+                        # Fallback на старый шаблон
+                        customer_msg = create_customer_email(customer_name, customer_email, tariff_name, amount, tenant_slug, username, password, login_url)
+                        send_email(smtp_host, smtp_port, smtp_user, smtp_password, customer_email, 'Подтверждение заказа AI-консультанта', customer_msg)
+                except:
+                    # Fallback на старый шаблон при ошибке
+                    customer_msg = create_customer_email(customer_name, customer_email, tariff_name, amount, tenant_slug, username, password, login_url)
+                    send_email(smtp_host, smtp_port, smtp_user, smtp_password, customer_email, 'Подтверждение заказа AI-консультанта', customer_msg)
+            else:
+                customer_msg = create_customer_email(customer_name, customer_email, tariff_name, amount, tenant_slug, username, password, login_url)
+                send_email(smtp_host, smtp_port, smtp_user, smtp_password, customer_email, 'Подтверждение заказа AI-консультанта', customer_msg)
+        else:
+            customer_msg = create_customer_email(customer_name, customer_email, tariff_name, amount, tenant_slug, username, password, login_url)
+            send_email(smtp_host, smtp_port, smtp_user, smtp_password, customer_email, 'Подтверждение заказа AI-консультанта', customer_msg)
         
         # Email администратору
         admin_msg = create_admin_email(customer_name, customer_email, customer_phone, tariff_name, amount, payment_id, tenant_slug)

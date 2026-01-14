@@ -1,0 +1,25 @@
+{
+  "tests": [
+    {
+      "name": "Get all email templates",
+      "method": "GET",
+      "path": "/",
+      "expectedStatus": 200
+    },
+    {
+      "name": "Update email template",
+      "method": "PUT",
+      "path": "/",
+      "body": {
+        "id": 1,
+        "subject": "Test Subject",
+        "body": "<p>Test body</p>"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}
