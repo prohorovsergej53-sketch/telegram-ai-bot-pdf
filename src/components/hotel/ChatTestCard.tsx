@@ -65,14 +65,14 @@ const ChatTestCard = ({ tenantId, tenantName }: ChatTestCardProps) => {
       
       const data = await chatResponse.json();
 
-      if (chatResponse.ok && data.response) {
+      if (chatResponse.ok && data.message) {
         const duration = new Date(endTime).getTime() - new Date(startTime).getTime();
         setResponse(
           `✅ Успешно (${duration}ms)\n\n` +
           `Время запроса: ${formatTimestamp(startTime)}\n` +
           `Время ответа: ${formatTimestamp(endTime)}\n` +
           `Session ID: ${sessionId}\n\n` +
-          `Ответ бота:\n${data.response}`
+          `Ответ бота:\n${data.message}`
         );
         toast({
           title: 'Тест пройден',
