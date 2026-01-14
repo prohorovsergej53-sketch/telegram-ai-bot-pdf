@@ -91,7 +91,7 @@ def require_auth(event: dict) -> Tuple[bool, Optional[Dict], Dict]:
 
 def get_tenant_id_from_request(event: dict) -> Tuple[Optional[int], Optional[Dict]]:
     """
-    Извлекает tenant_id из JWT токена или query параметров
+    Извлекает tenant_id из JWT токена, query параметров или body
     Возвращает (tenant_id, error_response)
     """
     authorized, payload, error_response = require_auth(event)
@@ -102,8 +102,17 @@ def get_tenant_id_from_request(event: dict) -> Tuple[Optional[int], Optional[Dic
     user_role = payload.get('role')
     user_tenant_id = payload.get('tenant_id')
     
+    # Ищем tenant_id в query параметрах
     query_params = event.get('queryStringParameters') or {}
     requested_tenant_id = query_params.get('tenant_id')
+    
+    # Если не нашли в query, ищем в body
+    if not requested_tenant_id:
+        try:
+            body = json.loads(event.get('body', '{}'))
+            requested_tenant_id = body.get('tenant_id')
+        except:
+            pass
     
     if requested_tenant_id:
         try:
