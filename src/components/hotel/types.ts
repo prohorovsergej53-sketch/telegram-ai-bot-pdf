@@ -69,55 +69,55 @@ export const AI_MODELS = [
   { 
     value: 'openrouter-llama-3.1-8b', 
     label: 'Meta Llama 3.1 8B (Free)', 
-    embeddingDim: 768,
-    embeddingProvider: 'jinaai',
+    embeddingDim: 256,
+    embeddingProvider: 'yandex',
     embeddingModels: {
-      doc: 'jina-embeddings-v2-base-en',
-      query: 'jina-embeddings-v2-base-en'
+      doc: 'text-search-doc/latest',
+      query: 'text-search-query/latest'
     },
     routerModel: 'meta-llama/llama-3.1-8b-instruct:free'
   },
   { 
     value: 'openrouter-gemma-2-9b', 
     label: 'Google Gemma 2 9B (Free)', 
-    embeddingDim: 768,
-    embeddingProvider: 'jinaai',
+    embeddingDim: 256,
+    embeddingProvider: 'yandex',
     embeddingModels: {
-      doc: 'jina-embeddings-v2-base-en',
-      query: 'jina-embeddings-v2-base-en'
+      doc: 'text-search-doc/latest',
+      query: 'text-search-query/latest'
     },
     routerModel: 'google/gemma-2-9b-it:free'
   },
   { 
     value: 'openrouter-qwen-2.5-7b', 
     label: 'Qwen 2.5 7B (Free)', 
-    embeddingDim: 768,
-    embeddingProvider: 'jinaai',
+    embeddingDim: 256,
+    embeddingProvider: 'yandex',
     embeddingModels: {
-      doc: 'jina-embeddings-v2-base-en',
-      query: 'jina-embeddings-v2-base-en'
+      doc: 'text-search-doc/latest',
+      query: 'text-search-query/latest'
     },
     routerModel: 'qwen/qwen-2.5-7b-instruct:free'
   },
   { 
     value: 'openrouter-phi-3-medium', 
     label: 'Microsoft Phi-3 Medium (Free)', 
-    embeddingDim: 768,
-    embeddingProvider: 'jinaai',
+    embeddingDim: 256,
+    embeddingProvider: 'yandex',
     embeddingModels: {
-      doc: 'jina-embeddings-v2-base-en',
-      query: 'jina-embeddings-v2-base-en'
+      doc: 'text-search-doc/latest',
+      query: 'text-search-query/latest'
     },
     routerModel: 'microsoft/phi-3-medium-128k-instruct:free'
   },
   { 
     value: 'openrouter-deepseek-r1', 
     label: 'DeepSeek R1 (Free)', 
-    embeddingDim: 768,
-    embeddingProvider: 'jinaai',
+    embeddingDim: 256,
+    embeddingProvider: 'yandex',
     embeddingModels: {
-      doc: 'jina-embeddings-v2-base-en',
-      query: 'jina-embeddings-v2-base-en'
+      doc: 'text-search-doc/latest',
+      query: 'text-search-query/latest'
     },
     routerModel: 'deepseek/deepseek-r1:free'
   }
