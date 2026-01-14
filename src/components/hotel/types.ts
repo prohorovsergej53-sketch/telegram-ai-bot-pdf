@@ -58,7 +58,8 @@ export interface AiModelSettings {
 
 export const AI_PROVIDERS = [
   { value: 'yandex', label: 'Yandex' },
-  { value: 'openrouter', label: 'OpenRouter' }
+  { value: 'openrouter', label: 'OpenRouter' },
+  { value: 'proxyapi', label: 'ProxyAPI (рубли)' }
 ] as const;
 
 export interface ModelOption {
@@ -98,6 +99,18 @@ export const AI_MODELS_BY_PROVIDER: Record<string, ModelOption[]> = {
     { value: 'claude-3.5-sonnet', label: 'Claude 3.5 Sonnet', apiModel: 'anthropic/claude-3.5-sonnet', price: '$3.00/$15.00 за 1M', category: 'Топовые' },
     { value: 'gpt-4-turbo', label: 'GPT-4 Turbo', apiModel: 'openai/gpt-4-turbo', price: '$10.00/$30.00 за 1M', category: 'Топовые' },
     { value: 'claude-3-opus', label: 'Claude 3 Opus', apiModel: 'anthropic/claude-3-opus', price: '$15.00/$75.00 за 1M', category: 'Топовые' }
+  ],
+  proxyapi: [
+    { value: 'gpt-4o-mini', label: 'GPT-4o Mini', apiModel: 'gpt-4o-mini', price: '₽3 за 1M вход/выход', category: 'Дешевые' },
+    { value: 'gpt-3.5-turbo', label: 'GPT-3.5 Turbo', apiModel: 'gpt-3.5-turbo', price: '₽15 за 1M вход, ₽30 за 1M выход', category: 'Дешевые' },
+    { value: 'claude-3-haiku', label: 'Claude 3 Haiku', apiModel: 'claude-3-haiku-20240307', price: '₽50 за 1M вход, ₽150 за 1M выход', category: 'Дешевые' },
+    
+    { value: 'gpt-4o', label: 'GPT-4o', apiModel: 'gpt-4o', price: '₽75 за 1M вход, ₽300 за 1M выход', category: 'Топовые' },
+    { value: 'o1-mini', label: 'OpenAI o1-mini', apiModel: 'o1-mini', price: '₽90 за 1M вход, ₽360 за 1M выход', category: 'Топовые' },
+    { value: 'claude-3.5-sonnet', label: 'Claude 3.5 Sonnet', apiModel: 'claude-3-5-sonnet-20241022', price: '₽90 за 1M вход, ₽450 за 1M выход', category: 'Топовые' },
+    { value: 'gpt-4-turbo', label: 'GPT-4 Turbo', apiModel: 'gpt-4-turbo', price: '₽300 за 1M вход, ₽900 за 1M выход', category: 'Топовые' },
+    { value: 'o1', label: 'OpenAI o1', apiModel: 'o1', price: '₽450 за 1M вход, ₽1800 за 1M выход', category: 'Топовые' },
+    { value: 'claude-3-opus', label: 'Claude 3 Opus', apiModel: 'claude-3-opus-20240229', price: '₽450 за 1M вход, ₽2250 за 1M выход', category: 'Топовые' }
   ]
 };
 

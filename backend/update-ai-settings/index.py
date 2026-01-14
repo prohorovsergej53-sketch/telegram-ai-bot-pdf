@@ -86,6 +86,8 @@ def handler(event: dict, context) -> dict:
             model = ai_settings.get('model', '')
             if model in ['yandexgpt', 'yandexgpt-lite']:
                 ai_settings['provider'] = 'yandex'
+            elif model in ['gpt-4o-mini', 'o1-mini', 'o1', 'claude-3-haiku', 'claude-3-5-sonnet-20241022', 'claude-3-opus-20240229']:
+                ai_settings['provider'] = 'proxyapi'
             elif model.startswith('openrouter-'):
                 ai_settings['provider'] = 'openrouter'
                 ai_settings['model'] = model.replace('openrouter-', '')

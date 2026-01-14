@@ -24,6 +24,7 @@ const AiSettingsCard = ({ currentTenantId, isSuperAdmin = false }: AiSettingsCar
   const [configStatus, setConfigStatus] = useState<'not_set' | 'active' | 'error'>('not_set');
   const [hasYandexKeys, setHasYandexKeys] = useState(false);
   const [hasOpenRouterKeys, setHasOpenRouterKeys] = useState(false);
+  const [hasProxyApiKeys, setHasProxyApiKeys] = useState(false);
   const [checkingKeys, setCheckingKeys] = useState(true);
 
   const { toast } = useToast();
@@ -70,9 +71,11 @@ const AiSettingsCard = ({ currentTenantId, isSuperAdmin = false }: AiSettingsCar
         const yandexApi = data.keys.find((k: any) => k.provider === 'yandex' && k.key_name === 'api_key' && k.key_value && k.key_value.trim() !== '');
         const yandexFolder = data.keys.find((k: any) => k.provider === 'yandex' && k.key_name === 'folder_id' && k.key_value && k.key_value.trim() !== '');
         const openrouterApi = data.keys.find((k: any) => k.provider === 'openrouter' && k.key_name === 'api_key' && k.key_value && k.key_value.trim() !== '');
+        const proxyapiApi = data.keys.find((k: any) => k.provider === 'proxyapi' && k.key_name === 'api_key' && k.key_value && k.key_value.trim() !== '');
         
         setHasYandexKeys(!!(yandexApi && yandexFolder));
         setHasOpenRouterKeys(!!openrouterApi);
+        setHasProxyApiKeys(!!proxyapiApi);
       }
     } catch (error) {
       console.error('Error checking API keys:', error);
@@ -184,7 +187,8 @@ const AiSettingsCard = ({ currentTenantId, isSuperAdmin = false }: AiSettingsCar
   const currentModels = AI_MODELS_BY_PROVIDER[settings.provider] || [];
   const missingKeys = !checkingKeys && (
     (settings.provider === 'yandex' && !hasYandexKeys) ||
-    (settings.provider === 'openrouter' && !hasOpenRouterKeys)
+    (settings.provider === 'openrouter' && !hasOpenRouterKeys) ||
+    (settings.provider === 'proxyapi' && !hasProxyApiKeys)
   );
 
   const providerLabel = AI_PROVIDERS.find(p => p.value === settings.provider)?.label;
@@ -214,6 +218,8 @@ const AiSettingsCard = ({ currentTenantId, isSuperAdmin = false }: AiSettingsCar
                 <p className="text-sm text-amber-800">
                   {settings.provider === 'yandex' 
                     ? 'Для провайдера Yandex требуются ключи API Key + Folder ID'
+                    : settings.provider === 'proxyapi'
+                    ? 'Для провайдера ProxyAPI требуется ключ API Key'
                     : 'Для провайдера OpenRouter требуется ключ API Key'
                   }
                 </p>
@@ -237,7 +243,9 @@ const AiSettingsCard = ({ currentTenantId, isSuperAdmin = false }: AiSettingsCar
                 </SelectTrigger>
                 <SelectContent>
                   {AI_PROVIDERS.map((provider) => {
-                    const hasKeys = provider.value === 'yandex' ? hasYandexKeys : hasOpenRouterKeys;
+                    const hasKeys = provider.value === 'yandex' ? hasYandexKeys 
+                                  : provider.value === 'proxyapi' ? hasProxyApiKeys
+                                  : hasOpenRouterKeys;
                     return (
                       <SelectItem key={provider.value} value={provider.value}>
                         <div className="flex items-center justify-between w-full gap-2">
@@ -292,6 +300,11 @@ const AiSettingsCard = ({ currentTenantId, isSuperAdmin = false }: AiSettingsCar
               {settings.provider === 'yandex' && (
                 <p className="text-xs text-muted-foreground">
                   💰 Актуальные цены на yandex.cloud
+                </p>
+              )}
+              {settings.provider === 'proxyapi' && (
+                <p className="text-xs text-muted-foreground">
+                  💰 Оплата в рублях • Без VPN • proxyapi.ru
                 </p>
               )}
             </div>

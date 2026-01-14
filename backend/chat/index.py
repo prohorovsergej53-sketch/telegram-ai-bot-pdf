@@ -54,7 +54,13 @@ MODEL_API_NAMES = {
     'openrouter-qwen-2.5-7b': 'qwen/qwen-2.5-7b-instruct:free',
     'openrouter-phi-3-medium': 'microsoft/phi-3-medium-128k-instruct:free',
     'openrouter-deepseek-r1': 'deepseek/deepseek-r1-distill-llama-70b',
-    'deepseek-chat': 'deepseek/deepseek-chat'
+    'deepseek-chat': 'deepseek/deepseek-chat',
+    'gpt-4o-mini': 'gpt-4o-mini',
+    'o1-mini': 'o1-mini',
+    'o1': 'o1',
+    'claude-3-haiku': 'claude-3-haiku-20240307',
+    'claude-3-5-sonnet-20241022': 'claude-3-5-sonnet-20241022',
+    'claude-3-opus-20240229': 'claude-3-opus-20240229'
 }
 
 def handler(event: dict, context) -> dict:
@@ -122,6 +128,8 @@ def handler(event: dict, context) -> dict:
                               'claude-3-opus', 'gemini-pro-1.5', 'llama-3.1-70b', 'mixtral-8x7b', 'claude-3-haiku', 
                               'gpt-3.5-turbo', 'gemini-flash-1.5']:
                 ai_provider = 'openrouter'
+            elif ai_model in ['gpt-4o-mini', 'o1-mini', 'o1', 'claude-3-haiku', 'claude-3-5-sonnet-20241022', 'claude-3-opus-20240229']:
+                ai_provider = 'proxyapi'
             else:
                 ai_provider = settings.get('provider', 'yandex')
             ai_temperature = float(settings.get('temperature', 0.15))
@@ -715,6 +723,27 @@ MINI-SYSTEM: РАСЧЁТ ЦЕН (используй только для зап�
             chat_client = OpenAI(
                 api_key=openrouter_key,
                 base_url="https://openrouter.ai/api/v1"
+            )
+            response = chat_client.chat.completions.create(
+                model=chat_api_model,
+                messages=[
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": user_message}
+                ],
+                temperature=ai_temperature,
+                top_p=ai_top_p,
+                frequency_penalty=ai_frequency_penalty,
+                presence_penalty=ai_presence_penalty,
+                max_tokens=ai_max_tokens
+            )
+            assistant_message = response.choices[0].message.content
+        elif ai_provider == 'proxyapi':
+            proxyapi_key, error = get_tenant_api_key(tenant_id, 'proxyapi', 'api_key')
+            if error:
+                return error
+            chat_client = OpenAI(
+                api_key=proxyapi_key,
+                base_url="https://api.proxyapi.ru/openai/v1"
             )
             response = chat_client.chat.completions.create(
                 model=chat_api_model,
