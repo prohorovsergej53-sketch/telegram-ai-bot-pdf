@@ -19,6 +19,7 @@ const VKSettingsCard = ({ webhookUrl, chatFunctionUrl }: VKSettingsCardProps) =>
   const [isLoading, setIsLoading] = useState(false);
   const [webhookStatus, setWebhookStatus] = useState<'not_set' | 'active' | 'error'>('not_set');
   const { toast } = useToast();
+  const tenantId = getTenantId();
 
   useEffect(() => {
     loadSettings();
@@ -26,7 +27,7 @@ const VKSettingsCard = ({ webhookUrl, chatFunctionUrl }: VKSettingsCardProps) =>
 
   const loadSettings = async () => {
     try {
-      const response = await authenticatedFetch(BACKEND_URLS.manageApiKeys);
+      const response = await authenticatedFetch(`${BACKEND_URLS.manageApiKeys}?tenant_id=${tenantId}`);
       const data = await response.json();
       if (data.keys) {
         const gId = data.keys.find((k: any) => k.provider === 'vk' && k.key_name === 'group_id');
@@ -43,12 +44,12 @@ const VKSettingsCard = ({ webhookUrl, chatFunctionUrl }: VKSettingsCardProps) =>
 
   const saveSettings = async (gId: string, gToken: string, sKey: string) => {
     const promises = [
-      authenticatedFetch(BACKEND_URLS.manageApiKeys, {
+      authenticatedFetch(`${BACKEND_URLS.manageApiKeys}?tenant_id=${tenantId}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ provider: 'vk', key_name: 'group_id', key_value: gId })
       }),
-      authenticatedFetch(BACKEND_URLS.manageApiKeys, {
+      authenticatedFetch(`${BACKEND_URLS.manageApiKeys}?tenant_id=${tenantId}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ provider: 'vk', key_name: 'group_token', key_value: gToken })
@@ -56,7 +57,7 @@ const VKSettingsCard = ({ webhookUrl, chatFunctionUrl }: VKSettingsCardProps) =>
     ];
     if (sKey) {
       promises.push(
-        authenticatedFetch(BACKEND_URLS.manageApiKeys, {
+        authenticatedFetch(`${BACKEND_URLS.manageApiKeys}?tenant_id=${tenantId}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ provider: 'vk', key_name: 'secret_key', key_value: sKey })

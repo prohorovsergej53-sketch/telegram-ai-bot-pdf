@@ -5,6 +5,8 @@ import { Input } from '@/components/ui/input';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
 import { BACKEND_URLS } from './types';
+import { getTenantId } from '@/lib/auth';
+import { getTenantId } from '@/lib/auth';
 
 interface APIConnectionStatus {
   provider: 'yandex' | 'openai' | 'openrouter';
@@ -23,6 +25,7 @@ const AISettingsCard = () => {
   const [apiStatus, setApiStatus] = useState<APIConnectionStatus | null>(null);
   const [connectionStatus, setConnectionStatus] = useState<'not_set' | 'active' | 'error'>('not_set');
   const { toast } = useToast();
+  const tenantId = getTenantId();
 
   const handleConnect = async () => {
     if (!apiKey.trim() || !folderId.trim()) {
@@ -50,7 +53,7 @@ const AISettingsCard = () => {
 
       if (validateData.valid) {
         // Сохраняем ключи в БД через API
-        const saveResponse = await fetch(BACKEND_URLS.manageApiKeys, {
+        const saveResponse = await fetch(`${BACKEND_URLS.manageApiKeys}?tenant_id=${tenantId}`, {
           method: 'POST',
           headers: { 
             'Content-Type': 'application/json',
@@ -67,7 +70,7 @@ const AISettingsCard = () => {
 
         if (saveData.success) {
           // Сохраняем folder_id
-          await fetch(BACKEND_URLS.manageApiKeys, {
+          await fetch(`${BACKEND_URLS.manageApiKeys}?tenant_id=${tenantId}`, {
             method: 'POST',
             headers: { 
               'Content-Type': 'application/json',

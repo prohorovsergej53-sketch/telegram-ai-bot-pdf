@@ -17,6 +17,7 @@ const MAXSettingsCard = ({ webhookUrl, chatFunctionUrl }: MAXSettingsCardProps) 
   const [isLoading, setIsLoading] = useState(false);
   const [webhookStatus, setWebhookStatus] = useState<'not_set' | 'active' | 'error'>('not_set');
   const { toast } = useToast();
+  const tenantId = getTenantId();
 
   useEffect(() => {
     loadSettings();
@@ -24,7 +25,7 @@ const MAXSettingsCard = ({ webhookUrl, chatFunctionUrl }: MAXSettingsCardProps) 
 
   const loadSettings = async () => {
     try {
-      const response = await authenticatedFetch(BACKEND_URLS.manageApiKeys);
+      const response = await authenticatedFetch(`${BACKEND_URLS.manageApiKeys}?tenant_id=${tenantId}`);
       const data = await response.json();
       if (data.keys) {
         const token = data.keys.find((k: any) => k.provider === 'max' && k.key_name === 'bot_token');
@@ -38,7 +39,7 @@ const MAXSettingsCard = ({ webhookUrl, chatFunctionUrl }: MAXSettingsCardProps) 
   };
 
   const saveSettings = async (token: string) => {
-    await authenticatedFetch(BACKEND_URLS.manageApiKeys, {
+    await authenticatedFetch(`${BACKEND_URLS.manageApiKeys}?tenant_id=${tenantId}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

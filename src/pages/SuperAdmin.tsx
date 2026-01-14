@@ -181,7 +181,7 @@ const SuperAdmin = () => {
           </div>
         </div>
 
-        <Tabs defaultValue="dashboard" className="space-y-6">
+        <Tabs defaultValue="tenants" className="space-y-6">
           <TabsList className="bg-white shadow-sm">
             <TabsTrigger value="dashboard">
               <Icon name="LayoutDashboard" size={16} className="mr-2" />
