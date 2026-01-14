@@ -218,10 +218,20 @@ const AiSettingsCard = ({ currentTenantId, isSuperAdmin = false }: AiSettingsCar
                 ))}
               </SelectContent>
             </Select>
-            <p className="text-xs text-amber-600">
-              <Icon name="AlertTriangle" size={12} className="inline mr-1" />
-              При смене модели все документы будут автоматически ревекторизованы
-            </p>
+            <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mt-2">
+              <div className="flex items-start gap-2">
+                <Icon name="Info" size={16} className="text-amber-600 mt-0.5" />
+                <div className="text-xs text-amber-800">
+                  <p className="font-semibold mb-1">Важно о смене модели:</p>
+                  <ul className="list-disc list-inside space-y-1">
+                    <li>Yandex: 256-мерные векторы (быстрее, дешевле)</li>
+                    <li>OpenAI/OpenRouter: 1536-мерные векторы (точнее)</li>
+                    <li>При смене все документы автоматически ревекторизуются</li>
+                    <li>Процесс может занять несколько минут</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
           </div>
         ) : (
           <div className="bg-slate-50 border border-slate-200 rounded-lg p-4">

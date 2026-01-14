@@ -101,9 +101,9 @@ const RevectorizationProgress = ({ currentTenantId, onComplete }: Revectorizatio
   const getStatusText = () => {
     switch (status.status) {
       case 'processing':
-        return `Обработка: ${status.progress} из ${status.total} документов`;
+        return 'Документы обрабатываются с новыми эмбеддингами';
       case 'completed':
-        return `Завершено: ${status.total} документов ревекторизовано`;
+        return `Успешно ревекторизовано ${status.total} документов`;
       case 'error':
         return `Ошибка: ${status.error || 'Неизвестная ошибка'}`;
       default:
