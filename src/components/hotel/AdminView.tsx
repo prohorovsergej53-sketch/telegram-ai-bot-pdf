@@ -13,6 +13,7 @@ import UpgradeCard from './UpgradeCard';
 import TenantUrlEditor from './TenantUrlEditor';
 import TenantApiKeysCard from './TenantApiKeysCard';
 import ApiKeysGuideCard from './ApiKeysGuideCard';
+import ChatTestCard from './ChatTestCard';
 import { DocumentStatsCards } from './DocumentStatsCards';
 import { DocumentsPanel } from './DocumentsPanel';
 import { Document, BACKEND_URLS } from './types';
@@ -151,6 +152,10 @@ const AdminView = ({ documents, isLoading, onFileUpload, onDeleteDocument, curre
                     <>
                       <ApiKeysGuideCard />
                       <TenantApiKeysCard
+                        tenantId={currentTenantId}
+                        tenantName={tenantName}
+                      />
+                      <ChatTestCard
                         tenantId={currentTenantId}
                         tenantName={tenantName}
                       />
