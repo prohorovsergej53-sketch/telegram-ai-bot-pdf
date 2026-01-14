@@ -140,8 +140,8 @@ const AdminView = ({ documents, isLoading, onFileUpload, onDeleteDocument, curre
               />
               {superAdmin && (
                 <AiSettingsCard
-                  getSettingsUrl={BACKEND_URLS.getAiSettings}
-                  updateSettingsUrl={BACKEND_URLS.updateAiSettings}
+                  currentTenantId={currentTenantId}
+                  isSuperAdmin={superAdmin}
                 />
               )}
             </div>
