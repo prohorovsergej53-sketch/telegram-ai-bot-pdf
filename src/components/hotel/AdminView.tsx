@@ -182,22 +182,14 @@ const AdminView = ({ documents, isLoading, onFileUpload, onDeleteDocument, curre
         </TabsContent>
 
         <TabsContent value="widget" className="space-y-6">
-          {(superAdmin || hasFeatureAccess('hasWidget', tariffId)) ? (
-            <WidgetSettingsCard
-              getSettingsUrl={BACKEND_URLS.getWidgetSettings}
-              updateSettingsUrl={BACKEND_URLS.updateWidgetSettings}
-            />
-          ) : (
-            <UpgradeCard feature="Виджет для сайта" />
-          )}
+          <WidgetSettingsCard
+            getSettingsUrl={BACKEND_URLS.getWidgetSettings}
+            updateSettingsUrl={BACKEND_URLS.updateWidgetSettings}
+          />
         </TabsContent>
 
         <TabsContent value="stats" className="space-y-6">
-          {(superAdmin || hasFeatureAccess('hasStats', tariffId)) ? (
-            <ChatStatsCard statsUrl={BACKEND_URLS.getChatStats} />
-          ) : (
-            <UpgradeCard feature="Статистика чатов" />
-          )}
+          <ChatStatsCard statsUrl={BACKEND_URLS.getChatStats} />
         </TabsContent>
       </Tabs>
     </div>
