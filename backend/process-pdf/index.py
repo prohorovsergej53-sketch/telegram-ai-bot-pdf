@@ -106,7 +106,7 @@ def handler(event: dict, context) -> dict:
 
         for idx, chunk_text in enumerate(chunks):
             try:
-                if embedding_provider == 'yandexgpt':
+                if embedding_provider == 'yandex':
                     import requests
                     yandex_api_key = os.environ.get('YANDEXGPT_API_KEY')
                     yandex_folder_id = os.environ.get('YANDEXGPT_FOLDER_ID')
@@ -119,12 +119,30 @@ def handler(event: dict, context) -> dict:
                             'Content-Type': 'application/json'
                         },
                         json={
-                            'modelUri': f'emb://{yandex_folder_id}/text-search-doc/latest',
+                            'modelUri': f'emb://{yandex_folder_id}/{embedding_model}',
                             'text': chunk_text
                         }
                     )
                     emb_data = emb_response.json()
                     embedding_vector = emb_data['embedding']
+                    embedding_json = json.dumps(embedding_vector)
+                elif embedding_provider == 'jinaai':
+                    import requests
+                    jina_api_key = os.environ.get('JINA_API_KEY', 'jina_free')
+                    
+                    emb_response = requests.post(
+                        'https://api.jina.ai/v1/embeddings',
+                        headers={
+                            'Authorization': f'Bearer {jina_api_key}',
+                            'Content-Type': 'application/json'
+                        },
+                        json={
+                            'model': embedding_model,
+                            'input': [chunk_text]
+                        }
+                    )
+                    emb_data = emb_response.json()
+                    embedding_vector = emb_data['data'][0]['embedding']
                     embedding_json = json.dumps(embedding_vector)
                 else:
                     client = OpenAI(api_key=os.environ.get('OPENAI_API_KEY'))

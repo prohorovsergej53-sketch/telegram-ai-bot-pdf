@@ -218,20 +218,59 @@ const AiSettingsCard = ({ currentTenantId, isSuperAdmin = false }: AiSettingsCar
                 ))}
               </SelectContent>
             </Select>
-            <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mt-2">
-              <div className="flex items-start gap-2">
-                <Icon name="Info" size={16} className="text-amber-600 mt-0.5" />
-                <div className="text-xs text-amber-800">
-                  <p className="font-semibold mb-1">Важно о смене модели:</p>
-                  <ul className="list-disc list-inside space-y-1">
-                    <li>Yandex: 256-мерные векторы (быстрее, дешевле)</li>
-                    <li>OpenAI/OpenRouter: 1536-мерные векторы (точнее)</li>
-                    <li>При смене все документы автоматически ревекторизуются</li>
-                    <li>Процесс может занять несколько минут</li>
-                  </ul>
+            {/* Информация об эмбеддингах */}
+            {selectedModel && (() => {
+              const modelInfo = AI_MODELS.find(m => m.value === selectedModel);
+              if (!modelInfo) return null;
+              
+              const hasMultipleEmbeddings = modelInfo.embeddingModels.doc !== modelInfo.embeddingModels.query;
+              
+              return (
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mt-2">
+                  <div className="flex items-start gap-2">
+                    <Icon name="Database" size={16} className="text-blue-600 mt-0.5" />
+                    <div className="text-xs text-blue-900">
+                      <p className="font-semibold mb-2">Настройки эмбеддингов:</p>
+                      <div className="space-y-2">
+                        <div className="bg-white/60 rounded p-2">
+                          <p className="font-medium text-blue-800">Провайдер: {modelInfo.embeddingProvider === 'yandex' ? 'Yandex' : modelInfo.embeddingProvider === 'jinaai' ? 'Jina AI' : modelInfo.embeddingProvider}</p>
+                          <p className="text-blue-700 mt-1">Размерность: {modelInfo.embeddingDim}D</p>
+                        </div>
+                        {hasMultipleEmbeddings ? (
+                          <>
+                            <div className="bg-white/60 rounded p-2">
+                              <p className="font-medium text-blue-800 flex items-center gap-1">
+                                <Icon name="FileText" size={12} />
+                                Для документов:
+                              </p>
+                              <p className="text-blue-700 font-mono text-[10px] mt-1">{modelInfo.embeddingModels.doc}</p>
+                            </div>
+                            <div className="bg-white/60 rounded p-2">
+                              <p className="font-medium text-blue-800 flex items-center gap-1">
+                                <Icon name="Search" size={12} />
+                                Для запросов:
+                              </p>
+                              <p className="text-blue-700 font-mono text-[10px] mt-1">{modelInfo.embeddingModels.query}</p>
+                            </div>
+                          </>
+                        ) : (
+                          <div className="bg-white/60 rounded p-2">
+                            <p className="font-medium text-blue-800">Единая модель:</p>
+                            <p className="text-blue-700 font-mono text-[10px] mt-1">{modelInfo.embeddingModels.doc}</p>
+                          </div>
+                        )}
+                      </div>
+                      <div className="mt-3 pt-2 border-t border-blue-300">
+                        <p className="text-amber-700 flex items-center gap-1">
+                          <Icon name="AlertTriangle" size={12} />
+                          <span className="font-medium">При смене модели все документы будут ревекторизованы</span>
+                        </p>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
+              );
+            })()}
           </div>
         ) : (
           <div className="bg-slate-50 border border-slate-200 rounded-lg p-4">

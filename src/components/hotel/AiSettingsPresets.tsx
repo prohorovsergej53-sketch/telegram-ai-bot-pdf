@@ -55,14 +55,14 @@ export const AI_PRESETS: Record<string, AiPreset[]> = {
       }
     }
   ],
-  openai: [
+  'openrouter-llama-3.1-8b': [
     {
-      id: 'openai-precise',
+      id: 'llama-precise',
       name: 'Точный (рекомендуется)',
-      description: 'Минимум вариативности, факты',
+      description: 'Минимум вариативности для Llama 3.1',
       settings: {
-        model: 'openai',
-        temperature: 0.2,
+        model: 'openrouter-llama-3.1-8b',
+        temperature: 0.3,
         top_p: 1.0,
         frequency_penalty: 0,
         presence_penalty: 0,
@@ -70,25 +70,12 @@ export const AI_PRESETS: Record<string, AiPreset[]> = {
       }
     },
     {
-      id: 'openai-creative',
-      name: 'Креативный',
-      description: 'Более живые и интересные ответы',
-      settings: {
-        model: 'openai',
-        temperature: 0.7,
-        top_p: 0.9,
-        frequency_penalty: 0.5,
-        presence_penalty: 0.3,
-        max_tokens: 800
-      }
-    },
-    {
-      id: 'openai-balanced',
+      id: 'llama-balanced',
       name: 'Сбалансированный',
-      description: 'Оптимальный баланс параметров',
+      description: 'Оптимальный баланс для Llama 3.1',
       settings: {
-        model: 'openai',
-        temperature: 0.4,
+        model: 'openrouter-llama-3.1-8b',
+        temperature: 0.5,
         top_p: 0.95,
         frequency_penalty: 0.2,
         presence_penalty: 0.1,
@@ -96,14 +83,14 @@ export const AI_PRESETS: Record<string, AiPreset[]> = {
       }
     }
   ],
-  openrouter: [
+  'openrouter-gemma-2-9b': [
     {
-      id: 'openrouter-precise',
+      id: 'gemma-precise',
       name: 'Точный (рекомендуется)',
-      description: 'Минимум вариативности через OpenRouter',
+      description: 'Минимум вариативности для Gemma 2',
       settings: {
-        model: 'openrouter',
-        temperature: 0.2,
+        model: 'openrouter-gemma-2-9b',
+        temperature: 0.3,
         top_p: 1.0,
         frequency_penalty: 0,
         presence_penalty: 0,
@@ -111,25 +98,68 @@ export const AI_PRESETS: Record<string, AiPreset[]> = {
       }
     },
     {
-      id: 'openrouter-creative',
-      name: 'Креативный',
-      description: 'Более живые ответы через OpenRouter',
+      id: 'gemma-balanced',
+      name: 'Сбалансированный',
+      description: 'Оптимальный баланс для Gemma 2',
       settings: {
-        model: 'openrouter',
-        temperature: 0.7,
-        top_p: 0.9,
-        frequency_penalty: 0.5,
-        presence_penalty: 0.3,
-        max_tokens: 800
+        model: 'openrouter-gemma-2-9b',
+        temperature: 0.5,
+        top_p: 0.95,
+        frequency_penalty: 0.2,
+        presence_penalty: 0.1,
+        max_tokens: 700
+      }
+    }
+  ],
+  'openrouter-qwen-2.5-7b': [
+    {
+      id: 'qwen-precise',
+      name: 'Точный (рекомендуется)',
+      description: 'Минимум вариативности для Qwen 2.5',
+      settings: {
+        model: 'openrouter-qwen-2.5-7b',
+        temperature: 0.3,
+        top_p: 1.0,
+        frequency_penalty: 0,
+        presence_penalty: 0,
+        max_tokens: 600
       }
     },
     {
-      id: 'openrouter-balanced',
+      id: 'qwen-balanced',
       name: 'Сбалансированный',
-      description: 'Оптимальный баланс через OpenRouter',
+      description: 'Оптимальный баланс для Qwen 2.5',
       settings: {
-        model: 'openrouter',
-        temperature: 0.4,
+        model: 'openrouter-qwen-2.5-7b',
+        temperature: 0.5,
+        top_p: 0.95,
+        frequency_penalty: 0.2,
+        presence_penalty: 0.1,
+        max_tokens: 700
+      }
+    }
+  ],
+  'openrouter-phi-3-medium': [
+    {
+      id: 'phi-precise',
+      name: 'Точный (рекомендуется)',
+      description: 'Минимум вариативности для Phi-3',
+      settings: {
+        model: 'openrouter-phi-3-medium',
+        temperature: 0.3,
+        top_p: 1.0,
+        frequency_penalty: 0,
+        presence_penalty: 0,
+        max_tokens: 600
+      }
+    },
+    {
+      id: 'phi-balanced',
+      name: 'Сбалансированный',
+      description: 'Оптимальный баланс для Phi-3',
+      settings: {
+        model: 'openrouter-phi-3-medium',
+        temperature: 0.5,
         top_p: 0.95,
         frequency_penalty: 0.2,
         presence_penalty: 0.1,

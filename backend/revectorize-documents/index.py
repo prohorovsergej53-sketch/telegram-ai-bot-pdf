@@ -11,17 +11,32 @@ def get_embedding_config(model: str) -> dict:
         'yandexgpt': {
             'provider': 'yandex',
             'doc_model': 'text-search-doc/latest',
+            'query_model': 'text-search-query/latest',
             'dimension': 256
         },
-        'openai': {
-            'provider': 'openai',
-            'doc_model': 'text-embedding-3-small',
-            'dimension': 1536
+        'openrouter-llama-3.1-8b': {
+            'provider': 'jinaai',
+            'doc_model': 'jina-embeddings-v2-base-en',
+            'query_model': 'jina-embeddings-v2-base-en',
+            'dimension': 768
         },
-        'openrouter': {
-            'provider': 'openai',
-            'doc_model': 'text-embedding-3-small',
-            'dimension': 1536
+        'openrouter-gemma-2-9b': {
+            'provider': 'jinaai',
+            'doc_model': 'jina-embeddings-v2-base-en',
+            'query_model': 'jina-embeddings-v2-base-en',
+            'dimension': 768
+        },
+        'openrouter-qwen-2.5-7b': {
+            'provider': 'jinaai',
+            'doc_model': 'jina-embeddings-v2-base-en',
+            'query_model': 'jina-embeddings-v2-base-en',
+            'dimension': 768
+        },
+        'openrouter-phi-3-medium': {
+            'provider': 'jinaai',
+            'doc_model': 'jina-embeddings-v2-base-en',
+            'query_model': 'jina-embeddings-v2-base-en',
+            'dimension': 768
         }
     }
     return configs.get(model, configs['yandexgpt'])
@@ -48,7 +63,26 @@ def get_embedding(text: str, provider: str, model: str) -> list:
         response.raise_for_status()
         data = response.json()
         return data['embedding']
-    else:  # OpenAI
+    elif provider == 'jinaai':
+        # Jina AI Embeddings (бесплатные)
+        jina_api_key = os.environ.get('JINA_API_KEY', 'jina_free')
+        
+        response = requests.post(
+            'https://api.jina.ai/v1/embeddings',
+            headers={
+                'Authorization': f'Bearer {jina_api_key}',
+                'Content-Type': 'application/json'
+            },
+            json={
+                'model': model,
+                'input': [text]
+            },
+            timeout=30
+        )
+        response.raise_for_status()
+        data = response.json()
+        return data['data'][0]['embedding']
+    else:  # OpenAI (fallback)
         client = OpenAI(api_key=os.environ.get('OPENAI_API_KEY'))
         response = client.embeddings.create(
             model=model,

@@ -67,24 +67,48 @@ export const AI_MODELS = [
     }
   },
   { 
-    value: 'openai', 
-    label: 'OpenAI GPT-4', 
-    embeddingDim: 1536,
-    embeddingProvider: 'openai',
+    value: 'openrouter-llama-3.1-8b', 
+    label: 'Meta Llama 3.1 8B (Free)', 
+    embeddingDim: 768,
+    embeddingProvider: 'jinaai',
     embeddingModels: {
-      doc: 'text-embedding-3-small',
-      query: 'text-embedding-3-small'
-    }
+      doc: 'jina-embeddings-v2-base-en',
+      query: 'jina-embeddings-v2-base-en'
+    },
+    routerModel: 'meta-llama/llama-3.1-8b-instruct:free'
   },
   { 
-    value: 'openrouter', 
-    label: 'OpenRouter (Multi-Model)', 
-    embeddingDim: 1536,
-    embeddingProvider: 'openai',
+    value: 'openrouter-gemma-2-9b', 
+    label: 'Google Gemma 2 9B (Free)', 
+    embeddingDim: 768,
+    embeddingProvider: 'jinaai',
     embeddingModels: {
-      doc: 'text-embedding-3-small',
-      query: 'text-embedding-3-small'
-    }
+      doc: 'jina-embeddings-v2-base-en',
+      query: 'jina-embeddings-v2-base-en'
+    },
+    routerModel: 'google/gemma-2-9b-it:free'
+  },
+  { 
+    value: 'openrouter-qwen-2.5-7b', 
+    label: 'Qwen 2.5 7B (Free)', 
+    embeddingDim: 768,
+    embeddingProvider: 'jinaai',
+    embeddingModels: {
+      doc: 'jina-embeddings-v2-base-en',
+      query: 'jina-embeddings-v2-base-en'
+    },
+    routerModel: 'qwen/qwen-2.5-7b-instruct:free'
+  },
+  { 
+    value: 'openrouter-phi-3-medium', 
+    label: 'Microsoft Phi-3 Medium (Free)', 
+    embeddingDim: 768,
+    embeddingProvider: 'jinaai',
+    embeddingModels: {
+      doc: 'jina-embeddings-v2-base-en',
+      query: 'jina-embeddings-v2-base-en'
+    },
+    routerModel: 'microsoft/phi-3-medium-128k-instruct:free'
   }
 ] as const;
 
@@ -100,18 +124,36 @@ export const DEFAULT_AI_SETTINGS: Record<string, AiModelSettings> = {
     creative_mode: 'off',
     system_prompt: ''
   },
-  openai: {
-    model: 'openai',
-    temperature: 0.2,
+  'openrouter-llama-3.1-8b': {
+    model: 'openrouter-llama-3.1-8b',
+    temperature: 0.3,
     top_p: 1.0,
     frequency_penalty: 0,
     presence_penalty: 0,
     max_tokens: 600,
     system_prompt: ''
   },
-  openrouter: {
-    model: 'openrouter',
-    temperature: 0.2,
+  'openrouter-gemma-2-9b': {
+    model: 'openrouter-gemma-2-9b',
+    temperature: 0.3,
+    top_p: 1.0,
+    frequency_penalty: 0,
+    presence_penalty: 0,
+    max_tokens: 600,
+    system_prompt: ''
+  },
+  'openrouter-qwen-2.5-7b': {
+    model: 'openrouter-qwen-2.5-7b',
+    temperature: 0.3,
+    top_p: 1.0,
+    frequency_penalty: 0,
+    presence_penalty: 0,
+    max_tokens: 600,
+    system_prompt: ''
+  },
+  'openrouter-phi-3-medium': {
+    model: 'openrouter-phi-3-medium',
+    temperature: 0.3,
     top_p: 1.0,
     frequency_penalty: 0,
     presence_penalty: 0,
