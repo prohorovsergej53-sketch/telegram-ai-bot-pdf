@@ -45,7 +45,7 @@ const AISettingsCard = () => {
     setIsConnecting(true);
     try {
       // Проверяем валидность ключа через backend
-      const response = await fetch(BACKEND_URLS.yandexApiValidation, {
+      const validateResponse = await fetch(BACKEND_URLS.yandexApiValidation, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -54,23 +54,57 @@ const AISettingsCard = () => {
         })
       });
 
-      const data = await response.json();
+      const validateData = await validateResponse.json();
 
-      if (data.valid) {
-        setConnectionStatus('active');
-        toast({
-          title: '✓ Ключ успешно проверен',
-          description: 'API ключ YandexGPT работает корректно'
+      if (validateData.valid) {
+        // Сохраняем ключи в БД через API
+        const saveResponse = await fetch(BACKEND_URLS.manageApiKeys, {
+          method: 'POST',
+          headers: { 
+            'Content-Type': 'application/json',
+            'X-Authorization': localStorage.getItem('admin_token') || ''
+          },
+          body: JSON.stringify({
+            provider: 'yandex',
+            key_name: 'api_key',
+            key_value: apiKey
+          })
         });
-        setApiKey('');
-        setFolderId('');
-        // Сразу проверяем статус после успешной валидации
-        checkApiStatus('yandex');
+
+        const saveData = await saveResponse.json();
+
+        if (saveData.success) {
+          // Сохраняем folder_id
+          await fetch(BACKEND_URLS.manageApiKeys, {
+            method: 'POST',
+            headers: { 
+              'Content-Type': 'application/json',
+              'X-Authorization': localStorage.getItem('admin_token') || ''
+            },
+            body: JSON.stringify({
+              provider: 'yandex',
+              key_name: 'folder_id',
+              key_value: folderId
+            })
+          });
+
+          setConnectionStatus('active');
+          toast({
+            title: '✓ Ключ успешно сохранён',
+            description: 'API ключ YandexGPT проверен и сохранён'
+          });
+          setApiKey('');
+          setFolderId('');
+          // Сразу проверяем статус после успешной валидации
+          checkApiStatus('yandex');
+        } else {
+          throw new Error(saveData.error || 'Не удалось сохранить ключ');
+        }
       } else {
         setConnectionStatus('error');
         toast({
           title: 'Ошибка валидации',
-          description: data.error || 'Проверьте правильность API ключа и Folder ID',
+          description: validateData.error || 'Проверьте правильность API ключа и Folder ID',
           variant: 'destructive'
         });
       }

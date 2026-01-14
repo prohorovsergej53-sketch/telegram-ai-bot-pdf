@@ -48,8 +48,11 @@ def handler(event: dict, context) -> dict:
                 'Content-Type': 'application/json'
             },
             json={
-                'model': 'jina-embeddings-v2-base-en',
-                'input': ['test']
+                'model': 'jina-embeddings-v3',
+                'task': 'retrieval.passage',
+                'dimensions': 1024,
+                'input': ['test'],
+                'late_chunking': False
             },
             timeout=10
         )
@@ -72,7 +75,7 @@ def handler(event: dict, context) -> dict:
             result = {
                 'connected': True,
                 'provider': 'jinaai',
-                'model': 'jina-embeddings-v2-base-en',
+                'model': 'jina-embeddings-v3',
                 'status': 'active'
             }
             
@@ -111,6 +114,18 @@ def handler(event: dict, context) -> dict:
                     'error': 'Превышен лимит запросов',
                     'status': 'rate_limited',
                     'remaining_tokens': 0
+                }),
+                'isBase64Encoded': False
+            }
+        elif response.status_code == 451:
+            return {
+                'statusCode': 200,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({
+                    'connected': False,
+                    'error': 'API недоступен из текущего региона (451)',
+                    'status': 'region_blocked',
+                    'message': 'Jina AI API может быть заблокирован провайдером. Функция работает, но API недоступен.'
                 }),
                 'isBase64Encoded': False
             }
