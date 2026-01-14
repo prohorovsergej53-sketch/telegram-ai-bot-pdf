@@ -130,7 +130,7 @@ const Index = () => {
     try {
       const tenantId = currentTenantId || getTenantId();
       const url = tenantId ? `${BACKEND_URLS.getPageSettings}?tenant_id=${tenantId}` : BACKEND_URLS.getPageSettings;
-      const response = await fetch(url);
+      const response = await authenticatedFetch(url);
       const data = await response.json();
       if (data.settings) {
         setPageSettings(data.settings);

@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import Icon from '@/components/ui/icon';
-import { isSuperAdmin } from '@/lib/auth';
+import { isSuperAdmin, authenticatedFetch } from '@/lib/auth';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import FUNC_URLS from '../../../backend/func2url.json';
 
@@ -41,7 +41,7 @@ const SubscriptionWidget = ({ tenantId }: { tenantId: number }) => {
 
   const loadSubscription = async () => {
     try {
-      const response = await fetch(`${BACKEND_URL}?action=get_subscription&tenant_id=${tenantId}`);
+      const response = await authenticatedFetch(`${BACKEND_URL}?action=get_subscription&tenant_id=${tenantId}`);
       const data = await response.json();
       setSubscription(data.subscription);
     } catch (error) {
@@ -81,7 +81,7 @@ const SubscriptionWidget = ({ tenantId }: { tenantId: number }) => {
         }
       } else {
         // Обычный клиент — перенаправить на оплату
-        const response = await fetch(`${BACKEND_URL}?action=create_payment`, {
+        const response = await authenticatedFetch(`${BACKEND_URL}?action=create_payment`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({

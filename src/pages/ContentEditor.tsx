@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import Icon from '@/components/ui/icon';
+import { authenticatedFetch } from '@/lib/auth';
 
 const BACKEND_URL = 'https://functions.poehali.dev/2163d682-19a2-462b-b577-7f04219cc3c8';
 
@@ -38,7 +39,7 @@ const ContentEditor = () => {
   const loadContent = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch(`${BACKEND_URL}?action=public_content&tenant_id=${tenantId}`);
+      const response = await authenticatedFetch(`${BACKEND_URL}?action=public_content&tenant_id=${tenantId}`);
       const data = await response.json();
       
       setName(data.name || '');
@@ -62,7 +63,7 @@ const ContentEditor = () => {
 
     setIsSaving(true);
     try {
-      const response = await fetch(`${BACKEND_URL}?action=public_content&tenant_id=${tenantId}`, {
+      const response = await authenticatedFetch(`${BACKEND_URL}?action=public_content&tenant_id=${tenantId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
