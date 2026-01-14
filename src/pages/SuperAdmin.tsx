@@ -12,6 +12,7 @@ import { TariffsTab } from '@/components/superadmin/TariffsTab';
 import { BotTemplateTab } from '@/components/superadmin/BotTemplateTab';
 import { TenantEditDialog } from '@/components/superadmin/TenantEditDialog';
 import { TariffEditDialog } from '@/components/superadmin/TariffEditDialog';
+import LogicFlowTab from '@/components/superadmin/LogicFlowTab';
 
 const SuperAdmin = () => {
   const navigate = useNavigate();
@@ -200,6 +201,10 @@ const SuperAdmin = () => {
               <Icon name="Package" size={16} className="mr-2" />
               Шаблон ботов
             </TabsTrigger>
+            <TabsTrigger value="logic">
+              <Icon name="Workflow" size={16} className="mr-2" />
+              Логика
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="dashboard" className="space-y-6">
@@ -231,6 +236,10 @@ const SuperAdmin = () => {
 
           <TabsContent value="template" className="space-y-6">
             <BotTemplateTab />
+          </TabsContent>
+
+          <TabsContent value="logic" className="space-y-6">
+            <LogicFlowTab />
           </TabsContent>
         </Tabs>
       </div>
