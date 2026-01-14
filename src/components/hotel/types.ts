@@ -71,7 +71,7 @@ export interface ModelOption {
 
 export const AI_MODELS_BY_PROVIDER: Record<string, ModelOption[]> = {
   yandex: [
-    { value: 'yandexgpt', label: 'YandexGPT', apiModel: 'yandexgpt', price: ''от ₽1 за 1000 токенов', category: 'Стандартные' },
+    { value: 'yandexgpt', label: 'YandexGPT', apiModel: 'yandexgpt', price: 'от ₽1 за 1000 токенов', category: 'Стандартные' },
     { value: 'yandexgpt-lite', label: 'YandexGPT Lite', apiModel: 'yandexgpt-lite', price: '₽0.12 за 1000 токенов', category: 'Экономные' }
   ],
   openrouter: [
