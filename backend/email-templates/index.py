@@ -15,7 +15,8 @@ def handler(event: dict, context) -> dict:
                 'Access-Control-Allow-Methods': 'GET, POST, PUT, OPTIONS',
                 'Access-Control-Allow-Headers': 'Content-Type, X-Authorization'
             },
-            'body': ''
+            'body': '',
+            'isBase64Encoded': False
         }
     
     dsn = os.environ.get('DATABASE_URL')
@@ -23,7 +24,8 @@ def handler(event: dict, context) -> dict:
         return {
             'statusCode': 500,
             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-            'body': json.dumps({'error': 'DATABASE_URL not configured'})
+            'body': json.dumps({'error': 'DATABASE_URL not configured'}),
+            'isBase64Encoded': False
         }
     
     conn = psycopg2.connect(dsn)
@@ -53,7 +55,8 @@ def handler(event: dict, context) -> dict:
             return {
                 'statusCode': 200,
                 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                'body': json.dumps({'templates': templates})
+                'body': json.dumps({'templates': templates}),
+                'isBase64Encoded': False
             }
         
         elif method == 'PUT':
@@ -66,7 +69,8 @@ def handler(event: dict, context) -> dict:
                 return {
                     'statusCode': 400,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                    'body': json.dumps({'error': 'Missing required fields: id, subject, body'})
+                    'body': json.dumps({'error': 'Missing required fields: id, subject, body'}),
+                    'isBase64Encoded': False
                 }
             
             cur.execute('''
@@ -82,7 +86,8 @@ def handler(event: dict, context) -> dict:
                 return {
                     'statusCode': 404,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                    'body': json.dumps({'error': 'Template not found'})
+                    'body': json.dumps({'error': 'Template not found'}),
+                    'isBase64Encoded': False
                 }
             
             conn.commit()
@@ -100,7 +105,8 @@ def handler(event: dict, context) -> dict:
                         'description': row[4],
                         'updated_at': row[5].isoformat() if row[5] else None
                     }
-                })
+                }),
+                'isBase64Encoded': False
             }
         
         elif method == 'POST':
@@ -116,7 +122,8 @@ def handler(event: dict, context) -> dict:
                     return {
                         'statusCode': 400,
                         'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                        'body': json.dumps({'error': 'Missing template_id or test_email'})
+                        'body': json.dumps({'error': 'Missing template_id or test_email'}),
+                        'isBase64Encoded': False
                     }
                 
                 cur.execute('SELECT subject, body FROM email_templates WHERE id = %s', (template_id,))
@@ -126,7 +133,8 @@ def handler(event: dict, context) -> dict:
                     return {
                         'statusCode': 404,
                         'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                        'body': json.dumps({'error': 'Template not found'})
+                        'body': json.dumps({'error': 'Template not found'}),
+                        'isBase64Encoded': False
                     }
                 
                 subject, body_html = row
@@ -141,19 +149,22 @@ def handler(event: dict, context) -> dict:
                 return {
                     'statusCode': 200,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                    'body': json.dumps(result)
+                    'body': json.dumps(result),
+                    'isBase64Encoded': False
                 }
             
             return {
                 'statusCode': 400,
                 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                'body': json.dumps({'error': 'Unknown action'})
+                'body': json.dumps({'error': 'Unknown action'}),
+                'isBase64Encoded': False
             }
         
         return {
             'statusCode': 405,
             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-            'body': json.dumps({'error': 'Method not allowed'})
+            'body': json.dumps({'error': 'Method not allowed'}),
+            'isBase64Encoded': False
         }
     
     finally:

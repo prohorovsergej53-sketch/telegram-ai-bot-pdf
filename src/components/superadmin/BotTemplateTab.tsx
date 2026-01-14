@@ -108,7 +108,7 @@ export const BotTemplateTab = () => {
             </TabsList>
 
             <TabsContent value="ai" className="space-y-4">
-              <AiSettingsCard />
+              <AiSettingsCard currentTenantId={1} isSuperAdmin={true} />
             </TabsContent>
 
             <TabsContent value="telegram" className="space-y-4">
