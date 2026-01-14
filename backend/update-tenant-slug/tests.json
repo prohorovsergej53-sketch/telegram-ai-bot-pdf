@@ -1,16 +1,16 @@
 {
   "tests": [
     {
-      "name": "Update tenant slug",
+      "name": "Update tenant slug (safe test - same value)",
       "method": "POST",
       "body": {
         "tenant_id": 777,
-        "slug": "sales-bot-updated"
+        "slug": "sales"
       },
       "expectedStatus": 200,
       "expectedBody": {
         "success": true,
-        "slug": "string"
+        "slug": "sales"
       },
       "bodyMatcher": "partial"
     }
