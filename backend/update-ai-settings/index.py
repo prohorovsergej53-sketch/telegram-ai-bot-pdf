@@ -83,12 +83,15 @@ def handler(event: dict, context) -> dict:
         
         ai_settings_json = json.dumps(ai_settings)
 
+        # Используем UPSERT (INSERT ... ON CONFLICT)
         cur.execute("""
-            UPDATE t_p56134400_telegram_ai_bot_pdf.tenant_settings
-            SET ai_settings = %s::jsonb,
+            INSERT INTO t_p56134400_telegram_ai_bot_pdf.tenant_settings (tenant_id, ai_settings, updated_at)
+            VALUES (%s, %s::jsonb, CURRENT_TIMESTAMP)
+            ON CONFLICT (tenant_id) 
+            DO UPDATE SET 
+                ai_settings = EXCLUDED.ai_settings,
                 updated_at = CURRENT_TIMESTAMP
-            WHERE tenant_id = %s
-        """, (ai_settings_json, tenant_id))
+        """, (tenant_id, ai_settings_json))
 
         conn.commit()
         cur.close()
