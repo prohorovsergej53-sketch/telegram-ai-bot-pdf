@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { HeroSection } from './HeroSection';
 import { FeaturesSection } from './FeaturesSection';
 import { HowItWorksSection } from './HowItWorksSection';
@@ -13,7 +14,20 @@ import { OrderFormSection } from './OrderFormSection';
 import { FooterSection } from './FooterSection';
 
 const LandingPage = () => {
+  const location = useLocation();
   const [selectedTariff, setSelectedTariff] = useState<string>('basic');
+
+  useEffect(() => {
+    if (location.hash) {
+      const elementId = location.hash.substring(1);
+      setTimeout(() => {
+        const element = document.getElementById(elementId);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 100);
+    }
+  }, [location]);
 
   const scrollToForm = (tariffId: string) => {
     setSelectedTariff(tariffId);
