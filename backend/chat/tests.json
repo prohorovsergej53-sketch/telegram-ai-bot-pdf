@@ -5,7 +5,8 @@
       "method": "POST",
       "body": {
         "message": "Привет",
-        "sessionId": "test-session"
+        "sessionId": "test-session",
+        "tenantId": 777
       },
       "expectedStatus": 200,
       "expectedBody": {

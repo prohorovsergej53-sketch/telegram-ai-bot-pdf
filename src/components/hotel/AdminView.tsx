@@ -12,6 +12,7 @@ import AdminHeader from './AdminHeader';
 import UpgradeCard from './UpgradeCard';
 import TenantUrlEditor from './TenantUrlEditor';
 import TenantApiKeysCard from './TenantApiKeysCard';
+import ApiKeysGuideCard from './ApiKeysGuideCard';
 import { DocumentStatsCards } from './DocumentStatsCards';
 import { DocumentsPanel } from './DocumentsPanel';
 import { Document, BACKEND_URLS } from './types';
@@ -147,10 +148,13 @@ const AdminView = ({ documents, isLoading, onFileUpload, onDeleteDocument, curre
                     isSuperAdmin={superAdmin}
                   />
                   {currentTenantId && tenantName && (
-                    <TenantApiKeysCard
-                      tenantId={currentTenantId}
-                      tenantName={tenantName}
-                    />
+                    <>
+                      <ApiKeysGuideCard />
+                      <TenantApiKeysCard
+                        tenantId={currentTenantId}
+                        tenantName={tenantName}
+                      />
+                    </>
                   )}
                   {currentTenantId && currentSlug && tenantName && (
                     <TenantUrlEditor

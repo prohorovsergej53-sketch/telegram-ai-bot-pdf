@@ -23,6 +23,7 @@ from quality_gate import (
 
 MODEL_PROVIDER_MAP = {
     'yandexgpt': {'provider': 'yandex', 'model_name': 'yandexgpt'},
+    'yandexgpt-lite': {'provider': 'yandex', 'model_name': 'yandexgpt-lite'},
     'deepseek-chat': {'provider': 'openrouter', 'model_name': 'deepseek/deepseek-chat:free'},
     'openrouter-llama-3.1-8b': {'provider': 'openrouter', 'model_name': 'meta-llama/llama-3.1-8b-instruct:free'},
     'openrouter-gemma-2-9b': {'provider': 'openrouter', 'model_name': 'google/gemma-2-9b-it:free'},
@@ -83,7 +84,7 @@ def handler(event: dict, context) -> dict:
         
         if settings_row and settings_row[0]:
             settings = settings_row[0]
-            ai_model = settings.get('model', 'yandexgpt')
+            ai_model = settings.get('chat_model', settings.get('model', 'yandexgpt'))
             ai_temperature = float(settings.get('temperature', 0.15))
             ai_top_p = float(settings.get('top_p', 1.0))
             ai_frequency_penalty = float(settings.get('frequency_penalty', 0))
@@ -277,7 +278,11 @@ MINI-SYSTEM: РАСЧЁТ ЦЕН (используй только для зап�
 6. Если в документах нет тарифов или не хватает данных — сказать «Пока не вижу точной информации по этому вопросу.» и задать 1 уточняющий вопрос по приоритету: даты → тип номера → взрослые → дети → возраст.''')
             print(f"DEBUG SETTINGS: embedding_provider={embedding_provider}, embedding_model={embedding_model}")
         else:
-            ai_model = settings.get('model', 'yandexgpt') if settings_row and settings_row[0] else 'yandexgpt'
+            if settings_row and settings_row[0]:
+                settings = settings_row[0]
+                ai_model = settings.get('chat_model', settings.get('model', 'yandexgpt'))
+            else:
+                ai_model = 'yandexgpt'
             ai_temperature = 0.15
             ai_top_p = 1.0
             ai_frequency_penalty = 0
