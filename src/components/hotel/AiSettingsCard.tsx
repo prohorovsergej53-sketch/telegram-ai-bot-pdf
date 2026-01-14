@@ -244,23 +244,20 @@ const AiSettingsCard = ({ currentTenantId, isSuperAdmin = false }: AiSettingsCar
                   {currentModels.map((model, index) => {
                     const prevModel = index > 0 ? currentModels[index - 1] : null;
                     const showCategoryHeader = !prevModel || prevModel.category !== model.category;
+                    const categoryLabel = showCategoryHeader && model.category ? `${model.category} ─ ` : '';
                     
                     return (
-                      <div key={model.value}>
-                        {showCategoryHeader && model.category && (
-                          <div className="px-2 py-1.5 text-xs font-semibold text-primary">
-                            {model.category}
-                          </div>
-                        )}
-                        <SelectItem value={model.value}>
-                          <div className="flex flex-col py-0.5">
-                            <span>{model.label}</span>
-                            {model.price && (
-                              <span className="text-xs text-muted-foreground">{model.price}</span>
-                            )}
-                          </div>
-                        </SelectItem>
-                      </div>
+                      <SelectItem key={model.value} value={model.value}>
+                        <div className="flex flex-col py-0.5">
+                          <span>
+                            {categoryLabel && <span className="text-primary font-semibold">{categoryLabel}</span>}
+                            {model.label}
+                          </span>
+                          {model.price && (
+                            <span className="text-xs text-muted-foreground">{model.price}</span>
+                          )}
+                        </div>
+                      </SelectItem>
                     );
                   })}
                 </SelectContent>
