@@ -78,8 +78,19 @@ def handler(event: dict, context) -> dict:
         for key, value in settings.items():
             if key in ['temperature', 'top_p', 'frequency_penalty', 'presence_penalty']:
                 ai_settings[key] = str(value)
-            elif key in ['chat_provider', 'chat_model', 'embedding_provider', 'embedding_model', 'system_prompt', 'max_tokens', 'system_priority', 'creative_mode', 'model']:
+            elif key in ['provider', 'chat_provider', 'chat_model', 'embedding_provider', 'embedding_model', 'system_prompt', 'max_tokens', 'system_priority', 'creative_mode', 'model']:
                 ai_settings[key] = value
+        
+        # Автоматическая миграция: если provider отсутствует, определяем его по модели
+        if 'provider' not in ai_settings or not ai_settings['provider']:
+            model = ai_settings.get('model', '')
+            if model in ['yandexgpt', 'yandexgpt-lite']:
+                ai_settings['provider'] = 'yandex'
+            elif model.startswith('openrouter-'):
+                ai_settings['provider'] = 'openrouter'
+                ai_settings['model'] = model.replace('openrouter-', '')
+            elif model:
+                ai_settings['provider'] = 'openrouter'
         
         ai_settings_json = json.dumps(ai_settings)
 
