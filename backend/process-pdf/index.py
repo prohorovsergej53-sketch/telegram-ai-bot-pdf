@@ -104,41 +104,35 @@ def handler(event: dict, context) -> dict:
         """, (tenant_id,))
         settings_row = cur.fetchone()
         
-        embedding_provider = 'yandex'
-        embedding_model = 'text-search-doc'
+        import requests
+        yandex_api_key, error = get_tenant_api_key(tenant_id, 'yandex', 'api_key')
+        if error:
+            cur.close()
+            conn.close()
+            return error
+        
+        yandex_folder_id, error = get_tenant_api_key(tenant_id, 'yandex', 'folder_id')
+        if error:
+            cur.close()
+            conn.close()
+            return error
 
         for idx, chunk_text in enumerate(chunks):
             try:
-                if embedding_provider == 'yandex':
-                    import requests
-                    yandex_api_key, error = get_tenant_api_key(tenant_id, 'yandex', 'api_key')
-                    if error:
-                        print(f"Yandex API key error for chunk {idx}: {error}")
-                        embedding_json = None
-                        continue
-                    yandex_folder_id, error = get_tenant_api_key(tenant_id, 'yandex', 'folder_id')
-                    if error:
-                        print(f"Yandex folder ID error for chunk {idx}: {error}")
-                        embedding_json = None
-                        continue
-                    
-                    emb_response = requests.post(
-                        'https://llm.api.cloud.yandex.net/foundationModels/v1/textEmbedding',
-                        headers={
-                            'Authorization': f'Api-Key {yandex_api_key}',
-                            'Content-Type': 'application/json'
-                        },
-                        json={
-                            'modelUri': f'emb://{yandex_folder_id}/{embedding_model}/latest',
-                            'text': chunk_text
-                        }
-                    )
-                    emb_data = emb_response.json()
-                    embedding_vector = emb_data['embedding']
-                    embedding_json = json.dumps(embedding_vector)
-                else:
-                    print(f"Unknown embedding provider: {embedding_provider}")
-                    embedding_json = None
+                emb_response = requests.post(
+                    'https://llm.api.cloud.yandex.net/foundationModels/v1/textEmbedding',
+                    headers={
+                        'Authorization': f'Api-Key {yandex_api_key}',
+                        'Content-Type': 'application/json'
+                    },
+                    json={
+                        'modelUri': f'emb://{yandex_folder_id}/text-search-doc/latest',
+                        'text': chunk_text
+                    }
+                )
+                emb_data = emb_response.json()
+                embedding_vector = emb_data['embedding']
+                embedding_json = json.dumps(embedding_vector)
             except Exception as emb_error:
                 print(f"Embedding error for chunk {idx}: {emb_error}")
                 embedding_json = None
