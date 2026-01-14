@@ -182,7 +182,8 @@ const Index = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           message: inputMessage,
-          sessionId 
+          sessionId,
+          tenantId: currentTenantId || getTenantId() || 1
         })
       });
 
