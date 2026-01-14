@@ -5,6 +5,9 @@ import psycopg2
 from datetime import datetime
 from io import BytesIO
 from auth_middleware import get_tenant_id_from_request
+import sys
+sys.path.append('/function/code')
+from api_keys_helper import get_tenant_api_key
 
 def handler(event: dict, context) -> dict:
     """Обработка PDF: извлечение текста и разбиение на чанки"""
@@ -95,23 +98,30 @@ def handler(event: dict, context) -> dict:
         cur.execute("DELETE FROM t_p56134400_telegram_ai_bot_pdf.tenant_chunks WHERE document_id = %s", (document_id,))
         
         cur.execute("""
-            SELECT setting_key, setting_value 
-            FROM t_p56134400_telegram_ai_bot_pdf.ai_settings
-        """)
-        settings_rows = cur.fetchall()
-        settings = {row[0]: row[1] for row in settings_rows}
-
-        embedding_provider = settings.get('embedding_provider', 'openai')
-        embedding_model = settings.get('embedding_model', 'text-embedding-3-small')
+            SELECT ai_settings
+            FROM t_p56134400_telegram_ai_bot_pdf.tenant_settings
+            WHERE tenant_id = %s
+        """, (tenant_id,))
+        settings_row = cur.fetchone()
+        
+        embedding_provider = 'yandex'
+        embedding_model = 'text-search-doc'
 
         for idx, chunk_text in enumerate(chunks):
             try:
                 if embedding_provider == 'yandex':
                     import requests
-                    yandex_api_key = os.environ.get('YANDEXGPT_API_KEY')
-                    yandex_folder_id = os.environ.get('YANDEXGPT_FOLDER_ID')
+                    yandex_api_key, error = get_tenant_api_key(tenant_id, 'yandex', 'api_key')
+                    if error:
+                        print(f"Yandex API key error for chunk {idx}: {error}")
+                        embedding_json = None
+                        continue
+                    yandex_folder_id, error = get_tenant_api_key(tenant_id, 'yandex', 'folder_id')
+                    if error:
+                        print(f"Yandex folder ID error for chunk {idx}: {error}")
+                        embedding_json = None
+                        continue
                     
-                    # Для документов всегда используем text-search-doc
                     emb_response = requests.post(
                         'https://llm.api.cloud.yandex.net/foundationModels/v1/textEmbedding',
                         headers={
@@ -119,39 +129,16 @@ def handler(event: dict, context) -> dict:
                             'Content-Type': 'application/json'
                         },
                         json={
-                            'modelUri': f'emb://{yandex_folder_id}/{embedding_model}',
+                            'modelUri': f'emb://{yandex_folder_id}/{embedding_model}/latest',
                             'text': chunk_text
                         }
                     )
                     emb_data = emb_response.json()
                     embedding_vector = emb_data['embedding']
                     embedding_json = json.dumps(embedding_vector)
-                elif embedding_provider == 'jinaai':
-                    import requests
-                    jina_api_key = os.environ.get('JINA_API_KEY', 'jina_free')
-                    
-                    emb_response = requests.post(
-                        'https://api.jina.ai/v1/embeddings',
-                        headers={
-                            'Authorization': f'Bearer {jina_api_key}',
-                            'Content-Type': 'application/json'
-                        },
-                        json={
-                            'model': embedding_model,
-                            'input': [chunk_text]
-                        }
-                    )
-                    emb_data = emb_response.json()
-                    embedding_vector = emb_data['data'][0]['embedding']
-                    embedding_json = json.dumps(embedding_vector)
                 else:
-                    client = OpenAI(api_key=os.environ.get('OPENAI_API_KEY'))
-                    embedding_response = client.embeddings.create(
-                        model=embedding_model,
-                        input=chunk_text
-                    )
-                    embedding_vector = embedding_response.data[0].embedding
-                    embedding_json = json.dumps(embedding_vector)
+                    print(f"Unknown embedding provider: {embedding_provider}")
+                    embedding_json = None
             except Exception as emb_error:
                 print(f"Embedding error for chunk {idx}: {emb_error}")
                 embedding_json = None
@@ -166,7 +153,7 @@ def handler(event: dict, context) -> dict:
                 INSERT INTO t_p56134400_telegram_ai_bot_pdf.tenant_chunks 
                 (tenant_id, document_id, chunk_text, chunk_index, embedding_text)
                 VALUES (%s, %s, %s, %s, %s)
-            """, (1, document_id, chunk_text, idx, embedding_json))
+            """, (tenant_id, document_id, chunk_text, idx, embedding_json))
 
         cur.execute("""
             UPDATE t_p56134400_telegram_ai_bot_pdf.documents 

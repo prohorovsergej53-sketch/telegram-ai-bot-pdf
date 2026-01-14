@@ -12,6 +12,7 @@ import MessengerAutoMessages from './MessengerAutoMessages';
 import AdminHeader from './AdminHeader';
 import UpgradeCard from './UpgradeCard';
 import TenantUrlEditor from './TenantUrlEditor';
+import TenantApiKeysCard from './TenantApiKeysCard';
 import { DocumentStatsCards } from './DocumentStatsCards';
 import { DocumentsPanel } from './DocumentsPanel';
 import { Document, BACKEND_URLS } from './types';
@@ -148,6 +149,12 @@ const AdminView = ({ documents, isLoading, onFileUpload, onDeleteDocument, curre
                     currentTenantId={currentTenantId}
                     isSuperAdmin={superAdmin}
                   />
+                  {currentTenantId && tenantName && (
+                    <TenantApiKeysCard
+                      tenantId={currentTenantId}
+                      tenantName={tenantName}
+                    />
+                  )}
                   {currentTenantId && currentSlug && tenantName && (
                     <TenantUrlEditor
                       tenantId={currentTenantId}

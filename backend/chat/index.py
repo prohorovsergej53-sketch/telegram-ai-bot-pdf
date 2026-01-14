@@ -21,6 +21,15 @@ from quality_gate import (
     RAG_LOW_OVERLAP_START_TOPK5
 )
 
+MODEL_PROVIDER_MAP = {
+    'yandexgpt': {'provider': 'yandex', 'model_name': 'yandexgpt'},
+    'openrouter-llama-3.1-8b': {'provider': 'openrouter', 'model_name': 'meta-llama/llama-3.1-8b-instruct:free'},
+    'openrouter-gemma-2-9b': {'provider': 'openrouter', 'model_name': 'google/gemma-2-9b-it:free'},
+    'openrouter-qwen-2.5-7b': {'provider': 'openrouter', 'model_name': 'qwen/qwen-2.5-7b-instruct:free'},
+    'openrouter-phi-3-medium': {'provider': 'openrouter', 'model_name': 'microsoft/phi-3-medium-128k-instruct:free'},
+    'openrouter-deepseek-r1': {'provider': 'openrouter', 'model_name': 'deepseek/deepseek-r1:free'},
+}
+
 def handler(event: dict, context) -> dict:
     """AI чат с поиском информации в документах отеля"""
     method = event.get('httpMethod', 'POST')
@@ -81,8 +90,9 @@ def handler(event: dict, context) -> dict:
             ai_max_tokens = int(settings.get('max_tokens', 600))
             ai_system_priority = settings.get('system_priority', 'strict')
             ai_creative_mode = settings.get('creative_mode', 'off')
-            embedding_provider = settings.get('embedding_provider', 'openai')
-            embedding_model = settings.get('embedding_model', 'text-embedding-3-small')
+            
+            embedding_provider = 'yandex'
+            embedding_model = 'text-search-query'
             system_prompt_template = settings.get('system_prompt', '''Ты — дружелюбный AI-консьерж отеля «Династия» в Telegram.
 
 ИСТОЧНИК ФАКТОВ:
@@ -274,8 +284,9 @@ MINI-SYSTEM: РАСЧЁТ ЦЕН (используй только для зап�
             ai_max_tokens = 600
             ai_system_priority = 'strict'
             ai_creative_mode = 'off'
-            embedding_provider = 'openai'
-            embedding_model = 'text-embedding-3-small'
+            
+            embedding_provider = 'yandex'
+            embedding_model = 'text-search-query'
             system_prompt_template = settings.get('system_prompt', '''Ты — дружелюбный AI-консьерж отеля «Династия» в Telegram.
 
 ИСТОЧНИК ФАКТОВ:
@@ -458,21 +469,28 @@ MINI-SYSTEM: РАСЧЁТ ЦЕН (используй только для зап�
 5. Если категория указана, но питание нет — показать все варианты питания для этой категории и задать 1 вопрос «Какой вариант питания вам удобнее?»
 6. Если в документах нет тарифов или не хватает данных — сказать «Пока не вижу точной информации по этому вопросу.» и задать 1 уточняющий вопрос по приоритету: даты → тип номера → взрослые → дети → возраст.''')
         
-        chat_provider = ai_model
-
-        chat_provider = ai_model
+        model_config = MODEL_PROVIDER_MAP.get(ai_model)
+        if not model_config:
+            return {
+                'statusCode': 400,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({'error': f'Неизвестная модель: {ai_model}'}),
+                'isBase64Encoded': False
+            }
+        
+        chat_provider = model_config['provider']
+        chat_model_name = model_config['model_name']
 
         try:
-            if embedding_provider == 'yandexgpt':
+            if embedding_provider == 'yandex':
                 import requests
-                yandex_api_key, error = get_tenant_api_key(tenant_id, 'yandexgpt', 'api_key')
+                yandex_api_key, error = get_tenant_api_key(tenant_id, 'yandex', 'api_key')
                 if error:
                     return error
-                yandex_folder_id, error = get_tenant_api_key(tenant_id, 'yandexgpt', 'folder_id')
+                yandex_folder_id, error = get_tenant_api_key(tenant_id, 'yandex', 'folder_id')
                 if error:
                     return error
                 
-                # Для запросов пользователей всегда используем text-search-query
                 emb_response = requests.post(
                     'https://llm.api.cloud.yandex.net/foundationModels/v1/textEmbedding',
                     headers={
@@ -486,29 +504,13 @@ MINI-SYSTEM: РАСЧЁТ ЦЕН (используй только для зап�
                 )
                 emb_data = emb_response.json()
                 query_embedding = emb_data['embedding']
-            elif embedding_provider == 'openrouter':
-                openrouter_key, error = get_tenant_api_key(tenant_id, 'openrouter', 'api_key')
-                if error:
-                    return error
-                embedding_client = OpenAI(
-                    api_key=openrouter_key,
-                    base_url="https://openrouter.ai/api/v1"
-                )
-                query_embedding_response = embedding_client.embeddings.create(
-                    model=embedding_model,
-                    input=user_message
-                )
-                query_embedding = query_embedding_response.data[0].embedding
             else:
-                openai_key, error = get_tenant_api_key(tenant_id, 'openai', 'api_key')
-                if error:
-                    return error
-                embedding_client = OpenAI(api_key=openai_key)
-                query_embedding_response = embedding_client.embeddings.create(
-                    model=embedding_model,
-                    input=user_message
-                )
-                query_embedding = query_embedding_response.data[0].embedding
+                return {
+                    'statusCode': 400,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': f'Неизвестный провайдер эмбеддингов: {embedding_provider}'}),
+                    'isBase64Encoded': False
+                }
             
             query_embedding_json = json.dumps(query_embedding)
 
@@ -636,12 +638,12 @@ MINI-SYSTEM: РАСЧЁТ ЦЕН (используй только для зап�
         
         system_prompt = compose_system(system_prompt_template, context, context_ok)
 
-        if chat_provider == 'yandexgpt':
+        if chat_provider == 'yandex':
             import requests
-            yandex_api_key, error = get_tenant_api_key(tenant_id, 'yandexgpt', 'api_key')
+            yandex_api_key, error = get_tenant_api_key(tenant_id, 'yandex', 'api_key')
             if error:
                 return error
-            yandex_folder_id, error = get_tenant_api_key(tenant_id, 'yandexgpt', 'folder_id')
+            yandex_folder_id, error = get_tenant_api_key(tenant_id, 'yandex', 'folder_id')
             if error:
                 return error
             
@@ -667,7 +669,7 @@ MINI-SYSTEM: РАСЧЁТ ЦЕН (используй только для зап�
             )
             yandex_data = yandex_response.json()
             assistant_message = yandex_data['result']['alternatives'][0]['message']['text']
-        else:
+        elif chat_provider == 'openrouter':
             openrouter_key, error = get_tenant_api_key(tenant_id, 'openrouter', 'api_key')
             if error:
                 return error
@@ -676,7 +678,7 @@ MINI-SYSTEM: РАСЧЁТ ЦЕН (используй только для зап�
                 base_url="https://openrouter.ai/api/v1"
             )
             response = chat_client.chat.completions.create(
-                model=chat_provider,  # Передаём название модели напрямую (например, 'deepseek/deepseek-chat')
+                model=chat_model_name,
                 messages=[
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": user_message}
@@ -688,6 +690,13 @@ MINI-SYSTEM: РАСЧЁТ ЦЕН (используй только для зап�
                 max_tokens=ai_max_tokens
             )
             assistant_message = response.choices[0].message.content
+        else:
+            return {
+                'statusCode': 400,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({'error': f'Неизвестный провайдер чата: {chat_provider}'}),
+                'isBase64Encoded': False
+            }
 
         cur.execute("""
             INSERT INTO t_p56134400_telegram_ai_bot_pdf.chat_messages (session_id, role, content)
