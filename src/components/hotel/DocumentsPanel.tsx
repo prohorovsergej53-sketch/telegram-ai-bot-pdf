@@ -1,11 +1,11 @@
 import { useState, useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import { Document } from './types';
 import { getTariffId } from '@/lib/auth';
 import { getTariffLimits, canUploadMoreDocuments } from '@/lib/tariff-limits';
+import DocumentUploadArea from './DocumentUploadArea';
+import DocumentGrid from './DocumentGrid';
 
 interface DocumentsPanelProps {
   documents: Document[];
@@ -64,101 +64,20 @@ export const DocumentsPanel = ({
         </div>
       </CardHeader>
       <CardContent className="pt-6 pb-4">
-        {!canUpload ? (
-          <div className="border-2 border-dashed border-amber-300 bg-amber-50 rounded-xl p-8 text-center">
-            <div className="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-3">
-              <Icon name="Lock" size={20} className="text-amber-600" />
-            </div>
-            <p className="font-medium text-amber-900 mb-1">
-              Достигнут лимит по тарифу
-            </p>
-            <p className="text-sm text-amber-800 mb-3">
-              {limits.maxPdfDocuments === -1 
-                ? 'Безлимит документов'
-                : `Ваш тариф "${limits.name}" позволяет загрузить до ${limits.maxPdfDocuments} документов`}
-            </p>
-            <a 
-              href="/#pricing" 
-              className="inline-flex items-center gap-2 text-sm font-medium text-amber-900 hover:underline"
-            >
-              <Icon name="ArrowUpRight" size={16} />
-              Перейти на тариф Бизнес или Премиум
-            </a>
-          </div>
-        ) : (
-          <>
-            <label htmlFor="file-upload" className="cursor-pointer">
-              <div className="border-2 border-dashed border-slate-300 rounded-xl p-8 text-center hover:border-primary hover:bg-blue-50/50 transition-all group">
-                <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
-                  <Icon name={isLoading ? 'Loader2' : 'Upload'} size={20} className={`text-primary ${isLoading ? 'animate-spin' : ''}`} />
-                </div>
-                <p className="font-medium text-slate-900 mb-1">
-                  {isLoading ? 'Загрузка...' : 'Выберите PDF файлы'}
-                </p>
-                <p className="text-sm text-slate-600">
-                  {limits.maxPdfDocuments === -1 
-                    ? 'можно несколько одновременно (безлимит)' 
-                    : `можно несколько (осталось ${limits.maxPdfDocuments - documents.length})`}
-                </p>
-              </div>
-            </label>
-            <input
-              id="file-upload"
-              type="file"
-              accept=".pdf"
-              multiple
-              className="hidden"
-              onChange={onFileUpload}
-              disabled={isLoading}
-            />
-          </>
-        )}
+        <DocumentUploadArea
+          isLoading={isLoading}
+          canUpload={canUpload}
+          limits={limits}
+          currentDocCount={documents.length}
+          onFileUpload={onFileUpload}
+        />
       </CardContent>
       <CardContent className="p-0">
-        <ScrollArea className={scrollAreaHeight}>
-          {filteredDocuments.length === 0 ? (
-            <div className="p-8 text-center text-slate-500">
-              <Icon name="FileText" size={48} className="mx-auto mb-3 opacity-30" />
-              <p>{documents.length === 0 ? 'Документы ещё не загружены' : 'Нет документов с выбранными фильтрами'}</p>
-            </div>
-          ) : (
-            <div className="p-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-              {filteredDocuments.map((doc) => (
-                <div
-                  key={doc.id}
-                  className="p-3 rounded-lg border border-slate-200 hover:border-slate-300 hover:shadow-md transition-all"
-                >
-                  <div className="flex items-start gap-3">
-                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 ${
-                      doc.status === 'ready' ? 'bg-blue-100' : 'bg-orange-100'
-                    }`}>
-                      <Icon name={doc.status === 'ready' ? 'FileText' : 'Loader2'} 
-                        size={18} 
-                        className={`${doc.status === 'ready' ? 'text-primary' : 'text-orange-600 animate-spin'}`} 
-                      />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium text-sm text-slate-900 break-words whitespace-normal mb-2">{doc.name}</p>
-                      <div className="flex items-center gap-2 flex-wrap mb-2">
-                        {doc.pages > 0 && <span className="text-xs text-slate-600">{doc.pages} стр.</span>}
-                        <span className="text-xs text-slate-600">{doc.size}</span>
-                      </div>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-7 text-xs text-red-600 hover:text-red-700 hover:bg-red-50 w-full"
-                        onClick={() => onDeleteDocument(doc.id)}
-                      >
-                        <Icon name="Trash2" size={14} className="mr-1" />
-                        Удалить
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </ScrollArea>
+        <DocumentGrid
+          documents={filteredDocuments}
+          scrollAreaHeight={scrollAreaHeight}
+          onDeleteDocument={onDeleteDocument}
+        />
       </CardContent>
     </Card>
   );

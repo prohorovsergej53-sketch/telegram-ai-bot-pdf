@@ -9,14 +9,14 @@ import WidgetSettingsCard from './WidgetSettingsCard';
 import AiSettingsCard from './AiSettingsCard';
 import SubscriptionWidget from './SubscriptionWidget';
 import MessengerAutoMessages from './MessengerAutoMessages';
+import AdminHeader from './AdminHeader';
+import UpgradeCard from './UpgradeCard';
 import { DocumentStatsCards } from './DocumentStatsCards';
 import { DocumentsPanel } from './DocumentsPanel';
 import { Document, BACKEND_URLS } from './types';
 import { getTenantId, getTariffId, isSuperAdmin, getAdminUser, exitTenantView } from '@/lib/auth';
 import { useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
 import { hasFeatureAccess } from '@/lib/tariff-limits';
-import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Icon from '@/components/ui/icon';
 
@@ -43,63 +43,16 @@ const AdminView = ({ documents, isLoading, onFileUpload, onDeleteDocument, curre
     navigate('/super-admin');
   };
 
-  const UpgradeCard = ({ feature }: { feature: string }) => (
-    <Card className="border-amber-500 bg-amber-50">
-      <CardContent className="py-8 text-center">
-        <Icon name="Lock" size={32} className="mx-auto text-amber-600 mb-3" />
-        <h3 className="text-lg font-semibold text-amber-900 mb-2">
-          Недоступно в вашем тарифе
-        </h3>
-        <p className="text-sm text-amber-800 mb-4">
-          {feature} доступен в тарифах Бизнес и Премиум
-        </p>
-        <a 
-          href="/#pricing" 
-          className="inline-flex items-center gap-2 text-sm font-medium text-amber-900 hover:underline"
-        >
-          <Icon name="ArrowUpRight" size={16} />
-          Сравнить тарифы
-        </a>
-      </CardContent>
-    </Card>
-  );
-
   return (
     <div className="space-y-6 animate-fade-in">
-      {currentUser && (
-        <Card className={superAdmin ? "border-purple-500 bg-purple-50" : "border-blue-500 bg-blue-50"}>
-          <CardContent className="py-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Icon name={superAdmin ? "ShieldCheck" : "User"} size={20} className={superAdmin ? "text-purple-600" : "text-blue-600"} />
-                <span className={`font-semibold ${superAdmin ? "text-purple-900" : "text-blue-900"}`}>
-                  {superAdmin ? (isViewingOtherTenant ? "Режим просмотра (суперадмин)" : "Режим суперадмина") : "Админ-панель"}
-                </span>
-                <span className={`text-sm ${superAdmin ? "text-purple-700" : "text-blue-700"}`}>
-                  • Логин: {currentUser.username}
-                </span>
-                <span className={`text-sm ${superAdmin ? "text-purple-700" : "text-blue-700"}`}>
-                  • Tenant ID: {tenantId}
-                </span>
-                <span className={`text-sm ${superAdmin ? "text-purple-700" : "text-blue-700"}`}>
-                  • Tariff: {tariffId || 'не установлен'}
-                </span>
-              </div>
-              {isViewingOtherTenant && (
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={handleExitTenantView}
-                  className="border-purple-600 text-purple-700 hover:bg-purple-100"
-                >
-                  <Icon name="ArrowLeft" size={16} className="mr-2" />
-                  Вернуться к суперадмину
-                </Button>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-      )}
+      <AdminHeader
+        currentUser={currentUser}
+        superAdmin={superAdmin}
+        isViewingOtherTenant={isViewingOtherTenant}
+        tenantId={tenantId}
+        tariffId={tariffId}
+        onExitTenantView={handleExitTenantView}
+      />
 
       {tenantId !== null && tenantId !== undefined && (
         <SubscriptionWidget tenantId={tenantId} />
@@ -186,40 +139,47 @@ const AdminView = ({ documents, isLoading, onFileUpload, onDeleteDocument, curre
                 updateSettingsUrl={BACKEND_URLS.updateAiSettings}
               />
               {superAdmin && (
-                <AiSettingsCard currentTenantId={currentTenantId} isSuperAdmin={true} />
+                <AiSettingsCard
+                  getSettingsUrl={BACKEND_URLS.getAiSettings}
+                  updateSettingsUrl={BACKEND_URLS.updateAiSettings}
+                />
               )}
             </div>
           ) : (
-            <UpgradeCard feature="Настройка AI провайдеров" />
+            <UpgradeCard feature="Настройки AI" />
           )}
         </TabsContent>
 
         <TabsContent value="page" className="space-y-6">
-          <PageSettingsCard />
+          {(superAdmin || hasFeatureAccess('hasPageSettings', tariffId)) ? (
+            <PageSettingsCard
+              getSettingsUrl={BACKEND_URLS.getPageSettings}
+              updateSettingsUrl={BACKEND_URLS.updatePageSettings}
+            />
+          ) : (
+            <UpgradeCard feature="Настройки страницы" />
+          )}
         </TabsContent>
 
         <TabsContent value="widget" className="space-y-6">
-          <WidgetSettingsCard />
+          {(superAdmin || hasFeatureAccess('hasWidget', tariffId)) ? (
+            <WidgetSettingsCard
+              getSettingsUrl={BACKEND_URLS.getWidgetSettings}
+              updateSettingsUrl={BACKEND_URLS.updateWidgetSettings}
+            />
+          ) : (
+            <UpgradeCard feature="Виджет для сайта" />
+          )}
         </TabsContent>
 
         <TabsContent value="stats" className="space-y-6">
-          <ChatStatsCard />
+          {(superAdmin || hasFeatureAccess('hasStats', tariffId)) ? (
+            <ChatStatsCard statsUrl={BACKEND_URLS.getChatStats} />
+          ) : (
+            <UpgradeCard feature="Статистика чатов" />
+          )}
         </TabsContent>
       </Tabs>
-
-      {superAdmin && isViewingOtherTenant && (
-        <Card className="border-purple-500 bg-purple-50">
-          <CardContent className="py-6 text-center">
-            <Icon name="Crown" size={32} className="mx-auto text-purple-600 mb-3" />
-            <h3 className="text-lg font-semibold text-purple-900 mb-2">
-              Режим суперадмина активен
-            </h3>
-            <p className="text-sm text-purple-700">
-              У вас полный доступ ко всем функциям и настройкам этого бота
-            </p>
-          </CardContent>
-        </Card>
-      )}
     </div>
   );
 };
