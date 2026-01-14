@@ -47,7 +47,7 @@ const ApiKeysGuideCard = () => {
           <div className="flex items-start gap-3 p-4 bg-muted/50 rounded-lg">
             <Icon name="Cpu" size={20} className="mt-0.5 text-purple-600 dark:text-purple-400" />
             <div className="flex-1 space-y-1">
-              <h4 className="font-semibold text-sm">OpenRouter (бесплатные модели)</h4>
+              <h4 className="font-semibold text-sm">OpenRouter</h4>
               <p className="text-sm text-muted-foreground">
                 Для работы с моделями через OpenRouter нужен один ключ:
               </p>
@@ -57,9 +57,11 @@ const ApiKeysGuideCard = () => {
                   <span><strong>API Key</strong> — ключ доступа к OpenRouter API</span>
                 </li>
               </ul>
-              <p className="text-sm text-muted-foreground mt-2">
-                Доступны бесплатные модели: Meta Llama 3.1 8B, Google Gemma 2 9B, Qwen 2.5 7B, Microsoft Phi-3 Medium, DeepSeek R1
-              </p>
+              <div className="text-sm text-muted-foreground mt-2 space-y-1">
+                <p><strong>⚡ Бесплатные:</strong> Meta Llama 3.1 8B, Google Gemma 2 9B, Qwen 2.5 7B, Microsoft Phi-3 Medium, DeepSeek R1</p>
+                <p><strong>💎 Топовые:</strong> GPT-4o, GPT-4 Turbo, Claude 3.5 Sonnet, Claude 3 Opus, Gemini Pro 1.5</p>
+                <p><strong>💰 Дешевые:</strong> GPT-3.5 Turbo, Claude 3 Haiku, Gemini Flash 1.5, Mixtral 8x7B, Llama 3.1 70B</p>
+              </div>
               <a 
                 href="https://openrouter.ai/keys" 
                 target="_blank" 

@@ -137,5 +137,53 @@ export const AI_PRESETS: Record<string, AiPreset[]> = {
         max_tokens: 600
       }
     }
+  ],
+  'gpt-4o': [
+    {
+      id: 'gpt4o-balanced',
+      name: 'Сбалансированный',
+      description: 'Оптимальные параметры для GPT-4o',
+      settings: {
+        provider: 'openrouter',
+        model: 'gpt-4o',
+        temperature: 0.3,
+        top_p: 1.0,
+        frequency_penalty: 0,
+        presence_penalty: 0,
+        max_tokens: 800
+      }
+    }
+  ],
+  'claude-3.5-sonnet': [
+    {
+      id: 'claude35-balanced',
+      name: 'Сбалансированный',
+      description: 'Оптимальные параметры для Claude 3.5',
+      settings: {
+        provider: 'openrouter',
+        model: 'claude-3.5-sonnet',
+        temperature: 0.3,
+        top_p: 1.0,
+        frequency_penalty: 0,
+        presence_penalty: 0,
+        max_tokens: 800
+      }
+    }
+  ],
+  'gpt-3.5-turbo': [
+    {
+      id: 'gpt35-fast',
+      name: 'Быстрый',
+      description: 'Быстрые и дешевые ответы',
+      settings: {
+        provider: 'openrouter',
+        model: 'gpt-3.5-turbo',
+        temperature: 0.3,
+        top_p: 1.0,
+        frequency_penalty: 0,
+        presence_penalty: 0,
+        max_tokens: 600
+      }
+    }
   ]
 };

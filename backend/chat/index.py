@@ -24,11 +24,25 @@ from quality_gate import (
 MODEL_API_NAMES = {
     'yandexgpt': 'yandexgpt',
     'yandexgpt-lite': 'yandexgpt-lite',
+    # Бесплатные модели
     'llama-3.1-8b': 'meta-llama/llama-3.1-8b-instruct:free',
     'gemma-2-9b': 'google/gemma-2-9b-it:free',
     'qwen-2.5-7b': 'qwen/qwen-2.5-7b-instruct:free',
     'phi-3-medium': 'microsoft/phi-3-medium-128k-instruct:free',
     'deepseek-r1': 'deepseek/deepseek-r1:free',
+    # Топовые платные модели
+    'gpt-4o': 'openai/gpt-4o',
+    'gpt-4-turbo': 'openai/gpt-4-turbo',
+    'claude-3.5-sonnet': 'anthropic/claude-3.5-sonnet',
+    'claude-3-opus': 'anthropic/claude-3-opus',
+    'gemini-pro-1.5': 'google/gemini-pro-1.5',
+    # Дешевые платные модели
+    'llama-3.1-70b': 'meta-llama/llama-3.1-70b-instruct',
+    'mixtral-8x7b': 'mistralai/mixtral-8x7b-instruct',
+    'claude-3-haiku': 'anthropic/claude-3-haiku',
+    'gpt-3.5-turbo': 'openai/gpt-3.5-turbo',
+    'gemini-flash-1.5': 'google/gemini-flash-1.5',
+    # Backward compatibility
     'openrouter-llama-3.1-8b': 'meta-llama/llama-3.1-8b-instruct:free',
     'openrouter-gemma-2-9b': 'google/gemma-2-9b-it:free',
     'openrouter-qwen-2.5-7b': 'qwen/qwen-2.5-7b-instruct:free',

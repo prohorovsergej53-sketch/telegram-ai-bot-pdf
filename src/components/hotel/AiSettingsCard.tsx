@@ -243,14 +243,21 @@ const AiSettingsCard = ({ currentTenantId, isSuperAdmin = false }: AiSettingsCar
                 <SelectContent>
                   {currentModels.map((model) => (
                     <SelectItem key={model.value} value={model.value}>
-                      {model.label}
+                      <div className="flex flex-col">
+                        <span>{model.label}</span>
+                        {model.price && (
+                          <span className="text-xs text-muted-foreground">{model.price}</span>
+                        )}
+                      </div>
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
-              <p className="text-xs text-muted-foreground">
-                {settings.provider === 'openrouter' && '⚡ Бесплатные модели OpenRouter'}
-              </p>
+              {settings.provider === 'openrouter' && (
+                <p className="text-xs text-muted-foreground">
+                  💰 Цены: вход/выход токенов. Бесплатные модели имеют лимиты.
+                </p>
+              )}
             </div>
 
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
