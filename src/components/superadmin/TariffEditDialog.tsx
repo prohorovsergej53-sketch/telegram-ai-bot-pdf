@@ -33,32 +33,54 @@ export const TariffEditDialog = ({ tariff, onClose, onSave, onUpdate }: TariffEd
               onChange={(e) => onUpdate({...tariff, name: e.target.value})}
             />
           </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="price">Цена (₽)</Label>
-              <Input 
-                id="price"
-                type="number"
-                value={tariff.price}
-                onChange={(e) => onUpdate({...tariff, price: Number(e.target.value)})}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="period">Период</Label>
-              <Select 
-                value={tariff.period} 
-                onValueChange={(value) => onUpdate({...tariff, period: value})}
-              >
-                <SelectTrigger id="period">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="месяц">месяц</SelectItem>
-                  <SelectItem value="год">год</SelectItem>
-                  <SelectItem value="навсегда">навсегда</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+          <div className="space-y-2">
+            <Label htmlFor="setup_fee">Стоимость подключения (₽)</Label>
+            <Input 
+              id="setup_fee"
+              type="number"
+              value={tariff.setup_fee || 0}
+              onChange={(e) => onUpdate({...tariff, setup_fee: Number(e.target.value)})}
+              placeholder="Разовый платёж при подключении"
+            />
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="price">Первоначальная оплата (₽)</Label>
+            <Input 
+              id="price"
+              type="number"
+              value={tariff.price}
+              onChange={(e) => onUpdate({...tariff, price: Number(e.target.value)})}
+              placeholder="Оплата за первый период"
+            />
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="renewal_price">Стоимость продления в месяц (₽)</Label>
+            <Input 
+              id="renewal_price"
+              type="number"
+              value={tariff.renewal_price || 0}
+              onChange={(e) => onUpdate({...tariff, renewal_price: Number(e.target.value)})}
+              placeholder="Ежемесячная оплата при продлении"
+            />
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="period">Период первоначальной оплаты</Label>
+            <Select 
+              value={tariff.period} 
+              onValueChange={(value) => onUpdate({...tariff, period: value})}
+            >
+              <SelectTrigger id="period">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="месяц">месяц</SelectItem>
+                <SelectItem value="год">год</SelectItem>
+                <SelectItem value="навсегда">навсегда</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
           <div className="flex items-center space-x-2">
             <input

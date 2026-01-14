@@ -29,8 +29,16 @@ export const TariffsTab = ({ tariffs, onEditTariff }: TariffsTabProps) => {
                     <Badge variant="secondary">Неактивен</Badge>
                   )}
                 </div>
-                <div className="text-sm text-muted-foreground">
-                  {tariff.price.toLocaleString('ru-RU')} ₽ / {tariff.period}
+                <div className="space-y-1 text-sm text-muted-foreground">
+                  <div>
+                    <span className="font-medium">Подключение:</span> {(tariff.setup_fee || 0).toLocaleString('ru-RU')} ₽
+                  </div>
+                  <div>
+                    <span className="font-medium">Первоначальная оплата:</span> {tariff.price.toLocaleString('ru-RU')} ₽ / {tariff.period}
+                  </div>
+                  <div>
+                    <span className="font-medium">Продление:</span> {(tariff.renewal_price || 0).toLocaleString('ru-RU')} ₽/мес
+                  </div>
                 </div>
               </div>
               <Button 

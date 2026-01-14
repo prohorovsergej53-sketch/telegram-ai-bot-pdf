@@ -180,6 +180,14 @@ def handler(event: dict, context) -> dict:
                 update_fields.append('period = %s')
                 params.append(body['period'])
             
+            if 'setup_fee' in body:
+                update_fields.append('setup_fee = %s')
+                params.append(body['setup_fee'])
+            
+            if 'renewal_price' in body:
+                update_fields.append('renewal_price = %s')
+                params.append(body['renewal_price'])
+            
             if 'is_active' in body:
                 update_fields.append('is_active = %s')
                 params.append(body['is_active'])

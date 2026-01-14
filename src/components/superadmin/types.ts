@@ -3,6 +3,8 @@ export interface Tariff {
   name: string;
   price: number;
   period: string;
+  setup_fee: number;
+  renewal_price: number;
   is_active: boolean;
 }
 

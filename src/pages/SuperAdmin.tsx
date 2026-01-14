@@ -136,6 +136,8 @@ const SuperAdmin = () => {
           name: editingTariff.name,
           price: editingTariff.price,
           period: editingTariff.period,
+          setup_fee: editingTariff.setup_fee,
+          renewal_price: editingTariff.renewal_price,
           is_active: editingTariff.is_active
         })
       });
