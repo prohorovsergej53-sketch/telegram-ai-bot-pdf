@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import AISettingsCard from './AISettingsCard';
 import TelegramSettingsCard from './TelegramSettingsCard';
 import VKSettingsCard from './VKSettingsCard';
 import MAXSettingsCard from './MAXSettingsCard';
@@ -42,20 +41,7 @@ const AdminView = ({ documents, isLoading, onFileUpload, onDeleteDocument, curre
   const [activeTab, setActiveTab] = useState('documents');
   const [currentSlug, setCurrentSlug] = useState(tenantSlug || '');
 
-  console.log('[AdminView] Props check for TenantApiKeysCard:', {
-    superAdmin,
-    currentTenantId,
-    tenantName,
-    willRender: superAdmin && !!currentTenantId && !!tenantName
-  });
 
-  // DEBUG: показать проблему с рендерингом
-  if (activeTab === 'ai' && superAdmin && !currentTenantId) {
-    console.error('[AdminView] TenantApiKeysCard НЕ рендерится: currentTenantId =', currentTenantId);
-  }
-  if (activeTab === 'ai' && superAdmin && !tenantName) {
-    console.error('[AdminView] TenantApiKeysCard НЕ рендерится: tenantName =', tenantName);
-  }
 
   const handleExitTenantView = () => {
     exitTenantView();
@@ -154,10 +140,6 @@ const AdminView = ({ documents, isLoading, onFileUpload, onDeleteDocument, curre
         <TabsContent value="ai" className="space-y-6">
           {(superAdmin || hasFeatureAccess('hasAISettings', tariffId)) ? (
             <div className="space-y-6">
-              <AISettingsCard
-                getSettingsUrl={BACKEND_URLS.getAiSettings}
-                updateSettingsUrl={BACKEND_URLS.updateAiSettings}
-              />
               {superAdmin && (
                 <>
                   <AiSettingsCard
