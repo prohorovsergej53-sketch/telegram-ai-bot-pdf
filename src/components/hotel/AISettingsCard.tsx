@@ -54,7 +54,7 @@ const AISettingsCard = () => {
           method: 'POST',
           headers: { 
             'Content-Type': 'application/json',
-            'X-Authorization': localStorage.getItem('admin_token') || ''
+            'Authorization': `Bearer ${localStorage.getItem('adminToken') || ''}`
           },
           body: JSON.stringify({
             provider: 'yandex',
@@ -71,7 +71,7 @@ const AISettingsCard = () => {
             method: 'POST',
             headers: { 
               'Content-Type': 'application/json',
-              'X-Authorization': localStorage.getItem('admin_token') || ''
+              'Authorization': `Bearer ${localStorage.getItem('adminToken') || ''}`
             },
             body: JSON.stringify({
               provider: 'yandex',
