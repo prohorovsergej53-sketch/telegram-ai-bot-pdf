@@ -79,7 +79,7 @@ export const AI_MODELS_BY_PROVIDER: Record<string, ModelOption[]> = {
     { value: 'gemma-2-9b', label: 'Google Gemma 2 9B', apiModel: 'google/gemma-2-9b-it:free', price: 'Бесплатно', category: '⚡ Бесплатные' },
     { value: 'qwen-2.5-7b', label: 'Qwen 2.5 7B', apiModel: 'qwen/qwen-2.5-7b-instruct:free', price: 'Бесплатно', category: '⚡ Бесплатные' },
     { value: 'phi-3-medium', label: 'Microsoft Phi-3 Medium', apiModel: 'microsoft/phi-3-medium-128k-instruct:free', price: 'Бесплатно', category: '⚡ Бесплатные' },
-    { value: 'deepseek-r1', label: 'DeepSeek R1', apiModel: 'deepseek/deepseek-r1:free', price: 'Бесплатно', category: '⚡ Бесплатные' },
+    { value: 'deepseek-r1', label: 'DeepSeek R1 Distill 70B', apiModel: 'deepseek/deepseek-r1-distill-llama-70b', price: '$0.55/$2.19 за 1M', category: '💰 Дешевые' },
     
     { value: 'gpt-4o', label: 'GPT-4o', apiModel: 'openai/gpt-4o', price: '$2.50/$10.00 за 1M', category: '💎 Топовые' },
     { value: 'gpt-4-turbo', label: 'GPT-4 Turbo', apiModel: 'openai/gpt-4-turbo', price: '$10.00/$30.00 за 1M', category: '💎 Топовые' },
