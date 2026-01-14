@@ -51,13 +51,6 @@ const ChatTestCard = ({ tenantId, tenantName }: ChatTestCardProps) => {
       
       const startTime = new Date().toISOString();
       
-      console.log('[ChatTest] Sending request:', { 
-        url: BACKEND_URLS.chat, 
-        tenantId, 
-        message: testMessage,
-        sessionId 
-      });
-      
       const chatResponse = await authenticatedFetch(BACKEND_URLS.chat, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -69,10 +62,8 @@ const ChatTestCard = ({ tenantId, tenantName }: ChatTestCardProps) => {
       });
 
       const endTime = new Date().toISOString();
-      console.log('[ChatTest] Response status:', chatResponse.status);
       
       const data = await chatResponse.json();
-      console.log('[ChatTest] Response data:', data);
 
       if (chatResponse.ok && data.response) {
         const duration = new Date(endTime).getTime() - new Date(startTime).getTime();
