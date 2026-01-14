@@ -113,10 +113,10 @@ const LogicFlowTab = () => {
                   <p className="text-slate-700"><strong>Email содержит:</strong></p>
                   <div className="bg-white p-3 rounded mt-2 border border-purple-300 space-y-2">
                     <p className="text-slate-700">✉️ <strong>Тема:</strong> "Ваш бот готов к настройке!"</p>
-                    <p className="text-slate-700">🔗 <strong>URL админки:</strong> <code className="bg-slate-100 px-2 py-1">https://mysite.com/{slug}/admin</code></p>
+                    <p className="text-slate-700">🔗 <strong>URL админки:</strong> <code className="bg-slate-100 px-2 py-1">https://mysite.com/[slug]/admin</code></p>
                     <p className="text-slate-700">👤 <strong>Логин:</strong> admin</p>
                     <p className="text-slate-700">🔑 <strong>Пароль:</strong> [сгенерированный случайный]</p>
-                    <p className="text-slate-700">📱 <strong>Публичная страница бота:</strong> <code className="bg-slate-100 px-2 py-1">https://mysite.com/{slug}</code></p>
+                    <p className="text-slate-700">📱 <strong>Публичная страница бота:</strong> <code className="bg-slate-100 px-2 py-1">https://mysite.com/[slug]</code></p>
                   </div>
                 </div>
               </div>
@@ -133,7 +133,7 @@ const LogicFlowTab = () => {
                   Авторизация в админ-панели
                 </h3>
                 <div className="space-y-2 text-sm">
-                  <p className="text-slate-700"><strong>URL:</strong> <code className="bg-white px-2 py-1 rounded">/{'{slug}'}/admin</code></p>
+                  <p className="text-slate-700"><strong>URL:</strong> <code className="bg-white px-2 py-1 rounded">/[slug]/admin</code></p>
                   <p className="text-slate-700"><strong>Компонент:</strong> <code>src/pages/Admin.tsx</code> → AdminView.tsx</p>
                   <p className="text-slate-700"><strong>Backend:</strong> <code className="bg-white px-2 py-1 rounded">/backend/auth-admin/index.py</code></p>
                   <div className="bg-white p-3 rounded mt-2 border border-red-300">
@@ -265,7 +265,7 @@ const LogicFlowTab = () => {
                     <div className="bg-white p-3 rounded border border-green-300">
                       <p className="font-semibold text-green-800">🌐 Web-чат (публичная страница)</p>
                       <ul className="list-disc list-inside text-slate-700 text-xs mt-1">
-                        <li>URL: <code>/{'{slug}'}</code></li>
+                        <li>URL: <code>/[slug]</code></li>
                         <li>Компонент: HotelChatbotView.tsx</li>
                         <li>API: <code>/backend/chat/</code></li>
                       </ul>
