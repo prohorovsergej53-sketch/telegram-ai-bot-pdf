@@ -256,7 +256,9 @@ const Index = () => {
           reader.readAsDataURL(file);
         });
 
-        const uploadResponse = await fetch(BACKEND_URLS.uploadPdf, {
+        const tenantId = currentTenantId || getTenantId();
+        const uploadUrl = tenantId ? `${BACKEND_URLS.uploadPdf}?tenant_id=${tenantId}` : BACKEND_URLS.uploadPdf;
+        const uploadResponse = await authenticatedFetch(uploadUrl, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -272,7 +274,8 @@ const Index = () => {
           throw new Error(uploadData.error);
         }
 
-        const processResponse = await fetch(BACKEND_URLS.processPdf, {
+        const processUrl = tenantId ? `${BACKEND_URLS.processPdf}?tenant_id=${tenantId}` : BACKEND_URLS.processPdf;
+        const processResponse = await authenticatedFetch(processUrl, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ documentId: uploadData.documentId })
@@ -330,7 +333,9 @@ const Index = () => {
     toast({ title: 'Удаление...', description: 'Удаляем документ' });
 
     try {
-      const response = await fetch(BACKEND_URLS.deletePdf, {
+      const tenantId = currentTenantId || getTenantId();
+      const deleteUrl = tenantId ? `${BACKEND_URLS.deletePdf}?tenant_id=${tenantId}` : BACKEND_URLS.deletePdf;
+      const response = await authenticatedFetch(deleteUrl, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ documentId })

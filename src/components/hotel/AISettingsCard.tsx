@@ -6,7 +6,6 @@ import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
 import { BACKEND_URLS } from './types';
 import { getTenantId } from '@/lib/auth';
-import { getTenantId } from '@/lib/auth';
 
 interface APIConnectionStatus {
   provider: 'yandex' | 'openai' | 'openrouter';

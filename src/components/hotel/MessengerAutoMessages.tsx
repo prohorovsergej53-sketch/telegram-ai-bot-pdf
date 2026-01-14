@@ -9,7 +9,7 @@ import Icon from '@/components/ui/icon';
 import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { BACKEND_URLS } from './types';
-import { authenticatedFetch } from '@/lib/auth';
+import { authenticatedFetch, getTenantId } from '@/lib/auth';
 
 interface MessengerAutoMessagesProps {
   isSuperAdmin: boolean;
@@ -41,6 +41,7 @@ const MessengerAutoMessages = ({ isSuperAdmin }: MessengerAutoMessagesProps) => 
   const [settings, setSettings] = useState<MessengerSettings>({});
   const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<MessengerType>('widget');
+  const tenantId = getTenantId();
 
   useEffect(() => {
     if (isSuperAdmin) {
@@ -50,7 +51,7 @@ const MessengerAutoMessages = ({ isSuperAdmin }: MessengerAutoMessagesProps) => 
 
   const loadSettings = async () => {
     try {
-      const response = await authenticatedFetch(BACKEND_URLS.messengerAutoMessages);
+      const response = await authenticatedFetch(`${BACKEND_URLS.messengerAutoMessages}?tenant_id=${tenantId}`);
       const data = await response.json();
       setSettings(data.settings || {});
     } catch (error) {
@@ -63,7 +64,7 @@ const MessengerAutoMessages = ({ isSuperAdmin }: MessengerAutoMessagesProps) => 
     try {
       const config = settings[messengerType] || getDefaultConfig();
       
-      const response = await authenticatedFetch(BACKEND_URLS.messengerAutoMessages, {
+      const response = await authenticatedFetch(`${BACKEND_URLS.messengerAutoMessages}?tenant_id=${tenantId}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
