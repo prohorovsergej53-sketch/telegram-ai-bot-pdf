@@ -84,9 +84,13 @@ const SubscriptionWidget = ({ tenantId }: { tenantId: number }) => {
     
     setIsUpdating(true);
     try {
+      const token = localStorage.getItem('authToken');
       const response = await fetch(`${TARIFF_CHANGE_URL}?action=change_tariff`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
         body: JSON.stringify({
           tenant_id: tenantId,
           new_tariff_id: newTariffId
