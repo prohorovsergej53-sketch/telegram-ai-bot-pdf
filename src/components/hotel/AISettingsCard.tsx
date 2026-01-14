@@ -1,11 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
 import { BACKEND_URLS } from './types';
-import { getTenantId } from '@/lib/auth';
+import { getTenantId, authenticatedFetch } from '@/lib/auth';
 
 interface APIConnectionStatus {
   provider: 'yandex' | 'openai' | 'openrouter';
@@ -23,8 +23,31 @@ const AISettingsCard = () => {
   const [isCheckingStatus, setIsCheckingStatus] = useState(false);
   const [apiStatus, setApiStatus] = useState<APIConnectionStatus | null>(null);
   const [connectionStatus, setConnectionStatus] = useState<'not_set' | 'active' | 'error'>('not_set');
+  const [savedApiKey, setSavedApiKey] = useState('');
+  const [savedFolderId, setSavedFolderId] = useState('');
   const { toast } = useToast();
   const tenantId = getTenantId();
+
+  useEffect(() => {
+    loadSavedKeys();
+  }, []);
+
+  const loadSavedKeys = async () => {
+    try {
+      const response = await authenticatedFetch(`${BACKEND_URLS.manageApiKeys}?tenant_id=${tenantId}`);
+      const data = await response.json();
+      if (data.keys) {
+        const apiKeyEntry = data.keys.find((k: any) => k.provider === 'yandex' && k.key_name === 'api_key');
+        const folderIdEntry = data.keys.find((k: any) => k.provider === 'yandex' && k.key_name === 'folder_id');
+        
+        if (apiKeyEntry?.has_value && folderIdEntry?.has_value) {
+          setConnectionStatus('active');
+        }
+      }
+    } catch (error) {
+      console.error('Error loading saved keys:', error);
+    }
+  };
 
   const handleConnect = async () => {
     if (!apiKey.trim() || !folderId.trim()) {
@@ -52,11 +75,10 @@ const AISettingsCard = () => {
 
       if (validateData.valid) {
         // Сохраняем ключи в БД через API
-        const saveResponse = await fetch(`${BACKEND_URLS.manageApiKeys}?tenant_id=${tenantId}`, {
+        const saveResponse = await authenticatedFetch(`${BACKEND_URLS.manageApiKeys}?tenant_id=${tenantId}`, {
           method: 'POST',
           headers: { 
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('adminToken') || ''}`
+            'Content-Type': 'application/json'
           },
           body: JSON.stringify({
             provider: 'yandex',
@@ -69,11 +91,10 @@ const AISettingsCard = () => {
 
         if (saveData.success) {
           // Сохраняем folder_id
-          await fetch(`${BACKEND_URLS.manageApiKeys}?tenant_id=${tenantId}`, {
+          const saveFolderResponse = await authenticatedFetch(`${BACKEND_URLS.manageApiKeys}?tenant_id=${tenantId}`, {
             method: 'POST',
             headers: { 
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${localStorage.getItem('adminToken') || ''}`
+              'Content-Type': 'application/json'
             },
             body: JSON.stringify({
               provider: 'yandex',
@@ -82,17 +103,23 @@ const AISettingsCard = () => {
             })
           });
 
-          setConnectionStatus('active');
-          toast({
-            title: '✓ Ключ успешно сохранён',
-            description: 'API ключ YandexGPT проверен и сохранён'
-          });
-          setApiKey('');
-          setFolderId('');
-          // Сразу проверяем статус после успешной валидации
-          checkApiStatus('yandex');
+          const saveFolderData = await saveFolderResponse.json();
+
+          if (saveFolderData.success) {
+            setConnectionStatus('active');
+            toast({
+              title: '✓ Ключи успешно сохранены',
+              description: 'API ключ и Folder ID YandexGPT проверены и сохранены'
+            });
+            setApiKey('');
+            setFolderId('');
+            await loadSavedKeys();
+            checkApiStatus('yandex');
+          } else {
+            throw new Error(saveFolderData.error || 'Не удалось сохранить Folder ID');
+          }
         } else {
-          throw new Error(saveData.error || 'Не удалось сохранить ключ');
+          throw new Error(saveData.error || 'Не удалось сохранить API ключ');
         }
       } else {
         setConnectionStatus('error');
@@ -142,28 +169,39 @@ const AISettingsCard = () => {
   const checkApiStatus = async (provider: 'yandex' | 'openai' | 'openrouter') => {
     setIsCheckingStatus(true);
     try {
-      // Проверка подключения к API
-      const response = await fetch(BACKEND_URLS.yandexApiValidation, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'check_status' })
-      });
-
+      const response = await authenticatedFetch(`${BACKEND_URLS.manageApiKeys}?tenant_id=${tenantId}`);
       const data = await response.json();
+      
+      if (!data.keys) {
+        throw new Error('Не удалось загрузить ключи');
+      }
+
+      const apiKeyEntry = data.keys.find((k: any) => k.provider === 'yandex' && k.key_name === 'api_key');
+      const folderIdEntry = data.keys.find((k: any) => k.provider === 'yandex' && k.key_name === 'folder_id');
+
+      const hasKeys = apiKeyEntry?.has_value && folderIdEntry?.has_value;
 
       setApiStatus({
         provider,
-        connected: data.valid || false,
+        connected: hasKeys,
         lastChecked: new Date().toLocaleString('ru-RU'),
-        error: data.error
+        error: hasKeys ? undefined : 'Ключи не настроены'
       });
-    } catch (error) {
+
+      if (hasKeys) {
+        setConnectionStatus('active');
+      } else {
+        setConnectionStatus('not_set');
+      }
+    } catch (error: any) {
       console.error('Error checking API status:', error);
       setApiStatus({
         provider,
         connected: false,
-        error: 'Не удалось проверить статус'
+        lastChecked: new Date().toLocaleString('ru-RU'),
+        error: error.message || 'Не удалось проверить статус'
       });
+      setConnectionStatus('error');
     } finally {
       setIsCheckingStatus(false);
     }
