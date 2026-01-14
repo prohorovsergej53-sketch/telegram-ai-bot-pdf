@@ -120,6 +120,17 @@ export const AI_MODELS = [
       query: 'text-search-query/latest'
     },
     routerModel: 'deepseek/deepseek-r1:free'
+  },
+  { 
+    value: 'deepseek-chat', 
+    label: 'DeepSeek Chat', 
+    embeddingDim: 256,
+    embeddingProvider: 'yandex',
+    embeddingModels: {
+      doc: 'text-search-doc/latest',
+      query: 'text-search-query/latest'
+    },
+    routerModel: 'deepseek/deepseek-chat'
   }
 ] as const;
 
@@ -173,6 +184,15 @@ export const DEFAULT_AI_SETTINGS: Record<string, AiModelSettings> = {
   },
   'openrouter-deepseek-r1': {
     model: 'openrouter-deepseek-r1',
+    temperature: 0.3,
+    top_p: 1.0,
+    frequency_penalty: 0,
+    presence_penalty: 0,
+    max_tokens: 600,
+    system_prompt: ''
+  },
+  'deepseek-chat': {
+    model: 'deepseek-chat',
     temperature: 0.3,
     top_p: 1.0,
     frequency_penalty: 0,

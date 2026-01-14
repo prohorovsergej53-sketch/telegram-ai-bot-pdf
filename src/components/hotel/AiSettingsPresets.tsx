@@ -194,5 +194,33 @@ export const AI_PRESETS: Record<string, AiPreset[]> = {
         max_tokens: 700
       }
     }
+  ],
+  'deepseek-chat': [
+    {
+      id: 'deepseek-chat-precise',
+      name: 'Точный',
+      description: 'Фокусировка на точности ответов',
+      settings: {
+        model: 'deepseek-chat',
+        temperature: 0.2,
+        top_p: 0.9,
+        frequency_penalty: 0,
+        presence_penalty: 0,
+        max_tokens: 600
+      }
+    },
+    {
+      id: 'deepseek-chat-balanced',
+      name: 'Сбалансированный',
+      description: 'Оптимальный баланс для DeepSeek Chat',
+      settings: {
+        model: 'deepseek-chat',
+        temperature: 0.5,
+        top_p: 0.95,
+        frequency_penalty: 0.2,
+        presence_penalty: 0.1,
+        max_tokens: 700
+      }
+    }
   ]
 };

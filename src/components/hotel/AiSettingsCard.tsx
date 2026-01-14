@@ -10,6 +10,9 @@ import Icon from '@/components/ui/icon';
 import { AI_PRESETS } from './AiSettingsPresets';
 import AiSettingsSliders from './AiSettingsSliders';
 import { authenticatedFetch, getTenantId } from '@/lib/auth';
+import FUNC_URLS from '../../../backend/func2url.json';
+
+const API_KEYS_URL = FUNC_URLS['manage-api-keys'];
 
 
 interface AiSettingsCardProps {
@@ -23,11 +26,15 @@ const AiSettingsCard = ({ currentTenantId, isSuperAdmin = false }: AiSettingsCar
   const [selectedPreset, setSelectedPreset] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
   const [configStatus, setConfigStatus] = useState<'not_set' | 'active' | 'error'>('not_set');
+  const [hasYandexKeys, setHasYandexKeys] = useState(false);
+  const [hasOpenRouterKeys, setHasOpenRouterKeys] = useState(false);
+  const [checkingKeys, setCheckingKeys] = useState(true);
 
   const { toast } = useToast();
 
   useEffect(() => {
     loadSettings();
+    checkApiKeys();
   }, []);
 
   const getStatusBadge = () => {
@@ -53,6 +60,29 @@ const AiSettingsCard = ({ currentTenantId, isSuperAdmin = false }: AiSettingsCar
         По умолчанию
       </span>
     );
+  };
+
+  const checkApiKeys = async () => {
+    setCheckingKeys(true);
+    try {
+      const tenantId = currentTenantId !== null && currentTenantId !== undefined ? currentTenantId : getTenantId();
+      const url = tenantId !== null && tenantId !== undefined ? `${API_KEYS_URL}?tenant_id=${tenantId}` : API_KEYS_URL;
+      const response = await authenticatedFetch(url, { method: 'GET' });
+      const data = await response.json();
+      
+      if (response.ok && data.keys) {
+        const yandexApi = data.keys.find((k: any) => k.provider === 'yandex' && k.key_name === 'api_key' && k.key_value && k.key_value.trim() !== '');
+        const yandexFolder = data.keys.find((k: any) => k.provider === 'yandex' && k.key_name === 'folder_id' && k.key_value && k.key_value.trim() !== '');
+        const openrouterApi = data.keys.find((k: any) => k.provider === 'openrouter' && k.key_name === 'api_key' && k.key_value && k.key_value.trim() !== '');
+        
+        setHasYandexKeys(!!(yandexApi && yandexFolder));
+        setHasOpenRouterKeys(!!openrouterApi);
+      }
+    } catch (error) {
+      console.error('Error checking API keys:', error);
+    } finally {
+      setCheckingKeys(false);
+    }
   };
 
   const loadSettings = async () => {
@@ -142,6 +172,10 @@ const AiSettingsCard = ({ currentTenantId, isSuperAdmin = false }: AiSettingsCar
   const isDefaultSettings = JSON.stringify(settings) === JSON.stringify(currentDefaults);
   const currentPresets = AI_PRESETS[selectedModel] || [];
 
+  const needsYandexKeys = selectedModel === 'yandexgpt' || selectedModel.startsWith('openrouter-');
+  const needsOpenRouterKeys = selectedModel.startsWith('openrouter-');
+  const missingKeys = !checkingKeys && ((needsYandexKeys && !hasYandexKeys) || (needsOpenRouterKeys && !hasOpenRouterKeys));
+
   return (
     <Card>
       <CardHeader>
@@ -157,6 +191,27 @@ const AiSettingsCard = ({ currentTenantId, isSuperAdmin = false }: AiSettingsCar
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
+        {missingKeys && (
+          <div className="bg-amber-50 border border-amber-300 rounded-lg p-4">
+            <div className="flex items-start gap-3">
+              <Icon name="AlertTriangle" size={20} className="text-amber-600 mt-0.5" />
+              <div className="flex-1">
+                <p className="font-semibold text-amber-900 mb-2">Отсутствуют API ключи</p>
+                <div className="text-sm text-amber-800 space-y-1">
+                  {needsYandexKeys && !hasYandexKeys && (
+                    <p>• Для модели {selectedModel === 'yandexgpt' ? 'YandexGPT' : selectedModel} требуются ключи Yandex (API Key + Folder ID)</p>
+                  )}
+                  {needsOpenRouterKeys && !hasOpenRouterKeys && (
+                    <p>• Для модели {AI_MODELS.find(m => m.value === selectedModel)?.label} требуется ключ OpenRouter</p>
+                  )}
+                </div>
+                <p className="text-sm text-amber-800 mt-3">
+                  Добавьте нужные ключи в карточке "API ключи бота" ниже. Без них бот не сможет отвечать на сообщения.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
         {isSuperAdmin ? (
           <div className="space-y-2">
             <Label>Модель AI</Label>
@@ -165,14 +220,25 @@ const AiSettingsCard = ({ currentTenantId, isSuperAdmin = false }: AiSettingsCar
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {AI_MODELS.map((model) => (
-                  <SelectItem key={model.value} value={model.value}>
-                    <div className="flex items-center justify-between w-full">
-                      <span>{model.label}</span>
-                      <span className="text-xs text-slate-500 ml-2">({model.embeddingDim}D)</span>
-                    </div>
-                  </SelectItem>
-                ))}
+                {AI_MODELS.map((model) => {
+                  const isYandexModel = model.value === 'yandexgpt';
+                  const isOpenRouterModel = model.value.startsWith('openrouter-');
+                  const isAvailable = (isYandexModel && hasYandexKeys) || (isOpenRouterModel && hasYandexKeys && hasOpenRouterKeys) || (!isYandexModel && !isOpenRouterModel);
+                  
+                  return (
+                    <SelectItem key={model.value} value={model.value}>
+                      <div className="flex items-center justify-between w-full gap-2">
+                        <span className={!isAvailable ? 'text-slate-400' : ''}>{model.label}</span>
+                        <div className="flex items-center gap-1">
+                          {!isAvailable && (
+                            <Icon name="AlertCircle" size={12} className="text-amber-500" />
+                          )}
+                          <span className="text-xs text-slate-500">({model.embeddingDim}D)</span>
+                        </div>
+                      </div>
+                    </SelectItem>
+                  );
+                })}
               </SelectContent>
             </Select>
             {/* Информация об эмбеддингах */}
