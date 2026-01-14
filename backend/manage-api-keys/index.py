@@ -33,14 +33,19 @@ def handler(event: dict, context) -> dict:
         cur = conn.cursor()
         
         if method == 'GET':
-            # Получаем все ключи клиента (без значений для безопасности)
+            query_params = event.get('queryStringParameters') or {}
+            requested_tenant_id = query_params.get('tenant_id')
+            
+            if requested_tenant_id:
+                requested_tenant_id = int(requested_tenant_id)
+            else:
+                requested_tenant_id = tenant_id
+            
             cur.execute("""
-                SELECT provider, key_name, 
-                       CASE WHEN key_value IS NOT NULL THEN true ELSE false END as has_value,
-                       is_active
+                SELECT provider, key_name, key_value, is_active
                 FROM t_p56134400_telegram_ai_bot_pdf.tenant_api_keys
                 WHERE tenant_id = %s
-            """, (tenant_id,))
+            """, (requested_tenant_id,))
             
             rows = cur.fetchall()
             keys = []
@@ -48,7 +53,7 @@ def handler(event: dict, context) -> dict:
                 keys.append({
                     'provider': row[0],
                     'key_name': row[1],
-                    'has_value': row[2],
+                    'key_value': row[2],
                     'is_active': row[3]
                 })
             
@@ -63,30 +68,36 @@ def handler(event: dict, context) -> dict:
             }
         
         elif method == 'POST' or method == 'PUT':
-            # Сохраняем/обновляем ключ
             body = json.loads(event.get('body', '{}'))
-            provider = body.get('provider')
-            key_name = body.get('key_name')
-            key_value = body.get('key_value')
+            requested_tenant_id = body.get('tenant_id', tenant_id)
+            keys_to_save = body.get('keys', [])
             
-            if not all([provider, key_name, key_value]):
+            if not keys_to_save:
                 return {
                     'statusCode': 400,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                    'body': json.dumps({'error': 'provider, key_name и key_value обязательны'}),
+                    'body': json.dumps({'error': 'keys array is required'}),
                     'isBase64Encoded': False
                 }
             
-            # TODO: добавить шифрование key_value перед сохранением
-            
-            cur.execute("""
-                INSERT INTO t_p56134400_telegram_ai_bot_pdf.tenant_api_keys 
-                (tenant_id, provider, key_name, key_value, is_active)
-                VALUES (%s, %s, %s, %s, true)
-                ON CONFLICT (tenant_id, provider, key_name)
-                DO UPDATE SET key_value = EXCLUDED.key_value, 
-                              updated_at = CURRENT_TIMESTAMP
-            """, (tenant_id, provider, key_name, key_value))
+            saved_count = 0
+            for key_data in keys_to_save:
+                provider = key_data.get('provider')
+                key_name = key_data.get('key_name')
+                key_value = key_data.get('key_value')
+                
+                if not all([provider, key_name, key_value]):
+                    continue
+                
+                cur.execute("""
+                    INSERT INTO t_p56134400_telegram_ai_bot_pdf.tenant_api_keys 
+                    (tenant_id, provider, key_name, key_value, is_active)
+                    VALUES (%s, %s, %s, %s, true)
+                    ON CONFLICT (tenant_id, provider, key_name)
+                    DO UPDATE SET key_value = EXCLUDED.key_value, 
+                                  updated_at = CURRENT_TIMESTAMP
+                """, (requested_tenant_id, provider, key_name, key_value))
+                saved_count += 1
             
             conn.commit()
             cur.close()
@@ -95,7 +106,7 @@ def handler(event: dict, context) -> dict:
             return {
                 'statusCode': 200,
                 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                'body': json.dumps({'success': True, 'message': 'API ключ сохранён'}),
+                'body': json.dumps({'success': True, 'message': f'Сохранено ключей: {saved_count}'}),
                 'isBase64Encoded': False
             }
         
