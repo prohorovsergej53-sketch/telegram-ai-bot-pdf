@@ -225,19 +225,7 @@ const TenantApiKeysCard = ({ tenantId, tenantName }: TenantApiKeysCardProps) => 
               </div>
             </div>
 
-            <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
-              <div className="flex items-start gap-2">
-                <Icon name="AlertTriangle" size={16} className="text-amber-600 mt-0.5" />
-                <div className="text-sm text-amber-900">
-                  <p className="font-medium mb-1">Важно:</p>
-                  <ul className="list-disc list-inside text-amber-800 space-y-1">
-                    <li>Для работы YandexGPT нужны оба ключа Яндекса</li>
-                    <li>Для работы OpenRouter моделей нужны: OpenRouter API key + оба ключа Яндекса (для эмбеддингов)</li>
-                    <li>Ключи хранятся в зашифрованном виде</li>
-                  </ul>
-                </div>
-              </div>
-            </div>
+
 
             <Button
               onClick={handleSave}
