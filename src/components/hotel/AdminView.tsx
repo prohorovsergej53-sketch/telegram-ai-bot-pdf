@@ -49,6 +49,14 @@ const AdminView = ({ documents, isLoading, onFileUpload, onDeleteDocument, curre
     willRender: superAdmin && !!currentTenantId && !!tenantName
   });
 
+  // DEBUG: показать проблему с рендерингом
+  if (activeTab === 'ai' && superAdmin && !currentTenantId) {
+    console.error('[AdminView] TenantApiKeysCard НЕ рендерится: currentTenantId =', currentTenantId);
+  }
+  if (activeTab === 'ai' && superAdmin && !tenantName) {
+    console.error('[AdminView] TenantApiKeysCard НЕ рендерится: tenantName =', tenantName);
+  }
+
   const handleExitTenantView = () => {
     exitTenantView();
     sessionStorage.setItem('superadmin_active_tab', 'users');

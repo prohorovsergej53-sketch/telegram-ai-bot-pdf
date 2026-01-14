@@ -15,6 +15,7 @@ const Index = () => {
   const [view, setView] = useState<'guest' | 'admin'>('guest');
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
   const [currentTenantId, setCurrentTenantId] = useState<number | null>(null);
+  const [currentTenantName, setCurrentTenantName] = useState<string>('');
   const [messages, setMessages] = useState<Message[]>([
     { 
       id: '1', 
@@ -110,8 +111,9 @@ const Index = () => {
       
       const tenantInfo = await response.json();
       if (tenantInfo) {
-        console.log(`[Index] Loaded tenant from backend: slug=${tenantSlug}, ID=${tenantInfo.tenant_id}`);
+        console.log(`[Index] Loaded tenant from backend: slug=${tenantSlug}, ID=${tenantInfo.tenant_id}, name=${tenantInfo.name}`);
         setCurrentTenantId(tenantInfo.tenant_id);
+        setCurrentTenantName(tenantInfo.name || '');
         
         // Сохраняем в sessionStorage для super admin
         if (isSuperAdmin()) {
@@ -450,7 +452,7 @@ const Index = () => {
             onFileUpload={handleFileUpload}
             onDeleteDocument={handleDeleteDocument}
             currentTenantId={currentTenantId}
-            tenantName={pageSettings?.header_title || ''}
+            tenantName={currentTenantName || pageSettings?.header_title || ''}
           />
         )}
 
