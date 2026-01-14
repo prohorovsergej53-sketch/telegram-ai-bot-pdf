@@ -73,8 +73,11 @@ const AiSettingsCard = ({ currentTenantId, isSuperAdmin = false }: AiSettingsCar
   };
 
   const handleModelChange = async (model: string) => {
+    const currentPrompt = settings.system_prompt;
     setSelectedModel(model);
-    setSettings(DEFAULT_AI_SETTINGS[model as keyof typeof DEFAULT_AI_SETTINGS]);
+    const newSettings = { ...DEFAULT_AI_SETTINGS[model as keyof typeof DEFAULT_AI_SETTINGS] };
+    newSettings.system_prompt = currentPrompt;
+    setSettings(newSettings);
     setSelectedPreset('');
   };
 
