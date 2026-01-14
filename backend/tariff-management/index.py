@@ -13,7 +13,7 @@ def handler(event: dict, context) -> dict:
             'headers': {
                 'Access-Control-Allow-Origin': '*',
                 'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-                'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Authorization',
+                'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Authorization, X-Set-Cookie',
                 'Access-Control-Max-Age': '86400'
             },
             'body': '',
@@ -95,6 +95,59 @@ def handler(event: dict, context) -> dict:
                 'statusCode': 200,
                 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
                 'body': json.dumps({'tariffs': tariffs}),
+                'isBase64Encoded': False
+            }
+
+        elif method == 'POST':
+            # Изменить тариф у тенанта (action=change_tariff)
+            query_params = event.get('queryStringParameters') or {}
+            action = query_params.get('action')
+            
+            if action == 'change_tariff':
+                body = json.loads(event.get('body', '{}'))
+                tenant_id = body.get('tenant_id')
+                new_tariff_id = body.get('new_tariff_id')
+                
+                if not tenant_id or not new_tariff_id:
+                    return {
+                        'statusCode': 400,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'tenant_id and new_tariff_id required'}),
+                        'isBase64Encoded': False
+                    }
+                
+                # Проверяем, что тариф существует
+                cur.execute(f"SELECT id FROM {schema}.tariff_plans WHERE id = %s", (new_tariff_id,))
+                if not cur.fetchone():
+                    return {
+                        'statusCode': 404,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Tariff not found'}),
+                        'isBase64Encoded': False
+                    }
+                
+                # Обновляем тариф у тенанта
+                cur.execute(f"""
+                    UPDATE {schema}.tenants
+                    SET tariff_id = %s, updated_at = CURRENT_TIMESTAMP
+                    WHERE id = %s
+                """, (new_tariff_id, tenant_id))
+                conn.commit()
+                
+                cur.close()
+                conn.close()
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'success': True, 'message': 'Tariff changed successfully'}),
+                    'isBase64Encoded': False
+                }
+            
+            return {
+                'statusCode': 400,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({'error': 'Unknown action'}),
                 'isBase64Encoded': False
             }
 

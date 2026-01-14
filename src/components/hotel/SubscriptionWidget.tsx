@@ -84,7 +84,7 @@ const SubscriptionWidget = ({ tenantId }: { tenantId: number }) => {
     
     setIsUpdating(true);
     try {
-      const token = localStorage.getItem('authToken');
+      const token = localStorage.getItem('adminToken');
       const response = await fetch(`${TARIFF_CHANGE_URL}?action=change_tariff`, {
         method: 'POST',
         headers: { 

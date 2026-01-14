@@ -1,10 +1,14 @@
 {
   "tests": [
     {
-      "name": "Get all tariffs",
+      "name": "Unauthorized access without token",
       "method": "GET",
       "path": "/",
-      "expectedStatus": 200
+      "expectedStatus": 401,
+      "expectedBody": {
+        "error": "Unauthorized"
+      },
+      "bodyMatcher": "partial"
     }
   ]
 }
