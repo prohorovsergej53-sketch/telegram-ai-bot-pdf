@@ -99,25 +99,30 @@ const Index = () => {
       return;
     }
     
-    // Hardcoded mapping (пока не создана публичная функция для slug→tenant_id)
-    const slugToTenantMap: Record<string, { id: number, tariffId: string }> = {
-      'sales': { id: 0, tariffId: 'premium' },
-      // Добавь другие тенанты по необходимости
-    };
-    
-    const tenantInfo = slugToTenantMap[tenantSlug];
-    if (tenantInfo) {
-      console.log(`[Index] Loaded tenant from map: slug=${tenantSlug}, ID=${tenantInfo.id}`);
-      setCurrentTenantId(tenantInfo.id);
-      
-      // Сохраняем в sessionStorage для super admin
-      if (isSuperAdmin()) {
-        sessionStorage.setItem('superadmin_viewing_tenant', 'true');
-        sessionStorage.setItem('superadmin_viewing_tenant_id', tenantInfo.id.toString());
-        sessionStorage.setItem('superadmin_viewing_tariff_id', tenantInfo.tariffId);
+    // Загружаем реальный tenant_id из backend
+    try {
+      const response = await fetch(`${BACKEND_URLS.getTenantBySlug}?slug=${tenantSlug}`);
+      if (!response.ok) {
+        console.error('[Index] Tenant not found:', tenantSlug);
+        setCurrentTenantId(getTenantId());
+        return;
       }
-    } else {
-      console.warn(`[Index] Tenant not found for slug: ${tenantSlug}`);
+      
+      const tenantInfo = await response.json();
+      if (tenantInfo) {
+        console.log(`[Index] Loaded tenant from backend: slug=${tenantSlug}, ID=${tenantInfo.tenant_id}`);
+        setCurrentTenantId(tenantInfo.tenant_id);
+        
+        // Сохраняем в sessionStorage для super admin
+        if (isSuperAdmin()) {
+          sessionStorage.setItem('superadmin_viewing_tenant', 'true');
+          sessionStorage.setItem('superadmin_viewing_tenant_id', tenantInfo.tenant_id.toString());
+          sessionStorage.setItem('superadmin_viewing_tariff_id', tenantInfo.tariff_id);
+        }
+      }
+    } catch (error) {
+      console.error('[Index] Error loading tenant info:', error);
+      setCurrentTenantId(getTenantId());
     }
   };
 

@@ -179,15 +179,11 @@ const SuperAdmin = () => {
           </div>
         </div>
 
-        <Tabs defaultValue="users" className="space-y-6">
+        <Tabs defaultValue="dashboard" className="space-y-6">
           <TabsList className="bg-white shadow-sm">
             <TabsTrigger value="dashboard">
               <Icon name="LayoutDashboard" size={16} className="mr-2" />
               Дашборд
-            </TabsTrigger>
-            <TabsTrigger value="users">
-              <Icon name="Users" size={16} className="mr-2" />
-              Пользователи
             </TabsTrigger>
             <TabsTrigger value="tenants">
               <Icon name="Building2" size={16} className="mr-2" />
@@ -209,14 +205,6 @@ const SuperAdmin = () => {
 
           <TabsContent value="dashboard" className="space-y-6">
             <DashboardTab tenants={tenants} tariffs={tariffs} />
-          </TabsContent>
-
-          <TabsContent value="users" className="space-y-6">
-            <TenantsTab 
-              tenants={tenants}
-              onEnterTenant={handleEnterTenantAdmin}
-              onManageTenant={handleManageTenant}
-            />
           </TabsContent>
 
           <TabsContent value="tenants" className="space-y-6">
