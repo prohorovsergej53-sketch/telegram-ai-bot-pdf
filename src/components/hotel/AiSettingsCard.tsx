@@ -150,13 +150,17 @@ const AiSettingsCard = ({ currentTenantId, isSuperAdmin = false }: AiSettingsCar
       const tenantId = currentTenantId !== null && currentTenantId !== undefined ? currentTenantId : getTenantId();
       
       const updateUrl = tenantId !== null && tenantId !== undefined ? `${BACKEND_URLS.updateAiSettings}?tenant_id=${tenantId}` : BACKEND_URLS.updateAiSettings;
+      console.log('[AiSettings] Saving settings:', { updateUrl, tenantId, settings });
+      
       const response = await authenticatedFetch(updateUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ settings })
       });
 
+      console.log('[AiSettings] Response status:', response.status);
       const data = await response.json();
+      console.log('[AiSettings] Response data:', data);
 
       if (response.ok) {
         setConfigStatus('active');
