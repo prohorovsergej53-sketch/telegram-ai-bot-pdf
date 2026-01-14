@@ -42,6 +42,13 @@ const AdminView = ({ documents, isLoading, onFileUpload, onDeleteDocument, curre
   const [activeTab, setActiveTab] = useState('documents');
   const [currentSlug, setCurrentSlug] = useState(tenantSlug || '');
 
+  console.log('[AdminView] Props check for TenantApiKeysCard:', {
+    superAdmin,
+    currentTenantId,
+    tenantName,
+    willRender: superAdmin && !!currentTenantId && !!tenantName
+  });
+
   const handleExitTenantView = () => {
     exitTenantView();
     sessionStorage.setItem('superadmin_active_tab', 'users');
