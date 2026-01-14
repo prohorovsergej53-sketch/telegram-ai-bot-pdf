@@ -110,7 +110,10 @@ def handler(event: dict, context) -> dict:
                 ai_model = ai_model.replace('openrouter-', '')
             elif ai_model in ['yandexgpt', 'yandexgpt-lite']:
                 ai_provider = 'yandex'
-            elif ai_model in ['deepseek-chat']:
+            elif ai_model in ['deepseek-chat', 'deepseek-r1', 'llama-3.1-8b', 'gemma-2-9b', 'qwen-2.5-7b', 
+                              'phi-3-medium', 'gpt-4o', 'gpt-4-turbo', 'claude-3.5-sonnet', 'claude-3-opus',
+                              'gemini-pro-1.5', 'llama-3.1-70b', 'mixtral-8x7b', 'claude-3-haiku', 
+                              'gpt-3.5-turbo', 'gemini-flash-1.5']:
                 ai_provider = 'openrouter'
             else:
                 ai_provider = settings.get('provider', 'yandex')
