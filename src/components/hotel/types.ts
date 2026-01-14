@@ -75,10 +75,16 @@ export const AI_MODELS_BY_PROVIDER: Record<string, ModelOption[]> = {
     { value: 'yandexgpt-lite', label: 'YandexGPT Lite', apiModel: 'yandexgpt-lite', price: '₽0.12 за 1000 токенов', category: 'Экономные' }
   ],
   openrouter: [
+    { value: 'llama-3.3-70b', label: 'Meta Llama 3.3 70B', apiModel: 'meta-llama/llama-3.3-70b-instruct:free', price: 'Бесплатно', category: '⚡ Бесплатные' },
+    { value: 'llama-3.1-405b', label: 'Meta Llama 3.1 405B', apiModel: 'meta-llama/llama-3.1-405b-instruct:free', price: 'Бесплатно', category: '⚡ Бесплатные' },
+    { value: 'llama-3.2-90b-vision', label: 'Meta Llama 3.2 90B Vision', apiModel: 'meta-llama/llama-3.2-90b-vision-instruct:free', price: 'Бесплатно', category: '⚡ Бесплатные' },
     { value: 'llama-3.1-8b', label: 'Meta Llama 3.1 8B', apiModel: 'meta-llama/llama-3.1-8b-instruct:free', price: 'Бесплатно', category: '⚡ Бесплатные' },
     { value: 'gemma-2-9b', label: 'Google Gemma 2 9B', apiModel: 'google/gemma-2-9b-it:free', price: 'Бесплатно', category: '⚡ Бесплатные' },
     { value: 'qwen-2.5-7b', label: 'Qwen 2.5 7B', apiModel: 'qwen/qwen-2.5-7b-instruct:free', price: 'Бесплатно', category: '⚡ Бесплатные' },
+    { value: 'qwen-2.5-72b', label: 'Qwen 2.5 72B', apiModel: 'qwen/qwen-2.5-72b-instruct:free', price: 'Бесплатно', category: '⚡ Бесплатные' },
     { value: 'phi-3-medium', label: 'Microsoft Phi-3 Medium', apiModel: 'microsoft/phi-3-medium-128k-instruct:free', price: 'Бесплатно', category: '⚡ Бесплатные' },
+    { value: 'mistral-7b', label: 'Mistral 7B', apiModel: 'mistralai/mistral-7b-instruct:free', price: 'Бесплатно', category: '⚡ Бесплатные' },
+    { value: 'mythomist-7b', label: 'MythoMist 7B', apiModel: 'gryphe/mythomist-7b:free', price: 'Бесплатно', category: '⚡ Бесплатные' },
     { value: 'deepseek-r1', label: 'DeepSeek R1 Distill 70B', apiModel: 'deepseek/deepseek-r1-distill-llama-70b', price: '$0.55/$2.19 за 1M', category: '💰 Дешевые' },
     
     { value: 'gpt-4o', label: 'GPT-4o', apiModel: 'openai/gpt-4o', price: '$2.50/$10.00 за 1M', category: '💎 Топовые' },

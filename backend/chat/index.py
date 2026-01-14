@@ -25,10 +25,16 @@ MODEL_API_NAMES = {
     'yandexgpt': 'yandexgpt',
     'yandexgpt-lite': 'yandexgpt-lite',
     # Бесплатные модели
+    'llama-3.3-70b': 'meta-llama/llama-3.3-70b-instruct:free',
+    'llama-3.1-405b': 'meta-llama/llama-3.1-405b-instruct:free',
+    'llama-3.2-90b-vision': 'meta-llama/llama-3.2-90b-vision-instruct:free',
     'llama-3.1-8b': 'meta-llama/llama-3.1-8b-instruct:free',
     'gemma-2-9b': 'google/gemma-2-9b-it:free',
     'qwen-2.5-7b': 'qwen/qwen-2.5-7b-instruct:free',
+    'qwen-2.5-72b': 'qwen/qwen-2.5-72b-instruct:free',
     'phi-3-medium': 'microsoft/phi-3-medium-128k-instruct:free',
+    'mistral-7b': 'mistralai/mistral-7b-instruct:free',
+    'mythomist-7b': 'gryphe/mythomist-7b:free',
     'deepseek-r1': 'deepseek/deepseek-r1-distill-llama-70b',
     # Топовые платные модели
     'gpt-4o': 'openai/gpt-4o',
@@ -110,9 +116,10 @@ def handler(event: dict, context) -> dict:
                 ai_model = ai_model.replace('openrouter-', '')
             elif ai_model in ['yandexgpt', 'yandexgpt-lite']:
                 ai_provider = 'yandex'
-            elif ai_model in ['deepseek-chat', 'deepseek-r1', 'llama-3.1-8b', 'gemma-2-9b', 'qwen-2.5-7b', 
-                              'phi-3-medium', 'gpt-4o', 'gpt-4-turbo', 'claude-3.5-sonnet', 'claude-3-opus',
-                              'gemini-pro-1.5', 'llama-3.1-70b', 'mixtral-8x7b', 'claude-3-haiku', 
+            elif ai_model in ['deepseek-chat', 'deepseek-r1', 'llama-3.3-70b', 'llama-3.1-405b', 'llama-3.2-90b-vision',
+                              'llama-3.1-8b', 'gemma-2-9b', 'qwen-2.5-7b', 'qwen-2.5-72b', 'phi-3-medium', 
+                              'mistral-7b', 'mythomist-7b', 'gpt-4o', 'gpt-4-turbo', 'claude-3.5-sonnet', 
+                              'claude-3-opus', 'gemini-pro-1.5', 'llama-3.1-70b', 'mixtral-8x7b', 'claude-3-haiku', 
                               'gpt-3.5-turbo', 'gemini-flash-1.5']:
                 ai_provider = 'openrouter'
             else:
