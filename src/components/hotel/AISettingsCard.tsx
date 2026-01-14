@@ -13,12 +13,22 @@ interface APIConnectionStatus {
   error?: string;
 }
 
+interface JinaUsageInfo {
+  connected: boolean;
+  status: string;
+  remaining_tokens?: number;
+  total_tokens?: number;
+  error?: string;
+}
+
 const AISettingsCard = () => {
   const [apiKey, setApiKey] = useState('');
   const [folderId, setFolderId] = useState('');
   const [isConnecting, setIsConnecting] = useState(false);
   const [isCheckingStatus, setIsCheckingStatus] = useState(false);
+  const [isCheckingJina, setIsCheckingJina] = useState(false);
   const [apiStatus, setApiStatus] = useState<APIConnectionStatus | null>(null);
+  const [jinaUsage, setJinaUsage] = useState<JinaUsageInfo | null>(null);
   const [connectionStatus, setConnectionStatus] = useState<'not_set' | 'active' | 'error'>('not_set');
   const { toast } = useToast();
 
@@ -128,6 +138,28 @@ const AISettingsCard = () => {
       });
     } finally {
       setIsCheckingStatus(false);
+    }
+  };
+
+  const checkJinaUsage = async () => {
+    setIsCheckingJina(true);
+    try {
+      const response = await fetch(BACKEND_URLS.checkJinaUsage, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' }
+      });
+
+      const data = await response.json();
+      setJinaUsage(data);
+    } catch (error) {
+      console.error('Error checking Jina usage:', error);
+      setJinaUsage({
+        connected: false,
+        status: 'error',
+        error: 'Не удалось проверить статистику'
+      });
+    } finally {
+      setIsCheckingJina(false);
     }
   };
 
@@ -261,6 +293,142 @@ const AISettingsCard = () => {
                   Ошибка: {apiStatus.error}
                 </p>
               )}
+            </div>
+          )}
+        </div>
+
+        <div className="border-t pt-6">
+          <div className="flex items-center justify-between mb-4">
+            <h4 className="text-sm font-medium text-slate-700">Статистика Jina AI</h4>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={checkJinaUsage}
+              disabled={isCheckingJina}
+            >
+              {isCheckingJina ? (
+                <>
+                  <Icon name="Loader2" size={14} className="mr-2 animate-spin" />
+                  Загрузка...
+                </>
+              ) : (
+                <>
+                  <Icon name="RefreshCw" size={14} className="mr-2" />
+                  Проверить остаток
+                </>
+              )}
+            </Button>
+          </div>
+
+          {jinaUsage && (
+            <div
+              className={`p-4 rounded-lg ${
+                jinaUsage.connected && jinaUsage.status === 'active' 
+                  ? 'bg-green-50 border border-green-200' 
+                  : jinaUsage.status === 'rate_limited'
+                  ? 'bg-orange-50 border border-orange-200'
+                  : 'bg-red-50 border border-red-200'
+              }`}
+            >
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <Icon
+                    name={
+                      jinaUsage.connected && jinaUsage.status === 'active' 
+                        ? 'CheckCircle' 
+                        : jinaUsage.status === 'rate_limited'
+                        ? 'AlertCircle'
+                        : 'XCircle'
+                    }
+                    size={20}
+                    className={
+                      jinaUsage.connected && jinaUsage.status === 'active'
+                        ? 'text-green-600'
+                        : jinaUsage.status === 'rate_limited'
+                        ? 'text-orange-600'
+                        : 'text-red-600'
+                    }
+                  />
+                  <span className="text-sm font-semibold text-slate-900">
+                    Jina AI Embeddings
+                  </span>
+                </div>
+                <span className={`text-xs px-2 py-1 rounded-full font-medium ${
+                  jinaUsage.connected && jinaUsage.status === 'active'
+                    ? 'bg-green-100 text-green-700'
+                    : jinaUsage.status === 'rate_limited'
+                    ? 'bg-orange-100 text-orange-700'
+                    : 'bg-red-100 text-red-700'
+                }`}>
+                  {jinaUsage.status === 'active' ? 'Активен' : 
+                   jinaUsage.status === 'rate_limited' ? 'Лимит превышен' :
+                   jinaUsage.status === 'invalid_key' ? 'Неверный ключ' : 'Ошибка'}
+                </span>
+              </div>
+
+              {jinaUsage.remaining_tokens !== undefined && (
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-slate-600">Остаток токенов:</span>
+                    <span className="font-bold text-slate-900">
+                      {jinaUsage.remaining_tokens.toLocaleString('ru-RU')}
+                    </span>
+                  </div>
+                  {jinaUsage.total_tokens !== undefined && (
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-slate-600">Общий лимит:</span>
+                      <span className="font-semibold text-slate-700">
+                        {jinaUsage.total_tokens.toLocaleString('ru-RU')}
+                      </span>
+                    </div>
+                  )}
+                  {jinaUsage.total_tokens && jinaUsage.remaining_tokens !== undefined && (
+                    <div className="mt-2">
+                      <div className="flex justify-between text-xs text-slate-600 mb-1">
+                        <span>Использовано</span>
+                        <span>
+                          {Math.round(((jinaUsage.total_tokens - jinaUsage.remaining_tokens) / jinaUsage.total_tokens) * 100)}%
+                        </span>
+                      </div>
+                      <div className="w-full bg-slate-200 rounded-full h-2">
+                        <div
+                          className="bg-blue-600 h-2 rounded-full transition-all"
+                          style={{
+                            width: `${Math.min(100, ((jinaUsage.total_tokens - jinaUsage.remaining_tokens) / jinaUsage.total_tokens) * 100)}%`
+                          }}
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {jinaUsage.error && (
+                <p className="text-xs text-red-700 mt-2">
+                  {jinaUsage.error}
+                </p>
+              )}
+
+              {jinaUsage.connected && jinaUsage.status === 'active' && !jinaUsage.remaining_tokens && (
+                <p className="text-xs text-slate-600 mt-2">
+                  API работает корректно. Информация о лимитах недоступна через API.
+                </p>
+              )}
+
+              <div className="mt-3 pt-3 border-t border-slate-200">
+                <p className="text-xs text-slate-600">
+                  <Icon name="Info" size={12} className="inline mr-1" />
+                  Jina AI используется для всех бесплатных моделей OpenRouter (768D)
+                </p>
+              </div>
+            </div>
+          )}
+
+          {!jinaUsage && (
+            <div className="bg-slate-50 border border-slate-200 rounded-lg p-4">
+              <p className="text-sm text-slate-600 text-center">
+                Нажмите "Проверить остаток" для просмотра статистики
+              </p>
             </div>
           )}
         </div>
