@@ -450,6 +450,7 @@ const Index = () => {
             onFileUpload={handleFileUpload}
             onDeleteDocument={handleDeleteDocument}
             currentTenantId={currentTenantId}
+            tenantName={pageSettings?.header_title || ''}
           />
         )}
 

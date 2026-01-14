@@ -1,0 +1,18 @@
+{
+  "tests": [
+    {
+      "name": "Update tenant slug",
+      "method": "POST",
+      "body": {
+        "tenant_id": 777,
+        "slug": "sales-bot-updated"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true,
+        "slug": "string"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

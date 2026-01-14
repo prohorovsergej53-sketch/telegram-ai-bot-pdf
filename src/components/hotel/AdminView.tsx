@@ -11,11 +11,12 @@ import SubscriptionWidget from './SubscriptionWidget';
 import MessengerAutoMessages from './MessengerAutoMessages';
 import AdminHeader from './AdminHeader';
 import UpgradeCard from './UpgradeCard';
+import TenantUrlEditor from './TenantUrlEditor';
 import { DocumentStatsCards } from './DocumentStatsCards';
 import { DocumentsPanel } from './DocumentsPanel';
 import { Document, BACKEND_URLS } from './types';
 import { getTenantId, getTariffId, isSuperAdmin, getAdminUser, exitTenantView } from '@/lib/auth';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { hasFeatureAccess } from '@/lib/tariff-limits';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Icon from '@/components/ui/icon';
@@ -26,16 +27,19 @@ interface AdminViewProps {
   onFileUpload: (event: React.ChangeEvent<HTMLInputElement>) => void;
   onDeleteDocument: (documentId: number) => void;
   currentTenantId: number | null;
+  tenantName?: string;
 }
 
-const AdminView = ({ documents, isLoading, onFileUpload, onDeleteDocument, currentTenantId }: AdminViewProps) => {
+const AdminView = ({ documents, isLoading, onFileUpload, onDeleteDocument, currentTenantId, tenantName }: AdminViewProps) => {
   const navigate = useNavigate();
+  const { tenantSlug } = useParams<{ tenantSlug: string }>();
   const tenantId = getTenantId();
   const tariffId = getTariffId();
   const superAdmin = isSuperAdmin();
   const currentUser = getAdminUser();
   const isViewingOtherTenant = sessionStorage.getItem('superadmin_viewing_tenant') === 'true';
   const [activeTab, setActiveTab] = useState('documents');
+  const [currentSlug, setCurrentSlug] = useState(tenantSlug || '');
 
   const handleExitTenantView = () => {
     exitTenantView();
@@ -139,10 +143,20 @@ const AdminView = ({ documents, isLoading, onFileUpload, onDeleteDocument, curre
                 updateSettingsUrl={BACKEND_URLS.updateAiSettings}
               />
               {superAdmin && (
-                <AiSettingsCard
-                  currentTenantId={currentTenantId}
-                  isSuperAdmin={superAdmin}
-                />
+                <>
+                  <AiSettingsCard
+                    currentTenantId={currentTenantId}
+                    isSuperAdmin={superAdmin}
+                  />
+                  {currentTenantId && currentSlug && tenantName && (
+                    <TenantUrlEditor
+                      tenantId={currentTenantId}
+                      currentSlug={currentSlug}
+                      tenantName={tenantName}
+                      onSlugUpdated={(newSlug) => setCurrentSlug(newSlug)}
+                    />
+                  )}
+                </>
               )}
             </div>
           ) : (
