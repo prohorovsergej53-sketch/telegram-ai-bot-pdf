@@ -12,7 +12,12 @@ import { ChatSettingsSection } from './ChatSettingsSection';
 import { ContactsSettingsSection } from './ContactsSettingsSection';
 import { QuickQuestionsSection } from './QuickQuestionsSection';
 
-const PageSettingsCard = () => {
+interface PageSettingsCardProps {
+  currentTenantId?: number | null;
+  currentTenantName?: string | null;
+}
+
+const PageSettingsCard = ({ currentTenantId, currentTenantName }: PageSettingsCardProps) => {
   const [settings, setSettings] = useState<PageSettings>({
     header_icon: 'MessageSquare',
     header_title: 'AI-консультант',
@@ -31,6 +36,7 @@ const PageSettingsCard = () => {
     footer_link: 'https://max.im/+79787236035',
     input_placeholder: 'Задайте вопрос...'
   });
+  const [botName, setBotName] = useState<string>(currentTenantName || '');
 
   const [quickQuestions, setQuickQuestions] = useState<QuickQuestion[]>([
     { text: 'Услуги', question: 'Какие услуги вы предоставляете?', icon: 'Sparkles' },
@@ -48,7 +54,7 @@ const PageSettingsCard = () => {
 
   const loadSettings = async () => {
     try {
-      const tenantId = getTenantId();
+      const tenantId = currentTenantId !== null && currentTenantId !== undefined ? currentTenantId : getTenantId();
       const url = tenantId ? `${BACKEND_URLS.getPageSettings}?tenant_id=${tenantId}` : BACKEND_URLS.getPageSettings;
       const response = await authenticatedFetch(url);
       const data = await response.json();
@@ -58,6 +64,9 @@ const PageSettingsCard = () => {
       if (data.quickQuestions) {
         setQuickQuestions(data.quickQuestions);
       }
+      if (data.botName) {
+        setBotName(data.botName);
+      }
     } catch (error) {
       console.error('Error loading page settings:', error);
     }
@@ -66,11 +75,11 @@ const PageSettingsCard = () => {
   const handleSaveSettings = async () => {
     setIsLoading(true);
     try {
-      const tenantId = getTenantId();
+      const tenantId = currentTenantId !== null && currentTenantId !== undefined ? currentTenantId : getTenantId();
       const response = await authenticatedFetch(BACKEND_URLS.updatePageSettings, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ settings, quickQuestions, tenant_id: tenantId })
+        body: JSON.stringify({ settings, quickQuestions, botName, tenant_id: tenantId })
       });
 
       const data = await response.json();
@@ -144,6 +153,18 @@ const PageSettingsCard = () => {
       </CardHeader>
       <CardContent className="pt-6 space-y-6">
         <div className="space-y-4">
+          <div className="pb-4 border-b">
+            <Label htmlFor="bot_name" className="text-base font-semibold">Название бота</Label>
+            <p className="text-sm text-muted-foreground mb-3">Внутреннее название для администрирования</p>
+            <Input
+              id="bot_name"
+              value={botName}
+              onChange={(e) => setBotName(e.target.value)}
+              placeholder="Мой бот"
+              className="max-w-md"
+            />
+          </div>
+
           <HeaderSettingsSection
             settings={settings}
             onSettingsChange={setSettings}

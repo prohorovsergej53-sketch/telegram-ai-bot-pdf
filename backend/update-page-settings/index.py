@@ -36,6 +36,7 @@ def handler(event: dict, context) -> dict:
         body = json.loads(event.get('body', '{}'))
         settings = body.get('settings', {})
         quick_questions = body.get('quickQuestions', [])
+        bot_name = body.get('botName', '')
 
         conn = psycopg2.connect(os.environ['DATABASE_URL'])
         cur = conn.cursor()
@@ -48,6 +49,15 @@ def handler(event: dict, context) -> dict:
                 updated_at = CURRENT_TIMESTAMP
             WHERE tenant_id = %s
         """, (settings_json, tenant_id))
+
+        # Обновляем название бота в таблице tenants
+        if bot_name:
+            cur.execute("""
+                UPDATE t_p56134400_telegram_ai_bot_pdf.tenants
+                SET name = %s,
+                    updated_at = CURRENT_TIMESTAMP
+                WHERE id = %s
+            """, (bot_name, tenant_id))
 
         # Обновляем quick_questions (пока оставляем в отдельной таблице)
         cur.execute("DELETE FROM t_p56134400_telegram_ai_bot_pdf.quick_questions")

@@ -48,6 +48,15 @@ def handler(event: dict, context) -> dict:
         if row and row[1]:
             settings['public_description'] = row[1]
 
+        # Получаем название бота из таблицы tenants
+        cur.execute("""
+            SELECT name
+            FROM t_p56134400_telegram_ai_bot_pdf.tenants
+            WHERE id = %s
+        """, (tenant_id,))
+        tenant_row = cur.fetchone()
+        bot_name = tenant_row[0] if tenant_row else ''
+
         cur.execute("""
             SELECT id, text, question, icon, sort_order
             FROM t_p56134400_telegram_ai_bot_pdf.quick_questions
@@ -73,7 +82,8 @@ def handler(event: dict, context) -> dict:
             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
             'body': json.dumps({
                 'settings': settings,
-                'quickQuestions': quick_questions
+                'quickQuestions': quick_questions,
+                'botName': bot_name
             }),
             'isBase64Encoded': False
         }

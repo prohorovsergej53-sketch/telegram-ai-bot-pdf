@@ -180,8 +180,8 @@ const AdminView = ({ documents, isLoading, onFileUpload, onDeleteDocument, curre
         <TabsContent value="page" className="space-y-6">
           {(superAdmin || hasFeatureAccess('hasPageSettings', tariffId)) ? (
             <PageSettingsCard
-              getSettingsUrl={BACKEND_URLS.getPageSettings}
-              updateSettingsUrl={BACKEND_URLS.updatePageSettings}
+              currentTenantId={currentTenantId}
+              currentTenantName={tenantName || null}
             />
           ) : (
             <UpgradeCard feature="Настройки страницы" />
