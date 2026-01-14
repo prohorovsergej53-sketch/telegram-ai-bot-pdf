@@ -296,15 +296,15 @@ const AiSettingsCard = ({ currentTenantId, isSuperAdmin = false }: AiSettingsCar
               )}
             </div>
 
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+            <div className="bg-slate-50/30 border border-slate-200/50 rounded-lg p-3">
               <div className="flex items-start gap-2">
-                <Icon name="Database" size={16} className="text-blue-600 mt-0.5" />
-                <div className="text-xs text-blue-900">
+                <Icon name="Database" size={16} className="text-slate-500 mt-0.5" />
+                <div className="text-xs text-slate-700">
                   <p className="font-semibold mb-1">Эмбеддинги (не изменяются):</p>
                   <div className="bg-white/60 rounded p-2 space-y-1">
                     <p><strong>Провайдер:</strong> {EMBEDDING_CONFIG.provider === 'yandex' ? 'Yandex' : EMBEDDING_CONFIG.provider}</p>
                     <p><strong>Размерность:</strong> {EMBEDDING_CONFIG.dimension}D</p>
-                    <p className="font-mono text-[10px] text-blue-700">
+                    <p className="font-mono text-[10px] text-slate-600">
                       doc: {EMBEDDING_CONFIG.models.doc}<br/>
                       query: {EMBEDDING_CONFIG.models.query}
                     </p>
