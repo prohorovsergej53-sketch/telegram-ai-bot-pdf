@@ -109,6 +109,17 @@ export const AI_MODELS = [
       query: 'jina-embeddings-v2-base-en'
     },
     routerModel: 'microsoft/phi-3-medium-128k-instruct:free'
+  },
+  { 
+    value: 'openrouter-deepseek-r1', 
+    label: 'DeepSeek R1 (Free)', 
+    embeddingDim: 768,
+    embeddingProvider: 'jinaai',
+    embeddingModels: {
+      doc: 'jina-embeddings-v2-base-en',
+      query: 'jina-embeddings-v2-base-en'
+    },
+    routerModel: 'deepseek/deepseek-r1:free'
   }
 ] as const;
 
@@ -153,6 +164,15 @@ export const DEFAULT_AI_SETTINGS: Record<string, AiModelSettings> = {
   },
   'openrouter-phi-3-medium': {
     model: 'openrouter-phi-3-medium',
+    temperature: 0.3,
+    top_p: 1.0,
+    frequency_penalty: 0,
+    presence_penalty: 0,
+    max_tokens: 600,
+    system_prompt: ''
+  },
+  'openrouter-deepseek-r1': {
+    model: 'openrouter-deepseek-r1',
     temperature: 0.3,
     top_p: 1.0,
     frequency_penalty: 0,

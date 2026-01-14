@@ -37,6 +37,12 @@ def get_embedding_config(model: str) -> dict:
             'doc_model': 'jina-embeddings-v2-base-en',
             'query_model': 'jina-embeddings-v2-base-en',
             'dimension': 768
+        },
+        'openrouter-deepseek-r1': {
+            'provider': 'jinaai',
+            'doc_model': 'jina-embeddings-v2-base-en',
+            'query_model': 'jina-embeddings-v2-base-en',
+            'dimension': 768
         }
     }
     return configs.get(model, configs['yandexgpt'])
