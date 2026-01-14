@@ -88,7 +88,23 @@ const AiSettingsCard = ({ currentTenantId, isSuperAdmin = false }: AiSettingsCar
       const response = await authenticatedFetch(url);
       const data = await response.json();
       if (data.settings) {
-        setSettings(data.settings);
+        const loadedSettings = { ...data.settings };
+        
+        // Миграция старых настроек: если provider пустой, определяем его по модели
+        if (!loadedSettings.provider && loadedSettings.model) {
+          const model = loadedSettings.model;
+          if (model === 'yandexgpt' || model === 'yandexgpt-lite') {
+            loadedSettings.provider = 'yandex';
+          } else if (model.startsWith('openrouter-')) {
+            loadedSettings.provider = 'openrouter';
+            loadedSettings.model = model.replace('openrouter-', '');
+          } else {
+            // Все остальные модели из нового списка - это OpenRouter
+            loadedSettings.provider = 'openrouter';
+          }
+        }
+        
+        setSettings(loadedSettings);
         setConfigStatus('active');
       }
     } catch (error) {
@@ -214,7 +230,9 @@ const AiSettingsCard = ({ currentTenantId, isSuperAdmin = false }: AiSettingsCar
               <Label>Провайдер AI</Label>
               <Select value={settings.provider} onValueChange={handleProviderChange}>
                 <SelectTrigger>
-                  <SelectValue />
+                  <SelectValue placeholder="Выберите провайдера">
+                    {providerLabel || settings.provider}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   {AI_PROVIDERS.map((provider) => {
@@ -238,7 +256,9 @@ const AiSettingsCard = ({ currentTenantId, isSuperAdmin = false }: AiSettingsCar
               <Label>Модель</Label>
               <Select value={settings.model} onValueChange={handleModelChange}>
                 <SelectTrigger>
-                  <SelectValue />
+                  <SelectValue placeholder="Выберите модель">
+                    {modelLabel || settings.model}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent className="max-h-[400px]">
                   {currentModels.map((model, index) => {
