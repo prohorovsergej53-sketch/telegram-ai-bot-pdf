@@ -56,8 +56,9 @@ export interface AiModelSettings {
 }
 
 export const AI_MODELS = [
-  { value: 'yandexgpt', label: 'YandexGPT' },
-  { value: 'openai', label: 'OpenAI GPT-4' }
+  { value: 'yandexgpt', label: 'YandexGPT', embeddingDim: 256 },
+  { value: 'openai', label: 'OpenAI GPT-4', embeddingDim: 1536 },
+  { value: 'openrouter', label: 'OpenRouter (Multi-Model)', embeddingDim: 1536 }
 ] as const;
 
 export const DEFAULT_AI_SETTINGS: Record<string, AiModelSettings> = {
@@ -74,6 +75,15 @@ export const DEFAULT_AI_SETTINGS: Record<string, AiModelSettings> = {
   },
   openai: {
     model: 'openai',
+    temperature: 0.2,
+    top_p: 1.0,
+    frequency_penalty: 0,
+    presence_penalty: 0,
+    max_tokens: 600,
+    system_prompt: ''
+  },
+  openrouter: {
+    model: 'openrouter',
     temperature: 0.2,
     top_p: 1.0,
     frequency_penalty: 0,
@@ -101,8 +111,6 @@ export const BACKEND_URLS = {
   getWidgetSettings: 'https://functions.poehali.dev/7ca040c5-91c5-403c-9d60-baa0f7e390a0',
   updateWidgetSettings: 'https://functions.poehali.dev/0cf37b7e-c359-4a9f-8e34-8f0ca8b69efb',
   getQualityGateStats: 'https://functions.poehali.dev/398c246e-01fc-4a9c-9206-995f7881960a',
-  yookassaCreatePayment: 'https://functions.poehali.dev/f4c127b8-2009-4d9b-b026-9fdf933b8b3a',
-  yookassaWebhook: 'https://functions.poehali.dev/381d4828-88a8-44e7-a8d2-ef49c1ce8ab6',
   messengerSettings: 'https://functions.poehali.dev/0993895c-dede-469e-94f6-18c2829df143',
   tariffManagement: 'https://functions.poehali.dev/9aaca202-0192-4234-9f65-591df1552960',
   yandexApiValidation: 'https://functions.poehali.dev/d7cc5843-8cc2-4c50-a819-04b1b43b744d',

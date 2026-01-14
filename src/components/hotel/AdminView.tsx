@@ -186,7 +186,7 @@ const AdminView = ({ documents, isLoading, onFileUpload, onDeleteDocument, curre
                 updateSettingsUrl={BACKEND_URLS.updateAiSettings}
               />
               {superAdmin && (
-                <AiSettingsCard currentTenantId={currentTenantId} />
+                <AiSettingsCard currentTenantId={currentTenantId} isSuperAdmin={true} />
               )}
             </div>
           ) : (

@@ -13,9 +13,10 @@ import { authenticatedFetch, getTenantId } from '@/lib/auth';
 
 interface AiSettingsCardProps {
   currentTenantId?: number | null;
+  isSuperAdmin?: boolean;
 }
 
-const AiSettingsCard = ({ currentTenantId }: AiSettingsCardProps) => {
+const AiSettingsCard = ({ currentTenantId, isSuperAdmin = false }: AiSettingsCardProps) => {
   const [selectedModel, setSelectedModel] = useState<string>('yandexgpt');
   const [settings, setSettings] = useState<AiModelSettings>(DEFAULT_AI_SETTINGS.yandexgpt);
   const [selectedPreset, setSelectedPreset] = useState<string>('');
@@ -69,10 +70,23 @@ const AiSettingsCard = ({ currentTenantId }: AiSettingsCardProps) => {
     }
   };
 
-  const handleModelChange = (model: string) => {
+  const handleModelChange = async (model: string) => {
+    const oldModel = selectedModel;
+    const oldEmbeddingDim = AI_MODELS.find(m => m.value === oldModel)?.embeddingDim;
+    const newEmbeddingDim = AI_MODELS.find(m => m.value === model)?.embeddingDim;
+    
     setSelectedModel(model);
     setSettings(DEFAULT_AI_SETTINGS[model as keyof typeof DEFAULT_AI_SETTINGS]);
     setSelectedPreset('');
+    
+    // Если размерность эмбеддингов изменилась - нужна ревекторизация
+    if (oldEmbeddingDim !== newEmbeddingDim) {
+      toast({
+        title: 'Изменение модели',
+        description: `Модель изменена с ${oldModel} (${oldEmbeddingDim}D) на ${model} (${newEmbeddingDim}D). При сохранении документы будут автоматически ревекторизованы.`,
+        duration: 8000
+      });
+    }
   };
 
   const handlePresetChange = (presetId: string) => {
@@ -152,21 +166,43 @@ const AiSettingsCard = ({ currentTenantId }: AiSettingsCardProps) => {
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
-        <div className="space-y-2">
-          <Label>Модель</Label>
-          <Select value={selectedModel} onValueChange={handleModelChange}>
-            <SelectTrigger>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {AI_MODELS.map((model) => (
-                <SelectItem key={model.value} value={model.value}>
-                  {model.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+        {isSuperAdmin ? (
+          <div className="space-y-2">
+            <Label>Модель AI</Label>
+            <Select value={selectedModel} onValueChange={handleModelChange}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {AI_MODELS.map((model) => (
+                  <SelectItem key={model.value} value={model.value}>
+                    <div className="flex items-center justify-between w-full">
+                      <span>{model.label}</span>
+                      <span className="text-xs text-slate-500 ml-2">({model.embeddingDim}D)</span>
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <p className="text-xs text-amber-600">
+              <Icon name="AlertTriangle" size={12} className="inline mr-1" />
+              При смене модели все документы будут автоматически ревекторизованы
+            </p>
+          </div>
+        ) : (
+          <div className="bg-slate-50 border border-slate-200 rounded-lg p-4">
+            <div className="flex items-center gap-2 mb-1">
+              <Icon name="Brain" size={16} className="text-slate-600" />
+              <Label className="text-slate-700">Текущая модель</Label>
+            </div>
+            <p className="text-lg font-semibold text-slate-900">
+              {AI_MODELS.find(m => m.value === selectedModel)?.label || selectedModel}
+            </p>
+            <p className="text-xs text-slate-500 mt-1">
+              Изменение модели доступно только суперадмину
+            </p>
+          </div>
+        )}
 
         {currentPresets.length > 0 && (
           <div className="space-y-2">
