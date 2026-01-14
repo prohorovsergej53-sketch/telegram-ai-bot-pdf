@@ -10,6 +10,7 @@ import Icon from '@/components/ui/icon';
 import { AI_PRESETS } from './AiSettingsPresets';
 import AiSettingsSliders from './AiSettingsSliders';
 import { authenticatedFetch, getTenantId } from '@/lib/auth';
+import RevectorizationProgress from './RevectorizationProgress';
 
 interface AiSettingsCardProps {
   currentTenantId?: number | null;
@@ -22,6 +23,7 @@ const AiSettingsCard = ({ currentTenantId, isSuperAdmin = false }: AiSettingsCar
   const [selectedPreset, setSelectedPreset] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
   const [configStatus, setConfigStatus] = useState<'not_set' | 'active' | 'error'>('not_set');
+  const [showRevectorization, setShowRevectorization] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -114,10 +116,16 @@ const AiSettingsCard = ({ currentTenantId, isSuperAdmin = false }: AiSettingsCar
     setIsLoading(true);
     try {
       const tenantId = currentTenantId !== null && currentTenantId !== undefined ? currentTenantId : getTenantId();
-      console.log('[AiSettingsCard] Save: currentTenantId=', currentTenantId, 'getTenantId()=', getTenantId(), 'final tenantId=', tenantId);
-      const url = tenantId !== null && tenantId !== undefined ? `${BACKEND_URLS.updateAiSettings}?tenant_id=${tenantId}` : BACKEND_URLS.updateAiSettings;
-      console.log('[AiSettingsCard] Saving to URL:', url);
-      const response = await authenticatedFetch(url, {
+      
+      // Загрузить старые настройки чтобы сравнить модель
+      const getUrl = tenantId !== null && tenantId !== undefined ? `${BACKEND_URLS.getAiSettings}?tenant_id=${tenantId}` : BACKEND_URLS.getAiSettings;
+      const getResponse = await authenticatedFetch(getUrl);
+      const oldData = await getResponse.json();
+      const oldModel = oldData.settings?.model || 'yandexgpt';
+      
+      // Сохранить новые настройки
+      const updateUrl = tenantId !== null && tenantId !== undefined ? `${BACKEND_URLS.updateAiSettings}?tenant_id=${tenantId}` : BACKEND_URLS.updateAiSettings;
+      const response = await authenticatedFetch(updateUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ settings })
@@ -127,10 +135,36 @@ const AiSettingsCard = ({ currentTenantId, isSuperAdmin = false }: AiSettingsCar
 
       if (response.ok) {
         setConfigStatus('active');
-        toast({
-          title: 'Сохранено!',
-          description: 'Настройки AI обновлены'
-        });
+        
+        // Проверить нужна ли ревекторизация
+        const oldModelInfo = AI_MODELS.find(m => m.value === oldModel);
+        const newModelInfo = AI_MODELS.find(m => m.value === selectedModel);
+        
+        if (oldModelInfo && newModelInfo && oldModelInfo.embeddingDim !== newModelInfo.embeddingDim) {
+          // Запустить ревекторизацию
+          const revectorizeUrl = tenantId !== null && tenantId !== undefined 
+            ? `${BACKEND_URLS.revectorizeDocuments}?tenant_id=${tenantId}` 
+            : BACKEND_URLS.revectorizeDocuments;
+          
+          await authenticatedFetch(revectorizeUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ model: selectedModel })
+          });
+          
+          setShowRevectorization(true);
+          
+          toast({
+            title: 'Сохранено! Запущена ревекторизация',
+            description: `Модель изменена. Документы обрабатываются с новыми embeddings (${newModelInfo.embeddingDim}D)`,
+            duration: 10000
+          });
+        } else {
+          toast({
+            title: 'Сохранено!',
+            description: 'Настройки AI обновлены'
+          });
+        }
       } else {
         setConfigStatus('error');
         throw new Error(data.error);
@@ -284,6 +318,13 @@ const AiSettingsCard = ({ currentTenantId, isSuperAdmin = false }: AiSettingsCar
               Настройки отличаются от рекомендованных
             </p>
           </div>
+        )}
+
+        {showRevectorization && (
+          <RevectorizationProgress 
+            currentTenantId={currentTenantId}
+            onComplete={() => setShowRevectorization(false)}
+          />
         )}
       </CardContent>
     </Card>

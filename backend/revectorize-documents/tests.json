@@ -1,0 +1,37 @@
+{
+  "tests": [
+    {
+      "name": "Get revectorization status",
+      "method": "GET",
+      "path": "/",
+      "headers": {
+        "Authorization": "Bearer test-token"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "status": "string",
+        "progress": "number",
+        "total": "number"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Start revectorization",
+      "method": "POST",
+      "path": "/",
+      "headers": {
+        "Authorization": "Bearer test-token",
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "model": "openai"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "status": "string",
+        "total": "number"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

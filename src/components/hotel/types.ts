@@ -56,9 +56,36 @@ export interface AiModelSettings {
 }
 
 export const AI_MODELS = [
-  { value: 'yandexgpt', label: 'YandexGPT', embeddingDim: 256 },
-  { value: 'openai', label: 'OpenAI GPT-4', embeddingDim: 1536 },
-  { value: 'openrouter', label: 'OpenRouter (Multi-Model)', embeddingDim: 1536 }
+  { 
+    value: 'yandexgpt', 
+    label: 'YandexGPT', 
+    embeddingDim: 256,
+    embeddingProvider: 'yandex',
+    embeddingModels: {
+      doc: 'text-search-doc/latest',
+      query: 'text-search-query/latest'
+    }
+  },
+  { 
+    value: 'openai', 
+    label: 'OpenAI GPT-4', 
+    embeddingDim: 1536,
+    embeddingProvider: 'openai',
+    embeddingModels: {
+      doc: 'text-embedding-3-small',
+      query: 'text-embedding-3-small'
+    }
+  },
+  { 
+    value: 'openrouter', 
+    label: 'OpenRouter (Multi-Model)', 
+    embeddingDim: 1536,
+    embeddingProvider: 'openai',
+    embeddingModels: {
+      doc: 'text-embedding-3-small',
+      query: 'text-embedding-3-small'
+    }
+  }
 ] as const;
 
 export const DEFAULT_AI_SETTINGS: Record<string, AiModelSettings> = {
@@ -115,7 +142,8 @@ export const BACKEND_URLS = {
   tariffManagement: 'https://functions.poehali.dev/9aaca202-0192-4234-9f65-591df1552960',
   yandexApiValidation: 'https://functions.poehali.dev/d7cc5843-8cc2-4c50-a819-04b1b43b744d',
   manageApiKeys: 'https://functions.poehali.dev/335a37e0-231e-4ba0-adf3-94f610d1c449',
-  messengerAutoMessages: 'https://functions.poehali.dev/a5c44dff-b325-43e4-9c89-020d5c116178'
+  messengerAutoMessages: 'https://functions.poehali.dev/a5c44dff-b325-43e4-9c89-020d5c116178',
+  revectorizeDocuments: 'https://functions.poehali.dev/2d832170-52ac-4e8c-957a-610cd1ec8795'
 };
 
 export const quickQuestions = [
