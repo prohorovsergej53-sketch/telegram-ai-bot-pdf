@@ -241,28 +241,28 @@ const AiSettingsCard = ({ currentTenantId, isSuperAdmin = false }: AiSettingsCar
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent className="max-h-[400px]">
-                  {(() => {
-                    const categories = Array.from(new Set(currentModels.map(m => m.category || 'Другие')));
-                    return categories.map((category) => (
-                      <div key={category}>
-                        <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground bg-muted/50">
-                          {category}
-                        </div>
-                        {currentModels
-                          .filter(m => (m.category || 'Другие') === category)
-                          .map((model) => (
-                            <SelectItem key={model.value} value={model.value}>
-                              <div className="flex flex-col py-1">
-                                <span>{model.label}</span>
-                                {model.price && (
-                                  <span className="text-xs text-muted-foreground">{model.price}</span>
-                                )}
-                              </div>
-                            </SelectItem>
-                          ))}
+                  {currentModels.map((model, index) => {
+                    const prevModel = index > 0 ? currentModels[index - 1] : null;
+                    const showCategoryHeader = !prevModel || prevModel.category !== model.category;
+                    
+                    return (
+                      <div key={model.value}>
+                        {showCategoryHeader && model.category && (
+                          <div className="px-2 py-1.5 text-xs font-semibold text-primary">
+                            {model.category}
+                          </div>
+                        )}
+                        <SelectItem value={model.value}>
+                          <div className="flex flex-col py-0.5">
+                            <span>{model.label}</span>
+                            {model.price && (
+                              <span className="text-xs text-muted-foreground">{model.price}</span>
+                            )}
+                          </div>
+                        </SelectItem>
                       </div>
-                    ));
-                  })()}
+                    );
+                  })}
                 </SelectContent>
               </Select>
               {settings.provider === 'openrouter' && (
