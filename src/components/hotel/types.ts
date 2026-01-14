@@ -205,8 +205,7 @@ export const BACKEND_URLS = {
   yandexApiValidation: 'https://functions.poehali.dev/d7cc5843-8cc2-4c50-a819-04b1b43b744d',
   manageApiKeys: 'https://functions.poehali.dev/335a37e0-231e-4ba0-adf3-94f610d1c449',
   messengerAutoMessages: 'https://functions.poehali.dev/a5c44dff-b325-43e4-9c89-020d5c116178',
-  revectorizeDocuments: 'https://functions.poehali.dev/2d832170-52ac-4e8c-957a-610cd1ec8795',
-  checkJinaUsage: 'https://functions.poehali.dev/a531ae47-0841-419d-b681-dfcb2d83d095'
+  revectorizeDocuments: 'https://functions.poehali.dev/2d832170-52ac-4e8c-957a-610cd1ec8795'
 };
 
 export const quickQuestions = [

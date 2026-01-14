@@ -10,7 +10,7 @@ import Icon from '@/components/ui/icon';
 import { AI_PRESETS } from './AiSettingsPresets';
 import AiSettingsSliders from './AiSettingsSliders';
 import { authenticatedFetch, getTenantId } from '@/lib/auth';
-import RevectorizationProgress from './RevectorizationProgress';
+
 
 interface AiSettingsCardProps {
   currentTenantId?: number | null;
@@ -23,7 +23,7 @@ const AiSettingsCard = ({ currentTenantId, isSuperAdmin = false }: AiSettingsCar
   const [selectedPreset, setSelectedPreset] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
   const [configStatus, setConfigStatus] = useState<'not_set' | 'active' | 'error'>('not_set');
-  const [showRevectorization, setShowRevectorization] = useState(false);
+
   const { toast } = useToast();
 
   useEffect(() => {
@@ -73,22 +73,9 @@ const AiSettingsCard = ({ currentTenantId, isSuperAdmin = false }: AiSettingsCar
   };
 
   const handleModelChange = async (model: string) => {
-    const oldModel = selectedModel;
-    const oldEmbeddingDim = AI_MODELS.find(m => m.value === oldModel)?.embeddingDim;
-    const newEmbeddingDim = AI_MODELS.find(m => m.value === model)?.embeddingDim;
-    
     setSelectedModel(model);
     setSettings(DEFAULT_AI_SETTINGS[model as keyof typeof DEFAULT_AI_SETTINGS]);
     setSelectedPreset('');
-    
-    // Если размерность эмбеддингов изменилась - нужна ревекторизация
-    if (oldEmbeddingDim !== newEmbeddingDim) {
-      toast({
-        title: 'Изменение модели',
-        description: `Модель изменена с ${oldModel} (${oldEmbeddingDim}D) на ${model} (${newEmbeddingDim}D). При сохранении документы будут автоматически ревекторизованы.`,
-        duration: 8000
-      });
-    }
   };
 
   const handlePresetChange = (presetId: string) => {
@@ -117,13 +104,6 @@ const AiSettingsCard = ({ currentTenantId, isSuperAdmin = false }: AiSettingsCar
     try {
       const tenantId = currentTenantId !== null && currentTenantId !== undefined ? currentTenantId : getTenantId();
       
-      // Загрузить старые настройки чтобы сравнить модель
-      const getUrl = tenantId !== null && tenantId !== undefined ? `${BACKEND_URLS.getAiSettings}?tenant_id=${tenantId}` : BACKEND_URLS.getAiSettings;
-      const getResponse = await authenticatedFetch(getUrl);
-      const oldData = await getResponse.json();
-      const oldModel = oldData.settings?.model || 'yandexgpt';
-      
-      // Сохранить новые настройки
       const updateUrl = tenantId !== null && tenantId !== undefined ? `${BACKEND_URLS.updateAiSettings}?tenant_id=${tenantId}` : BACKEND_URLS.updateAiSettings;
       const response = await authenticatedFetch(updateUrl, {
         method: 'POST',
@@ -135,36 +115,10 @@ const AiSettingsCard = ({ currentTenantId, isSuperAdmin = false }: AiSettingsCar
 
       if (response.ok) {
         setConfigStatus('active');
-        
-        // Проверить нужна ли ревекторизация
-        const oldModelInfo = AI_MODELS.find(m => m.value === oldModel);
-        const newModelInfo = AI_MODELS.find(m => m.value === selectedModel);
-        
-        if (oldModelInfo && newModelInfo && oldModelInfo.embeddingDim !== newModelInfo.embeddingDim) {
-          // Запустить ревекторизацию
-          const revectorizeUrl = tenantId !== null && tenantId !== undefined 
-            ? `${BACKEND_URLS.revectorizeDocuments}?tenant_id=${tenantId}` 
-            : BACKEND_URLS.revectorizeDocuments;
-          
-          await authenticatedFetch(revectorizeUrl, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ model: selectedModel })
-          });
-          
-          setShowRevectorization(true);
-          
-          toast({
-            title: 'Сохранено! Запущена ревекторизация',
-            description: `Модель изменена. Документы обрабатываются с новыми embeddings (${newModelInfo.embeddingDim}D)`,
-            duration: 10000
-          });
-        } else {
-          toast({
-            title: 'Сохранено!',
-            description: 'Настройки AI обновлены'
-          });
-        }
+        toast({
+          title: 'Сохранено!',
+          description: 'Настройки AI обновлены'
+        });
       } else {
         setConfigStatus('error');
         throw new Error(data.error);
@@ -369,12 +323,7 @@ const AiSettingsCard = ({ currentTenantId, isSuperAdmin = false }: AiSettingsCar
           </div>
         )}
 
-        {showRevectorization && (
-          <RevectorizationProgress 
-            currentTenantId={currentTenantId}
-            onComplete={() => setShowRevectorization(false)}
-          />
-        )}
+
       </CardContent>
     </Card>
   );
