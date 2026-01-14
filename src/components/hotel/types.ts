@@ -44,6 +44,7 @@ export interface PageSettings {
 }
 
 export interface AiModelSettings {
+  provider: string;
   model: string;
   temperature: number;
   top_p: number;
@@ -55,151 +56,45 @@ export interface AiModelSettings {
   system_prompt?: string;
 }
 
-export const AI_MODELS = [
-  { 
-    value: 'yandexgpt', 
-    label: 'YandexGPT', 
-    embeddingDim: 256,
-    embeddingProvider: 'yandex',
-    embeddingModels: {
-      doc: 'text-search-doc/latest',
-      query: 'text-search-query/latest'
-    }
-  },
-  { 
-    value: 'openrouter-llama-3.1-8b', 
-    label: 'Meta Llama 3.1 8B (Free)', 
-    embeddingDim: 256,
-    embeddingProvider: 'yandex',
-    embeddingModels: {
-      doc: 'text-search-doc/latest',
-      query: 'text-search-query/latest'
-    },
-    routerModel: 'meta-llama/llama-3.1-8b-instruct:free'
-  },
-  { 
-    value: 'openrouter-gemma-2-9b', 
-    label: 'Google Gemma 2 9B (Free)', 
-    embeddingDim: 256,
-    embeddingProvider: 'yandex',
-    embeddingModels: {
-      doc: 'text-search-doc/latest',
-      query: 'text-search-query/latest'
-    },
-    routerModel: 'google/gemma-2-9b-it:free'
-  },
-  { 
-    value: 'openrouter-qwen-2.5-7b', 
-    label: 'Qwen 2.5 7B (Free)', 
-    embeddingDim: 256,
-    embeddingProvider: 'yandex',
-    embeddingModels: {
-      doc: 'text-search-doc/latest',
-      query: 'text-search-query/latest'
-    },
-    routerModel: 'qwen/qwen-2.5-7b-instruct:free'
-  },
-  { 
-    value: 'openrouter-phi-3-medium', 
-    label: 'Microsoft Phi-3 Medium (Free)', 
-    embeddingDim: 256,
-    embeddingProvider: 'yandex',
-    embeddingModels: {
-      doc: 'text-search-doc/latest',
-      query: 'text-search-query/latest'
-    },
-    routerModel: 'microsoft/phi-3-medium-128k-instruct:free'
-  },
-  { 
-    value: 'openrouter-deepseek-r1', 
-    label: 'DeepSeek R1 (Free)', 
-    embeddingDim: 256,
-    embeddingProvider: 'yandex',
-    embeddingModels: {
-      doc: 'text-search-doc/latest',
-      query: 'text-search-query/latest'
-    },
-    routerModel: 'deepseek/deepseek-r1:free'
-  },
-  { 
-    value: 'deepseek-chat', 
-    label: 'DeepSeek Chat', 
-    embeddingDim: 256,
-    embeddingProvider: 'yandex',
-    embeddingModels: {
-      doc: 'text-search-doc/latest',
-      query: 'text-search-query/latest'
-    },
-    routerModel: 'deepseek/deepseek-chat'
-  }
+export const AI_PROVIDERS = [
+  { value: 'yandex', label: 'Yandex' },
+  { value: 'openrouter', label: 'OpenRouter' }
 ] as const;
 
-export const DEFAULT_AI_SETTINGS: Record<string, AiModelSettings> = {
-  yandexgpt: {
-    model: 'yandexgpt',
-    temperature: 0.15,
-    top_p: 1.0,
-    frequency_penalty: 0,
-    presence_penalty: 0,
-    max_tokens: 600,
-    system_priority: 'strict',
-    creative_mode: 'off',
-    system_prompt: ''
-  },
-  'openrouter-llama-3.1-8b': {
-    model: 'openrouter-llama-3.1-8b',
-    temperature: 0.3,
-    top_p: 1.0,
-    frequency_penalty: 0,
-    presence_penalty: 0,
-    max_tokens: 600,
-    system_prompt: ''
-  },
-  'openrouter-gemma-2-9b': {
-    model: 'openrouter-gemma-2-9b',
-    temperature: 0.3,
-    top_p: 1.0,
-    frequency_penalty: 0,
-    presence_penalty: 0,
-    max_tokens: 600,
-    system_prompt: ''
-  },
-  'openrouter-qwen-2.5-7b': {
-    model: 'openrouter-qwen-2.5-7b',
-    temperature: 0.3,
-    top_p: 1.0,
-    frequency_penalty: 0,
-    presence_penalty: 0,
-    max_tokens: 600,
-    system_prompt: ''
-  },
-  'openrouter-phi-3-medium': {
-    model: 'openrouter-phi-3-medium',
-    temperature: 0.3,
-    top_p: 1.0,
-    frequency_penalty: 0,
-    presence_penalty: 0,
-    max_tokens: 600,
-    system_prompt: ''
-  },
-  'openrouter-deepseek-r1': {
-    model: 'openrouter-deepseek-r1',
-    temperature: 0.3,
-    top_p: 1.0,
-    frequency_penalty: 0,
-    presence_penalty: 0,
-    max_tokens: 600,
-    system_prompt: ''
-  },
-  'deepseek-chat': {
-    model: 'deepseek-chat',
-    temperature: 0.3,
-    top_p: 1.0,
-    frequency_penalty: 0,
-    presence_penalty: 0,
-    max_tokens: 600,
-    system_prompt: ''
+export const AI_MODELS_BY_PROVIDER: Record<string, Array<{value: string, label: string, apiModel: string}>> = {
+  yandex: [
+    { value: 'yandexgpt', label: 'YandexGPT', apiModel: 'yandexgpt' },
+    { value: 'yandexgpt-lite', label: 'YandexGPT Lite', apiModel: 'yandexgpt-lite' }
+  ],
+  openrouter: [
+    { value: 'llama-3.1-8b', label: 'Meta Llama 3.1 8B', apiModel: 'meta-llama/llama-3.1-8b-instruct:free' },
+    { value: 'gemma-2-9b', label: 'Google Gemma 2 9B', apiModel: 'google/gemma-2-9b-it:free' },
+    { value: 'qwen-2.5-7b', label: 'Qwen 2.5 7B', apiModel: 'qwen/qwen-2.5-7b-instruct:free' },
+    { value: 'phi-3-medium', label: 'Microsoft Phi-3 Medium', apiModel: 'microsoft/phi-3-medium-128k-instruct:free' },
+    { value: 'deepseek-r1', label: 'DeepSeek R1', apiModel: 'deepseek/deepseek-r1:free' }
+  ]
+};
+
+export const EMBEDDING_CONFIG = {
+  provider: 'yandex',
+  dimension: 256,
+  models: {
+    doc: 'text-search-doc/latest',
+    query: 'text-search-query/latest'
   }
+};
+
+export const DEFAULT_AI_SETTINGS: AiModelSettings = {
+  provider: 'yandex',
+  model: 'yandexgpt',
+  temperature: 0.15,
+  top_p: 1.0,
+  frequency_penalty: 0,
+  presence_penalty: 0,
+  max_tokens: 600,
+  system_priority: 'strict',
+  creative_mode: 'off',
+  system_prompt: ''
 };
 
 export const BACKEND_URLS = {

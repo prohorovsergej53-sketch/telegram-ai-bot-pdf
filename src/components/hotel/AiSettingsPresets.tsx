@@ -14,6 +14,7 @@ export const AI_PRESETS: Record<string, AiPreset[]> = {
       name: 'Консьерж (рекомендуется)',
       description: 'Минимум галлюцинаций, строгие шаблоны',
       settings: {
+        provider: 'yandex',
         model: 'yandexgpt',
         temperature: 0.15,
         top_p: 1.0,
@@ -29,6 +30,7 @@ export const AI_PRESETS: Record<string, AiPreset[]> = {
       name: 'Креативный',
       description: 'Более живые и разнообразные ответы',
       settings: {
+        provider: 'yandex',
         model: 'yandexgpt',
         temperature: 0.4,
         top_p: 0.95,
@@ -38,188 +40,101 @@ export const AI_PRESETS: Record<string, AiPreset[]> = {
         system_priority: 'normal',
         creative_mode: 'on'
       }
-    },
+    }
+  ],
+  'yandexgpt-lite': [
     {
-      id: 'yandexgpt-balanced',
-      name: 'Сбалансированный',
-      description: 'Золотая середина между точностью и креативом',
+      id: 'yandexgpt-lite-fast',
+      name: 'Быстрый',
+      description: 'Облегченная модель для быстрых ответов',
       settings: {
-        model: 'yandexgpt',
-        temperature: 0.25,
-        top_p: 0.95,
-        frequency_penalty: 0.1,
-        presence_penalty: 0.1,
-        max_tokens: 700,
-        system_priority: 'strict',
-        creative_mode: 'off'
+        provider: 'yandex',
+        model: 'yandexgpt-lite',
+        temperature: 0.2,
+        top_p: 1.0,
+        frequency_penalty: 0,
+        presence_penalty: 0,
+        max_tokens: 500
       }
     }
   ],
-  'openrouter-llama-3.1-8b': [
+  'llama-3.1-8b': [
     {
       id: 'llama-precise',
-      name: 'Точный (рекомендуется)',
-      description: 'Минимум вариативности для Llama 3.1',
+      name: 'Точный',
+      description: 'Минимум вариативности',
       settings: {
-        model: 'openrouter-llama-3.1-8b',
+        provider: 'openrouter',
+        model: 'llama-3.1-8b',
         temperature: 0.3,
         top_p: 1.0,
         frequency_penalty: 0,
         presence_penalty: 0,
         max_tokens: 600
       }
-    },
-    {
-      id: 'llama-balanced',
-      name: 'Сбалансированный',
-      description: 'Оптимальный баланс для Llama 3.1',
-      settings: {
-        model: 'openrouter-llama-3.1-8b',
-        temperature: 0.5,
-        top_p: 0.95,
-        frequency_penalty: 0.2,
-        presence_penalty: 0.1,
-        max_tokens: 700
-      }
     }
   ],
-  'openrouter-gemma-2-9b': [
+  'gemma-2-9b': [
     {
       id: 'gemma-precise',
-      name: 'Точный (рекомендуется)',
-      description: 'Минимум вариативности для Gemma 2',
+      name: 'Точный',
+      description: 'Минимум вариативности',
       settings: {
-        model: 'openrouter-gemma-2-9b',
+        provider: 'openrouter',
+        model: 'gemma-2-9b',
         temperature: 0.3,
         top_p: 1.0,
         frequency_penalty: 0,
         presence_penalty: 0,
         max_tokens: 600
       }
-    },
-    {
-      id: 'gemma-balanced',
-      name: 'Сбалансированный',
-      description: 'Оптимальный баланс для Gemma 2',
-      settings: {
-        model: 'openrouter-gemma-2-9b',
-        temperature: 0.5,
-        top_p: 0.95,
-        frequency_penalty: 0.2,
-        presence_penalty: 0.1,
-        max_tokens: 700
-      }
     }
   ],
-  'openrouter-qwen-2.5-7b': [
+  'qwen-2.5-7b': [
     {
       id: 'qwen-precise',
-      name: 'Точный (рекомендуется)',
-      description: 'Минимум вариативности для Qwen 2.5',
+      name: 'Точный',
+      description: 'Минимум вариативности',
       settings: {
-        model: 'openrouter-qwen-2.5-7b',
+        provider: 'openrouter',
+        model: 'qwen-2.5-7b',
         temperature: 0.3,
         top_p: 1.0,
         frequency_penalty: 0,
         presence_penalty: 0,
         max_tokens: 600
       }
-    },
-    {
-      id: 'qwen-balanced',
-      name: 'Сбалансированный',
-      description: 'Оптимальный баланс для Qwen 2.5',
-      settings: {
-        model: 'openrouter-qwen-2.5-7b',
-        temperature: 0.5,
-        top_p: 0.95,
-        frequency_penalty: 0.2,
-        presence_penalty: 0.1,
-        max_tokens: 700
-      }
     }
   ],
-  'openrouter-phi-3-medium': [
+  'phi-3-medium': [
     {
       id: 'phi-precise',
-      name: 'Точный (рекомендуется)',
-      description: 'Минимум вариативности для Phi-3',
+      name: 'Точный',
+      description: 'Минимум вариативности',
       settings: {
-        model: 'openrouter-phi-3-medium',
+        provider: 'openrouter',
+        model: 'phi-3-medium',
         temperature: 0.3,
         top_p: 1.0,
         frequency_penalty: 0,
         presence_penalty: 0,
         max_tokens: 600
       }
-    },
-    {
-      id: 'phi-balanced',
-      name: 'Сбалансированный',
-      description: 'Оптимальный баланс для Phi-3',
-      settings: {
-        model: 'openrouter-phi-3-medium',
-        temperature: 0.5,
-        top_p: 0.95,
-        frequency_penalty: 0.2,
-        presence_penalty: 0.1,
-        max_tokens: 700
-      }
     }
   ],
-  'openrouter-deepseek-r1': [
+  'deepseek-r1': [
     {
       id: 'deepseek-precise',
-      name: 'Точный (рекомендуется)',
-      description: 'Минимум вариативности для DeepSeek R1',
+      name: 'Точный',
+      description: 'Минимум вариативности',
       settings: {
-        model: 'openrouter-deepseek-r1',
+        provider: 'openrouter',
+        model: 'deepseek-r1',
         temperature: 0.3,
         top_p: 1.0,
         frequency_penalty: 0,
         presence_penalty: 0,
         max_tokens: 600
-      }
-    },
-    {
-      id: 'deepseek-balanced',
-      name: 'Сбалансированный',
-      description: 'Оптимальный баланс для DeepSeek R1',
-      settings: {
-        model: 'openrouter-deepseek-r1',
-        temperature: 0.5,
-        top_p: 0.95,
-        frequency_penalty: 0.2,
-        presence_penalty: 0.1,
-        max_tokens: 700
-      }
-    }
-  ],
-  'deepseek-chat': [
-    {
-      id: 'deepseek-chat-precise',
-      name: 'Точный',
-      description: 'Фокусировка на точности ответов',
-      settings: {
-        model: 'deepseek-chat',
-        temperature: 0.2,
-        top_p: 0.9,
-        frequency_penalty: 0,
-        presence_penalty: 0,
-        max_tokens: 600
-      }
-    },
-    {
-      id: 'deepseek-chat-balanced',
-      name: 'Сбалансированный',
-      description: 'Оптимальный баланс для DeepSeek Chat',
-      settings: {
-        model: 'deepseek-chat',
-        temperature: 0.5,
-        top_p: 0.95,
-        frequency_penalty: 0.2,
-        presence_penalty: 0.1,
-        max_tokens: 700
       }
     }
   ]

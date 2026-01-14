@@ -21,15 +21,20 @@ from quality_gate import (
     RAG_LOW_OVERLAP_START_TOPK5
 )
 
-MODEL_PROVIDER_MAP = {
-    'yandexgpt': {'provider': 'yandex', 'model_name': 'yandexgpt'},
-    'yandexgpt-lite': {'provider': 'yandex', 'model_name': 'yandexgpt-lite'},
-    'deepseek-chat': {'provider': 'openrouter', 'model_name': 'deepseek/deepseek-chat'},
-    'openrouter-llama-3.1-8b': {'provider': 'openrouter', 'model_name': 'meta-llama/llama-3.1-8b-instruct:free'},
-    'openrouter-gemma-2-9b': {'provider': 'openrouter', 'model_name': 'google/gemma-2-9b-it:free'},
-    'openrouter-qwen-2.5-7b': {'provider': 'openrouter', 'model_name': 'qwen/qwen-2.5-7b-instruct:free'},
-    'openrouter-phi-3-medium': {'provider': 'openrouter', 'model_name': 'microsoft/phi-3-medium-128k-instruct:free'},
-    'openrouter-deepseek-r1': {'provider': 'openrouter', 'model_name': 'deepseek/deepseek-r1:free'},
+MODEL_API_NAMES = {
+    'yandexgpt': 'yandexgpt',
+    'yandexgpt-lite': 'yandexgpt-lite',
+    'llama-3.1-8b': 'meta-llama/llama-3.1-8b-instruct:free',
+    'gemma-2-9b': 'google/gemma-2-9b-it:free',
+    'qwen-2.5-7b': 'qwen/qwen-2.5-7b-instruct:free',
+    'phi-3-medium': 'microsoft/phi-3-medium-128k-instruct:free',
+    'deepseek-r1': 'deepseek/deepseek-r1:free',
+    'openrouter-llama-3.1-8b': 'meta-llama/llama-3.1-8b-instruct:free',
+    'openrouter-gemma-2-9b': 'google/gemma-2-9b-it:free',
+    'openrouter-qwen-2.5-7b': 'qwen/qwen-2.5-7b-instruct:free',
+    'openrouter-phi-3-medium': 'microsoft/phi-3-medium-128k-instruct:free',
+    'openrouter-deepseek-r1': 'deepseek/deepseek-r1:free',
+    'deepseek-chat': 'deepseek/deepseek-chat'
 }
 
 def handler(event: dict, context) -> dict:
@@ -84,7 +89,17 @@ def handler(event: dict, context) -> dict:
         
         if settings_row and settings_row[0]:
             settings = settings_row[0]
-            ai_model = settings.get('chat_model', settings.get('model', 'yandexgpt'))
+            ai_model = settings.get('model', 'yandexgpt')
+            
+            if ai_model.startswith('openrouter-'):
+                ai_provider = 'openrouter'
+                ai_model = ai_model.replace('openrouter-', '')
+            elif ai_model in ['yandexgpt', 'yandexgpt-lite']:
+                ai_provider = 'yandex'
+            elif ai_model in ['deepseek-chat']:
+                ai_provider = 'openrouter'
+            else:
+                ai_provider = settings.get('provider', 'yandex')
             ai_temperature = float(settings.get('temperature', 0.15))
             ai_top_p = float(settings.get('top_p', 1.0))
             ai_frequency_penalty = float(settings.get('frequency_penalty', 0))
@@ -278,11 +293,8 @@ MINI-SYSTEM: РАСЧЁТ ЦЕН (используй только для зап�
 6. Если в документах нет тарифов или не хватает данных — сказать «Пока не вижу точной информации по этому вопросу.» и задать 1 уточняющий вопрос по приоритету: даты → тип номера → взрослые → дети → возраст.''')
             print(f"DEBUG SETTINGS: embedding_provider={embedding_provider}, embedding_model={embedding_model}")
         else:
-            if settings_row and settings_row[0]:
-                settings = settings_row[0]
-                ai_model = settings.get('chat_model', settings.get('model', 'yandexgpt'))
-            else:
-                ai_model = 'yandexgpt'
+            ai_provider = 'yandex'
+            ai_model = 'yandexgpt'
             ai_temperature = 0.15
             ai_top_p = 1.0
             ai_frequency_penalty = 0
@@ -475,17 +487,14 @@ MINI-SYSTEM: РАСЧЁТ ЦЕН (используй только для зап�
 5. Если категория указана, но питание нет — показать все варианты питания для этой категории и задать 1 вопрос «Какой вариант питания вам удобнее?»
 6. Если в документах нет тарифов или не хватает данных — сказать «Пока не вижу точной информации по этому вопросу.» и задать 1 уточняющий вопрос по приоритету: даты → тип номера → взрослые → дети → возраст.''')
         
-        model_config = MODEL_PROVIDER_MAP.get(ai_model)
-        if not model_config:
+        chat_api_model = MODEL_API_NAMES.get(ai_model)
+        if not chat_api_model:
             return {
                 'statusCode': 400,
                 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
                 'body': json.dumps({'error': f'Неизвестная модель: {ai_model}'}),
                 'isBase64Encoded': False
             }
-        
-        chat_provider = model_config['provider']
-        chat_model_name = model_config['model_name']
 
         try:
             if embedding_provider == 'yandex':
@@ -644,7 +653,7 @@ MINI-SYSTEM: РАСЧЁТ ЦЕН (используй только для зап�
         
         system_prompt = compose_system(system_prompt_template, context, context_ok)
 
-        if chat_provider == 'yandex':
+        if ai_provider == 'yandex':
             import requests
             yandex_api_key, error = get_tenant_api_key(tenant_id, 'yandex', 'api_key')
             if error:
@@ -665,7 +674,7 @@ MINI-SYSTEM: РАСЧЁТ ЦЕН (используй только для зап�
                     'Content-Type': 'application/json'
                 },
                 json={
-                    'modelUri': f'gpt://{yandex_folder_id}/yandexgpt/latest',
+                    'modelUri': f'gpt://{yandex_folder_id}/{chat_api_model}/latest',
                     'completionOptions': completion_options,
                     'messages': [
                         {'role': 'system', 'text': system_prompt},
@@ -675,7 +684,7 @@ MINI-SYSTEM: РАСЧЁТ ЦЕН (используй только для зап�
             )
             yandex_data = yandex_response.json()
             assistant_message = yandex_data['result']['alternatives'][0]['message']['text']
-        elif chat_provider == 'openrouter':
+        elif ai_provider == 'openrouter':
             openrouter_key, error = get_tenant_api_key(tenant_id, 'openrouter', 'api_key')
             if error:
                 return error
@@ -684,7 +693,7 @@ MINI-SYSTEM: РАСЧЁТ ЦЕН (используй только для зап�
                 base_url="https://openrouter.ai/api/v1"
             )
             response = chat_client.chat.completions.create(
-                model=chat_model_name,
+                model=chat_api_model,
                 messages=[
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": user_message}
@@ -700,7 +709,7 @@ MINI-SYSTEM: РАСЧЁТ ЦЕН (используй только для зап�
             return {
                 'statusCode': 400,
                 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                'body': json.dumps({'error': f'Неизвестный провайдер чата: {chat_provider}'}),
+                'body': json.dumps({'error': f'Неизвестный провайдер: {ai_provider}'}),
                 'isBase64Encoded': False
             }
 

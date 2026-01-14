@@ -199,9 +199,9 @@ const TenantApiKeysCard = ({ tenantId, tenantName }: TenantApiKeysCardProps) => 
                 <div className="flex items-start gap-2">
                   <Icon name="Info" size={16} className="text-purple-600 mt-0.5" />
                   <div className="text-sm text-purple-900">
-                    <p className="font-medium mb-1">OpenRouter API</p>
+                    <p className="font-medium mb-1">OpenRouter API (бесплатные модели)</p>
                     <p className="text-purple-800">
-                      Используется для моделей: Llama 3.1, Gemma 2, Qwen 2.5, Phi-3, DeepSeek R1
+                      Meta Llama 3.1 8B, Google Gemma 2 9B, Qwen 2.5 7B, Microsoft Phi-3 Medium, DeepSeek R1
                     </p>
                   </div>
                 </div>

@@ -5,15 +5,13 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { BACKEND_URLS, AI_MODELS, DEFAULT_AI_SETTINGS, AiModelSettings } from './types';
+import { BACKEND_URLS, AI_PROVIDERS, AI_MODELS_BY_PROVIDER, DEFAULT_AI_SETTINGS, AiModelSettings, EMBEDDING_CONFIG } from './types';
 import Icon from '@/components/ui/icon';
-import { AI_PRESETS } from './AiSettingsPresets';
 import AiSettingsSliders from './AiSettingsSliders';
 import { authenticatedFetch, getTenantId } from '@/lib/auth';
 import FUNC_URLS from '../../../backend/func2url.json';
 
 const API_KEYS_URL = FUNC_URLS['manage-api-keys'];
-
 
 interface AiSettingsCardProps {
   currentTenantId?: number | null;
@@ -21,9 +19,7 @@ interface AiSettingsCardProps {
 }
 
 const AiSettingsCard = ({ currentTenantId, isSuperAdmin = false }: AiSettingsCardProps) => {
-  const [selectedModel, setSelectedModel] = useState<string>('yandexgpt');
-  const [settings, setSettings] = useState<AiModelSettings>(DEFAULT_AI_SETTINGS.yandexgpt);
-  const [selectedPreset, setSelectedPreset] = useState<string>('');
+  const [settings, setSettings] = useState<AiModelSettings>(DEFAULT_AI_SETTINGS);
   const [isLoading, setIsLoading] = useState(false);
   const [configStatus, setConfigStatus] = useState<'not_set' | 'active' | 'error'>('not_set');
   const [hasYandexKeys, setHasYandexKeys] = useState(false);
@@ -92,7 +88,6 @@ const AiSettingsCard = ({ currentTenantId, isSuperAdmin = false }: AiSettingsCar
       const response = await authenticatedFetch(url);
       const data = await response.json();
       if (data.settings) {
-        setSelectedModel(data.settings.model);
         setSettings(data.settings);
         setConfigStatus('active');
       }
@@ -102,33 +97,34 @@ const AiSettingsCard = ({ currentTenantId, isSuperAdmin = false }: AiSettingsCar
     }
   };
 
-  const handleModelChange = async (model: string) => {
+  const handleProviderChange = (provider: string) => {
     const currentPrompt = settings.system_prompt;
-    setSelectedModel(model);
-    const newSettings = { ...DEFAULT_AI_SETTINGS[model as keyof typeof DEFAULT_AI_SETTINGS] };
-    newSettings.system_prompt = currentPrompt;
-    setSettings(newSettings);
-    setSelectedPreset('');
+    const firstModel = AI_MODELS_BY_PROVIDER[provider][0].value;
+    
+    setSettings({
+      ...DEFAULT_AI_SETTINGS,
+      provider,
+      model: firstModel,
+      system_prompt: currentPrompt
+    });
   };
 
-  const handlePresetChange = (presetId: string) => {
-    setSelectedPreset(presetId);
-    const preset = AI_PRESETS[selectedModel]?.find(p => p.id === presetId);
-    if (preset) {
-      setSettings(preset.settings);
-      toast({
-        title: 'Пресет применён',
-        description: preset.name
-      });
-    }
+  const handleModelChange = (model: string) => {
+    setSettings({
+      ...settings,
+      model
+    });
   };
 
   const handleResetToDefaults = () => {
-    setSettings(DEFAULT_AI_SETTINGS[selectedModel as keyof typeof DEFAULT_AI_SETTINGS]);
-    setSelectedPreset('');
+    const currentPrompt = settings.system_prompt;
+    setSettings({
+      ...DEFAULT_AI_SETTINGS,
+      system_prompt: currentPrompt
+    });
     toast({
       title: 'Сброшено',
-      description: 'Настройки восстановлены по умолчанию'
+      description: 'Параметры восстановлены по умолчанию'
     });
   };
 
@@ -168,13 +164,14 @@ const AiSettingsCard = ({ currentTenantId, isSuperAdmin = false }: AiSettingsCar
     }
   };
 
-  const currentDefaults = DEFAULT_AI_SETTINGS[selectedModel as keyof typeof DEFAULT_AI_SETTINGS];
-  const isDefaultSettings = JSON.stringify(settings) === JSON.stringify(currentDefaults);
-  const currentPresets = AI_PRESETS[selectedModel] || [];
+  const currentModels = AI_MODELS_BY_PROVIDER[settings.provider] || [];
+  const missingKeys = !checkingKeys && (
+    (settings.provider === 'yandex' && !hasYandexKeys) ||
+    (settings.provider === 'openrouter' && !hasOpenRouterKeys)
+  );
 
-  const needsYandexKeys = selectedModel === 'yandexgpt' || selectedModel.startsWith('openrouter-');
-  const needsOpenRouterKeys = selectedModel.startsWith('openrouter-');
-  const missingKeys = !checkingKeys && ((needsYandexKeys && !hasYandexKeys) || (needsOpenRouterKeys && !hasOpenRouterKeys));
+  const providerLabel = AI_PROVIDERS.find(p => p.value === settings.provider)?.label;
+  const modelLabel = currentModels.find(m => m.value === settings.model)?.label;
 
   return (
     <Card>
@@ -187,7 +184,7 @@ const AiSettingsCard = ({ currentTenantId, isSuperAdmin = false }: AiSettingsCar
           {getStatusBadge()}
         </CardTitle>
         <CardDescription>
-          Параметры языковой модели для генерации ответов
+          Выбор модели и параметры генерации ответов
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -197,145 +194,94 @@ const AiSettingsCard = ({ currentTenantId, isSuperAdmin = false }: AiSettingsCar
               <Icon name="AlertTriangle" size={20} className="text-amber-600 mt-0.5" />
               <div className="flex-1">
                 <p className="font-semibold text-amber-900 mb-2">Отсутствуют API ключи</p>
-                <div className="text-sm text-amber-800 space-y-1">
-                  {needsYandexKeys && !hasYandexKeys && (
-                    <p>• Для модели {selectedModel === 'yandexgpt' ? 'YandexGPT' : selectedModel} требуются ключи Yandex (API Key + Folder ID)</p>
-                  )}
-                  {needsOpenRouterKeys && !hasOpenRouterKeys && (
-                    <p>• Для модели {AI_MODELS.find(m => m.value === selectedModel)?.label} требуется ключ OpenRouter</p>
-                  )}
-                </div>
-                <p className="text-sm text-amber-800 mt-3">
-                  Добавьте нужные ключи в карточке "API ключи бота" ниже. Без них бот не сможет отвечать на сообщения.
+                <p className="text-sm text-amber-800">
+                  {settings.provider === 'yandex' 
+                    ? 'Для провайдера Yandex требуются ключи API Key + Folder ID'
+                    : 'Для провайдера OpenRouter требуется ключ API Key'
+                  }
+                </p>
+                <p className="text-sm text-amber-800 mt-2">
+                  Добавьте нужные ключи в карточке "API ключи бота" ниже.
                 </p>
               </div>
             </div>
-          </div>
-        )}
-        {isSuperAdmin ? (
-          <div className="space-y-2">
-            <Label>Модель AI</Label>
-            <Select value={selectedModel} onValueChange={handleModelChange}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {AI_MODELS.map((model) => {
-                  const isYandexModel = model.value === 'yandexgpt';
-                  const isOpenRouterModel = model.value.startsWith('openrouter-');
-                  const isAvailable = (isYandexModel && hasYandexKeys) || (isOpenRouterModel && hasYandexKeys && hasOpenRouterKeys) || (!isYandexModel && !isOpenRouterModel);
-                  
-                  return (
-                    <SelectItem key={model.value} value={model.value}>
-                      <div className="flex items-center justify-between w-full gap-2">
-                        <span className={!isAvailable ? 'text-slate-400' : ''}>{model.label}</span>
-                        <div className="flex items-center gap-1">
-                          {!isAvailable && (
-                            <Icon name="AlertCircle" size={12} className="text-amber-500" />
-                          )}
-                          <span className="text-xs text-slate-500">({model.embeddingDim}D)</span>
-                        </div>
-                      </div>
-                    </SelectItem>
-                  );
-                })}
-              </SelectContent>
-            </Select>
-            {/* Информация об эмбеддингах */}
-            {selectedModel && (() => {
-              const modelInfo = AI_MODELS.find(m => m.value === selectedModel);
-              if (!modelInfo) return null;
-              
-              const hasMultipleEmbeddings = modelInfo.embeddingModels.doc !== modelInfo.embeddingModels.query;
-              
-              return (
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mt-2">
-                  <div className="flex items-start gap-2">
-                    <Icon name="Database" size={16} className="text-blue-600 mt-0.5" />
-                    <div className="text-xs text-blue-900">
-                      <p className="font-semibold mb-2">Настройки эмбеддингов:</p>
-                      <div className="space-y-2">
-                        <div className="bg-white/60 rounded p-2">
-                          <p className="font-medium text-blue-800">Провайдер: {modelInfo.embeddingProvider === 'yandex' ? 'Yandex' : modelInfo.embeddingProvider === 'jinaai' ? 'Jina AI' : modelInfo.embeddingProvider}</p>
-                          <p className="text-blue-700 mt-1">Размерность: {modelInfo.embeddingDim}D</p>
-                        </div>
-                        {hasMultipleEmbeddings ? (
-                          <>
-                            <div className="bg-white/60 rounded p-2">
-                              <p className="font-medium text-blue-800 flex items-center gap-1">
-                                <Icon name="FileText" size={12} />
-                                Для документов:
-                              </p>
-                              <p className="text-blue-700 font-mono text-[10px] mt-1">{modelInfo.embeddingModels.doc}</p>
-                            </div>
-                            <div className="bg-white/60 rounded p-2">
-                              <p className="font-medium text-blue-800 flex items-center gap-1">
-                                <Icon name="Search" size={12} />
-                                Для запросов:
-                              </p>
-                              <p className="text-blue-700 font-mono text-[10px] mt-1">{modelInfo.embeddingModels.query}</p>
-                            </div>
-                          </>
-                        ) : (
-                          <div className="bg-white/60 rounded p-2">
-                            <p className="font-medium text-blue-800">Единая модель:</p>
-                            <p className="text-blue-700 font-mono text-[10px] mt-1">{modelInfo.embeddingModels.doc}</p>
-                          </div>
-                        )}
-                      </div>
-                      <div className="mt-3 pt-2 border-t border-blue-300">
-                        <p className="text-amber-700 flex items-center gap-1">
-                          <Icon name="AlertTriangle" size={12} />
-                          <span className="font-medium">При смене модели все документы будут ревекторизованы</span>
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              );
-            })()}
-          </div>
-        ) : (
-          <div className="bg-slate-50 border border-slate-200 rounded-lg p-4">
-            <div className="flex items-center gap-2 mb-1">
-              <Icon name="Brain" size={16} className="text-slate-600" />
-              <Label className="text-slate-700">Текущая модель</Label>
-            </div>
-            <p className="text-lg font-semibold text-slate-900">
-              {AI_MODELS.find(m => m.value === selectedModel)?.label || selectedModel}
-            </p>
-            <p className="text-xs text-slate-500 mt-1">
-              Изменение модели доступно только суперадмину
-            </p>
           </div>
         )}
 
-        {currentPresets.length > 0 && (
-          <div className="space-y-2">
-            <Label>Пресеты настроек</Label>
-            <Select value={selectedPreset} onValueChange={handlePresetChange}>
-              <SelectTrigger>
-                <SelectValue placeholder="Выберите пресет или настройте вручную" />
-              </SelectTrigger>
-              <SelectContent>
-                {currentPresets.map((preset) => (
-                  <SelectItem key={preset.id} value={preset.id}>
-                    <div className="flex flex-col">
-                      <span className="font-medium">{preset.name}</span>
-                      <span className="text-xs text-slate-500">{preset.description}</span>
-                    </div>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {selectedPreset && (
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                <p className="text-sm text-blue-800">
-                  <Icon name="Info" size={16} className="inline mr-1" />
-                  {currentPresets.find(p => p.id === selectedPreset)?.description}
-                </p>
+        {isSuperAdmin ? (
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label>Провайдер AI</Label>
+              <Select value={settings.provider} onValueChange={handleProviderChange}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {AI_PROVIDERS.map((provider) => {
+                    const hasKeys = provider.value === 'yandex' ? hasYandexKeys : hasOpenRouterKeys;
+                    return (
+                      <SelectItem key={provider.value} value={provider.value}>
+                        <div className="flex items-center justify-between w-full gap-2">
+                          <span className={!hasKeys ? 'text-slate-400' : ''}>{provider.label}</span>
+                          {!hasKeys && !checkingKeys && (
+                            <Icon name="AlertCircle" size={14} className="text-amber-500" />
+                          )}
+                        </div>
+                      </SelectItem>
+                    );
+                  })}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Модель</Label>
+              <Select value={settings.model} onValueChange={handleModelChange}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {currentModels.map((model) => (
+                    <SelectItem key={model.value} value={model.value}>
+                      {model.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground">
+                {settings.provider === 'openrouter' && '⚡ Бесплатные модели OpenRouter'}
+              </p>
+            </div>
+
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+              <div className="flex items-start gap-2">
+                <Icon name="Database" size={16} className="text-blue-600 mt-0.5" />
+                <div className="text-xs text-blue-900">
+                  <p className="font-semibold mb-1">Эмбеддинги (не изменяются):</p>
+                  <div className="bg-white/60 rounded p-2 space-y-1">
+                    <p><strong>Провайдер:</strong> {EMBEDDING_CONFIG.provider === 'yandex' ? 'Yandex' : EMBEDDING_CONFIG.provider}</p>
+                    <p><strong>Размерность:</strong> {EMBEDDING_CONFIG.dimension}D</p>
+                    <p className="font-mono text-[10px] text-blue-700">
+                      doc: {EMBEDDING_CONFIG.models.doc}<br/>
+                      query: {EMBEDDING_CONFIG.models.query}
+                    </p>
+                  </div>
+                </div>
               </div>
-            )}
+            </div>
+          </div>
+        ) : (
+          <div className="bg-slate-50 border border-slate-200 rounded-lg p-4 space-y-2">
+            <div className="flex items-center gap-2">
+              <Icon name="Brain" size={16} className="text-slate-600" />
+              <Label className="text-slate-700">Текущая конфигурация</Label>
+            </div>
+            <p className="text-lg font-semibold text-slate-900">
+              {providerLabel} → {modelLabel}
+            </p>
+            <p className="text-xs text-slate-500">
+              Изменение модели доступно только суперадмину
+            </p>
           </div>
         )}
 
@@ -344,26 +290,20 @@ const AiSettingsCard = ({ currentTenantId, isSuperAdmin = false }: AiSettingsCar
           <Textarea
             id="system_prompt"
             value={settings.system_prompt || ''}
-            onChange={(e) => {
-              setSettings({ ...settings, system_prompt: e.target.value });
-              setSelectedPreset('');
-            }}
+            onChange={(e) => setSettings({ ...settings, system_prompt: e.target.value })}
             placeholder="Введите системный промпт для AI ассистента..."
             rows={8}
             className="font-mono text-sm"
           />
           <p className="text-xs text-muted-foreground">
-            Системный промпт определяет поведение и стиль ответов AI ассистента
+            Системный промпт определяет поведение и стиль ответов AI
           </p>
         </div>
 
         <AiSettingsSliders
           settings={settings}
-          selectedModel={selectedModel}
-          onSettingsChange={(newSettings) => {
-            setSettings(newSettings);
-            setSelectedPreset('');
-          }}
+          selectedModel={settings.model}
+          onSettingsChange={(newSettings) => setSettings(newSettings)}
         />
 
         <div className="flex gap-2 pt-4">
@@ -377,22 +317,10 @@ const AiSettingsCard = ({ currentTenantId, isSuperAdmin = false }: AiSettingsCar
           <Button
             onClick={handleResetToDefaults}
             variant="outline"
-            disabled={isDefaultSettings}
           >
             Сбросить
           </Button>
         </div>
-
-        {!isDefaultSettings && !selectedPreset && (
-          <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
-            <p className="text-sm text-amber-800">
-              <Icon name="AlertTriangle" size={16} className="inline mr-1" />
-              Настройки отличаются от рекомендованных
-            </p>
-          </div>
-        )}
-
-
       </CardContent>
     </Card>
   );
