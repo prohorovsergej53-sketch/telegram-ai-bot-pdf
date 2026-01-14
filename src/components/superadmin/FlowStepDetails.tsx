@@ -269,13 +269,29 @@ const FlowStepDetails = () => {
               <div className="space-y-2 text-sm">
                 <p className="text-slate-700"><strong>Backend:</strong> <code className="bg-white px-2 py-1 rounded">/backend/check-subscriptions/</code></p>
                 <div className="bg-white p-3 rounded mt-2 border border-orange-300">
-                  <p className="font-semibold text-orange-800">⏰ Автоматическая проверка:</p>
+                  <p className="font-semibold text-orange-800">⏰ Автоматическая проверка (cron):</p>
                   <ul className="list-disc list-inside text-slate-700 space-y-1">
-                    <li><strong>Запуск:</strong> каждый день через cron (setup-cronjob)</li>
-                    <li><strong>Проверка:</strong> subscription_end_date приближается (за 3 дня)</li>
-                    <li><strong>Email-напоминание:</strong> отправка шаблона "subscription_reminder"</li>
-                    <li><strong>После истечения:</strong> subscription_end_date прошла → блокировка доступа</li>
-                    <li><strong>Платёж:</strong> создание ссылки ЮKassa на renewal_price</li>
+                    <li><strong>Запуск:</strong> ежедневно через cron (internal-cron-trigger → check-subscriptions)</li>
+                    <li><strong>Функция:</strong> <code>/backend/check-subscriptions/index.py</code></li>
+                    <li><strong>Таймер:</strong> Yandex Cloud Triggers (настройка через setup-cronjob)</li>
+                  </ul>
+                </div>
+                <div className="bg-white p-3 rounded mt-2 border border-orange-300">
+                  <p className="font-semibold text-orange-800">📧 Система уведомлений (3-уровневая):</p>
+                  <ul className="list-disc list-inside text-slate-700 space-y-1">
+                    <li><strong>За 7 дней:</strong> "Подписка истекает через 7 дней" (предупреждение)</li>
+                    <li><strong>За 3 дня:</strong> "⚠️ Подписка истекает через 3 дня!" (внимание)</li>
+                    <li><strong>За 1 день:</strong> "🚨 Подписка истекает завтра!" (критично)</li>
+                  </ul>
+                  <p className="text-xs text-slate-600 mt-2">Каждое письмо содержит: тариф, цену продления, ссылку на оплату</p>
+                </div>
+                <div className="bg-white p-3 rounded mt-2 border border-orange-300">
+                  <p className="font-semibold text-orange-800">🔒 Действия после истечения:</p>
+                  <ul className="list-disc list-inside text-slate-700 space-y-1">
+                    <li><strong>subscription_status → 'expired'</strong> в таблице tenants</li>
+                    <li><strong>is_active → false</strong> для всех admin_users тенанта</li>
+                    <li><strong>Блокировка входа:</strong> в админку и доступа к API</li>
+                    <li><strong>Сообщение:</strong> "Подписка истекла. Продлите для восстановления"</li>
                   </ul>
                 </div>
                 <div className="bg-white p-3 rounded mt-2 border border-orange-300">
