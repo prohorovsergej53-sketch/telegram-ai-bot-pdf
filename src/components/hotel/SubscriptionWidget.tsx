@@ -52,30 +52,61 @@ const SubscriptionWidget = ({ tenantId }: { tenantId: number }) => {
   };
 
   const handleRenewal = async () => {
+    setIsUpdating(true);
     try {
-      const response = await fetch(`${BACKEND_URL}?action=create_payment`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          amount: subscription!.renewal_price * renewalMonths,
-          description: `Продление подписки "${subscription!.tariff_name}" на ${renewalMonths} мес.`,
-          metadata: {
+      // Если суперадмин — продлить напрямую без оплаты
+      if (superAdmin) {
+        const token = localStorage.getItem('adminToken');
+        const response = await fetch(BACKEND_URL, {
+          method: 'POST',
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({
             tenant_id: tenantId,
-            payment_type: 'renewal',
             months: renewalMonths
-          }
-        })
-      });
+          })
+        });
 
-      const data = await response.json();
-      
-      if (data.confirmation_url) {
-        window.location.href = data.confirmation_url;
+        const data = await response.json();
+        
+        if (data.success) {
+          toast({ title: 'Успешно', description: data.message });
+          setShowRenewalDialog(false);
+          await loadSubscription();
+          window.location.reload();
+        } else {
+          throw new Error(data.error || 'Не удалось продлить подписку');
+        }
       } else {
-        throw new Error('Не получен URL для оплаты');
+        // Обычный клиент — перенаправить на оплату
+        const response = await fetch(`${BACKEND_URL}?action=create_payment`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            amount: subscription!.renewal_price * renewalMonths,
+            description: `Продление подписки "${subscription!.tariff_name}" на ${renewalMonths} мес.`,
+            metadata: {
+              tenant_id: tenantId,
+              payment_type: 'renewal',
+              months: renewalMonths
+            }
+          })
+        });
+
+        const data = await response.json();
+        
+        if (data.confirmation_url) {
+          window.location.href = data.confirmation_url;
+        } else {
+          throw new Error('Не получен URL для оплаты');
+        }
       }
     } catch (error: any) {
       toast({ title: 'Ошибка', description: error.message, variant: 'destructive' });
+    } finally {
+      setIsUpdating(false);
     }
   };
 
@@ -236,25 +267,34 @@ const SubscriptionWidget = ({ tenantId }: { tenantId: number }) => {
               />
             </div>
 
-            <div className="bg-blue-50 border border-blue-200 rounded p-4">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm">Стоимость за месяц:</span>
-                <span className="font-semibold">{subscription.renewal_price.toLocaleString('ru-RU')} ₽</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm">Итого к оплате:</span>
-                <span className="text-xl font-bold">
-                  {(subscription.renewal_price * renewalMonths).toLocaleString('ru-RU')} ₽
-                </span>
+            {!superAdmin && (
+              <div className="bg-blue-50 border border-blue-200 rounded p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm">Стоимость за месяц:</span>
+                  <span className="font-semibold">{subscription.renewal_price.toLocaleString('ru-RU')} ₽</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm">Итого к оплате:</span>
+                  <span className="text-xl font-bold">
+                    {(subscription.renewal_price * renewalMonths).toLocaleString('ru-RU')} ₽
+                  </span>
               </div>
             </div>
+            )}
+
+            {superAdmin && (
+              <div className="bg-green-50 border border-green-200 rounded p-4 text-sm text-green-800">
+                <Icon name="Shield" className="inline mr-2" size={16} />
+                Режим суперадмина: продление без оплаты
+              </div>
+            )}
 
             <div className="flex gap-2">
-              <Button onClick={handleRenewal} className="flex-1">
-                <Icon name="CreditCard" className="mr-2" size={16} />
-                Перейти к оплате
+              <Button onClick={handleRenewal} className="flex-1" disabled={isUpdating}>
+                <Icon name={superAdmin ? "Check" : "CreditCard"} className="mr-2" size={16} />
+                {superAdmin ? 'Продлить' : 'Перейти к оплате'}
               </Button>
-              <Button variant="outline" onClick={() => setShowRenewalDialog(false)}>
+              <Button variant="outline" onClick={() => setShowRenewalDialog(false)} disabled={isUpdating}>
                 Отмена
               </Button>
             </div>

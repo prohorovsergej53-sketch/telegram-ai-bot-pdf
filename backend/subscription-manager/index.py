@@ -4,11 +4,11 @@
 import json
 import os
 import psycopg2
-from datetime import datetime
+from datetime import datetime, timedelta
 from decimal import Decimal
 
 def handler(event: dict, context) -> dict:
-    """Получение информации о подписке клиента"""
+    """Получение информации о подписке клиента или продление (для суперадмина)"""
     
     method = event.get('httpMethod', 'GET')
     
@@ -17,12 +17,115 @@ def handler(event: dict, context) -> dict:
             'statusCode': 200,
             'headers': {
                 'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Methods': 'GET, OPTIONS',
-                'Access-Control-Allow-Headers': 'Content-Type'
+                'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+                'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Authorization'
             },
             'body': ''
         }
     
+    # POST: Продление подписки суперадмином без оплаты
+    if method == 'POST':
+        try:
+            import jwt
+            headers = event.get('headers', {})
+            auth_header = headers.get('X-Authorization') or headers.get('Authorization') or headers.get('authorization') or ''
+            
+            if not auth_header or not auth_header.startswith('Bearer '):
+                return {
+                    'statusCode': 401,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'Unauthorized'})
+                }
+            
+            token = auth_header.replace('Bearer ', '')
+            jwt_secret = os.environ.get('JWT_SECRET', 'default-jwt-secret-change-in-production')
+            
+            try:
+                payload = jwt.decode(token, jwt_secret, algorithms=['HS256'])
+                user_role = payload.get('role')
+                
+                if user_role != 'super_admin':
+                    return {
+                        'statusCode': 403,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Super admin access required'})
+                    }
+            except jwt.InvalidTokenError:
+                return {
+                    'statusCode': 401,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'Invalid token'})
+                }
+            
+            body = json.loads(event.get('body', '{}'))
+            tenant_id = body.get('tenant_id')
+            months = body.get('months', 1)
+            
+            if not tenant_id:
+                return {
+                    'statusCode': 400,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'tenant_id required'})
+                }
+            
+            dsn = os.environ['DATABASE_URL']
+            conn = psycopg2.connect(dsn)
+            cur = conn.cursor()
+            schema = 't_p56134400_telegram_ai_bot_pdf'
+            
+            # Получаем текущую дату окончания
+            cur.execute(f"SELECT subscription_end_date FROM {schema}.tenants WHERE id = %s", (tenant_id,))
+            row = cur.fetchone()
+            
+            if not row:
+                return {
+                    'statusCode': 404,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'Tenant not found'})
+                }
+            
+            current_end_date = row[0]
+            
+            # Вычисляем новую дату
+            if current_end_date and isinstance(current_end_date, datetime):
+                if current_end_date > datetime.now():
+                    new_end_date = current_end_date + timedelta(days=30 * months)
+                else:
+                    new_end_date = datetime.now() + timedelta(days=30 * months)
+            else:
+                new_end_date = datetime.now() + timedelta(days=30 * months)
+            
+            # Обновляем подписку
+            cur.execute(f"""
+                UPDATE {schema}.tenants
+                SET subscription_end_date = %s, 
+                    subscription_status = 'active',
+                    updated_at = CURRENT_TIMESTAMP
+                WHERE id = %s
+            """, (new_end_date, tenant_id))
+            conn.commit()
+            
+            cur.close()
+            conn.close()
+            
+            return {
+                'statusCode': 200,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({
+                    'success': True,
+                    'new_end_date': new_end_date.isoformat(),
+                    'message': f'Подписка продлена на {months} мес.'
+                })
+            }
+            
+        except Exception as e:
+            return {
+                'statusCode': 500,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({'error': str(e)})
+            }
+    
+    # GET: Получение информации о подписке
     query_params = event.get('queryStringParameters') or {}
     tenant_id = query_params.get('tenant_id')
     
