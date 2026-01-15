@@ -6,6 +6,7 @@ import Icon from '@/components/ui/icon';
 import { getCompanyInfo } from '@/lib/company-info';
 import { getTenantId } from '@/lib/auth';
 import { BACKEND_URLS } from '@/components/hotel/types';
+import { PublicContentResponse } from './types/index.types';
 
 const PrivacyPolicy = () => {
   const navigate = useNavigate();
@@ -50,7 +51,7 @@ const PrivacyPolicy = () => {
     try {
       const response = await fetch(`https://functions.poehali.dev/2f7a79a2-87ef-4692-b9a6-1e23f408edaa?action=public_content&tenant_id=${tenantId}`);
       if (response.ok) {
-        const data = await response.json();
+        const data: PublicContentResponse = await response.json();
         if (data.consent_settings?.privacy_policy_text) {
           setCustomText(data.consent_settings.privacy_policy_text);
         }

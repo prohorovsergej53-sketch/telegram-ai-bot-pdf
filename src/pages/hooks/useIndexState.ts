@@ -2,8 +2,9 @@ import { useState, useEffect } from 'react';
 import { useParams, useLocation } from 'react-router-dom';
 import { Message, Document, PageSettings, QuickQuestion } from '@/components/hotel/types';
 import { isAuthenticated, getTenantId, isSuperAdmin } from '@/lib/auth';
+import { IndexState } from '../types/index.types';
 
-export const useIndexState = () => {
+export const useIndexState = (): IndexState => {
   const { tenantSlug } = useParams<{ tenantSlug: string }>();
   const location = useLocation();
   const [view, setView] = useState<'guest' | 'admin'>('guest');

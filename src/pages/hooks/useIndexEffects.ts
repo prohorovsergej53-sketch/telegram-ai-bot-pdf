@@ -1,17 +1,7 @@
 import { useEffect } from 'react';
+import { UseIndexEffectsParams } from '../types/index.types';
 
-interface UseIndexEffectsParams {
-  tenantSlug?: string;
-  currentTenantId: number | null;
-  view: 'guest' | 'admin';
-  isAdminAuthenticated: boolean;
-  loadTenantInfo: (slug?: string) => Promise<void>;
-  loadPageSettings: () => Promise<void>;
-  loadConsentSettings: () => Promise<void>;
-  loadDocuments: () => Promise<void>;
-}
-
-export const useIndexEffects = (params: UseIndexEffectsParams) => {
+export const useIndexEffects = (params: UseIndexEffectsParams): void => {
   const {
     tenantSlug,
     currentTenantId,

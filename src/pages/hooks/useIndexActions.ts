@@ -1,29 +1,8 @@
 import { Message, BACKEND_URLS } from '@/components/hotel/types';
 import { authenticatedFetch, getTenantId } from '@/lib/auth';
+import { UseIndexActionsParams, IndexActions, PublicContentResponse } from '../types/index.types';
 
-interface UseIndexActionsParams {
-  messages: Message[];
-  setMessages: (messages: Message[] | ((prev: Message[]) => Message[])) => void;
-  inputMessage: string;
-  setInputMessage: (value: string) => void;
-  isLoading: boolean;
-  setIsLoading: (value: boolean) => void;
-  sessionId: string;
-  currentTenantId: number | null;
-  setDocuments: (docs: any[]) => void;
-  setPageSettings: (settings: any) => void;
-  setQuickQuestions: (questions: any[]) => void;
-  setConsentEnabled: (value: boolean) => void;
-  setConsentText: (value: string) => void;
-  setFz152Enabled: (value: boolean) => void;
-  setCurrentTenantId: (id: number | null) => void;
-  setCurrentTenantName: (name: string) => void;
-  setIsAdminAuthenticated: (value: boolean) => void;
-  setView: (view: 'guest' | 'admin') => void;
-  toast: any;
-}
-
-export const useIndexActions = (params: UseIndexActionsParams) => {
+export const useIndexActions = (params: UseIndexActionsParams): IndexActions => {
   const {
     messages,
     setMessages,
@@ -110,7 +89,7 @@ export const useIndexActions = (params: UseIndexActionsParams) => {
       
       const response = await fetch(`https://functions.poehali.dev/2f7a79a2-87ef-4692-b9a6-1e23f408edaa?action=public_content&tenant_id=${tenantId}`);
       if (response.ok) {
-        const data = await response.json();
+        const data: PublicContentResponse = await response.json();
         setFz152Enabled(data.fz152_enabled || false);
         if (data.consent_settings) {
           setConsentEnabled(data.consent_settings.webchat_enabled || false);
