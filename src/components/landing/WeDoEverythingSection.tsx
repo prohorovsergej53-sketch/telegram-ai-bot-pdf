@@ -10,9 +10,9 @@ export const WeDoEverythingSection = () => {
       gradient: 'from-blue-500 to-cyan-500'
     },
     {
-      icon: 'Type',
-      title: 'Пишете тексты',
-      description: 'Приветствие, описание бота, контактные данные',
+      icon: 'Phone',
+      title: 'Указываете контакты',
+      description: 'Телефоны, email, адреса — чтобы бот знал, куда направлять клиентов',
       gradient: 'from-green-500 to-emerald-500'
     },
     {
