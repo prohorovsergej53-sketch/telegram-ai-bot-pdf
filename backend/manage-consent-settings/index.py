@@ -112,6 +112,44 @@ def handler(event: dict, context) -> dict:
                 'isBase64Encoded': False
             }
 
+        elif method == 'PUT' and action == 'toggle_fz152' and tenant_id:
+            body = json.loads(event.get('body', '{}'))
+            fz152_enabled = body.get('enabled', False)
+
+            cur.execute("""
+                UPDATE t_p56134400_telegram_ai_bot_pdf.tenants
+                SET fz152_enabled = %s
+                WHERE id = %s
+            """, (fz152_enabled, tenant_id))
+
+            if fz152_enabled:
+                cur.execute("""
+                    UPDATE t_p56134400_telegram_ai_bot_pdf.tenant_settings
+                    SET 
+                        embedding_provider = 'yandex',
+                        embedding_doc_model = 'text-search-doc',
+                        embedding_query_model = 'text-search-query',
+                        ai_settings = jsonb_set(
+                            COALESCE(ai_settings, '{}'::jsonb),
+                            '{model}',
+                            '"yandexgpt-lite"',
+                            true
+                        ),
+                        updated_at = CURRENT_TIMESTAMP
+                    WHERE tenant_id = %s
+                """, (tenant_id,))
+
+            conn.commit()
+            cur.close()
+            conn.close()
+
+            return {
+                'statusCode': 200,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({'success': True, 'fz152_enabled': fz152_enabled}),
+                'isBase64Encoded': False
+            }
+
         elif method == 'GET' and action == 'global_consent_settings':
             default_settings = {
                 'enabled': False,

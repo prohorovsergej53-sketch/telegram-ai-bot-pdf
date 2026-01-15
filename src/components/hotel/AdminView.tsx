@@ -148,26 +148,31 @@ const AdminView = ({ documents, isLoading, onFileUpload, onDeleteDocument, curre
         </TabsContent>
 
         <TabsContent value="ai" className="space-y-6">
-          {superAdmin ? (
+          {(superAdmin || fz152Enabled) ? (
             <div className="space-y-6">
-              <AiSettingsCard
-                currentTenantId={currentTenantId}
-                isSuperAdmin={superAdmin}
-              />
-              {currentTenantId && tenantName && (
+              {superAdmin && (
+                <AiSettingsCard
+                  currentTenantId={currentTenantId}
+                  isSuperAdmin={superAdmin}
+                />
+              )}
+              {currentTenantId && tenantName && (fz152Enabled || superAdmin) && (
                 <>
                   <ApiKeysGuideCard />
                   <TenantApiKeysCard
                     tenantId={currentTenantId}
                     tenantName={tenantName}
+                    fz152Enabled={fz152Enabled}
                   />
-                  <ChatTestCard
-                    tenantId={currentTenantId}
-                    tenantName={tenantName}
-                  />
+                  {superAdmin && (
+                    <ChatTestCard
+                      tenantId={currentTenantId}
+                      tenantName={tenantName}
+                    />
+                  )}
                 </>
               )}
-              {currentTenantId && currentSlug && tenantName && (
+              {superAdmin && currentTenantId && currentSlug && tenantName && (
                 <TenantUrlEditor
                   tenantId={currentTenantId}
                   currentSlug={currentSlug}
@@ -177,7 +182,7 @@ const AdminView = ({ documents, isLoading, onFileUpload, onDeleteDocument, curre
               )}
             </div>
           ) : (
-            <UpgradeCard feature="Настройки AI доступны только суперадминистратору" />
+            <UpgradeCard feature="Настройки AI доступны при включенном 152-ФЗ" />
           )}
         </TabsContent>
 

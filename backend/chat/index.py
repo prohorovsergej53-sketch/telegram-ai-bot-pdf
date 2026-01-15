@@ -108,11 +108,20 @@ def handler(event: dict, context) -> dict:
         cur = conn.cursor()
 
         cur.execute("""
-            SELECT ai_settings
+            SELECT ai_settings, embedding_provider, embedding_query_model
             FROM t_p56134400_telegram_ai_bot_pdf.tenant_settings
             WHERE tenant_id = %s
         """, (tenant_id,))
         settings_row = cur.fetchone()
+        
+        embedding_provider = 'yandex'
+        embedding_model = 'text-search-query'
+        
+        if settings_row:
+            if settings_row[1]:
+                embedding_provider = settings_row[1]
+            if settings_row[2]:
+                embedding_model = settings_row[2]
         
         if settings_row and settings_row[0]:
             settings = settings_row[0]
@@ -140,9 +149,6 @@ def handler(event: dict, context) -> dict:
             ai_max_tokens = int(settings.get('max_tokens', 600))
             ai_system_priority = settings.get('system_priority', 'strict')
             ai_creative_mode = settings.get('creative_mode', 'off')
-            
-            embedding_provider = 'yandex'
-            embedding_model = 'text-search-query'
             system_prompt_template = settings.get('system_prompt', '''Ты — дружелюбный AI-консьерж отеля «Династия» в Telegram.
 
 ИСТОЧНИК ФАКТОВ:
@@ -335,9 +341,6 @@ MINI-SYSTEM: РАСЧЁТ ЦЕН (используй только для зап�
             ai_max_tokens = 600
             ai_system_priority = 'strict'
             ai_creative_mode = 'off'
-            
-            embedding_provider = 'yandex'
-            embedding_model = 'text-search-query'
             system_prompt_template = settings.get('system_prompt', '''Ты — дружелюбный AI-консьерж отеля «Династия» в Telegram.
 
 ИСТОЧНИК ФАКТОВ:

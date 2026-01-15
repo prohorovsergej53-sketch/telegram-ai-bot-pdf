@@ -13,6 +13,7 @@ const BACKEND_URL = FUNC_URLS['manage-api-keys'];
 interface TenantApiKeysCardProps {
   tenantId: number;
   tenantName: string;
+  fz152Enabled?: boolean;
 }
 
 interface ApiKey {
@@ -22,7 +23,7 @@ interface ApiKey {
   is_active: boolean;
 }
 
-const TenantApiKeysCard = ({ tenantId, tenantName }: TenantApiKeysCardProps) => {
+const TenantApiKeysCard = ({ tenantId, tenantName, fz152Enabled = false }: TenantApiKeysCardProps) => {
   const [keys, setKeys] = useState<ApiKey[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -140,7 +141,9 @@ const TenantApiKeysCard = ({ tenantId, tenantName }: TenantApiKeysCardProps) => 
           API ключи бота
         </CardTitle>
         <CardDescription>
-          Управление ключами для {tenantName}. Каждый бот использует свои ключи.
+          {fz152Enabled 
+            ? `Для соблюдения 152-ФЗ вам доступны только Яндекс модели для ${tenantName}` 
+            : `Управление ключами для ${tenantName}. Каждый бот использует свои ключи.`}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -200,6 +203,8 @@ const TenantApiKeysCard = ({ tenantId, tenantName }: TenantApiKeysCardProps) => 
               </div>
             </div>
 
+            {!fz152Enabled && (
+            <>
             <div className="space-y-4">
               <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
                 <div className="flex items-start gap-2">
@@ -267,6 +272,8 @@ const TenantApiKeysCard = ({ tenantId, tenantName }: TenantApiKeysCardProps) => 
                 )}
               </div>
             </div>
+            </>
+            )}
 
             <Button
               onClick={handleSave}
