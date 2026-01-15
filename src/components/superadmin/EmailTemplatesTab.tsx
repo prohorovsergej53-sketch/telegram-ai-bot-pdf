@@ -26,6 +26,8 @@ export const EmailTemplatesTab = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [testEmail, setTestEmail] = useState('');
   const [isSendingTest, setIsSendingTest] = useState(false);
+  const [testVariables, setTestVariables] = useState<Record<string, string>>({});
+  const [showVariablesEditor, setShowVariablesEditor] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
   const [newTemplate, setNewTemplate] = useState({ template_key: '', subject: '', body: '', description: '' });
 
@@ -105,7 +107,7 @@ export const EmailTemplatesTab = () => {
     try {
       const isSubscriptionReminder = selectedTemplate.template_key.startsWith('subscription_reminder_');
       
-      const testData = isSubscriptionReminder 
+      const defaultData = isSubscriptionReminder 
         ? {
             tenant_name: 'Тестовый проект',
             tariff_name: 'Бизнес',
@@ -117,6 +119,10 @@ export const EmailTemplatesTab = () => {
             password: 'demo123456',
             login_url: 'https://example.com/login'
           };
+      
+      const testData = Object.keys(testVariables).length > 0 
+        ? { ...defaultData, ...testVariables }
+        : defaultData;
 
       const response = await authenticatedFetch(BACKEND_URLS.emailTemplates, {
         method: 'POST',
@@ -333,7 +339,11 @@ export const EmailTemplatesTab = () => {
                 className="font-mono text-sm"
               />
               <p className="text-xs text-slate-500">
-                Доступные переменные: {'{'}{'{'} email {'}'}{'}'}, {'{'}{'{'} password {'}'}{'}'}, {'{'}{'{'} login_url {'}'}{'}'} 
+                {selectedTemplate.template_key.startsWith('subscription_reminder_') ? (
+                  <>Доступные переменные: {'{'}{'{'} tenant_name {'}'}{'}'}, {'{'}{'{'} tariff_name {'}'}{'}'}, {'{'}{'{'} renewal_price {'}'}{'}'}, {'{'}{'{'} renewal_url {'}'}{'}'}}</>
+                ) : (
+                  <>Доступные переменные: {'{'}{'{'} email {'}'}{'}'}, {'{'}{'{'} password {'}'}{'}'}, {'{'}{'{'} login_url {'}'}{'}'}}</>
+                )}
               </p>
             </div>
 
@@ -354,7 +364,94 @@ export const EmailTemplatesTab = () => {
             </div>
 
             <div className="border-t pt-6 space-y-4">
-              <Label>Отправить тестовое письмо</Label>
+              <div className="flex items-center justify-between">
+                <Label>Отправить тестовое письмо</Label>
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  onClick={() => setShowVariablesEditor(!showVariablesEditor)}
+                >
+                  <Icon name="Settings" size={14} className="mr-1" />
+                  Настроить переменные
+                </Button>
+              </div>
+              
+              {showVariablesEditor && (
+                <div className="bg-slate-50 p-4 rounded-lg space-y-3 border">
+                  <p className="text-xs text-slate-600 font-medium">Тестовые значения переменных:</p>
+                  {selectedTemplate.template_key.startsWith('subscription_reminder_') ? (
+                    <>
+                      <div>
+                        <Label className="text-xs">tenant_name</Label>
+                        <Input
+                          value={testVariables.tenant_name || 'Тестовый проект'}
+                          onChange={(e) => setTestVariables({...testVariables, tenant_name: e.target.value})}
+                          placeholder="Название проекта"
+                          className="mt-1"
+                        />
+                      </div>
+                      <div>
+                        <Label className="text-xs">tariff_name</Label>
+                        <Input
+                          value={testVariables.tariff_name || 'Бизнес'}
+                          onChange={(e) => setTestVariables({...testVariables, tariff_name: e.target.value})}
+                          placeholder="Название тарифа"
+                          className="mt-1"
+                        />
+                      </div>
+                      <div>
+                        <Label className="text-xs">renewal_price</Label>
+                        <Input
+                          value={testVariables.renewal_price || '7990.00'}
+                          onChange={(e) => setTestVariables({...testVariables, renewal_price: e.target.value})}
+                          placeholder="Цена продления"
+                          className="mt-1"
+                        />
+                      </div>
+                      <div>
+                        <Label className="text-xs">renewal_url</Label>
+                        <Input
+                          value={testVariables.renewal_url || 'https://example.com/content-editor?tenant_id=123'}
+                          onChange={(e) => setTestVariables({...testVariables, renewal_url: e.target.value})}
+                          placeholder="Ссылка для продления"
+                          className="mt-1"
+                        />
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div>
+                        <Label className="text-xs">email</Label>
+                        <Input
+                          value={testVariables.email || 'test@example.com'}
+                          onChange={(e) => setTestVariables({...testVariables, email: e.target.value})}
+                          placeholder="Email пользователя"
+                          className="mt-1"
+                        />
+                      </div>
+                      <div>
+                        <Label className="text-xs">password</Label>
+                        <Input
+                          value={testVariables.password || 'demo123456'}
+                          onChange={(e) => setTestVariables({...testVariables, password: e.target.value})}
+                          placeholder="Пароль"
+                          className="mt-1"
+                        />
+                      </div>
+                      <div>
+                        <Label className="text-xs">login_url</Label>
+                        <Input
+                          value={testVariables.login_url || 'https://example.com/login'}
+                          onChange={(e) => setTestVariables({...testVariables, login_url: e.target.value})}
+                          placeholder="Ссылка для входа"
+                          className="mt-1"
+                        />
+                      </div>
+                    </>
+                  )}
+                </div>
+              )}
+              
               <div className="flex gap-2">
                 <Input
                   type="email"
