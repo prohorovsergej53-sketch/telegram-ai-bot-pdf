@@ -78,6 +78,9 @@ const Index = () => {
             onFileUpload={actions.handleFileUpload}
             onDeleteDocument={actions.handleDeleteDocument}
             isLoading={state.isLoading}
+            currentTenantId={state.currentTenantId}
+            tenantName={state.currentTenantName}
+            fz152Enabled={state.fz152Enabled}
           />
         )}
       </div>

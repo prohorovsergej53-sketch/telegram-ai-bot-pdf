@@ -35,7 +35,7 @@ interface AdminViewProps {
   fz152Enabled?: boolean;
 }
 
-const AdminView = ({ documents, isLoading, onFileUpload, onDeleteDocument, currentTenantId, tenantName, fz152Enabled = true }: AdminViewProps) => {
+const AdminView = ({ documents, isLoading, onFileUpload, onDeleteDocument, currentTenantId, tenantName, fz152Enabled = false }: AdminViewProps) => {
   const navigate = useNavigate();
   const { tenantSlug } = useParams<{ tenantSlug: string }>();
   const tenantId = getTenantId();
