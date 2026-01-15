@@ -15,11 +15,11 @@ export const DemoBotSection = () => {
             Попробуйте прямо сейчас
           </div>
           <h2 className="text-4xl font-bold text-slate-900 mb-4">
-            Демо AI-консультант отеля
+            Демо AI-консультант для бизнеса
           </h2>
           <p className="text-xl text-slate-600 max-w-3xl mx-auto">
-            Протестируйте работу AI-бота на реальном примере. Задавайте вопросы про отель, 
-            узнавайте цены, услуги и правила — всё как для ваших гостей
+            Протестируйте работу AI-бота на реальном примере. Задавайте вопросы про услуги, 
+            узнавайте цены, условия и правила — всё как для ваших клиентов
           </p>
         </div>
 
@@ -32,7 +32,7 @@ export const DemoBotSection = () => {
                   <div>
                     <h3 className="font-semibold text-slate-900 mb-2">Реальная база знаний</h3>
                     <p className="text-sm text-slate-600">
-                      Бот обучен на документах настоящего отеля: тарифы, правила, услуги, контакты
+                      Бот обучен на документах реального бизнеса: тарифы, правила, услуги, контакты
                     </p>
                   </div>
                 </div>
@@ -60,7 +60,7 @@ export const DemoBotSection = () => {
                   <div>
                     <h3 className="font-semibold text-slate-900 mb-2">Быстрая настройка</h3>
                     <p className="text-sm text-slate-600">
-                      Загрузите свои документы — и бот готов отвечать гостям по вашим правилам
+                      Загрузите свои документы — и бот готов отвечать клиентам по вашим правилам
                     </p>
                   </div>
                 </div>
@@ -85,10 +85,10 @@ export const DemoBotSection = () => {
                   <Icon name="Bot" size={40} className="text-purple-600" />
                 </div>
                 <h3 className="text-2xl font-bold text-slate-900 mb-3">
-                  AI-консультант отеля
+                  AI-консультант для бизнеса
                 </h3>
                 <p className="text-slate-600 mb-6">
-                  Нажмите кнопку ниже, чтобы открыть демо-чат и задать вопросы боту
+                  Нажмите кнопку ниже, чтобы открыть демо-чат и пообщаться с AI-ботом
                 </p>
                 <Button
                   size="lg"
@@ -105,7 +105,7 @@ export const DemoBotSection = () => {
                   <div className="bg-gradient-to-r from-purple-600 to-blue-600 px-4 py-3 flex items-center justify-between">
                     <div className="flex items-center gap-2 text-white">
                       <Icon name="Bot" size={20} />
-                      <span className="font-semibold">Демо-бот отеля</span>
+                      <span className="font-semibold">Демо AI-консультант</span>
                     </div>
                     <Button
                       variant="ghost"

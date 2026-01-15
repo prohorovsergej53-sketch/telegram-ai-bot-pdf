@@ -97,7 +97,7 @@ const PaymentSuccess = () => {
                 <div>
                   <p className="font-medium text-slate-900">Всё готово!</p>
                   <p className="text-sm text-slate-600">
-                    AI-консультант начнёт отвечать на вопросы гостей
+                    AI-консультант начнёт отвечать на вопросы клиентов
                   </p>
                 </div>
               </div>

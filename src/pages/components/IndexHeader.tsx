@@ -49,8 +49,8 @@ export const IndexHeader = ({
             onClick={() => onViewChange(view === 'guest' ? 'admin' : 'guest')}
             className="gap-2"
           >
-            <Icon name={view === 'admin' ? 'Users' : 'Settings'} size={18} />
-            {view === 'admin' ? 'Для гостей' : 'Админ-панель'}
+            <Icon name={view === 'admin' ? 'MessageCircle' : 'Settings'} size={18} />
+            {view === 'admin' ? 'Чат для клиентов' : 'Админ-панель'}
           </Button>
           {view === 'admin' && isAdminAuthenticated && (
             <Button 
