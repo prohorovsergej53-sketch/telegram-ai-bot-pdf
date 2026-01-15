@@ -105,17 +105,23 @@ export const authenticatedFetch = async (url: string, options: RequestInit = {})
     ...options.headers
   };
   
-  const response = await fetch(url, {
-    ...options,
-    headers
-  });
-  
-  if (response.status === 401) {
-    logout();
-    window.location.reload();
+  try {
+    const response = await fetch(url, {
+      ...options,
+      headers,
+      credentials: 'omit' // Не отправляем cookies в cross-origin запросы
+    });
+    
+    if (response.status === 401) {
+      logout();
+      window.location.reload();
+    }
+    
+    return response;
+  } catch (error) {
+    console.error('Fetch error:', error, 'for', url);
+    throw error;
   }
-  
-  return response;
 };
 
 function parseJwt(token: string): DecodedToken {

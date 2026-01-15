@@ -38,9 +38,12 @@ export const EmailTemplatesTab = () => {
   const loadTemplates = async () => {
     setIsLoading(true);
     try {
+      console.log('Loading templates from:', BACKEND_URLS.emailTemplates);
       const response = await authenticatedFetch(BACKEND_URLS.emailTemplates);
+      console.log('Response received:', response.status, response.ok);
       if (response.ok) {
         const data = await response.json();
+        console.log('Data received:', data);
         setTemplates(data.templates || []);
         if (data.templates.length > 0 && !selectedTemplate) {
           setSelectedTemplate(data.templates[0]);
