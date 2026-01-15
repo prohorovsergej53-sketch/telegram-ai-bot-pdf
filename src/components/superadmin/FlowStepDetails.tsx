@@ -52,11 +52,11 @@ const FlowStepDetails = () => {
                 <div className="bg-white p-3 rounded mt-2 border border-green-300">
                   <p className="font-semibold text-green-800">💳 Тарифы (из БД):</p>
                   <ul className="list-disc list-inside text-slate-700 space-y-1">
-                    <li><strong>basic:</strong> 1 € первый месяц (setup_fee) → 11 €/мес (renewal_price)</li>
-                    <li><strong>professional:</strong> 5 € первый месяц → 30 €/мес</li>
-                    <li><strong>enterprise:</strong> 9 € первый месяц → 60 €/мес</li>
+                    <li><strong>basic (Старт):</strong> 9 975 ₽ первый месяц (включен) → 1 975 ₽/мес</li>
+                    <li><strong>professional (Бизнес):</strong> 19 975 ₽ первый месяц (включен) → 4 975 ₽/мес</li>
+                    <li><strong>enterprise (Премиум):</strong> 49 975 ₽ первый месяц (включен) → 14 975 ₽/мес</li>
                   </ul>
-                  <p className="text-xs text-slate-600 mt-2">Лимиты: basic=500 сообщ/мес, professional=3000, enterprise=10000</p>
+                  <p className="text-xs text-slate-600 mt-2">Все тарифы: first_month_included = true (первый месяц входит в setup_fee)</p>
                 </div>
                 <div className="bg-white p-3 rounded mt-2 border border-green-300">
                   <p className="font-semibold text-green-800">💳 Процесс оплаты:</p>
@@ -101,7 +101,8 @@ const FlowStepDetails = () => {
                   <p className="font-semibold text-blue-900">📊 Таблицы БД:</p>
                   <ul className="list-disc list-inside text-slate-700 space-y-1">
                     <li><code>tenants</code>: id, name, slug, tariff_id, subscription_end_date, owner_email, owner_phone</li>
-                    <li><code>users</code>: id, tenant_id, username (=email), password_hash, is_superadmin</li>
+                    <li><code>admin_users</code>: id, tenant_id, username, password_hash, role, email</li>
+                    <li><code>tenant_settings</code>: tenant_id, ai_settings, widget_settings, page_settings, telegram_settings</li>
                   </ul>
                   <p className="text-xs text-slate-600 mt-2">
                     <strong>Важно:</strong> Теперь роутинг через tenant_id, а НЕ через slug в URL. 
@@ -197,7 +198,7 @@ const FlowStepDetails = () => {
                     <ul className="list-disc list-inside text-slate-700 ml-4 mt-1">
                       <li>Загрузка PDF: <code>/backend/upload-pdf/</code></li>
                       <li>Обработка и vectorization: <code>/backend/process-pdf/</code></li>
-                      <li>Хранение в БД: таблица <code>documents</code></li>
+                      <li>Хранение в БД: таблица <code>tenant_documents</code> и <code>tenant_chunks</code></li>
                       <li>Лимит документов зависит от tariff_id</li>
                     </ul>
                   </div>
@@ -211,8 +212,8 @@ const FlowStepDetails = () => {
                       <li><strong>Telegram:</strong> TelegramSettingsCard → ввод bot_token → webhook setup</li>
                       <li><strong>VK:</strong> VKSettingsCard → ввод access_token, group_id → callback setup</li>
                       <li><strong>MAX:</strong> MAXSettingsCard → ввод channel_id, api_key</li>
-                      <li>Хранение: таблица <code>messenger_api_keys</code> (provider, tenant_id, api_key, bot_token...)</li>
-                      <li>Доступ по тарифу: basic = без мессенджеров, professional = Telegram, premium = все</li>
+                      <li>Хранение: таблица <code>tenant_api_keys</code> (provider, tenant_id, api_key, settings)</li>
+                      <li>Все мессенджеры доступны на всех тарифах</li>
                     </ul>
                   </div>
 
@@ -222,10 +223,10 @@ const FlowStepDetails = () => {
                       🧠 Вкладка "AI"
                     </p>
                     <ul className="list-disc list-inside text-slate-700 ml-4 mt-1">
-                      <li>AISettingsCard: YandexGPT (yandexgpt-lite) и настройки</li>
-                      <li>Настройка параметров: temperature, max_tokens, system_prompt</li>
+                      <li>AISettingsCard: Выбор модели (YandexGPT, OpenAI, Anthropic)</li>
+                      <li>Настройка параметров: system_prompt, temperature, model_name</li>
                       <li>Backend: <code>/backend/get-ai-settings/</code>, <code>/backend/update-ai-settings/</code></li>
-                      <li>Хранение: таблица <code>ai_settings</code> (tenant_id, model, settings_json)</li>
+                      <li>Хранение: <code>tenant_settings.ai_settings</code> (JSONB)</li>
                     </ul>
                   </div>
 
@@ -238,7 +239,7 @@ const FlowStepDetails = () => {
                       <li>PageSettingsCard: настройка текстов публичной страницы</li>
                       <li>Заголовки, подзаголовки, контакты, быстрые вопросы</li>
                       <li>Backend: <code>/backend/get-page-settings/</code>, <code>/backend/update-page-settings/</code></li>
-                      <li>Хранение: таблица <code>page_settings</code></li>
+                      <li>Хранение: <code>tenant_settings.page_settings</code> (JSONB) + таблица <code>page_settings</code> (устаревшая)</li>
                     </ul>
                   </div>
 

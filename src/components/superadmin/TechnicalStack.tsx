@@ -17,40 +17,44 @@ const TechnicalStack = () => {
             <p className="text-xs text-slate-600">id, name, slug, tariff_id, subscription_end_date, owner_email, owner_phone, created_at</p>
           </div>
           <div className="bg-slate-50 p-4 rounded border">
-            <p className="font-bold text-slate-900 mb-2">🔐 users</p>
-            <p className="text-xs text-slate-600">id, tenant_id, username, password_hash, is_superadmin</p>
+            <p className="font-bold text-slate-900 mb-2">🔐 admin_users</p>
+            <p className="text-xs text-slate-600">id, tenant_id, username, password_hash, role, email, tariff_id</p>
           </div>
           <div className="bg-slate-50 p-4 rounded border">
-            <p className="font-bold text-slate-900 mb-2">💳 tariffs</p>
-            <p className="text-xs text-slate-600">id, name, price, renewal_price, setup_fee, period, message_limit, is_active</p>
+            <p className="font-bold text-slate-900 mb-2">💳 tariff_plans</p>
+            <p className="text-xs text-slate-600">id, name, price, renewal_price, setup_fee, first_month_included, is_active</p>
           </div>
           <div className="bg-slate-50 p-4 rounded border">
-            <p className="font-bold text-slate-900 mb-2">📄 documents</p>
-            <p className="text-xs text-slate-600">id, tenant_id, filename, content, embeddings, created_at</p>
+            <p className="font-bold text-slate-900 mb-2">📄 tenant_documents</p>
+            <p className="text-xs text-slate-600">id, tenant_id, filename, original_filename, file_path, created_at</p>
           </div>
           <div className="bg-slate-50 p-4 rounded border">
-            <p className="font-bold text-slate-900 mb-2">🔑 messenger_api_keys</p>
-            <p className="text-xs text-slate-600">id, tenant_id, provider (telegram/vk/max), api_key, bot_token</p>
+            <p className="font-bold text-slate-900 mb-2">📊 tenant_chunks</p>
+            <p className="text-xs text-slate-600">id, tenant_id, document_id, chunk_text, embedding, metadata</p>
           </div>
           <div className="bg-slate-50 p-4 rounded border">
-            <p className="font-bold text-slate-900 mb-2">🧠 ai_settings</p>
-            <p className="text-xs text-slate-600">id, tenant_id, model (yandexgpt-lite), system_prompt, temperature, max_tokens</p>
+            <p className="font-bold text-slate-900 mb-2">🔑 tenant_api_keys</p>
+            <p className="text-xs text-slate-600">id, tenant_id, provider (telegram/vk/max), api_key, settings (JSONB)</p>
           </div>
           <div className="bg-slate-50 p-4 rounded border">
-            <p className="font-bold text-slate-900 mb-2">💬 chats</p>
-            <p className="text-xs text-slate-600">id, tenant_id, channel (web/telegram/vk/max), user_id, created_at</p>
+            <p className="font-bold text-slate-900 mb-2">⚙️ tenant_settings</p>
+            <p className="text-xs text-slate-600">tenant_id, ai_settings (JSONB), widget_settings (JSONB), page_settings (JSONB)</p>
           </div>
           <div className="bg-slate-50 p-4 rounded border">
-            <p className="font-bold text-slate-900 mb-2">✉️ messages</p>
-            <p className="text-xs text-slate-600">id, chat_id, role (user/assistant), content, timestamp</p>
+            <p className="font-bold text-slate-900 mb-2">💬 chat_messages</p>
+            <p className="text-xs text-slate-600">id, tenant_id, session_id, role (user/assistant), content, timestamp</p>
           </div>
           <div className="bg-slate-50 p-4 rounded border">
-            <p className="font-bold text-slate-900 mb-2">🎨 page_settings</p>
-            <p className="text-xs text-slate-600">tenant_id, header_title, header_subtitle, contact_phone...</p>
+            <p className="font-bold text-slate-900 mb-2">📧 email_templates</p>
+            <p className="text-xs text-slate-600">id, template_type, subject, html_body, variables</p>
           </div>
           <div className="bg-slate-50 p-4 rounded border">
-            <p className="font-bold text-slate-900 mb-2">🛠️ widget_settings</p>
-            <p className="text-xs text-slate-600">tenant_id, icon, position, primary_color, embed_code</p>
+            <p className="font-bold text-slate-900 mb-2">💳 subscription_payments</p>
+            <p className="text-xs text-slate-600">id, tenant_id, payment_id, amount, status, tariff_id, payment_type</p>
+          </div>
+          <div className="bg-slate-50 p-4 rounded border">
+            <p className="font-bold text-slate-900 mb-2">🎯 quality_gate_logs</p>
+            <p className="text-xs text-slate-600">id, tenant_id, session_id, decision, reason, timestamp</p>
           </div>
         </div>
       </CardContent>

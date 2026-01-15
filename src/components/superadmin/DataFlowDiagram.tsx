@@ -58,18 +58,18 @@ const DataFlowDiagram = () => {
                 <p className="font-semibold text-purple-800 mb-2">🔍 Чтение:</p>
                 <ul className="text-sm text-slate-700 space-y-1">
                   <li>• SELECT из <code>tenants</code> (по tenant_id)</li>
-                  <li>• SELECT из <code>documents</code> (embeddings)</li>
-                  <li>• SELECT из <code>ai_settings</code> (модель, промпт)</li>
-                  <li>• SELECT из <code>chats, messages</code> (история)</li>
+                  <li>• SELECT из <code>tenant_documents, tenant_chunks</code> (документы, embeddings)</li>
+                  <li>• SELECT из <code>tenant_settings</code> (ai_settings, widget_settings...)</li>
+                  <li>• SELECT из <code>chat_messages</code> (история диалогов)</li>
                 </ul>
               </div>
               <div className="bg-pink-50 p-4 rounded border border-pink-200">
                 <p className="font-semibold text-pink-800 mb-2">✏️ Запись:</p>
                 <ul className="text-sm text-slate-700 space-y-1">
-                  <li>• INSERT в <code>messages</code> (user + assistant)</li>
-                  <li>• INSERT в <code>chats</code> (новая сессия)</li>
+                  <li>• INSERT в <code>chat_messages</code> (user + assistant)</li>
+                  <li>• UPDATE <code>tenant_settings</code> (настройки AI, виджета, страницы)</li>
                   <li>• UPDATE <code>tenants</code> (subscription_end_date)</li>
-                  <li>• INSERT в <code>documents</code> (новый PDF)</li>
+                  <li>• INSERT в <code>tenant_documents</code> (новый PDF)</li>
                 </ul>
               </div>
             </div>
@@ -89,13 +89,13 @@ const DataFlowDiagram = () => {
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="bg-orange-50 p-4 rounded border border-orange-200">
-                <p className="font-semibold text-orange-800 mb-2">🤖 YandexGPT</p>
+                <p className="font-semibold text-orange-800 mb-2">🤖 AI Провайдеры</p>
                 <ul className="text-sm text-slate-700 space-y-1">
-                  <li>• Model: yandexgpt-lite</li>
-                  <li>• API Key из secrets</li>
-                  <li>• Folder ID из secrets</li>
-                  <li>• Запрос: messages[]</li>
-                  <li>• Ответ: text</li>
+                  <li>• YandexGPT (yandexgpt, yandexgpt-lite)</li>
+                  <li>• OpenAI (gpt-4, gpt-3.5-turbo)</li>
+                  <li>• Anthropic (claude-3-sonnet)</li>
+                  <li>• API Keys из tenant_settings</li>
+                  <li>• Запрос/ответ через /chat</li>
                 </ul>
               </div>
               <div className="bg-teal-50 p-4 rounded border border-teal-200">
