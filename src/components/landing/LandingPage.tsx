@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { HeroSection } from './HeroSection';
 import { FeaturesSection } from './FeaturesSection';
+import { WeDoEverythingSection } from './WeDoEverythingSection';
 import { HowItWorksSection } from './HowItWorksSection';
 import { CalculatorSection } from './CalculatorSection';
 import { CasesSection } from './CasesSection';
@@ -9,6 +10,7 @@ import { TestimonialsSection } from './TestimonialsSection';
 import { SecuritySection } from './SecuritySection';
 import { PricingSection } from './PricingSection';
 import { FAQSection } from './FAQSection';
+import { YourBotSection } from './YourBotSection';
 import { OrderFormSection } from './OrderFormSection';
 import { FooterSection } from './FooterSection';
 
@@ -37,6 +39,7 @@ const LandingPage = () => {
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
       <HeroSection onOrderClick={() => scrollToForm('basic')} />
       <FeaturesSection />
+      <WeDoEverythingSection />
       <HowItWorksSection />
       <CalculatorSection />
       <CasesSection />
@@ -44,6 +47,7 @@ const LandingPage = () => {
       <SecuritySection />
       <PricingSection onPlanSelect={scrollToForm} />
       <FAQSection />
+      <YourBotSection />
       <OrderFormSection selectedTariff={selectedTariff} />
       <FooterSection />
     </div>

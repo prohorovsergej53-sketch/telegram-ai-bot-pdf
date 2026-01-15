@@ -75,7 +75,7 @@ export const FeaturesSection = () => {
     {
       icon: 'Rocket',
       title: 'Запуск за 1 день',
-      description: 'Не нужно нанимать программистов. Загружаете документы — и бот готов работать',
+      description: 'Вы даёте информацию — мы настраиваем, обучаем, подключаем. Без программистов.',
       bgColor: 'bg-indigo-100',
       iconColor: 'text-indigo-600',
       value: '24ч',

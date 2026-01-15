@@ -5,50 +5,50 @@ export const HowItWorksSection = () => {
   const steps = [
     {
       number: '1',
-      icon: 'UserPlus',
-      title: 'Регистрация за 30 секунд',
-      description: 'Оплачиваете тариф — система автоматически создаёт ваш личный кабинет. Вы сразу получаете доступ ко всем функциям.',
-      time: '30 сек',
+      icon: 'CreditCard',
+      title: 'Оплата и доступ',
+      description: 'Выбираете тариф, оплачиваете — получаете личный кабинет. Там вы загружаете документы и настраиваете тексты. Остальное — наша работа.',
+      time: '2 мин',
       gradient: 'from-blue-500 to-cyan-500'
     },
     {
       number: '2',
       icon: 'Upload',
-      title: 'Загрузка знаний',
-      description: 'Загружаете PDF файлы: прайс-листы, описания услуг, инструкции, правила. AI анализирует и запоминает всю информацию.',
-      time: '5-10 мин',
+      title: 'Вы предоставляете инфо',
+      description: 'Загружаете в ЛК: прайсы, описания услуг, инструкции, частые вопросы. Для мессенджеров — ключи по нашей инструкции.',
+      time: '10 мин',
       gradient: 'from-green-500 to-emerald-500'
     },
     {
       number: '3',
       icon: 'Settings',
-      title: 'Настройка бота',
-      description: 'Пишете приветствие, выбираете стиль общения в настройках бота. Простой интерфейс — как в мессенджере.',
-      time: '5-10 мин',
+      title: 'МЫ настраиваем',
+      description: 'Подбираем оптимальную AI-модель под вашу нишу, обучаем бота на ваших документах. Учитываем 152-ФЗ, если нужно.',
+      time: '6-12 ч',
       gradient: 'from-purple-500 to-pink-500'
     },
     {
       number: '4',
       icon: 'Link',
-      title: 'Подключение каналов',
-      description: 'Копируете ссылку на web-чат или виджет для сайта. На Бизнес/Премиум — подключаете Telegram, VK, MAX по инструкции.',
-      time: '2-5 мин',
+      title: 'МЫ подключаем',
+      description: 'Подключаем web-чат, виджет на сайт, мессенджеры. Это ВАШ бот — подписчики остаются с вами навсегда.',
+      time: '2-4 ч',
       gradient: 'from-orange-500 to-red-500'
     },
     {
       number: '5',
       icon: 'TestTube',
-      title: 'Тестирование',
-      description: 'Задаёте боту вопросы, проверяете ответы, корректируем, если нужно. Убеждаетесь, что всё работает идеально.',
-      time: '10-15 мин',
+      title: 'МЫ тестируем',
+      description: 'Проверяем работу бота, доводим до идеала. Вы получаете инструкцию и можете сами проверить. Корректируем при необходимости.',
+      time: '2-4 ч',
       gradient: 'from-indigo-500 to-purple-500'
     },
     {
       number: '6',
       icon: 'Rocket',
-      title: 'Запуск!',
-      description: 'AI-консультант готов принимать вопросы клиентов! Вы видите статистику в реальном времени и можете корректировать ответы.',
-      time: 'Готово!',
+      title: 'ЗАПУСК!',
+      description: 'Бот работает, клиенты получают ответы за 3 секунды! Вы видите всю статистику в ЛК и можете добавлять новые документы.',
+      time: 'ГОТОВ!',
       gradient: 'from-pink-500 to-rose-500'
     }
   ];
@@ -67,7 +67,7 @@ export const HowItWorksSection = () => {
             Как мы работаем
           </h2>
           <p className="text-2xl text-slate-700 max-w-4xl mx-auto font-medium">
-            От оплаты до запуска — всего 30 минут. Без программистов, без сложных настроек.
+            От вас — только информация и ключи. Мы делаем всё остальное. Запуск за 24 часа.
           </p>
         </div>
 
@@ -110,23 +110,23 @@ export const HowItWorksSection = () => {
                   <Icon name="Trophy" size={40} className="text-white" />
                 </div>
                 <h3 className="text-4xl font-bold text-white mb-4">
-                  Итого: От 30 минут до полного запуска
+                  Запуск за 24 часа — мы делаем всё за вас!
                 </h3>
                 <p className="text-xl text-green-100 mb-8 max-w-2xl mx-auto">
-                  На тарифе Премиум личный менеджер сделает всё за вас — вы получите готового AI-консультанта под ключ
+                  От вас — только документы и ключи. Мы настроим, обучим, подключим, протестируем.
                 </p>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <div className="bg-white/10 backdrop-blur rounded-lg p-6">
-                    <div className="text-3xl font-bold text-white mb-2">30 мин</div>
-                    <div className="text-green-100 text-sm">самостоятельная настройка</div>
+                    <div className="text-3xl font-bold text-white mb-2">10 мин</div>
+                    <div className="text-green-100 text-sm">вашего времени на загрузку</div>
                   </div>
                   <div className="bg-white/10 backdrop-blur rounded-lg p-6">
                     <div className="text-3xl font-bold text-white mb-2">24 часа</div>
-                    <div className="text-green-100 text-sm">настройка Премиум под ключ</div>
+                    <div className="text-green-100 text-sm">мы настраиваем и запускаем</div>
                   </div>
                   <div className="bg-white/10 backdrop-blur rounded-lg p-6">
                     <div className="text-3xl font-bold text-white mb-2">0</div>
-                    <div className="text-green-100 text-sm">технических знаний</div>
+                    <div className="text-green-100 text-sm">технических знаний не нужно</div>
                   </div>
                 </div>
               </div>
