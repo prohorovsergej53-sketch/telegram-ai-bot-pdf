@@ -103,6 +103,21 @@ export const EmailTemplatesTab = () => {
 
     setIsSendingTest(true);
     try {
+      const isSubscriptionReminder = selectedTemplate.template_key.startsWith('subscription_reminder_');
+      
+      const testData = isSubscriptionReminder 
+        ? {
+            tenant_name: 'Тестовый проект',
+            tariff_name: 'Бизнес',
+            renewal_price: '7990.00',
+            renewal_url: 'https://example.com/content-editor?tenant_id=123'
+          }
+        : {
+            email: 'test@example.com',
+            password: 'demo123456',
+            login_url: 'https://example.com/login'
+          };
+
       const response = await authenticatedFetch(BACKEND_URLS.emailTemplates, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -110,11 +125,7 @@ export const EmailTemplatesTab = () => {
           action: 'test',
           template_id: selectedTemplate.id,
           test_email: testEmail,
-          test_data: {
-            email: 'test@example.com',
-            password: 'demo123456',
-            login_url: 'https://example.com/login'
-          }
+          test_data: testData
         })
       });
 
