@@ -79,6 +79,7 @@ def handler(event: dict, context) -> dict:
                 first_month_included = metadata.get('first_month_included', False)
                 consent_text = metadata.get('consent_text', '')
                 session_id = metadata.get('session_id', '')
+                requires_fz152 = metadata.get('requires_fz152', False)
                 
                 # Получаем IP и User-Agent из контекста запроса
                 request_context = event.get('requestContext', {})
@@ -91,9 +92,9 @@ def handler(event: dict, context) -> dict:
                     try:
                         cur.execute("""
                             INSERT INTO t_p56134400_telegram_ai_bot_pdf.sales_consent_logs 
-                            (session_id, email, tenant_name, tariff_id, consent_text, ip_address, user_agent)
-                            VALUES (%s, %s, %s, %s, %s, %s, %s)
-                        """, (session_id, owner_email, tenant_name, tariff_id, consent_text, ip_address, user_agent))
+                            (session_id, email, tenant_name, tariff_id, consent_text, ip_address, user_agent, requires_fz152)
+                            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+                        """, (session_id, owner_email, tenant_name, tariff_id, consent_text, ip_address, user_agent, requires_fz152))
                         conn.commit()
                     except Exception as e:
                         print(f"Failed to log consent: {e}")
@@ -111,10 +112,10 @@ def handler(event: dict, context) -> dict:
                 cur.execute("""
                     INSERT INTO t_p56134400_telegram_ai_bot_pdf.tenants 
                     (slug, name, description, owner_email, owner_phone, template_version, auto_update, status, 
-                     is_public, subscription_status, subscription_end_date, tariff_id)
-                    VALUES (%s, %s, %s, %s, %s, '1.0.0', false, 'active', true, 'active', %s, %s)
+                     is_public, subscription_status, subscription_end_date, tariff_id, fz152_enabled)
+                    VALUES (%s, %s, %s, %s, %s, '1.0.0', false, 'active', true, 'active', %s, %s, %s)
                     RETURNING id
-                """, (tenant_slug, tenant_name, f'Создан после оплаты {payment_id}', owner_email, owner_phone, subscription_end, tariff_id))
+                """, (tenant_slug, tenant_name, f'Создан после оплаты {payment_id}', owner_email, owner_phone, subscription_end, tariff_id, requires_fz152))
                 
                 tenant_id = cur.fetchone()[0]
                 

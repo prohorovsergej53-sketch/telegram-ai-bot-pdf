@@ -26,6 +26,7 @@ interface ConsentLog {
   ip_address: string;
   user_agent: string;
   created_at: string;
+  requires_fz152: boolean;
 }
 
 export const ConsentLogsTab = () => {
@@ -180,6 +181,7 @@ export const ConsentLogsTab = () => {
                         <TableHead className="w-[200px]">Email</TableHead>
                         <TableHead className="w-[150px]">Тенант</TableHead>
                         <TableHead className="w-[100px]">Тариф</TableHead>
+                        <TableHead className="w-[80px]">152-ФЗ</TableHead>
                         <TableHead className="w-[120px]">IP</TableHead>
                         <TableHead className="w-[150px]">Дата</TableHead>
                         <TableHead className="w-[100px]">Действия</TableHead>
@@ -188,7 +190,7 @@ export const ConsentLogsTab = () => {
                     <TableBody>
                       {filteredConsents.length === 0 ? (
                         <TableRow>
-                          <TableCell colSpan={7} className="text-center text-muted-foreground py-8">
+                          <TableCell colSpan={8} className="text-center text-muted-foreground py-8">
                             {searchQuery ? 'Ничего не найдено' : 'Нет логов согласий'}
                           </TableCell>
                         </TableRow>
@@ -208,6 +210,13 @@ export const ConsentLogsTab = () => {
                               <span className="px-2 py-1 bg-green-100 text-green-700 rounded text-xs">
                                 {consent.tariff_id || '—'}
                               </span>
+                            </TableCell>
+                            <TableCell className="text-center">
+                              {consent.requires_fz152 ? (
+                                <span className="px-2 py-1 bg-amber-100 text-amber-700 rounded text-xs font-semibold">Да</span>
+                              ) : (
+                                <span className="px-2 py-1 bg-gray-100 text-gray-600 rounded text-xs">Нет</span>
+                              )}
                             </TableCell>
                             <TableCell className="font-mono text-xs">
                               {consent.ip_address || '—'}

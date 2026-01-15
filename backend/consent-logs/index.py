@@ -77,7 +77,7 @@ def handler(event: dict, context) -> dict:
             
             cur.execute(f"""
                 SELECT id, session_id, email, tenant_name, tariff_id, 
-                       consent_text, ip_address, user_agent, created_at
+                       consent_text, ip_address, user_agent, created_at, requires_fz152
                 FROM {schema}.sales_consent_logs
                 ORDER BY created_at DESC
                 LIMIT 1000
@@ -107,7 +107,7 @@ def handler(event: dict, context) -> dict:
             
             cur.execute(f"""
                 SELECT id, session_id, email, tenant_name, tariff_id, 
-                       consent_text, ip_address, user_agent, created_at
+                       consent_text, ip_address, user_agent, created_at, requires_fz152
                 FROM {schema}.sales_consent_logs
                 ORDER BY created_at DESC
             """)
@@ -119,7 +119,7 @@ def handler(event: dict, context) -> dict:
             writer = csv.writer(output)
             
             # Заголовки
-            writer.writerow(['ID', 'Session ID', 'Email', 'Tenant Name', 'Tariff ID', 'IP Address', 'User Agent', 'Consent Text', 'Created At'])
+            writer.writerow(['ID', 'Session ID', 'Email', 'Tenant Name', 'Tariff ID', 'IP Address', 'User Agent', 'Requires FZ152', 'Consent Text', 'Created At'])
             
             # Данные
             for row in rows:
@@ -131,6 +131,7 @@ def handler(event: dict, context) -> dict:
                     row['tariff_id'] or '',
                     row['ip_address'] or '',
                     row['user_agent'] or '',
+                    'Да' if row.get('requires_fz152') else 'Нет',
                     row['consent_text'][:100] + '...' if len(row['consent_text']) > 100 else row['consent_text'],
                     row['created_at'].isoformat() if row['created_at'] else ''
                 ])
@@ -178,12 +179,14 @@ def handler(event: dict, context) -> dict:
             
             cur = conn.cursor()
             
+            requires_fz152 = body.get('requires_fz152', False)
+            
             cur.execute(f"""
                 INSERT INTO {schema}.sales_consent_logs 
-                (session_id, email, tenant_name, tariff_id, consent_text, ip_address, user_agent)
-                VALUES (%s, %s, %s, %s, %s, %s, %s)
+                (session_id, email, tenant_name, tariff_id, consent_text, ip_address, user_agent, requires_fz152)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
                 RETURNING id
-            """, (session_id, email, tenant_name, tariff_id, consent_text, ip_address, user_agent))
+            """, (session_id, email, tenant_name, tariff_id, consent_text, ip_address, user_agent, requires_fz152))
             
             consent_id = cur.fetchone()[0]
             conn.commit()

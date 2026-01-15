@@ -37,6 +37,7 @@ const PaymentPage = () => {
   });
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [agreedToPrivacy, setAgreedToPrivacy] = useState(false);
+  const [requiresFz152, setRequiresFz152] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingTariffs, setIsLoadingTariffs] = useState(true);
   const { toast} = useToast();
@@ -113,7 +114,8 @@ const PaymentPage = () => {
           owner_phone: formData.owner_phone,
           tariff_id: selectedTariff,
           tariff_name: selectedPlan.name,
-          first_month_included: selectedPlan.first_month_included
+          first_month_included: selectedPlan.first_month_included,
+          requires_fz152: requiresFz152
         }
       };
 
@@ -309,6 +311,25 @@ const PaymentPage = () => {
                     </Link>
                   </Label>
                 </div>
+
+                {(selectedTariff === 'professional' || selectedTariff === 'enterprise') && (
+                  <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+                    <div className="flex items-start gap-3">
+                      <Checkbox 
+                        id="requires_fz152" 
+                        checked={requiresFz152}
+                        onCheckedChange={(checked) => setRequiresFz152(checked as boolean)}
+                      />
+                      <Label htmlFor="requires_fz152" className="text-sm leading-relaxed cursor-pointer">
+                        <span className="font-semibold text-amber-900">Я буду обрабатывать персональные данные клиентов</span>
+                        <p className="text-xs text-amber-800 mt-1">
+                          При выборе этой опции вам потребуется использовать собственный API ключ YandexGPT для соответствия 152-ФЗ. 
+                          Будут активированы специальные настройки безопасности и логирование согласий.
+                        </p>
+                      </Label>
+                    </div>
+                  </div>
+                )}
 
                 <div className="flex items-center justify-between pt-2">
                   <span className="text-lg font-semibold">Итого к оплате:</span>
