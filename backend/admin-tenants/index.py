@@ -179,7 +179,7 @@ def handler(event: dict, context) -> dict:
             cur.execute(f"""
                 INSERT INTO {schema}.admin_users 
                 (username, password_hash, email, role, tenant_id, is_active, subscription_status, subscription_end_date, tariff_id)
-                VALUES (%s, %s, %s, 'content_editor', %s, true, 'active', %s, %s)
+                VALUES (%s, %s, %s, 'tenant_admin', %s, true, 'active', %s, %s)
                 RETURNING id
             """, (username, password_hash, owner_email, tenant_id, subscription_end, tariff_id))
             
