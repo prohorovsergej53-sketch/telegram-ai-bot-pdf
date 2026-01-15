@@ -29,7 +29,7 @@ MODEL_API_NAMES = {
     'llama-3.1-405b': 'meta-llama/llama-3.1-405b-instruct:free',
     'llama-3.2-90b-vision': 'meta-llama/llama-3.2-90b-vision-instruct:free',
     'llama-3.1-8b': 'meta-llama/llama-3.1-8b-instruct:free',
-    'gemma-2-9b': 'google/gemma-2-9b-it:free',
+    'gemma-2-9b': 'google/gemma-2-27b-it:free',
     'qwen-2.5-7b': 'qwen/qwen-2.5-7b-instruct:free',
     'qwen-2.5-72b': 'qwen/qwen-2.5-72b-instruct:free',
     'phi-3-medium': 'microsoft/phi-3-medium-128k-instruct:free',
@@ -50,7 +50,7 @@ MODEL_API_NAMES = {
     'gemini-flash-1.5': 'google/gemini-flash-1.5',
     # Backward compatibility
     'openrouter-llama-3.1-8b': 'meta-llama/llama-3.1-8b-instruct:free',
-    'openrouter-gemma-2-9b': 'google/gemma-2-9b-it:free',
+    'openrouter-gemma-2-9b': 'google/gemma-2-27b-it:free',
     'openrouter-qwen-2.5-7b': 'qwen/qwen-2.5-7b-instruct:free',
     'openrouter-phi-3-medium': 'microsoft/phi-3-medium-128k-instruct:free',
     'openrouter-deepseek-r1': 'deepseek/deepseek-r1-distill-llama-70b',
