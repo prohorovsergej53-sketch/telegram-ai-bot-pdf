@@ -28,8 +28,16 @@ def handler(event: dict, context) -> dict:
             'isBase64Encoded': False
         }
     
-    conn = psycopg2.connect(dsn)
-    cur = conn.cursor()
+    try:
+        conn = psycopg2.connect(dsn)
+        cur = conn.cursor()
+    except Exception as e:
+        return {
+            'statusCode': 500,
+            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+            'body': json.dumps({'error': f'Database connection failed: {str(e)}'}),
+            'isBase64Encoded': False
+        }
     
     try:
         if method == 'GET':

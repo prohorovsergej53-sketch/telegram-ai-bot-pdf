@@ -45,12 +45,20 @@ export const EmailTemplatesTab = () => {
         if (data.templates.length > 0 && !selectedTemplate) {
           setSelectedTemplate(data.templates[0]);
         }
+      } else {
+        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+        console.error('Server error:', response.status, errorData);
+        toast({
+          title: 'Ошибка сервера',
+          description: errorData.error || `Статус: ${response.status}`,
+          variant: 'destructive'
+        });
       }
     } catch (error) {
       console.error('Error loading templates:', error);
       toast({
         title: 'Ошибка',
-        description: 'Не удалось загрузить шаблоны',
+        description: error instanceof Error ? error.message : 'Не удалось загрузить шаблоны',
         variant: 'destructive'
       });
     } finally {
