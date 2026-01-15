@@ -61,10 +61,19 @@ const FlowStepDetails = () => {
                 <div className="bg-white p-3 rounded mt-2 border border-green-300">
                   <p className="font-semibold text-green-800">💳 Процесс оплаты:</p>
                   <ul className="list-disc list-inside text-slate-700 space-y-1">
-                    <li>Frontend отправляет metadata: email, phone, tariff_id, tenant_name</li>
+                    <li>Frontend отправляет metadata: email, phone, tariff_id, tenant_name, <strong className="text-amber-600">requires_fz152</strong></li>
                     <li>Backend создаёт платёж в ЮKassa → получение payment_url</li>
                     <li>Редирект клиента на страницу оплаты ЮKassa</li>
                     <li>После оплаты: webhook на <code className="bg-slate-100 px-1">/backend/yookassa-webhook/</code></li>
+                  </ul>
+                </div>
+                <div className="bg-amber-50 p-3 rounded mt-2 border border-amber-300">
+                  <p className="font-semibold text-amber-800">🔒 152-ФЗ (только Бизнес и Премиум):</p>
+                  <ul className="list-disc list-inside text-slate-700 space-y-1">
+                    <li>При оплате доступен чекбокс "Я буду обрабатывать персональные данные клиентов"</li>
+                    <li>Если отмечен → <code className="bg-white px-1">requires_fz152=true</code> в metadata</li>
+                    <li>Автоматически активируется вкладка "152-ФЗ" в админке</li>
+                    <li>Клиент обязан использовать собственный API ключ YandexGPT</li>
                   </ul>
                 </div>
               </div>
@@ -88,11 +97,12 @@ const FlowStepDetails = () => {
                   <p className="font-semibold text-yellow-800">⚙️ Логика обработки:</p>
                   <ul className="list-disc list-inside text-slate-700 space-y-1">
                     <li>Проверка статуса платежа (succeeded)</li>
-                    <li>Извлечение metadata: email, phone, tenant_name, tariff_id</li>
-                    <li><strong>Создание tenant в БД:</strong> INSERT INTO tenants (slug, name, owner_email...)</li>
+                    <li>Извлечение metadata: email, phone, tenant_name, tariff_id, <strong className="text-amber-600">requires_fz152</strong></li>
+                    <li><strong>Создание tenant в БД:</strong> INSERT INTO tenants (slug, name, owner_email, <strong className="text-amber-600">fz152_enabled</strong>...)</li>
+                    <li><strong>Логирование согласия:</strong> INSERT INTO sales_consent_logs (<strong className="text-amber-600">requires_fz152</strong>, session_id, email, consent_text, ip_address)</li>
                     <li><strong className="text-green-600">🎨 Копирование шаблона:</strong> SELECT settings FROM tenant_id=1 → INSERT для нового tenant_id</li>
                     <li>Генерация уникального slug из metadata (tenant_slug или tenant-{'{'}payment_id{'}'})</li>
-                    <li>Создание admin-пользователя (username={'{'}slug{'}'}_user, случайный пароль)</li>
+                    <li>Создание admin-пользователя (username={'{'}slug{'}'}_admin, role='tenant_admin', случайный пароль)</li>
                     <li>Установка tariff_id и subscription_end_date (тариф + 30 дней)</li>
                     <li>Отправка email с доступами через send-order-email</li>
                   </ul>
@@ -100,13 +110,13 @@ const FlowStepDetails = () => {
                 <div className="bg-blue-100 p-3 rounded mt-2 border border-blue-400">
                   <p className="font-semibold text-blue-900">📊 Таблицы БД:</p>
                   <ul className="list-disc list-inside text-slate-700 space-y-1">
-                    <li><code>tenants</code>: id, name, slug, tariff_id, subscription_end_date, owner_email, owner_phone</li>
-                    <li><code>admin_users</code>: id, tenant_id, username, password_hash, role, email</li>
-                    <li><code>tenant_settings</code>: tenant_id, ai_settings, widget_settings, page_settings, telegram_settings</li>
+                    <li><code>tenants</code>: id, name, slug, tariff_id, subscription_end_date, owner_email, owner_phone, <strong className="text-amber-600">fz152_enabled</strong></li>
+                    <li><code>admin_users</code>: id, tenant_id, username, password_hash, <strong>role ('tenant_admin' | 'super_admin')</strong>, email</li>
+                    <li><code>tenant_settings</code>: tenant_id, ai_settings, widget_settings, page_settings, messenger_settings</li>
+                    <li><code className="text-amber-600">sales_consent_logs</code>: session_id, email, tenant_name, tariff_id, consent_text, ip_address, user_agent, <strong>requires_fz152</strong></li>
                   </ul>
                   <p className="text-xs text-slate-600 mt-2">
-                    <strong>Важно:</strong> Теперь роутинг через tenant_id, а НЕ через slug в URL. 
-                    Пользователь получает прямую ссылку: /content-editor?tenant_id=123
+                    <strong>Важно:</strong> Роутинг через slug в URL: <code>https://ai-ru.ru/{'{'}tenant_slug{'}'}/admin</code>
                   </p>
                 </div>
               </div>
@@ -139,7 +149,7 @@ const FlowStepDetails = () => {
                 </div>
                 <div className="bg-white p-3 rounded mt-2 border border-purple-300 space-y-2">
                   <p className="font-semibold text-purple-800">✉️ Клиенту отправляется:</p>
-                  <p className="text-slate-700">🔗 <strong>URL админки:</strong> <code className="bg-slate-100 px-2 py-1">https://ai-ru.ru/content-editor?tenant_id=[id]</code></p>
+                  <p className="text-slate-700">🔗 <strong>URL админки:</strong> <code className="bg-slate-100 px-2 py-1">https://ai-ru.ru/{'{'}tenant_slug{'}'}/admin</code></p>
                   <p className="text-slate-700">👤 <strong>Логин (email):</strong> email клиента</p>
                   <p className="text-slate-700">🔑 <strong>Пароль:</strong> случайный (8-12 символов)</p>
                   <p className="text-slate-700">📋 <strong>Детали:</strong> название тарифа, сумма платежа, payment_id</p>
@@ -159,15 +169,15 @@ const FlowStepDetails = () => {
                 Авторизация в админ-панели
               </h3>
               <div className="space-y-2 text-sm">
-                <p className="text-slate-700"><strong>URL:</strong> <code className="bg-white px-2 py-1 rounded">https://ai-ru.ru/content-editor?tenant_id=[id]</code></p>
-                <p className="text-slate-700"><strong>Компонент:</strong> <code>src/pages/Admin.tsx</code> → AdminView.tsx</p>
+                <p className="text-slate-700"><strong>URL:</strong> <code className="bg-white px-2 py-1 rounded">https://ai-ru.ru/{'{'}tenant_slug{'}'}/admin</code></p>
+                <p className="text-slate-700"><strong>Компонент:</strong> <code>src/pages/Index.tsx</code> → AdminView.tsx</p>
                 <p className="text-slate-700"><strong>Backend:</strong> <code className="bg-white px-2 py-1 rounded">/backend/auth-admin/index.py</code></p>
                 <div className="bg-white p-3 rounded mt-2 border border-red-300">
                   <p className="font-semibold text-red-800">🔐 Процесс авторизации:</p>
                   <ul className="list-disc list-inside text-slate-700 space-y-1">
-                    <li>Клиент вводит email + password на /content-editor?tenant_id=X</li>
-                    <li>Backend /auth-admin проверяет: tenant_id + username (email) + пароль</li>
-                    <li>Генерация JWT токена (payload: user_id, tenant_id, is_superadmin)</li>
+                    <li>Клиент вводит username + password на /{'{'}tenant_slug{'}'}/admin</li>
+                    <li>Backend /auth-admin проверяет: username + password + role ('tenant_admin' | 'super_admin')</li>
+                    <li>Генерация JWT токена (payload: user_id, username, role, tenant_id, tariff_id)</li>
                     <li>Сохранение токена в localStorage</li>
                     <li>Заголовок X-Authorization (из-за фильтрации прокси)</li>
                   </ul>
@@ -223,10 +233,26 @@ const FlowStepDetails = () => {
                       🧠 Вкладка "AI"
                     </p>
                     <ul className="list-disc list-inside text-slate-700 ml-4 mt-1">
-                      <li>AISettingsCard: Выбор модели (YandexGPT, OpenAI, Anthropic)</li>
-                      <li>Настройка параметров: system_prompt, temperature, model_name</li>
-                      <li>Backend: <code>/backend/get-ai-settings/</code>, <code>/backend/update-ai-settings/</code></li>
-                      <li>Хранение: <code>tenant_settings.ai_settings</code> (JSONB)</li>
+                      <li><strong>Суперадмин:</strong> Полные настройки (выбор моделей, параметры генерации, API ключи всех провайдеров)</li>
+                      <li><strong>Тенант с fz152_enabled=false:</strong> Вкладка скрыта (AI настройки управляет суперадмин)</li>
+                      <li><strong>Тенант с fz152_enabled=true:</strong> Только добавление собственного YandexGPT API ключа</li>
+                      <li>Backend: <code>/backend/get-ai-settings/</code>, <code>/backend/update-ai-settings/</code>, <code>/backend/manage-api-keys/</code></li>
+                      <li>Хранение: <code>tenant_settings.ai_settings</code> (JSONB), <code>tenant_api_keys</code></li>
+                    </ul>
+                  </div>
+
+                  <div className="bg-amber-50 p-3 rounded border border-amber-300 mt-2">
+                    <p className="font-semibold text-amber-800 flex items-center gap-2">
+                      <Icon name="ShieldCheck" size={16} />
+                      🔒 Вкладка "152-ФЗ" (только для fz152_enabled=true)
+                    </p>
+                    <ul className="list-disc list-inside text-slate-700 ml-4 mt-1">
+                      <li><strong>Доступна только:</strong> тенантам с fz152_enabled=true (Бизнес/Премиум с чекбоксом при оплате)</li>
+                      <li><strong>ConsentSettingsCard:</strong> настройка текста согласия на обработку персональных данных</li>
+                      <li>Чекбокс согласия показывается в веб-чате, Telegram, VK перед первым сообщением</li>
+                      <li>Логирование согласий: таблица <code>user_consents</code> (user_id, tenant_id, consent_text, ip_address, timestamp)</li>
+                      <li><strong>Требование:</strong> клиент обязан использовать собственный YandexGPT API ключ (настраивается во вкладке AI)</li>
+                      <li>Backend: <code>/backend/get-consent-settings/</code>, <code>/backend/update-consent-settings/</code></li>
                     </ul>
                   </div>
 
@@ -273,10 +299,73 @@ const FlowStepDetails = () => {
             </div>
           </div>
 
-          {/* Этап 7: Ежемесячное продление */}
+          {/* Этап 7: 152-ФЗ логика */}
+          <div className="relative pl-8 pb-8 border-l-4 border-amber-500">
+            <div className="absolute -left-4 top-0 w-8 h-8 bg-amber-500 rounded-full flex items-center justify-center text-white font-bold shadow-lg">
+              7
+            </div>
+            <div className="bg-amber-50 p-6 rounded-lg border-2 border-amber-200">
+              <h3 className="text-xl font-bold text-amber-900 mb-3 flex items-center gap-2">
+                <Icon name="ShieldCheck" size={20} />
+                152-ФЗ: Обработка персональных данных
+              </h3>
+              <div className="space-y-3 text-sm">
+                <div className="bg-white p-4 rounded border border-amber-300">
+                  <p className="font-semibold text-amber-800 mb-2">🎯 Кому доступно:</p>
+                  <ul className="list-disc list-inside text-slate-700 space-y-1">
+                    <li><strong>Тарифы:</strong> только Бизнес (professional) и Премиум (enterprise)</li>
+                    <li><strong>Активация:</strong> чекбокс "Я буду обрабатывать персональные данные клиентов" при оплате</li>
+                    <li><strong>Результат:</strong> <code>tenants.fz152_enabled = true</code> в БД</li>
+                  </ul>
+                </div>
+
+                <div className="bg-white p-4 rounded border border-amber-300">
+                  <p className="font-semibold text-amber-800 mb-2">⚙️ Что происходит при активации:</p>
+                  <ul className="list-disc list-inside text-slate-700 space-y-1">
+                    <li><strong>Вкладка "152-ФЗ":</strong> автоматически появляется в админке тенанта</li>
+                    <li><strong>Вкладка "AI":</strong> появляется возможность добавить собственный YandexGPT API ключ</li>
+                    <li><strong>Логирование:</strong> согласие записывается в <code>sales_consent_logs</code> с флагом requires_fz152=true</li>
+                    <li><strong>Требование:</strong> клиент обязан использовать свой YandexGPT ключ (API Key + Folder ID)</li>
+                  </ul>
+                </div>
+
+                <div className="bg-white p-4 rounded border border-amber-300">
+                  <p className="font-semibold text-amber-800 mb-2">🔐 Настройки согласий (ConsentSettingsCard):</p>
+                  <ul className="list-disc list-inside text-slate-700 space-y-1">
+                    <li>Редактирование текста согласия на обработку персональных данных</li>
+                    <li>Включение/отключение показа согласия: веб-чат, Telegram, VK</li>
+                    <li>Логирование всех согласий пользователей в <code>user_consents</code> с IP, timestamp, user_agent</li>
+                    <li>Backend: <code>/backend/get-consent-settings/</code>, <code>/backend/update-consent-settings/</code></li>
+                  </ul>
+                </div>
+
+                <div className="bg-white p-4 rounded border border-amber-300">
+                  <p className="font-semibold text-amber-800 mb-2">🔑 YandexGPT API ключи:</p>
+                  <ul className="list-disc list-inside text-slate-700 space-y-1">
+                    <li><strong>Обязательно:</strong> Yandex API Key + Folder ID</li>
+                    <li>Используется для: чат (yandexgpt-lite), эмбеддинги (text-search-doc, text-search-query)</li>
+                    <li>Хранение: <code>tenant_api_keys</code> (provider='yandex', key_name='api_key'/'folder_id')</li>
+                    <li>Backend: <code>/backend/manage-api-keys/</code> (GET/POST)</li>
+                  </ul>
+                </div>
+
+                <div className="bg-blue-50 p-4 rounded border border-blue-300">
+                  <p className="font-semibold text-blue-800 mb-2">📊 Суперадмин: Логи согласий продаж</p>
+                  <ul className="list-disc list-inside text-slate-700 space-y-1">
+                    <li>Вкладка "Логи согласий" в суперадминке</li>
+                    <li>Таблица <code>sales_consent_logs</code>: session_id, email, tenant_name, tariff_id, requires_fz152, consent_text, ip_address, user_agent, created_at</li>
+                    <li>Экспорт в CSV для отчетности</li>
+                    <li>Backend: <code>/backend/consent-logs/</code> (GET с action=list/export)</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Этап 8: Ежемесячное продление */}
           <div className="relative pl-8 pb-8 border-l-4 border-orange-500">
             <div className="absolute -left-4 top-0 w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center text-white font-bold shadow-lg">
-              7
+              8
             </div>
             <div className="bg-orange-50 p-6 rounded-lg border-2 border-orange-200">
               <h3 className="text-xl font-bold text-orange-900 mb-3 flex items-center gap-2">
@@ -297,7 +386,7 @@ const FlowStepDetails = () => {
                   <p className="font-semibold text-orange-800">📧 Система уведомлений:</p>
                   <ul className="list-disc list-inside text-slate-700 space-y-1">
                     <li><strong>За 3 дня до окончания:</strong> письмо с напоминанием и ссылкой на продление</li>
-                    <li><strong>URL продления:</strong> https://ai-ru.ru/content-editor?tenant_id=X</li>
+                    <li><strong>URL продления:</strong> https://ai-ru.ru/{'{'}tenant_slug{'}'}/admin</li>
                     <li><strong>Отправка:</strong> Yandex Cloud Postbox (send-email)</li>
                     <li><strong>Данные:</strong> название тенанта, тариф, цена продления, дата окончания</li>
                   </ul>
@@ -309,7 +398,7 @@ const FlowStepDetails = () => {
                 <div className="bg-white p-3 rounded mt-2 border border-orange-300">
                   <p className="font-semibold text-orange-800">🔒 Продление:</p>
                   <ul className="list-disc list-inside text-slate-700 space-y-1">
-                    <li>Клиент переходит по ссылке в админку ai-ru.ru/content-editor</li>
+                    <li>Клиент переходит по ссылке в админку https://ai-ru.ru/{'{'}tenant_slug{'}'}/admin</li>
                     <li>В админке видит статус подписки и кнопку продления</li>
                     <li>При оплате: subscription_end_date += 30 дней</li>
                     <li>При неоплате: бот продолжает работать (без автоблокировки)</li>
