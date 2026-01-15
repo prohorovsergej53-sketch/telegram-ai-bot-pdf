@@ -167,11 +167,11 @@ const AdminView = ({ documents, isLoading, onFileUpload, onDeleteDocument, curre
               )}
               {currentTenantId && tenantName && (fz152Enabled || superAdmin) && (
                 <>
-                  {!fz152Enabled && <ApiKeysGuideCard />}
+                  {(superAdmin || !fz152Enabled) && <ApiKeysGuideCard />}
                   <TenantApiKeysCard
                     tenantId={currentTenantId}
                     tenantName={tenantName}
-                    fz152Enabled={fz152Enabled}
+                    fz152Enabled={fz152Enabled && !superAdmin}
                   />
                   {superAdmin && (
                     <ChatTestCard
