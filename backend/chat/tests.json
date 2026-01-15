@@ -1,7 +1,7 @@
 {
   "tests": [
     {
-      "name": "Test chat endpoint responds",
+      "name": "Test chat endpoint responds (no keys scenario)",
       "method": "POST",
       "body": {
         "message": "тест",
@@ -10,7 +10,7 @@
       },
       "expectedStatus": 400,
       "bodyMatcher": "partial",
-      "description": "Тест проверяет доступность endpoint (ожидается 400 если нет API ключей)"
+      "description": "Тест проверяет корректную обработку отсутствующих API ключей"
     }
   ]
 }

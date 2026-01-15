@@ -16,7 +16,7 @@ interface TenantApiKeysCardProps {
 }
 
 interface ApiKey {
-  provider: 'yandex' | 'openrouter';
+  provider: 'yandex' | 'openrouter' | 'proxyapi';
   key_name: string;
   key_value: string;
   is_active: boolean;
@@ -31,6 +31,7 @@ const TenantApiKeysCard = ({ tenantId, tenantName }: TenantApiKeysCardProps) => 
   const [yandexApiKey, setYandexApiKey] = useState('');
   const [yandexFolderId, setYandexFolderId] = useState('');
   const [openrouterApiKey, setOpenrouterApiKey] = useState('');
+  const [proxyapiApiKey, setProxyapiApiKey] = useState('');
 
   useEffect(() => {
     loadKeys();
@@ -50,10 +51,12 @@ const TenantApiKeysCard = ({ tenantId, tenantName }: TenantApiKeysCardProps) => 
         const yandexApi = data.keys.find((k: ApiKey) => k.provider === 'yandex' && k.key_name === 'api_key');
         const yandexFolder = data.keys.find((k: ApiKey) => k.provider === 'yandex' && k.key_name === 'folder_id');
         const openrouterApi = data.keys.find((k: ApiKey) => k.provider === 'openrouter' && k.key_name === 'api_key');
+        const proxyapiApi = data.keys.find((k: ApiKey) => k.provider === 'proxyapi' && k.key_name === 'api_key');
         
         setYandexApiKey(yandexApi?.key_value || '');
         setYandexFolderId(yandexFolder?.key_value || '');
         setOpenrouterApiKey(openrouterApi?.key_value || '');
+        setProxyapiApiKey(proxyapiApi?.key_value || '');
       }
     } catch (error: any) {
       toast({
@@ -79,6 +82,9 @@ const TenantApiKeysCard = ({ tenantId, tenantName }: TenantApiKeysCardProps) => 
       }
       if (openrouterApiKey.trim()) {
         keysToSave.push({ provider: 'openrouter', key_name: 'api_key', key_value: openrouterApiKey.trim() });
+      }
+      if (proxyapiApiKey.trim()) {
+        keysToSave.push({ provider: 'proxyapi', key_name: 'api_key', key_value: proxyapiApiKey.trim() });
       }
 
       if (keysToSave.length === 0) {
@@ -228,7 +234,39 @@ const TenantApiKeysCard = ({ tenantId, tenantName }: TenantApiKeysCardProps) => 
               </div>
             </div>
 
+            <div className="space-y-4">
+              <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-4">
+                <div className="flex items-start gap-2">
+                  <Icon name="Info" size={16} className="text-emerald-600 mt-0.5" />
+                  <div className="text-sm text-emerald-900">
+                    <p className="font-medium mb-1">ProxyAPI</p>
+                    <p className="text-emerald-800 mb-2">
+                      <strong>Доступные модели:</strong> GPT-4o Mini, O1 Mini, O1, Claude 3 Haiku, Claude 3.5 Sonnet, Claude 3 Opus
+                    </p>
+                    <p className="text-emerald-800">
+                      Российский API-прокси для доступа к моделям OpenAI и Anthropic
+                    </p>
+                  </div>
+                </div>
+              </div>
 
+              <div className="space-y-2">
+                <Label htmlFor="proxyapi_api_key">ProxyAPI Key</Label>
+                <Input
+                  id="proxyapi_api_key"
+                  type="password"
+                  value={proxyapiApiKey}
+                  onChange={(e) => setProxyapiApiKey(e.target.value)}
+                  placeholder="sk-..."
+                  className="font-mono text-sm"
+                />
+                {proxyapiApiKey && (
+                  <p className="text-xs text-muted-foreground">
+                    Текущий: {maskKey(proxyapiApiKey)}
+                  </p>
+                )}
+              </div>
+            </div>
 
             <Button
               onClick={handleSave}
