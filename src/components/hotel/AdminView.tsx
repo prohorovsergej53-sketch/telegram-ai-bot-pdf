@@ -140,37 +140,33 @@ const AdminView = ({ documents, isLoading, onFileUpload, onDeleteDocument, curre
         </TabsContent>
 
         <TabsContent value="ai" className="space-y-6">
-          {superAdmin ? (
-            <div className="space-y-6">
-              <AiSettingsCard
-                currentTenantId={currentTenantId}
-                isSuperAdmin={superAdmin}
+          <div className="space-y-6">
+            <AiSettingsCard
+              currentTenantId={currentTenantId}
+              isSuperAdmin={superAdmin}
+            />
+            <ApiKeysGuideCard />
+            {tenantId !== null && tenantId !== undefined && tenantName && (
+              <TenantApiKeysCard
+                tenantId={tenantId}
+                tenantName={tenantName}
               />
-              {currentTenantId && tenantName && (
-                <>
-                  <ApiKeysGuideCard />
-                  <TenantApiKeysCard
-                    tenantId={currentTenantId}
-                    tenantName={tenantName}
-                  />
-                  <ChatTestCard
-                    tenantId={currentTenantId}
-                    tenantName={tenantName}
-                  />
-                </>
-              )}
-              {currentTenantId && currentSlug && tenantName && (
-                <TenantUrlEditor
-                  tenantId={currentTenantId}
-                  currentSlug={currentSlug}
-                  tenantName={tenantName}
-                  onSlugUpdated={(newSlug) => setCurrentSlug(newSlug)}
-                />
-              )}
-            </div>
-          ) : (
-            <UpgradeCard feature="Настройки AI (доступно только суперадмину)" />
-          )}
+            )}
+            {superAdmin && currentTenantId && tenantName && (
+              <ChatTestCard
+                tenantId={currentTenantId}
+                tenantName={tenantName}
+              />
+            )}
+            {superAdmin && currentTenantId && currentSlug && tenantName && (
+              <TenantUrlEditor
+                tenantId={currentTenantId}
+                currentSlug={currentSlug}
+                tenantName={tenantName}
+                onSlugUpdated={(newSlug) => setCurrentSlug(newSlug)}
+              />
+            )}
+          </div>
         </TabsContent>
 
         <TabsContent value="page" className="space-y-6">
