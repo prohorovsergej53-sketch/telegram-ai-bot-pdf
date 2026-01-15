@@ -7,6 +7,7 @@ from datetime import datetime
 
 sys.path.append('/function/code')
 from api_keys_helper import get_tenant_api_key
+from openrouter_models import get_working_free_model
 
 from quality_gate import (
     build_context_with_scores, 
@@ -720,12 +721,25 @@ MINI-SYSTEM: РАСЧЁТ ЦЕН (используй только для зап�
             openrouter_key, error = get_tenant_api_key(tenant_id, 'openrouter', 'api_key')
             if error:
                 return error
+            
+            # Получаем актуальную рабочую модель
+            try:
+                working_model = get_working_free_model(chat_api_model)
+                print(f"🔄 OpenRouter модель: {chat_api_model} → {working_model}")
+            except Exception as model_error:
+                return {
+                    'statusCode': 400,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': f'Модель недоступна: {str(model_error)}'}),
+                    'isBase64Encoded': False
+                }
+            
             chat_client = OpenAI(
                 api_key=openrouter_key,
                 base_url="https://openrouter.ai/api/v1"
             )
             response = chat_client.chat.completions.create(
-                model=chat_api_model,
+                model=working_model,
                 messages=[
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": user_message}
