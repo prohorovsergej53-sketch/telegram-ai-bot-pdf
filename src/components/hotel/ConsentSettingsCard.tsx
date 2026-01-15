@@ -29,7 +29,7 @@ export const ConsentSettingsCard = ({ tenantId }: ConsentSettingsCardProps) => {
     webchat_enabled: false,
     messenger_enabled: false,
     text: 'Я согласен на обработку персональных данных в соответствии с <a href="/privacy-policy" target="_blank">Политикой конфиденциальности</a>',
-    messenger_text: 'Продолжая диалог, вы соглашаетесь на обработку персональных данных согласно Политике конфиденциальности.',
+    messenger_text: 'Продолжая диалог, вы соглашаетесь на обработку персональных данных согласно Политике конфиденциальности: https://ai-ru.ru/ваш-slug/privacy-policy',
     privacy_policy_text: ''
   });
 
@@ -153,7 +153,7 @@ export const ConsentSettingsCard = ({ tenantId }: ConsentSettingsCardProps) => {
             placeholder="Текст согласия на обработку персональных данных..."
           />
           <p className="text-xs text-slate-500">
-            Поддерживается HTML. Добавьте ссылку: &lt;a href="/privacy-policy" target="_blank"&gt;Политика конфиденциальности&lt;/a&gt;
+            Поддерживается HTML. Ссылка относительная: &lt;a href="/privacy-policy" target="_blank"&gt;Политика конфиденциальности&lt;/a&gt; (автоматически привяжется к вашему боту)
           </p>
         </div>
 
@@ -166,7 +166,7 @@ export const ConsentSettingsCard = ({ tenantId }: ConsentSettingsCardProps) => {
             placeholder="Продолжая диалог, вы соглашаетесь на обработку персональных данных..."
           />
           <p className="text-xs text-slate-500">
-            Этот текст будет добавлен в первое приветственное сообщение бота в мессенджерах. Добавьте ссылку на политику, например: "...согласно Политике конфиденциальности: https://ваш-сайт.ru/privacy-policy"
+            Этот текст будет добавлен в первое приветственное сообщение бота в мессенджерах. Добавьте ссылку на политику, например: "...согласно Политике конфиденциальности: https://ai-ru.ru/ваш-slug/privacy-policy"
           </p>
         </div>
 

@@ -28,12 +28,12 @@ const App = () => (
           <Route path="/" element={<LandingPage />} />
           <Route path="/payment" element={<PaymentPage />} />
           <Route path="/payment/success" element={<PaymentSuccess />} />
-          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-          <Route path="/terms-of-service" element={<TermsOfService />} />
           <Route path="/super-admin" element={<SuperAdmin />} />
           <Route path="/content-editor" element={<ContentEditor />} />
           <Route path="/:tenantSlug" element={<Index />} />
           <Route path="/:tenantSlug/admin" element={<Index />} />
+          <Route path="/:tenantSlug/privacy-policy" element={<PrivacyPolicy />} />
+          <Route path="/:tenantSlug/terms-of-service" element={<TermsOfService />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
