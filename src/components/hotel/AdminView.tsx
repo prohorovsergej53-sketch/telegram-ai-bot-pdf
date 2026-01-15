@@ -14,6 +14,7 @@ import TenantUrlEditor from './TenantUrlEditor';
 import TenantApiKeysCard from './TenantApiKeysCard';
 import ApiKeysGuideCard from './ApiKeysGuideCard';
 import ChatTestCard from './ChatTestCard';
+import ConsentSettingsCard from './ConsentSettingsCard';
 import { DocumentStatsCards } from './DocumentStatsCards';
 import { DocumentsPanel } from './DocumentsPanel';
 import { Document, BACKEND_URLS } from './types';
@@ -67,7 +68,7 @@ const AdminView = ({ documents, isLoading, onFileUpload, onDeleteDocument, curre
       )}
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="bg-gradient-to-r from-blue-500 to-purple-500 shadow-lg p-2 grid grid-cols-3 lg:grid-cols-6 gap-2 h-auto">
+        <TabsList className="bg-gradient-to-r from-blue-500 to-purple-500 shadow-lg p-2 grid grid-cols-3 lg:grid-cols-7 gap-2 h-auto">
           <TabsTrigger value="documents" className="data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=inactive]:text-white py-3 px-4 text-base font-semibold">
             <Icon name="FileText" size={20} className="mr-2" />
             <span>Документы</span>
@@ -87,6 +88,10 @@ const AdminView = ({ documents, isLoading, onFileUpload, onDeleteDocument, curre
           <TabsTrigger value="widget" className="data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=inactive]:text-white py-3 px-4 text-base font-semibold">
             <Icon name="Code" size={20} className="mr-2" />
             <span>Виджет</span>
+          </TabsTrigger>
+          <TabsTrigger value="consent" className="data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=inactive]:text-white py-3 px-4 text-base font-semibold">
+            <Icon name="ShieldCheck" size={20} className="mr-2" />
+            <span>152-ФЗ</span>
           </TabsTrigger>
           <TabsTrigger value="stats" className="data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=inactive]:text-white py-3 px-4 text-base font-semibold">
             <Icon name="BarChart" size={20} className="mr-2" />
@@ -186,6 +191,10 @@ const AdminView = ({ documents, isLoading, onFileUpload, onDeleteDocument, curre
             getSettingsUrl={BACKEND_URLS.getWidgetSettings}
             updateSettingsUrl={BACKEND_URLS.updateWidgetSettings}
           />
+        </TabsContent>
+
+        <TabsContent value="consent" className="space-y-6">
+          {currentTenantId && <ConsentSettingsCard tenantId={currentTenantId} />}
         </TabsContent>
 
         <TabsContent value="stats" className="space-y-6">
