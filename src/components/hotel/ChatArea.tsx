@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,6 +14,8 @@ interface ChatAreaProps {
   onInputChange: (value: string) => void;
   onSendMessage: () => void;
   pageSettings?: PageSettings;
+  consentEnabled?: boolean;
+  consentText?: string;
 }
 
 const ChatArea = ({
@@ -21,8 +24,25 @@ const ChatArea = ({
   isLoading,
   onInputChange,
   onSendMessage,
-  pageSettings
+  pageSettings,
+  consentEnabled = false,
+  consentText = 'Я согласен на обработку персональных данных'
 }: ChatAreaProps) => {
+  const [consentGiven, setConsentGiven] = useState(false);
+  const [showConsentWarning, setShowConsentWarning] = useState(false);
+  
+  const hasUserMessages = messages.some(msg => msg.role === 'user');
+  const showConsent = consentEnabled && !hasUserMessages && !consentGiven;
+
+  const handleSend = () => {
+    if (consentEnabled && !hasUserMessages && !consentGiven) {
+      setShowConsentWarning(true);
+      return;
+    }
+    setShowConsentWarning(false);
+    onSendMessage();
+  };
+
   return (
     <Card className="shadow-xl animate-scale-in h-[calc(100vh-200px)]">
       <CardHeader className="border-b bg-gradient-to-r from-slate-50 to-blue-50">
@@ -50,17 +70,43 @@ const ChatArea = ({
             )}
           </div>
         </ScrollArea>
-        <div className="p-4 border-t bg-slate-50/50">
+        <div className="p-4 border-t bg-slate-50/50 space-y-3">
+          {showConsent && (
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+              <label className="flex items-start gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={consentGiven}
+                  onChange={(e) => {
+                    setConsentGiven(e.target.checked);
+                    setShowConsentWarning(false);
+                  }}
+                  className="mt-0.5 w-4 h-4 flex-shrink-0"
+                />
+                <span 
+                  className="text-xs text-slate-700"
+                  dangerouslySetInnerHTML={{ __html: consentText }}
+                />
+              </label>
+              {showConsentWarning && (
+                <p className="text-xs text-red-600 mt-2 flex items-center gap-1">
+                  <Icon name="AlertCircle" size={12} />
+                  Для продолжения необходимо согласиться с обработкой данных
+                </p>
+              )}
+            </div>
+          )}
+          
           <div className="flex gap-2">
             <Input
               placeholder={pageSettings?.input_placeholder || 'Задайте вопрос...'}
               value={inputMessage}
               onChange={(e) => onInputChange(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && !isLoading && onSendMessage()}
+              onKeyPress={(e) => e.key === 'Enter' && !isLoading && handleSend()}
               disabled={isLoading}
               className="flex-1 bg-white"
             />
-            <Button onClick={onSendMessage} size="icon" disabled={isLoading}>
+            <Button onClick={handleSend} size="icon" disabled={isLoading}>
               <Icon name="Send" size={18} />
             </Button>
           </div>

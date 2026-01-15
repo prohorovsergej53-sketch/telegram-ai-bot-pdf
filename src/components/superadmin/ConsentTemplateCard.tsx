@@ -10,7 +10,8 @@ import Icon from '@/components/ui/icon';
 const BACKEND_URL = 'https://functions.poehali.dev/2f7a79a2-87ef-4692-b9a6-1e23f408edaa';
 
 interface ConsentSettings {
-  enabled: boolean;
+  webchat_enabled: boolean;
+  messenger_enabled: boolean;
   text: string;
   messenger_text: string;
 }
@@ -20,9 +21,10 @@ export const ConsentTemplateCard = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [consentSettings, setConsentSettings] = useState<ConsentSettings>({
-    enabled: true,
+    webchat_enabled: true,
+    messenger_enabled: true,
     text: 'Я согласен на обработку персональных данных в соответствии с <a href="/privacy-policy" target="_blank" class="text-primary underline">Политикой конфиденциальности</a>',
-    messenger_text: 'Продолжая диалог, вы соглашаетесь на обработку персональных данных согласно нашей Политике конфиденциальности.'
+    messenger_text: 'Продолжая диалог, вы соглашаетесь на обработку персональных данных согласно Политике конфиденциальности.'
   });
 
   useEffect(() => {
@@ -96,19 +98,36 @@ export const ConsentTemplateCard = () => {
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
-        <div className="flex items-center justify-between p-4 bg-slate-50 rounded-lg">
-          <div className="space-y-1">
-            <Label className="text-base font-semibold">Включить согласие по умолчанию</Label>
-            <p className="text-sm text-slate-600">
-              Новые боты будут создаваться с включенным согласием на обработку данных
-            </p>
+        <div className="space-y-4">
+          <div className="flex items-center justify-between p-4 bg-blue-50 rounded-lg border border-blue-200">
+            <div className="space-y-1">
+              <Label className="text-base font-semibold">Включить согласие в веб-чате по умолчанию</Label>
+              <p className="text-sm text-slate-600">
+                Новые боты будут создаваться с чекбоксом согласия в веб-чате
+              </p>
+            </div>
+            <input
+              type="checkbox"
+              checked={consentSettings.webchat_enabled}
+              onChange={(e) => setConsentSettings({ ...consentSettings, webchat_enabled: e.target.checked })}
+              className="w-5 h-5"
+            />
           </div>
-          <input
-            type="checkbox"
-            checked={consentSettings.enabled}
-            onChange={(e) => setConsentSettings({ ...consentSettings, enabled: e.target.checked })}
-            className="w-4 h-4"
-          />
+
+          <div className="flex items-center justify-between p-4 bg-green-50 rounded-lg border border-green-200">
+            <div className="space-y-1">
+              <Label className="text-base font-semibold">Включить согласие в мессенджерах по умолчанию</Label>
+              <p className="text-sm text-slate-600">
+                Новые боты будут добавлять текст согласия в первое сообщение мессенджеров
+              </p>
+            </div>
+            <input
+              type="checkbox"
+              checked={consentSettings.messenger_enabled}
+              onChange={(e) => setConsentSettings({ ...consentSettings, messenger_enabled: e.target.checked })}
+              className="w-5 h-5"
+            />
+          </div>
         </div>
 
         <div className="space-y-2">
@@ -137,35 +156,39 @@ export const ConsentTemplateCard = () => {
           </p>
         </div>
 
-        {consentSettings.enabled && (
+        {(consentSettings.webchat_enabled || consentSettings.messenger_enabled) && (
           <div className="space-y-4">
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-              <div className="flex items-start gap-3">
-                <Icon name="Info" size={20} className="text-blue-600 mt-0.5" />
-                <div className="space-y-2 text-sm text-blue-900">
-                  <p className="font-semibold">Предварительный просмотр (веб-чат):</p>
-                  <div className="bg-white rounded p-3 border border-blue-200">
-                    <div className="flex items-start gap-2">
-                      <input type="checkbox" className="mt-1" disabled />
-                      <span className="text-sm" dangerouslySetInnerHTML={{ __html: consentSettings.text }} />
+            {consentSettings.webchat_enabled && (
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <div className="flex items-start gap-3">
+                  <Icon name="Info" size={20} className="text-blue-600 mt-0.5" />
+                  <div className="space-y-2 text-sm text-blue-900">
+                    <p className="font-semibold">Предварительный просмотр (веб-чат):</p>
+                    <div className="bg-white rounded p-3 border border-blue-200">
+                      <div className="flex items-start gap-2">
+                        <input type="checkbox" className="mt-1" disabled />
+                        <span className="text-sm" dangerouslySetInnerHTML={{ __html: consentSettings.text }} />
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
+            )}
 
-            <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-              <div className="flex items-start gap-3">
-                <Icon name="MessageSquare" size={20} className="text-green-600 mt-0.5" />
-                <div className="space-y-2 text-sm text-green-900">
-                  <p className="font-semibold">Предварительный просмотр (мессенджер):</p>
-                  <div className="bg-white rounded p-3 border border-green-200">
-                    <p className="text-sm mb-2">👋 Здравствуйте! Чем могу помочь?</p>
-                    <p className="text-xs text-slate-600 italic">{consentSettings.messenger_text}</p>
+            {consentSettings.messenger_enabled && (
+              <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                <div className="flex items-start gap-3">
+                  <Icon name="MessageSquare" size={20} className="text-green-600 mt-0.5" />
+                  <div className="space-y-2 text-sm text-green-900">
+                    <p className="font-semibold">Предварительный просмотр (мессенджер):</p>
+                    <div className="bg-white rounded p-3 border border-green-200">
+                      <p className="text-sm mb-2">👋 Здравствуйте! Чем могу помочь?</p>
+                      <p className="text-xs text-slate-600 italic">{consentSettings.messenger_text}</p>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
+            )}
           </div>
         )}
 

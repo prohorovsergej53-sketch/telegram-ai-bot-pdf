@@ -30,6 +30,8 @@ const Index = () => {
   const [sessionId] = useState(() => `session-${Date.now()}`);
   const [pageSettings, setPageSettings] = useState<PageSettings | undefined>();
   const [quickQuestions, setQuickQuestions] = useState<QuickQuestion[]>([]);
+  const [consentEnabled, setConsentEnabled] = useState(false);
+  const [consentText, setConsentText] = useState('');
   const { toast } = useToast();
 
   // Слушатель автосообщений от виджета
@@ -78,6 +80,7 @@ const Index = () => {
 
   useEffect(() => {
     loadPageSettings();
+    loadConsentSettings();
   }, [currentTenantId]);
 
   useEffect(() => {
@@ -142,6 +145,24 @@ const Index = () => {
       }
     } catch (error) {
       console.error('Error loading page settings:', error);
+    }
+  };
+
+  const loadConsentSettings = async () => {
+    try {
+      const tenantId = currentTenantId || getTenantId();
+      if (!tenantId) return;
+      
+      const response = await fetch(`https://functions.poehali.dev/2f7a79a2-87ef-4692-b9a6-1e23f408edaa?action=public_content&tenant_id=${tenantId}`);
+      if (response.ok) {
+        const data = await response.json();
+        if (data.consent_settings) {
+          setConsentEnabled(data.consent_settings.webchat_enabled || false);
+          setConsentText(data.consent_settings.text || '');
+        }
+      }
+    } catch (error) {
+      console.error('Error loading consent settings:', error);
     }
   };
 
@@ -445,6 +466,8 @@ const Index = () => {
             onQuickQuestion={handleQuickQuestion}
             pageSettings={pageSettings}
             quickQuestions={quickQuestions}
+            consentEnabled={consentEnabled}
+            consentText={consentText}
           />
         ) : (
           <AdminView

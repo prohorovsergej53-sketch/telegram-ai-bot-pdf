@@ -30,7 +30,8 @@ def handler(event: dict, context) -> dict:
                 SELECT 
                     t.name,
                     ts.public_description,
-                    ts.consent_enabled,
+                    ts.consent_webchat_enabled,
+                    ts.consent_messenger_enabled,
                     ts.consent_text,
                     ts.consent_messenger_text
                 FROM t_p56134400_telegram_ai_bot_pdf.tenants t
@@ -51,9 +52,10 @@ def handler(event: dict, context) -> dict:
                 'name': row[0] or '',
                 'public_description': row[1] or '',
                 'consent_settings': {
-                    'enabled': row[2] if row[2] is not None else False,
-                    'text': row[3] or 'Я согласен на обработку персональных данных в соответствии с Политикой конфиденциальности',
-                    'messenger_text': row[4] or 'Продолжая диалог, вы соглашаетесь на обработку персональных данных согласно нашей Политике конфиденциальности.'
+                    'webchat_enabled': row[2] if row[2] is not None else False,
+                    'messenger_enabled': row[3] if row[3] is not None else False,
+                    'text': row[4] or 'Я согласен на обработку персональных данных в соответствии с <a href="/privacy-policy" target="_blank">Политикой конфиденциальности</a>',
+                    'messenger_text': row[5] or 'Продолжая диалог, вы соглашаетесь на обработку персональных данных согласно Политике конфиденциальности.'
                 },
                 'welcome_text': '',
                 'faq': [],
@@ -78,14 +80,16 @@ def handler(event: dict, context) -> dict:
                 UPDATE t_p56134400_telegram_ai_bot_pdf.tenant_settings
                 SET 
                     public_description = %s,
-                    consent_enabled = %s,
+                    consent_webchat_enabled = %s,
+                    consent_messenger_enabled = %s,
                     consent_text = %s,
                     consent_messenger_text = %s,
                     updated_at = CURRENT_TIMESTAMP
                 WHERE tenant_id = %s
             """, (
                 body.get('public_description', ''),
-                consent_settings.get('enabled', False),
+                consent_settings.get('webchat_enabled', False),
+                consent_settings.get('messenger_enabled', False),
                 consent_settings.get('text', ''),
                 consent_settings.get('messenger_text', ''),
                 tenant_id
