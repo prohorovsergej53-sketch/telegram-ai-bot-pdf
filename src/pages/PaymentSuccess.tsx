@@ -136,13 +136,13 @@ const PaymentSuccess = () => {
                 </div>
               </a>
               <a 
-                href="mailto:support@example.com"
+                href="mailto:info@298100.ru"
                 className="flex items-center gap-2 p-3 border rounded-lg hover:bg-slate-50 transition-colors"
               >
                 <Icon name="Mail" size={20} className="text-green-600" />
                 <div>
                   <p className="font-medium text-sm">Email</p>
-                  <p className="text-xs text-slate-600">support@example.com</p>
+                  <p className="text-xs text-slate-600">info@298100.ru</p>
                 </div>
               </a>
             </div>
