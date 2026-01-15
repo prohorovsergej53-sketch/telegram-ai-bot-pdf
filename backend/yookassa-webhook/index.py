@@ -77,6 +77,26 @@ def handler(event: dict, context) -> dict:
             if owner_email:
                 tariff_id = metadata.get('tariff_id', 'basic')
                 first_month_included = metadata.get('first_month_included', False)
+                consent_text = metadata.get('consent_text', '')
+                session_id = metadata.get('session_id', '')
+                
+                # Получаем IP и User-Agent из контекста запроса
+                request_context = event.get('requestContext', {})
+                identity = request_context.get('identity', {})
+                ip_address = identity.get('sourceIp', '')
+                user_agent = identity.get('userAgent', '')
+                
+                # Логируем согласие пользователя на обработку персональных данных
+                if consent_text:
+                    try:
+                        cur.execute("""
+                            INSERT INTO t_p56134400_telegram_ai_bot_pdf.sales_consent_logs 
+                            (session_id, email, tenant_name, tariff_id, consent_text, ip_address, user_agent)
+                            VALUES (%s, %s, %s, %s, %s, %s, %s)
+                        """, (session_id, owner_email, tenant_name, tariff_id, consent_text, ip_address, user_agent))
+                        conn.commit()
+                    except Exception as e:
+                        print(f"Failed to log consent: {e}")
                 
                 # Вычисляем дату окончания подписки:
                 # Если first_month_included=true, то первый платеж уже включает 1 месяц

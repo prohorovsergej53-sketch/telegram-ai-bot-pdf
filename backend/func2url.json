@@ -1,4 +1,5 @@
 {
+  "consent-logs": "https://functions.poehali.dev/7eaae0aa-83a0-4014-aa24-0b32693c37f0",
   "manage-consent-settings": "https://functions.poehali.dev/2f7a79a2-87ef-4692-b9a6-1e23f408edaa",
   "system-monitoring": "https://functions.poehali.dev/f15b151c-8058-4206-aec0-26d1e438b1f5",
   "email-templates": "https://functions.poehali.dev/b58124ce-188b-4335-9dbd-46f9849954da",
