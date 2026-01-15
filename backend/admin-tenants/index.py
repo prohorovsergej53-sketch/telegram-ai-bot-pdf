@@ -73,7 +73,8 @@ def handler(event: dict, context) -> dict:
                 SELECT t.id, t.slug, t.name, t.description, t.tariff_id, 
                        t.subscription_end_date, t.created_at,
                        COUNT(DISTINCT d.id) as documents_count,
-                       COUNT(DISTINCT u.id) as admins_count
+                       COUNT(DISTINCT u.id) as admins_count,
+                       STRING_AGG(DISTINCT u.email, ', ') as admin_emails
                 FROM {schema}.tenants t
                 LEFT JOIN {schema}.tenant_documents d ON t.id = d.tenant_id
                 LEFT JOIN {schema}.admin_users u ON t.id = u.tenant_id

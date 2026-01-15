@@ -17,6 +17,7 @@ export interface Tenant {
   subscription_end_date: string;
   documents_count: number;
   admins_count: number;
+  admin_emails: string;
   created_at: string;
 }
 

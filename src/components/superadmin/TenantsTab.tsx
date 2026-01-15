@@ -29,6 +29,12 @@ export const TenantsTab = ({ tenants, onEnterTenant, onManageTenant }: TenantsTa
                 <div className="text-sm text-muted-foreground space-y-1">
                   <div>Slug: {tenant.slug}</div>
                   <div>Документов: {tenant.documents_count} • Админов: {tenant.admins_count}</div>
+                  {tenant.admin_emails && (
+                    <div className="flex items-center gap-1">
+                      <Icon name="Mail" size={14} />
+                      <span>{tenant.admin_emails}</span>
+                    </div>
+                  )}
                   {tenant.subscription_end_date && (
                     <div>Подписка до: {new Date(tenant.subscription_end_date).toLocaleDateString('ru-RU')}</div>
                   )}
