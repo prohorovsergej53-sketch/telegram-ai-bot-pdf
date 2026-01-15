@@ -11,6 +11,7 @@ import { TenantsTab } from '@/components/superadmin/TenantsTab';
 import { TariffsTab } from '@/components/superadmin/TariffsTab';
 import { BotTemplateTab } from '@/components/superadmin/BotTemplateTab';
 import { EmailTemplatesTab } from '@/components/superadmin/EmailTemplatesTab';
+import { SystemMonitoringTab } from '@/components/superadmin/SystemMonitoringTab';
 import { TenantEditDialog } from '@/components/superadmin/TenantEditDialog';
 import { TariffEditDialog } from '@/components/superadmin/TariffEditDialog';
 import LogicFlowTab from '@/components/superadmin/LogicFlowTab';
@@ -208,6 +209,10 @@ const SuperAdmin = () => {
               <Icon name="Mail" size={16} className="mr-2" />
               Email-шаблоны
             </TabsTrigger>
+            <TabsTrigger value="monitoring">
+              <Icon name="Activity" size={16} className="mr-2" />
+              Мониторинг
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="dashboard" className="space-y-6">
@@ -239,6 +244,10 @@ const SuperAdmin = () => {
 
           <TabsContent value="emails" className="space-y-6">
             <EmailTemplatesTab />
+          </TabsContent>
+
+          <TabsContent value="monitoring" className="space-y-6">
+            <SystemMonitoringTab />
           </TabsContent>
         </Tabs>
       </div>
