@@ -87,6 +87,7 @@ const PrivacyPolicy = () => {
             ) : customText ? (
               <div dangerouslySetInnerHTML={{ __html: customText }} />
             ) : (
+            <>
             <section>
               <h2 className="text-xl font-semibold mb-3">1. Общие положения</h2>
               <p>
@@ -253,6 +254,7 @@ const PrivacyPolicy = () => {
                 сайта отображается баннер с запросом согласия на использование cookies.
               </p>
             </section>
+            </>
             )}
           </CardContent>
         </Card>
