@@ -198,7 +198,7 @@ def handler(event: dict, context) -> dict:
                     'user_id': user_id,
                     'username': username,
                     'password': password,
-                    'login_url': f"https://ai-ru.ru/content-editor?tenant_id={tenant_id}"
+                    'login_url': "https://ai-ru.ru/admin"
                 }),
                 'isBase64Encoded': False
             }

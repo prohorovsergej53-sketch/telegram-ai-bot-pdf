@@ -178,7 +178,7 @@ def handler(event: dict, context) -> dict:
                 }
                 
                 # Формируем URL для входа
-                login_url = f"https://ai-ru.ru/content-editor?tenant_id={tenant_id}"
+                login_url = "https://ai-ru.ru/admin"
                 
                 email_sent = send_order_notification(
                     customer_email=owner_email,
