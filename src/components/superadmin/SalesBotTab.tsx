@@ -6,11 +6,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useState, useEffect } from 'react';
 import { authenticatedFetch } from '@/lib/auth';
 import { useToast } from '@/hooks/use-toast';
-
-const BACKEND_URLS = {
-  getAiSettings: 'https://functions.poehali.dev/aa4e850d-6e48-49a5-8ffd-473d4ffa4235',
-  updateAiSettings: 'https://functions.poehali.dev/a3f5f302-e16a-4bb7-8530-d0f6cd22091f'
-};
+import { BACKEND_URLS } from '@/components/hotel/types';
 
 export const SalesBotTab = () => {
   const [systemPrompt, setSystemPrompt] = useState('');

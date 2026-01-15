@@ -13,8 +13,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-
-const BACKEND_URL = 'https://functions.poehali.dev/7eaae0aa-83a0-4014-aa24-0b32693c37f0';
+import { BACKEND_URLS } from '@/components/hotel/types';
 
 interface ConsentLog {
   id: number;
@@ -42,7 +41,7 @@ export const ConsentLogsTab = () => {
   const loadConsents = async () => {
     setIsLoading(true);
     try {
-      const response = await authenticatedFetch(`${BACKEND_URL}?action=list`);
+      const response = await authenticatedFetch(`${BACKEND_URLS.consentLogs}?action=list`);
       const data = await response.json();
       
       if (data.consents) {
@@ -62,7 +61,7 @@ export const ConsentLogsTab = () => {
 
   const handleExport = async () => {
     try {
-      const response = await authenticatedFetch(`${BACKEND_URL}?action=export`);
+      const response = await authenticatedFetch(`${BACKEND_URLS.consentLogs}?action=export`);
       const csvData = await response.text();
       
       // Создаем blob и скачиваем файл

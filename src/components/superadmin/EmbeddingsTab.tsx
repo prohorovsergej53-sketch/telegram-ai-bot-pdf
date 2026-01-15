@@ -6,15 +6,13 @@ import { authenticatedFetch } from '@/lib/auth';
 import { useToast } from '@/hooks/use-toast';
 import { Tenant } from './types';
 import Icon from '@/components/ui/icon';
+import { BACKEND_URLS } from '@/components/hotel/types';
 
 interface TenantEmbedding extends Tenant {
   embedding_provider: string;
   embedding_doc_model: string;
   embedding_query_model: string;
 }
-
-const BACKEND_URL_EMBEDDINGS = 'https://functions.poehali.dev/eba16a48-59f3-4290-ae64-c0ca649f66a5';
-const BACKEND_URL_REINDEX = 'https://functions.poehali.dev/d84c6a38-349a-45a7-859d-08a51d29caf0';
 
 export const EmbeddingsTab = () => {
   const { toast } = useToast();
@@ -32,7 +30,7 @@ export const EmbeddingsTab = () => {
   const loadTenants = async () => {
     setIsLoading(true);
     try {
-      const response = await authenticatedFetch(BACKEND_URL_EMBEDDINGS);
+      const response = await authenticatedFetch(BACKEND_URLS.manageEmbeddings);
       if (response.ok) {
         const data = await response.json();
         setTenants(data.tenants || []);
@@ -60,7 +58,7 @@ export const EmbeddingsTab = () => {
 
   const handleSave = async (tenantId: number) => {
     try {
-      const response = await authenticatedFetch(BACKEND_URL_EMBEDDINGS, {
+      const response = await authenticatedFetch(BACKEND_URLS.manageEmbeddings, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -98,7 +96,7 @@ export const EmbeddingsTab = () => {
     }
 
     try {
-      const response = await authenticatedFetch(`${BACKEND_URL_REINDEX}?tenant_id=${tenantId}`, {
+      const response = await authenticatedFetch(`${BACKEND_URLS.reindexEmbeddings}?tenant_id=${tenantId}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'start' })
