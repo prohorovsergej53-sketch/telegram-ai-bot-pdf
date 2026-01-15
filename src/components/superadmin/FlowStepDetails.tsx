@@ -279,11 +279,15 @@ const FlowStepDetails = () => {
                 <div className="bg-white p-3 rounded mt-2 border border-orange-300">
                   <p className="font-semibold text-orange-800">📧 Система уведомлений (3-уровневая):</p>
                   <ul className="list-disc list-inside text-slate-700 space-y-1">
-                    <li><strong>За 7 дней:</strong> "Подписка истекает через 7 дней" (предупреждение)</li>
-                    <li><strong>За 3 дня:</strong> "⚠️ Подписка истекает через 3 дня!" (внимание)</li>
-                    <li><strong>За 1 день:</strong> "🚨 Подписка истекает завтра!" (критично)</li>
+                    <li><strong>За 7 дней:</strong> шаблон "subscription_reminder_7days" (предупреждение)</li>
+                    <li><strong>За 3 дня:</strong> шаблон "subscription_reminder_3days" (⚠️ внимание)</li>
+                    <li><strong>За 1 день:</strong> шаблон "subscription_reminder_1day" (🚨 критично)</li>
                   </ul>
-                  <p className="text-xs text-slate-600 mt-2">Каждое письмо содержит: тариф, цену продления, ссылку на оплату</p>
+                  <p className="text-xs text-slate-600 mt-2">
+                    <strong>Интеграция с БД:</strong> шаблоны берутся из таблицы email_templates, редактируются в суперадминке (вкладка "Email-шаблоны"). 
+                    Переменные в шаблонах: <code>{'{{tenant_name}}'}</code>, <code>{'{{tariff_name}}'}</code>, <code>{'{{renewal_price}}'}</code>, <code>{'{{renewal_url}}'}</code>
+                  </p>
+                  <p className="text-xs text-slate-600 mt-1">Письма отправляются с HTML-версткой через SMTP (настройки из default_settings)</p>
                 </div>
                 <div className="bg-white p-3 rounded mt-2 border border-orange-300">
                   <p className="font-semibold text-orange-800">🔒 Действия после истечения:</p>

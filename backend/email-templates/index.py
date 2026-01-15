@@ -36,7 +36,7 @@ def handler(event: dict, context) -> dict:
             cur.execute('''
                 SELECT id, template_key, subject, body, description, 
                        created_at, updated_at 
-                FROM email_templates 
+                FROM t_p56134400_telegram_ai_bot_pdf.email_templates 
                 ORDER BY template_key
             ''')
             rows = cur.fetchall()
@@ -74,7 +74,7 @@ def handler(event: dict, context) -> dict:
                 }
             
             cur.execute('''
-                UPDATE email_templates 
+                UPDATE t_p56134400_telegram_ai_bot_pdf.email_templates 
                 SET subject = %s, body = %s, updated_at = CURRENT_TIMESTAMP
                 WHERE id = %s
                 RETURNING id, template_key, subject, body, description, updated_at
@@ -127,7 +127,7 @@ def handler(event: dict, context) -> dict:
                     }
                 
                 cur.execute('''
-                    INSERT INTO email_templates (template_key, subject, body, description)
+                    INSERT INTO t_p56134400_telegram_ai_bot_pdf.email_templates (template_key, subject, body, description)
                     VALUES (%s, %s, %s, %s)
                     RETURNING id, template_key, subject, body, description, created_at
                 ''', (template_key, subject, body_text, description))
@@ -164,7 +164,7 @@ def handler(event: dict, context) -> dict:
                         'isBase64Encoded': False
                     }
                 
-                cur.execute('SELECT subject, body FROM email_templates WHERE id = %s', (template_id,))
+                cur.execute('SELECT subject, body FROM t_p56134400_telegram_ai_bot_pdf.email_templates WHERE id = %s', (template_id,))
                 row = cur.fetchone()
                 
                 if not row:

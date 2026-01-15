@@ -130,7 +130,7 @@ def handler(event: dict, context) -> dict:
 
 def send_expiration_warning(to_email: str, tenant_name: str, tenant_id: int, days_left: int, 
                            renewal_price: float, tariff_name: str, cur) -> bool:
-    """Отправка предупреждения об истечении подписки"""
+    """Отправка предупреждения об истечении подписки через шаблоны из БД"""
     try:
         # Получаем SMTP настройки из БД
         cur.execute("""
@@ -150,56 +150,56 @@ def send_expiration_warning(to_email: str, tenant_name: str, tenant_id: int, day
             print('SMTP настройки не полностью заполнены')
             return False
         
-        # Формируем текст письма
+        # Определяем нужный шаблон по количеству дней
+        template_key_map = {
+            7: 'subscription_reminder_7days',
+            3: 'subscription_reminder_3days',
+            1: 'subscription_reminder_1day'
+        }
+        
+        template_key = template_key_map.get(days_left)
+        if not template_key:
+            print(f'Неизвестный период напоминания: {days_left} дней')
+            return False
+        
+        # Получаем шаблон из БД
+        cur.execute("""
+            SELECT subject, body 
+            FROM t_p56134400_telegram_ai_bot_pdf.email_templates 
+            WHERE template_key = %s
+        """, (template_key,))
+        
+        template_row = cur.fetchone()
+        if not template_row:
+            print(f'Шаблон {template_key} не найден в БД')
+            return False
+        
+        subject_template, body_template = template_row
+        
+        # Формируем URL продления
         renewal_url = f"https://your-domain.com/content-editor?tenant_id={tenant_id}"
         
-        if days_left == 7:
-            subject = f'Подписка истекает через {days_left} дней'
-            message = f"""Здравствуйте!
-
-Напоминаем, что ваша подписка на тариф "{tariff_name}" для проекта "{tenant_name}" истекает через {days_left} дней.
-
-Стоимость продления: {renewal_price:.2f} ₽/месяц
-
-Чтобы продлить подписку и не потерять доступ к вашему AI-консультанту, перейдите в личный кабинет:
-{renewal_url}
-
-С уважением,
-Команда поддержки"""
-        elif days_left == 3:
-            subject = f'⚠️ Подписка истекает через {days_left} дня!'
-            message = f"""Здравствуйте!
-
-Внимание! Ваша подписка на тариф "{tariff_name}" для проекта "{tenant_name}" истекает через {days_left} дня.
-
-Стоимость продления: {renewal_price:.2f} ₽/месяц
-
-Продлите подписку прямо сейчас, чтобы избежать прерывания работы:
-{renewal_url}
-
-С уважением,
-Команда поддержки"""
-        else:  # 1 день
-            subject = f'🚨 Подписка истекает завтра!'
-            message = f"""Здравствуйте!
-
-Критически важно! Ваша подписка на тариф "{tariff_name}" для проекта "{tenant_name}" истекает ЗАВТРА.
-
-После истечения подписки доступ к AI-консультанту будет заблокирован.
-
-Стоимость продления: {renewal_price:.2f} ₽/месяц
-
-Продлите подписку немедленно:
-{renewal_url}
-
-С уважением,
-Команда поддержки"""
+        # Заменяем переменные в шаблоне
+        variables = {
+            'tenant_name': tenant_name,
+            'tariff_name': tariff_name,
+            'renewal_price': f'{renewal_price:.2f}',
+            'renewal_url': renewal_url
+        }
         
-        msg = MIMEMultipart()
+        subject = subject_template
+        body = body_template
+        
+        for key, value in variables.items():
+            subject = subject.replace(f'{{{{{key}}}}}', str(value))
+            body = body.replace(f'{{{{{key}}}}}', str(value))
+        
+        # Отправляем письмо
+        msg = MIMEMultipart('alternative')
         msg['From'] = smtp_user
         msg['To'] = to_email
         msg['Subject'] = subject
-        msg.attach(MIMEText(message, 'plain', 'utf-8'))
+        msg.attach(MIMEText(body, 'html', 'utf-8'))
         
         if smtp_port == 465:
             server = smtplib.SMTP_SSL(smtp_host, smtp_port)
@@ -211,7 +211,7 @@ def send_expiration_warning(to_email: str, tenant_name: str, tenant_id: int, day
         server.send_message(msg)
         server.quit()
         
-        print(f'Expiration warning email sent to {to_email} ({days_left} days left)')
+        print(f'Expiration warning email sent to {to_email} using template {template_key} ({days_left} days left)')
         return True
     except Exception as e:
         print(f'Error sending expiration warning email: {str(e)}')
