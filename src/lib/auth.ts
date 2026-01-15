@@ -94,6 +94,7 @@ export const getAuthHeaders = (): HeadersInit => {
   if (!token) return {};
   
   return {
+    'Authorization': `Bearer ${token}`,
     'X-Authorization': `Bearer ${token}`,
     'Content-Type': 'application/json'
   };
