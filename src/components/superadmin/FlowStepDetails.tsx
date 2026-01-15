@@ -24,9 +24,9 @@ const FlowStepDetails = () => {
                 Клиент заходит на landing
               </h3>
               <div className="space-y-2 text-sm">
-                <p className="text-slate-700"><strong>URL:</strong> <code className="bg-white px-2 py-1 rounded">https://mysite.com/</code></p>
+                <p className="text-slate-700"><strong>URL:</strong> <code className="bg-white px-2 py-1 rounded">https://ai-ru.ru/</code></p>
                 <p className="text-slate-700"><strong>Компоненты:</strong> PricingSection, FeaturesSection, HowItWorksSection, FAQSection</p>
-                <p className="text-slate-700"><strong>Видит:</strong> Тарифы (Старт, Бизнес, Премиум), возможности, FAQ</p>
+                <p className="text-slate-700"><strong>Видит:</strong> 3 тарифа с возможностью подключения за 1 час</p>
                 <div className="bg-white p-3 rounded mt-2 border border-blue-300">
                   <p className="font-semibold text-blue-800">🎯 Цель этапа:</p>
                   <p className="text-slate-700">Заинтересовать клиента, показать ценность → переход к оплате</p>
@@ -50,12 +50,21 @@ const FlowStepDetails = () => {
                 <p className="text-slate-700"><strong>Backend:</strong> <code className="bg-white px-2 py-1 rounded">/backend/yookassa-create-payment/</code></p>
                 <p className="text-slate-700"><strong>Интеграция:</strong> ЮKassa API (создание платежа)</p>
                 <div className="bg-white p-3 rounded mt-2 border border-green-300">
+                  <p className="font-semibold text-green-800">💳 Тарифы (из БД):</p>
+                  <ul className="list-disc list-inside text-slate-700 space-y-1">
+                    <li><strong>basic:</strong> 1 € первый месяц (setup_fee) → 11 €/мес (renewal_price)</li>
+                    <li><strong>professional:</strong> 5 € первый месяц → 30 €/мес</li>
+                    <li><strong>enterprise:</strong> 9 € первый месяц → 60 €/мес</li>
+                  </ul>
+                  <p className="text-xs text-slate-600 mt-2">Лимиты: basic=500 сообщ/мес, professional=3000, enterprise=10000</p>
+                </div>
+                <div className="bg-white p-3 rounded mt-2 border border-green-300">
                   <p className="font-semibold text-green-800">💳 Процесс оплаты:</p>
                   <ul className="list-disc list-inside text-slate-700 space-y-1">
-                    <li>Создание платежа в ЮKassa → получение payment_url</li>
+                    <li>Frontend отправляет metadata: email, phone, tariff_id, tenant_name</li>
+                    <li>Backend создаёт платёж в ЮKassa → получение payment_url</li>
                     <li>Редирект клиента на страницу оплаты ЮKassa</li>
-                    <li>Клиент вводит данные карты и подтверждает</li>
-                    <li>ЮKassa отправляет webhook на <code className="bg-slate-100 px-1">/backend/yookassa-webhook/</code></li>
+                    <li>После оплаты: webhook на <code className="bg-slate-100 px-1">/backend/yookassa-webhook/</code></li>
                   </ul>
                 </div>
               </div>
@@ -79,20 +88,24 @@ const FlowStepDetails = () => {
                   <p className="font-semibold text-yellow-800">⚙️ Логика обработки:</p>
                   <ul className="list-disc list-inside text-slate-700 space-y-1">
                     <li>Проверка статуса платежа (succeeded)</li>
-                    <li>Извлечение metadata: email, tariff_id из платежа</li>
-                    <li><strong>Создание tenant в БД:</strong> INSERT INTO tenants</li>
-                    <li>Генерация уникального slug (например: bot-12345)</li>
-                    <li>Создание admin-пользователя для tenant</li>
-                    <li>Генерация случайного пароля и отправка на email</li>
-                    <li>Установка tariff_id и subscription_end_date</li>
+                    <li>Извлечение metadata: email, phone, tenant_name, tariff_id</li>
+                    <li><strong>Создание tenant в БД:</strong> INSERT INTO tenants (БЕЗ копирования шаблона)</li>
+                    <li>Генерация уникального slug: generate_random_slug() (например: bot-a8f3d2)</li>
+                    <li>Создание admin-пользователя (username=email, случайный пароль)</li>
+                    <li>Установка tariff_id и subscription_end_date (тариф + 30 дней)</li>
+                    <li>Отправка email с доступами через send-order-email</li>
                   </ul>
                 </div>
                 <div className="bg-blue-100 p-3 rounded mt-2 border border-blue-400">
                   <p className="font-semibold text-blue-900">📊 Таблицы БД:</p>
                   <ul className="list-disc list-inside text-slate-700 space-y-1">
-                    <li><code>tenants</code>: id, name, slug, tariff_id, subscription_end_date, created_at</li>
-                    <li><code>users</code>: id, tenant_id, username, password_hash, is_superadmin</li>
+                    <li><code>tenants</code>: id, name, slug, tariff_id, subscription_end_date, owner_email, owner_phone</li>
+                    <li><code>users</code>: id, tenant_id, username (=email), password_hash, is_superadmin</li>
                   </ul>
+                  <p className="text-xs text-slate-600 mt-2">
+                    <strong>Важно:</strong> Теперь роутинг через tenant_id, а НЕ через slug в URL. 
+                    Пользователь получает прямую ссылку: /content-editor?tenant_id=123
+                  </p>
                 </div>
               </div>
             </div>
@@ -111,20 +124,23 @@ const FlowStepDetails = () => {
               <div className="space-y-2 text-sm">
                 <p className="text-slate-700"><strong>Backend:</strong> <code className="bg-white px-2 py-1 rounded">/backend/send-order-email/</code></p>
                 <div className="bg-white p-3 rounded mt-2 border border-purple-300">
-                  <p className="font-semibold text-purple-800">📧 Система email-шаблонов:</p>
+                  <p className="font-semibold text-purple-800">📧 Система email-уведомлений:</p>
                   <ul className="list-disc list-inside text-slate-700 space-y-1">
-                    <li><strong>Хранение:</strong> шаблоны в БД (таблица email_templates)</li>
-                    <li><strong>Редактирование:</strong> суперадминка → вкладка "Email-шаблоны"</li>
-                    <li><strong>Переменные:</strong> {'{'}{'{'} email {'}'}{'}'},  {'{'}{'{'} password {'}'}{'}'},  {'{'}{'{'} login_url {'}'}{'}'}  </li>
-                    <li><strong>Тестирование:</strong> кнопка отправки на любой email</li>
+                    <li><strong>Backend:</strong> /backend/send-order-email/ (Yandex Cloud Postbox)</li>
+                    <li><strong>Шаблон:</strong> HTML-письмо с брендингом, логином, паролем, прямой ссылкой</li>
+                    <li><strong>Данные:</strong> имя клиента, email, телефон, тариф, сумма, payment_id</li>
+                    <li><strong>Дополнительно:</strong> инструкция по входу, контакты поддержки</li>
                   </ul>
+                  <p className="text-xs text-slate-600 mt-2">
+                    <strong>Типы писем:</strong> order_confirmation (после оплаты), subscription_reminder (за 3 дня до окончания)
+                  </p>
                 </div>
                 <div className="bg-white p-3 rounded mt-2 border border-purple-300 space-y-2">
                   <p className="font-semibold text-purple-800">✉️ Клиенту отправляется:</p>
-                  <p className="text-slate-700">🔗 <strong>URL админки:</strong> <code className="bg-slate-100 px-2 py-1">https://mysite.com/[slug]/admin</code></p>
-                  <p className="text-slate-700">👤 <strong>Email:</strong> email клиента</p>
-                  <p className="text-slate-700">🔑 <strong>Пароль:</strong> сгенерированный случайный</p>
-                  <p className="text-slate-700">💬 <strong>Сообщение:</strong> "С вами свяжется менеджер для уточнения деталей"</p>
+                  <p className="text-slate-700">🔗 <strong>URL админки:</strong> <code className="bg-slate-100 px-2 py-1">https://ai-ru.ru/content-editor?tenant_id=[id]</code></p>
+                  <p className="text-slate-700">👤 <strong>Логин (email):</strong> email клиента</p>
+                  <p className="text-slate-700">🔑 <strong>Пароль:</strong> случайный (8-12 символов)</p>
+                  <p className="text-slate-700">📋 <strong>Детали:</strong> название тарифа, сумма платежа, payment_id</p>
                 </div>
               </div>
             </div>
@@ -141,18 +157,17 @@ const FlowStepDetails = () => {
                 Авторизация в админ-панели
               </h3>
               <div className="space-y-2 text-sm">
-                <p className="text-slate-700"><strong>URL:</strong> <code className="bg-white px-2 py-1 rounded">/[slug]/admin</code></p>
+                <p className="text-slate-700"><strong>URL:</strong> <code className="bg-white px-2 py-1 rounded">https://ai-ru.ru/content-editor?tenant_id=[id]</code></p>
                 <p className="text-slate-700"><strong>Компонент:</strong> <code>src/pages/Admin.tsx</code> → AdminView.tsx</p>
                 <p className="text-slate-700"><strong>Backend:</strong> <code className="bg-white px-2 py-1 rounded">/backend/auth-admin/index.py</code></p>
                 <div className="bg-white p-3 rounded mt-2 border border-red-300">
                   <p className="font-semibold text-red-800">🔐 Процесс авторизации:</p>
                   <ul className="list-disc list-inside text-slate-700 space-y-1">
-                    <li>Клиент вводит username + password</li>
-                    <li>Backend проверяет credentials в таблице users</li>
-                    <li>Проверка tenant_id (slug из URL → tenant.id)</li>
-                    <li>Генерация JWT токена с данными: tenant_id, user_id, tariff_id</li>
+                    <li>Клиент вводит email + password на /content-editor?tenant_id=X</li>
+                    <li>Backend /auth-admin проверяет: tenant_id + username (email) + пароль</li>
+                    <li>Генерация JWT токена (payload: user_id, tenant_id, is_superadmin)</li>
                     <li>Сохранение токена в localStorage</li>
-                    <li>Frontend использует токен для всех API запросов</li>
+                    <li>Заголовок X-Authorization (из-за фильтрации прокси)</li>
                   </ul>
                 </div>
               </div>
@@ -206,7 +221,7 @@ const FlowStepDetails = () => {
                       🧠 Вкладка "AI"
                     </p>
                     <ul className="list-disc list-inside text-slate-700 ml-4 mt-1">
-                      <li>AISettingsCard: выбор модели (YandexGPT / OpenAI)</li>
+                      <li>AISettingsCard: YandexGPT (yandexgpt-lite) и настройки</li>
                       <li>Настройка параметров: temperature, max_tokens, system_prompt</li>
                       <li>Backend: <code>/backend/get-ai-settings/</code>, <code>/backend/update-ai-settings/</code></li>
                       <li>Хранение: таблица <code>ai_settings</code> (tenant_id, model, settings_json)</li>
@@ -277,33 +292,33 @@ const FlowStepDetails = () => {
                   </ul>
                 </div>
                 <div className="bg-white p-3 rounded mt-2 border border-orange-300">
-                  <p className="font-semibold text-orange-800">📧 Система уведомлений (3-уровневая):</p>
+                  <p className="font-semibold text-orange-800">📧 Система уведомлений:</p>
                   <ul className="list-disc list-inside text-slate-700 space-y-1">
-                    <li><strong>За 7 дней:</strong> шаблон "subscription_reminder_7days" (предупреждение)</li>
-                    <li><strong>За 3 дня:</strong> шаблон "subscription_reminder_3days" (⚠️ внимание)</li>
-                    <li><strong>За 1 день:</strong> шаблон "subscription_reminder_1day" (🚨 критично)</li>
+                    <li><strong>За 3 дня до окончания:</strong> письмо с напоминанием и ссылкой на продление</li>
+                    <li><strong>URL продления:</strong> https://ai-ru.ru/content-editor?tenant_id=X</li>
+                    <li><strong>Отправка:</strong> Yandex Cloud Postbox (send-email)</li>
+                    <li><strong>Данные:</strong> название тенанта, тариф, цена продления, дата окончания</li>
                   </ul>
                   <p className="text-xs text-slate-600 mt-2">
-                    <strong>Интеграция с БД:</strong> шаблоны берутся из таблицы email_templates, редактируются в суперадминке (вкладка "Email-шаблоны"). 
-                    Переменные в шаблонах: <code>{'{{tenant_name}}'}</code>, <code>{'{{tariff_name}}'}</code>, <code>{'{{renewal_price}}'}</code>, <code>{'{{renewal_url}}'}</code>
+                    <strong>Технически:</strong> Cron каждые 24 часа через internal-cron-trigger → check-subscriptions → 
+                    SQL: запрос tenants WHERE subscription_end_date BETWEEN NOW() AND NOW()+3 days → отправка email
                   </p>
-                  <p className="text-xs text-slate-600 mt-1">Письма отправляются с HTML-версткой через SMTP (настройки из default_settings)</p>
                 </div>
                 <div className="bg-white p-3 rounded mt-2 border border-orange-300">
-                  <p className="font-semibold text-orange-800">🔒 Действия после истечения:</p>
+                  <p className="font-semibold text-orange-800">🔒 Продление:</p>
                   <ul className="list-disc list-inside text-slate-700 space-y-1">
-                    <li><strong>subscription_status → 'expired'</strong> в таблице tenants</li>
-                    <li><strong>is_active → false</strong> для всех admin_users тенанта</li>
-                    <li><strong>Блокировка входа:</strong> в админку и доступа к API</li>
-                    <li><strong>Сообщение:</strong> "Подписка истекла. Продлите для восстановления"</li>
+                    <li>Клиент переходит по ссылке в админку ai-ru.ru/content-editor</li>
+                    <li>В админке видит статус подписки и кнопку продления</li>
+                    <li>При оплате: subscription_end_date += 30 дней</li>
+                    <li>При неоплате: бот продолжает работать (без автоблокировки)</li>
                   </ul>
                 </div>
                 <div className="bg-white p-3 rounded mt-2 border border-orange-300">
-                  <p className="font-semibold text-orange-800">💳 Цены продления:</p>
+                  <p className="font-semibold text-orange-800">💳 Тарифы и цены:</p>
                   <ul className="list-disc list-inside text-slate-700 space-y-1">
-                    <li><strong>Старт:</strong> 4 990 ₽/мес (первоначальная оплата + 1000 ₽ настройка)</li>
-                    <li><strong>Бизнес:</strong> 7 990 ₽/мес (первоначальная оплата + 2000 ₽ настройка)</li>
-                    <li><strong>Премиум:</strong> 11 990 ₽/мес (первоначальная оплата + 3000 ₽ настройка)</li>
+                    <li><strong>basic:</strong> 1 € (первый месяц) → 11 €/мес (трафик 500 сообщ/мес)</li>
+                    <li><strong>professional:</strong> 5 € (первый месяц) → 30 €/мес (трафик 3000 сообщ/мес)</li>
+                    <li><strong>enterprise:</strong> 9 € (первый месяц) → 60 €/мес (трафик 10000 сообщ/мес)</li>
                   </ul>
                 </div>
               </div>
@@ -372,8 +387,9 @@ const FlowStepDetails = () => {
                     <li>Пользователь отправляет сообщение в любой канал</li>
                     <li>Webhook получает событие → определяет tenant_id</li>
                     <li>Загрузка AI settings, документов из БД для этого tenant</li>
-                    <li>Формирование контекста: system_prompt + документы (RAG)</li>
-                    <li>Отправка запроса в AI (YandexGPT / OpenAI)</li>
+                    <li>RAG-поиск: векторное сходство (OpenAI embeddings) → релевантные фрагменты</li>
+                    <li>Формирование контекста: system_prompt + найденные фрагменты документов</li>
+                    <li>Отправка запроса в YandexGPT (yandexgpt-lite)</li>
                     <li>Получение ответа от AI</li>
                     <li>Отправка ответа пользователю через соответствующий API</li>
                     <li>Сохранение сообщений в БД: таблицы <code>chats</code>, <code>messages</code></li>

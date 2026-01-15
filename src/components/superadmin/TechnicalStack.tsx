@@ -14,7 +14,7 @@ const TechnicalStack = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
           <div className="bg-slate-50 p-4 rounded border">
             <p className="font-bold text-slate-900 mb-2">👥 tenants</p>
-            <p className="text-xs text-slate-600">id, name, slug, tariff_id, subscription_end_date, created_at</p>
+            <p className="text-xs text-slate-600">id, name, slug, tariff_id, subscription_end_date, owner_email, owner_phone, created_at</p>
           </div>
           <div className="bg-slate-50 p-4 rounded border">
             <p className="font-bold text-slate-900 mb-2">🔐 users</p>
@@ -22,7 +22,7 @@ const TechnicalStack = () => {
           </div>
           <div className="bg-slate-50 p-4 rounded border">
             <p className="font-bold text-slate-900 mb-2">💳 tariffs</p>
-            <p className="text-xs text-slate-600">id, name, price, period, is_active</p>
+            <p className="text-xs text-slate-600">id, name, price, renewal_price, setup_fee, period, message_limit, is_active</p>
           </div>
           <div className="bg-slate-50 p-4 rounded border">
             <p className="font-bold text-slate-900 mb-2">📄 documents</p>
@@ -34,7 +34,7 @@ const TechnicalStack = () => {
           </div>
           <div className="bg-slate-50 p-4 rounded border">
             <p className="font-bold text-slate-900 mb-2">🧠 ai_settings</p>
-            <p className="text-xs text-slate-600">id, tenant_id, model (yandexgpt/openai), settings_json</p>
+            <p className="text-xs text-slate-600">id, tenant_id, model (yandexgpt-lite), system_prompt, temperature, max_tokens</p>
           </div>
           <div className="bg-slate-50 p-4 rounded border">
             <p className="font-bold text-slate-900 mb-2">💬 chats</p>
