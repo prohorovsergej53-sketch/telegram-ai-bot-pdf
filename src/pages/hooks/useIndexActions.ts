@@ -31,7 +31,7 @@ export const useIndexActions = (params: UseIndexActionsParams): IndexActions => 
       return;
     }
     
-    const reservedRoutes = ['admin', 'super-admin', 'payment', 'content-editor'];
+    const reservedRoutes = ['admin', 'super-admin', 'payment'];
     if (reservedRoutes.includes(tenantSlug)) {
       console.log(`[Index] Ignoring reserved route: ${tenantSlug}`);
       setCurrentTenantId(getTenantId());

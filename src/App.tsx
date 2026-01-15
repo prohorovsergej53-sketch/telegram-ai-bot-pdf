@@ -7,7 +7,6 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import LandingPage from "./components/landing/LandingPage";
-import ContentEditor from "./pages/ContentEditor";
 import PaymentPage from "./pages/PaymentPage";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import SuperAdmin from "./pages/SuperAdmin";
@@ -29,7 +28,6 @@ const App = () => (
           <Route path="/payment" element={<PaymentPage />} />
           <Route path="/payment/success" element={<PaymentSuccess />} />
           <Route path="/super-admin" element={<SuperAdmin />} />
-          <Route path="/content-editor" element={<ContentEditor />} />
           <Route path="/:tenantSlug" element={<Index />} />
           <Route path="/:tenantSlug/admin" element={<Index />} />
           <Route path="/:tenantSlug/privacy-policy" element={<PrivacyPolicy />} />
