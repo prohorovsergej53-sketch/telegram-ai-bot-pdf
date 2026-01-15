@@ -28,7 +28,7 @@ export const TARIFF_LIMITS: Record<string, TariffLimits> = {
     hasCustomization: false,
     hasPersonalManager: false,
     hasWidget: true,
-    hasPageSettings: false
+    hasPageSettings: true
   },
   professional: {
     id: 'professional',

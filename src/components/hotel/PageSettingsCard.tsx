@@ -15,10 +15,9 @@ import { QuickQuestionsSection } from './QuickQuestionsSection';
 interface PageSettingsCardProps {
   currentTenantId?: number | null;
   currentTenantName?: string | null;
-  hasFullAccess?: boolean;
 }
 
-const PageSettingsCard = ({ currentTenantId, currentTenantName, hasFullAccess = false }: PageSettingsCardProps) => {
+const PageSettingsCard = ({ currentTenantId, currentTenantName }: PageSettingsCardProps) => {
   const [settings, setSettings] = useState<PageSettings>({
     header_icon: 'MessageSquare',
     header_title: 'AI-консультант',
@@ -153,83 +152,67 @@ const PageSettingsCard = ({ currentTenantId, currentTenantName, hasFullAccess = 
         <CardDescription>Тексты, контакты и быстрые вопросы</CardDescription>
       </CardHeader>
       <CardContent className="pt-6 space-y-6">
-        {!hasFullAccess && (
-          <div className="bg-amber-50 border border-amber-300 rounded-lg p-4 mb-6">
-            <div className="flex items-start gap-3">
-              <Icon name="Lock" size={20} className="text-amber-600 mt-0.5" />
-              <div className="flex-1">
-                <p className="font-semibold text-amber-900 mb-1">Ограниченный доступ</p>
-                <p className="text-sm text-amber-800">
-                  В вашем тарифе доступно редактирование только футера. Для полного доступа обновите тариф до "Бизнес" или "Премиум".
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
-
         <div className="space-y-4">
-          {hasFullAccess && (
-            <>
-              <div className="pb-4 border-b">
-                <Label htmlFor="bot_name" className="text-base font-semibold">Название бота</Label>
-                <p className="text-sm text-muted-foreground mb-3">Внутреннее название для администрирования</p>
-                <Input
-                  id="bot_name"
-                  value={botName}
-                  onChange={(e) => setBotName(e.target.value)}
-                  placeholder="Мой бот"
-                  className="max-w-md"
-                />
-              </div>
+          <div className="pb-4 border-b">
+            <Label htmlFor="bot_name" className="text-base font-semibold">Название бота</Label>
+            <p className="text-sm text-muted-foreground mb-3">Внутреннее название для администрирования</p>
+            <Input
+              id="bot_name"
+              value={botName}
+              onChange={(e) => setBotName(e.target.value)}
+              placeholder="Мой бот"
+              className="max-w-md"
+            />
+          </div>
 
-              <HeaderSettingsSection
-                settings={settings}
-                onSettingsChange={setSettings}
-              />
+          <HeaderSettingsSection
+            settings={settings}
+            onSettingsChange={setSettings}
+          />
 
-              <ChatSettingsSection
-                settings={settings}
-                onSettingsChange={setSettings}
-              />
+          <ChatSettingsSection
+            settings={settings}
+            onSettingsChange={setSettings}
+          />
 
-              <ContactsSettingsSection
-                settings={settings}
-                onSettingsChange={setSettings}
-              />
+          <ContactsSettingsSection
+            settings={settings}
+            onSettingsChange={setSettings}
+          />
 
-              <QuickQuestionsSection
-                title={settings.quick_questions_title}
-                questions={quickQuestions}
-                onTitleChange={handleQuickQuestionsTitle}
-                onAddQuestion={handleAddQuestion}
-                onRemoveQuestion={handleRemoveQuestion}
-                onUpdateQuestion={handleUpdateQuestion}
-              />
-            </>
-          )}
+          <QuickQuestionsSection
+            title={settings.quick_questions_title}
+            questions={quickQuestions}
+            onTitleChange={handleQuickQuestionsTitle}
+            onAddQuestion={handleAddQuestion}
+            onRemoveQuestion={handleRemoveQuestion}
+            onUpdateQuestion={handleUpdateQuestion}
+          />
 
-          <div className="pt-4">
-            <h3 className="text-sm font-semibold text-slate-900 mb-3">Футер</h3>
-            <div className="space-y-3">
-              <div>
-                <Label htmlFor="footer_text">Текст ссылки</Label>
-                <Input
-                  id="footer_text"
-                  value={settings.footer_text}
-                  onChange={(e) => setSettings({ ...settings, footer_text: e.target.value })}
-                />
-              </div>
-              <div>
-                <Label htmlFor="footer_link">URL ссылки</Label>
-                <Input
-                  id="footer_link"
-                  value={settings.footer_link}
-                  onChange={(e) => setSettings({ ...settings, footer_link: e.target.value })}
-                  placeholder="https://..."
-                />
+          {isSuperAdmin() && (
+            <div className="pt-4">
+              <h3 className="text-sm font-semibold text-slate-900 mb-3">Футер</h3>
+              <div className="space-y-3">
+                <div>
+                  <Label htmlFor="footer_text">Текст ссылки</Label>
+                  <Input
+                    id="footer_text"
+                    value={settings.footer_text}
+                    onChange={(e) => setSettings({ ...settings, footer_text: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="footer_link">URL ссылки</Label>
+                  <Input
+                    id="footer_link"
+                    value={settings.footer_link}
+                    onChange={(e) => setSettings({ ...settings, footer_link: e.target.value })}
+                    placeholder="https://..."
+                  />
+                </div>
               </div>
             </div>
-          </div>
+          )}
         </div>
 
         <div className="flex justify-end pt-4 border-t">

@@ -199,7 +199,6 @@ const AdminView = ({ documents, isLoading, onFileUpload, onDeleteDocument, curre
           <PageSettingsCard
             currentTenantId={currentTenantId}
             currentTenantName={tenantName || null}
-            hasFullAccess={superAdmin || hasFeatureAccess('hasPageSettings', tariffId)}
           />
         </TabsContent>
 
