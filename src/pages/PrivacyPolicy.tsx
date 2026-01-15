@@ -49,7 +49,7 @@ const PrivacyPolicy = () => {
   const loadPrivacyPolicy = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch(`https://functions.poehali.dev/2f7a79a2-87ef-4692-b9a6-1e23f408edaa?action=public_content&tenant_id=${tenantId}`);
+      const response = await fetch(`${BACKEND_URLS.manageConsentSettings}?action=public_content&tenant_id=${tenantId}`);
       if (response.ok) {
         const data: PublicContentResponse = await response.json();
         if (data.consent_settings?.privacy_policy_text) {

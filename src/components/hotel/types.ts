@@ -163,7 +163,8 @@ export const BACKEND_URLS = {
   manageConsentSettings: 'https://functions.poehali.dev/2f7a79a2-87ef-4692-b9a6-1e23f408edaa',
   manageEmbeddings: 'https://functions.poehali.dev/eba16a48-59f3-4290-ae64-c0ca649f66a5',
   reindexEmbeddings: 'https://functions.poehali.dev/d84c6a38-349a-45a7-859d-08a51d29caf0',
-  consentLogs: 'https://functions.poehali.dev/7eaae0aa-83a0-4014-aa24-0b32693c37f0'
+  consentLogs: 'https://functions.poehali.dev/7eaae0aa-83a0-4014-aa24-0b32693c37f0',
+  yookassaCreatePayment: 'https://functions.poehali.dev/f4c127b8-2009-4d9b-b026-9fdf933b8b3a'
 };
 
 export const quickQuestions = [

@@ -4,8 +4,7 @@ import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import OrderFormFields from './OrderFormFields';
 import PremiumTariffNotice from './PremiumTariffNotice';
-
-const YOOKASSA_CREATE_PAYMENT_URL = 'https://functions.poehali.dev/f4c127b8-2009-4d9b-b026-9fdf933b8b3a';
+import { BACKEND_URLS } from '@/components/hotel/types';
 
 interface OrderFormSectionProps {
   selectedTariff?: string;
@@ -50,7 +49,7 @@ export const OrderFormSection = ({ selectedTariff }: OrderFormSectionProps) => {
       const selectedTariff = tariffs[formData.tariff as keyof typeof tariffs];
       const tenantSlug = formData.email.split('@')[0].toLowerCase().replace(/[^a-z0-9]/g, '');
 
-      const response = await fetch(YOOKASSA_CREATE_PAYMENT_URL, {
+      const response = await fetch(BACKEND_URLS.yookassaCreatePayment, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

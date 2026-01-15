@@ -46,7 +46,13 @@ const AdminView = ({ documents, isLoading, onFileUpload, onDeleteDocument, curre
   const [activeTab, setActiveTab] = useState('documents');
   const [currentSlug, setCurrentSlug] = useState(tenantSlug || '');
 
-
+  // Подсчёт количества видимых вкладок
+  const tabsCount = 
+    4 + // Документы, Мессенджеры, Страница, Виджет (всегда)
+    ((superAdmin || fz152Enabled) ? 1 : 0) + // AI
+    (fz152Enabled ? 1 : 0) + // 152-ФЗ
+    (superAdmin ? 1 : 0) + // Эмбеддинги
+    ((superAdmin || hasFeatureAccess('hasStats', tariffId)) ? 1 : 0); // Статистика
 
   const handleExitTenantView = () => {
     exitTenantView();
@@ -70,7 +76,7 @@ const AdminView = ({ documents, isLoading, onFileUpload, onDeleteDocument, curre
       )}
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className={`bg-gradient-to-r from-blue-500 to-purple-500 shadow-lg p-2 grid gap-2 h-auto ${superAdmin ? (fz152Enabled ? 'grid-cols-4 lg:grid-cols-8' : 'grid-cols-4 lg:grid-cols-7') : (fz152Enabled ? 'grid-cols-4 lg:grid-cols-7' : 'grid-cols-3 lg:grid-cols-6')}`}>
+        <TabsList className={`bg-gradient-to-r from-blue-500 to-purple-500 shadow-lg p-2 grid gap-2 h-auto grid-cols-3 lg:grid-cols-${tabsCount}`}>
           <TabsTrigger value="documents" className="data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=inactive]:text-white py-3 px-4 text-base font-semibold">
             <Icon name="FileText" size={20} className="mr-2" />
             <span>Документы</span>
@@ -105,10 +111,12 @@ const AdminView = ({ documents, isLoading, onFileUpload, onDeleteDocument, curre
               <span>Эмбеддинги</span>
             </TabsTrigger>
           )}
-          <TabsTrigger value="stats" className="data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=inactive]:text-white py-3 px-4 text-base font-semibold">
-            <Icon name="BarChart" size={20} className="mr-2" />
-            <span>Статистика</span>
-          </TabsTrigger>
+          {(superAdmin || hasFeatureAccess('hasStats', tariffId)) && (
+            <TabsTrigger value="stats" className="data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=inactive]:text-white py-3 px-4 text-base font-semibold">
+              <Icon name="BarChart" size={20} className="mr-2" />
+              <span>Статистика</span>
+            </TabsTrigger>
+          )}
         </TabsList>
 
         <TabsContent value="documents" className="space-y-6">
@@ -221,9 +229,11 @@ const AdminView = ({ documents, isLoading, onFileUpload, onDeleteDocument, curre
           </TabsContent>
         )}
 
-        <TabsContent value="stats" className="space-y-6">
-          <ChatStatsCard statsUrl={BACKEND_URLS.getChatStats} />
-        </TabsContent>
+        {(superAdmin || hasFeatureAccess('hasStats', tariffId)) && (
+          <TabsContent value="stats" className="space-y-6">
+            <ChatStatsCard statsUrl={BACKEND_URLS.getChatStats} />
+          </TabsContent>
+        )}
       </Tabs>
     </div>
   );

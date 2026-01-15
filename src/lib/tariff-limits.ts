@@ -12,6 +12,7 @@ export interface TariffLimits {
   hasPersonalManager: boolean;
   hasWidget: boolean;
   hasPageSettings: boolean;
+  hasStats: boolean;
 }
 
 export const TARIFF_LIMITS: Record<string, TariffLimits> = {
@@ -28,7 +29,8 @@ export const TARIFF_LIMITS: Record<string, TariffLimits> = {
     hasCustomization: false,
     hasPersonalManager: false,
     hasWidget: true,
-    hasPageSettings: true
+    hasPageSettings: true,
+    hasStats: false
   },
   professional: {
     id: 'professional',
@@ -43,7 +45,8 @@ export const TARIFF_LIMITS: Record<string, TariffLimits> = {
     hasCustomization: false,
     hasPersonalManager: false,
     hasWidget: true,
-    hasPageSettings: true
+    hasPageSettings: true,
+    hasStats: true
   },
   enterprise: {
     id: 'enterprise',
@@ -58,7 +61,8 @@ export const TARIFF_LIMITS: Record<string, TariffLimits> = {
     hasCustomization: true,
     hasPersonalManager: true,
     hasWidget: true,
-    hasPageSettings: true
+    hasPageSettings: true,
+    hasStats: true
   }
 };
 

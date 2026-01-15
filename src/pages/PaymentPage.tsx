@@ -9,9 +9,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Link } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import Icon from '@/components/ui/icon';
-
-const TARIFF_MANAGEMENT_URL = 'https://functions.poehali.dev/9aaca202-0192-4234-9f65-591df1552960';
-const CREATE_PAYMENT_URL = 'https://functions.poehali.dev/f4c127b8-2009-4d9b-b026-9fdf933b8b3a';
+import { BACKEND_URLS } from '@/components/hotel/types';
 
 interface TariffPlan {
   id: string;
@@ -49,7 +47,7 @@ const PaymentPage = () => {
 
   const loadTariffs = async () => {
     try {
-      const response = await fetch(`${TARIFF_MANAGEMENT_URL}?action=tariffs`);
+      const response = await fetch(`${BACKEND_URLS.tariffManagement}?action=tariffs`);
       const data = await response.json();
       const activeTariffs = (data.tariffs || []).filter((t: TariffPlan) => t.is_active);
       setTariffs(activeTariffs);
@@ -119,7 +117,7 @@ const PaymentPage = () => {
         }
       };
 
-      const response = await fetch(CREATE_PAYMENT_URL, {
+      const response = await fetch(BACKEND_URLS.yookassaCreatePayment, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(paymentData)

@@ -6,8 +6,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { authenticatedFetch } from '@/lib/auth';
 import Icon from '@/components/ui/icon';
-
-const BACKEND_URL = 'https://functions.poehali.dev/2f7a79a2-87ef-4692-b9a6-1e23f408edaa';
+import { BACKEND_URLS } from './types';
 
 interface ConsentSettings {
   webchat_enabled: boolean;
@@ -40,7 +39,7 @@ export const ConsentSettingsCard = ({ tenantId }: ConsentSettingsCardProps) => {
   const loadSettings = async () => {
     setIsLoading(true);
     try {
-      const response = await authenticatedFetch(`${BACKEND_URL}?action=public_content&tenant_id=${tenantId}`);
+      const response = await authenticatedFetch(`${BACKEND_URLS.manageConsentSettings}?action=public_content&tenant_id=${tenantId}`);
       if (response.ok) {
         const data = await response.json();
         if (data.consent_settings) {
@@ -62,7 +61,7 @@ export const ConsentSettingsCard = ({ tenantId }: ConsentSettingsCardProps) => {
   const handleSave = async () => {
     setIsSaving(true);
     try {
-      const response = await authenticatedFetch(`${BACKEND_URL}?action=public_content&tenant_id=${tenantId}`, {
+      const response = await authenticatedFetch(`${BACKEND_URLS.manageConsentSettings}?action=public_content&tenant_id=${tenantId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
