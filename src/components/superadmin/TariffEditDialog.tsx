@@ -85,6 +85,18 @@ export const TariffEditDialog = ({ tariff, onClose, onSave, onUpdate }: TariffEd
           <div className="flex items-center space-x-2">
             <input
               type="checkbox"
+              id="first_month_included"
+              checked={tariff.first_month_included ?? false}
+              onChange={(e) => onUpdate({...tariff, first_month_included: e.target.checked})}
+              className="w-4 h-4"
+            />
+            <Label htmlFor="first_month_included" className="cursor-pointer">
+              Первый месяц включен в стоимость подключения
+            </Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <input
+              type="checkbox"
               id="is_active"
               checked={tariff.is_active}
               onChange={(e) => onUpdate({...tariff, is_active: e.target.checked})}

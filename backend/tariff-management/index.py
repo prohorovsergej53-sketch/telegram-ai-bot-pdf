@@ -71,7 +71,7 @@ def handler(event: dict, context) -> dict:
             # Получить все тарифы
             cur.execute(f"""
                 SELECT id, name, price, period, features, is_popular, is_active, 
-                       sort_order, renewal_price, setup_fee, created_at, updated_at
+                       sort_order, renewal_price, setup_fee, first_month_included, created_at, updated_at
                 FROM {schema}.tariff_plans
                 ORDER BY sort_order
             """)
@@ -187,6 +187,10 @@ def handler(event: dict, context) -> dict:
             if 'renewal_price' in body:
                 update_fields.append('renewal_price = %s')
                 params.append(body['renewal_price'])
+            
+            if 'first_month_included' in body:
+                update_fields.append('first_month_included = %s')
+                params.append(body['first_month_included'])
             
             if 'is_active' in body:
                 update_fields.append('is_active = %s')

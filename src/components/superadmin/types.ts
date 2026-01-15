@@ -5,6 +5,7 @@ export interface Tariff {
   period: string;
   setup_fee: number;
   renewal_price: number;
+  first_month_included: boolean;
   is_active: boolean;
 }
 

@@ -17,6 +17,9 @@ interface TariffPlan {
   name: string;
   price: number;
   period: string;
+  setup_fee: number;
+  renewal_price: number;
+  first_month_included: boolean;
   features: string[];
   is_popular?: boolean;
   is_active?: boolean;
@@ -92,8 +95,15 @@ const PaymentPage = () => {
         .replace(/-+/g, '-')
         .replace(/^-|-$/g, '');
 
+      // Расчет первого платежа:
+      // Если first_month_included=true: первый платеж = setup_fee (первый месяц уже включен)
+      // Если first_month_included=false: первый платеж = setup_fee + renewal_price
+      const firstPaymentAmount = selectedPlan.first_month_included 
+        ? selectedPlan.setup_fee 
+        : selectedPlan.setup_fee + selectedPlan.renewal_price;
+
       const paymentData = {
-        amount: selectedPlan.price,
+        amount: firstPaymentAmount,
         description: `Подписка "${selectedPlan.name}" для ${formData.tenant_name}`,
         metadata: {
           tenant_name: formData.tenant_name,
@@ -101,7 +111,8 @@ const PaymentPage = () => {
           owner_email: formData.owner_email,
           owner_phone: formData.owner_phone,
           tariff_id: selectedTariff,
-          tariff_name: selectedPlan.name
+          tariff_name: selectedPlan.name,
+          first_month_included: selectedPlan.first_month_included
         }
       };
 

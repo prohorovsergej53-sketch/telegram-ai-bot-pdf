@@ -76,9 +76,16 @@ def handler(event: dict, context) -> dict:
             
             if owner_email:
                 tariff_id = metadata.get('tariff_id', 'basic')
+                first_month_included = metadata.get('first_month_included', False)
                 
-                # Вычисляем дату окончания подписки (через 30 дней)
-                subscription_end = datetime.utcnow() + timedelta(days=30)
+                # Вычисляем дату окончания подписки:
+                # Если first_month_included=true, то первый платеж уже включает 1 месяц
+                # Если false, то первый платеж = setup_fee, период не предоставляется
+                if first_month_included:
+                    subscription_end = datetime.utcnow() + timedelta(days=30)
+                else:
+                    # Setup fee без месяца - подписка истекает сразу
+                    subscription_end = datetime.utcnow()
                 
                 # Создаем тенант
                 cur.execute("""
