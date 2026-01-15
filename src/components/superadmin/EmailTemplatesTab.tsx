@@ -340,9 +340,9 @@ export const EmailTemplatesTab = () => {
               />
               <p className="text-xs text-slate-500">
                 {selectedTemplate.template_key.startsWith('subscription_reminder_') ? (
-                  <>Доступные переменные: {'{'}{'{'} tenant_name {'}'}{'}'}, {'{'}{'{'} tariff_name {'}'}{'}'}, {'{'}{'{'} renewal_price {'}'}{'}'}, {'{'}{'{'} renewal_url {'}'}{'}'}}</>
+                  <>Доступные переменные: {'{{ tenant_name }}'}, {'{{ tariff_name }}'}, {'{{ renewal_price }}'}, {'{{ renewal_url }}'}</>
                 ) : (
-                  <>Доступные переменные: {'{'}{'{'} email {'}'}{'}'}, {'{'}{'{'} password {'}'}{'}'}, {'{'}{'{'} login_url {'}'}{'}'}}</>
+                  <>Доступные переменные: {'{{ email }}'}, {'{{ password }}'}, {'{{ login_url }}'}</>
                 )}
               </p>
             </div>
