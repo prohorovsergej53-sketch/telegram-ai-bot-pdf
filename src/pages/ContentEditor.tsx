@@ -9,11 +9,16 @@ import { useToast } from '@/hooks/use-toast';
 import Icon from '@/components/ui/icon';
 import { authenticatedFetch } from '@/lib/auth';
 
-const BACKEND_URL = 'https://functions.poehali.dev/2163d682-19a2-462b-b577-7f04219cc3c8';
+const BACKEND_URL = 'https://functions.poehali.dev/2f7a79a2-87ef-4692-b9a6-1e23f408edaa';
 
 interface FAQ {
   question: string;
   answer: string;
+}
+
+interface ConsentSettings {
+  enabled: boolean;
+  text: string;
 }
 
 const ContentEditor = () => {
@@ -25,6 +30,10 @@ const ContentEditor = () => {
   const [welcomeText, setWelcomeText] = useState('');
   const [faq, setFaq] = useState<FAQ[]>([]);
   const [contactInfo, setContactInfo] = useState({ phone: '', email: '', address: '' });
+  const [consentSettings, setConsentSettings] = useState<ConsentSettings>({
+    enabled: false,
+    text: 'Я согласен на обработку персональных данных в соответствии с Политикой конфиденциальности'
+  });
   
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -47,6 +56,10 @@ const ContentEditor = () => {
       setWelcomeText(data.welcome_text || '');
       setFaq(data.faq || []);
       setContactInfo(data.contact_info || { phone: '', email: '', address: '' });
+      setConsentSettings(data.consent_settings || {
+        enabled: false,
+        text: 'Я согласен на обработку персональных данных в соответствии с Политикой конфиденциальности'
+      });
     } catch (error) {
       console.error('Error loading content:', error);
       toast({ title: 'Ошибка', description: 'Не удалось загрузить контент', variant: 'destructive' });
@@ -70,7 +83,8 @@ const ContentEditor = () => {
           public_description: publicDescription,
           welcome_text: welcomeText,
           faq,
-          contact_info: contactInfo
+          contact_info: contactInfo,
+          consent_settings: consentSettings
         })
       });
 
@@ -205,6 +219,61 @@ const ContentEditor = () => {
               placeholder="г. Москва, ул. Примерная, д. 1"
             />
           </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Согласие на обработку данных (152-ФЗ)</CardTitle>
+          <CardDescription>Настройки согласия пользователей в чате</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex items-center justify-between p-4 bg-slate-50 rounded-lg">
+            <div className="space-y-1">
+              <Label className="text-base font-semibold">Требовать согласие перед чатом</Label>
+              <p className="text-sm text-slate-600">
+                Пользователь должен будет согласиться на обработку данных перед отправкой сообщения
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={consentSettings.enabled}
+                onChange={(e) => setConsentSettings({ ...consentSettings, enabled: e.target.checked })}
+                className="w-4 h-4"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label>Текст согласия</Label>
+            <Textarea
+              value={consentSettings.text}
+              onChange={(e) => setConsentSettings({ ...consentSettings, text: e.target.value })}
+              rows={3}
+              placeholder="Текст согласия на обработку персональных данных..."
+            />
+            <p className="text-xs text-slate-500">
+              Этот текст будет показан как чекбокс. Рекомендуется добавить ссылку на Политику конфиденциальности.
+            </p>
+          </div>
+
+          {consentSettings.enabled && (
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <div className="flex items-start gap-3">
+                <Icon name="Info" size={20} className="text-blue-600 mt-0.5" />
+                <div className="space-y-2 text-sm text-blue-900">
+                  <p className="font-semibold">Предварительный просмотр:</p>
+                  <div className="bg-white rounded p-3 border border-blue-200">
+                    <div className="flex items-start gap-2">
+                      <input type="checkbox" className="mt-1" disabled />
+                      <span className="text-sm">{consentSettings.text}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
 

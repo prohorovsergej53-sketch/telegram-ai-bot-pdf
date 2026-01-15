@@ -27,5 +27,6 @@ export const BACKEND_URLS = {
   tenants: 'https://functions.poehali.dev/b1bdd2fb-cf88-4093-a3d7-15d273763e4c',
   emailTemplates: 'https://functions.poehali.dev/b58124ce-188b-4335-9dbd-46f9849954da',
   sendEmail: 'https://functions.poehali.dev/5c84ca37-0a0b-4a3f-99ec-880d3a33bcdc',
-  systemMonitoring: 'https://functions.poehali.dev/f15b151c-8058-4206-aec0-26d1e438b1f5'
+  systemMonitoring: 'https://functions.poehali.dev/f15b151c-8058-4206-aec0-26d1e438b1f5',
+  consentSettings: 'https://functions.poehali.dev/2f7a79a2-87ef-4692-b9a6-1e23f408edaa'
 };

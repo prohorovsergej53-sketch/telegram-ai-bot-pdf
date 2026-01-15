@@ -12,6 +12,7 @@ import { TariffsTab } from '@/components/superadmin/TariffsTab';
 import { BotTemplateTab } from '@/components/superadmin/BotTemplateTab';
 import { EmailTemplatesTab } from '@/components/superadmin/EmailTemplatesTab';
 import { SystemMonitoringTab } from '@/components/superadmin/SystemMonitoringTab';
+import { ConsentSettingsTab } from '@/components/superadmin/ConsentSettingsTab';
 import { TenantEditDialog } from '@/components/superadmin/TenantEditDialog';
 import { TariffEditDialog } from '@/components/superadmin/TariffEditDialog';
 import { CreateTenantDialog } from '@/components/superadmin/CreateTenantDialog';
@@ -211,6 +212,10 @@ const SuperAdmin = () => {
               <Icon name="Mail" size={16} className="mr-2" />
               Email-шаблоны
             </TabsTrigger>
+            <TabsTrigger value="consent">
+              <Icon name="ShieldCheck" size={16} className="mr-2" />
+              Согласие 152-ФЗ
+            </TabsTrigger>
             <TabsTrigger value="monitoring">
               <Icon name="Activity" size={16} className="mr-2" />
               Мониторинг
@@ -247,6 +252,10 @@ const SuperAdmin = () => {
 
           <TabsContent value="emails" className="space-y-6">
             <EmailTemplatesTab />
+          </TabsContent>
+
+          <TabsContent value="consent" className="space-y-6">
+            <ConsentSettingsTab />
           </TabsContent>
 
           <TabsContent value="monitoring" className="space-y-6">
