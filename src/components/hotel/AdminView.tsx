@@ -17,6 +17,7 @@ import ChatTestCard from './ChatTestCard';
 import ConsentSettingsCard from './ConsentSettingsCard';
 import { DocumentStatsCards } from './DocumentStatsCards';
 import { DocumentsPanel } from './DocumentsPanel';
+import { EmbeddingsTab } from '@/components/superadmin/EmbeddingsTab';
 import { Document, BACKEND_URLS } from './types';
 import { getTenantId, getTariffId, isSuperAdmin, getAdminUser, exitTenantView } from '@/lib/auth';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -69,7 +70,7 @@ const AdminView = ({ documents, isLoading, onFileUpload, onDeleteDocument, curre
       )}
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className={`bg-gradient-to-r from-blue-500 to-purple-500 shadow-lg p-2 grid gap-2 h-auto ${fz152Enabled ? 'grid-cols-3 lg:grid-cols-7' : 'grid-cols-3 lg:grid-cols-6'}`}>
+        <TabsList className={`bg-gradient-to-r from-blue-500 to-purple-500 shadow-lg p-2 grid gap-2 h-auto ${superAdmin ? (fz152Enabled ? 'grid-cols-4 lg:grid-cols-8' : 'grid-cols-4 lg:grid-cols-7') : (fz152Enabled ? 'grid-cols-3 lg:grid-cols-7' : 'grid-cols-3 lg:grid-cols-6')}`}>
           <TabsTrigger value="documents" className="data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=inactive]:text-white py-3 px-4 text-base font-semibold">
             <Icon name="FileText" size={20} className="mr-2" />
             <span>Документы</span>
@@ -94,6 +95,12 @@ const AdminView = ({ documents, isLoading, onFileUpload, onDeleteDocument, curre
             <TabsTrigger value="consent" className="data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=inactive]:text-white py-3 px-4 text-base font-semibold">
               <Icon name="ShieldCheck" size={20} className="mr-2" />
               <span>152-ФЗ</span>
+            </TabsTrigger>
+          )}
+          {superAdmin && (
+            <TabsTrigger value="embeddings" className="data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=inactive]:text-white py-3 px-4 text-base font-semibold">
+              <Icon name="BrainCircuit" size={20} className="mr-2" />
+              <span>Эмбеддинги</span>
             </TabsTrigger>
           )}
           <TabsTrigger value="stats" className="data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=inactive]:text-white py-3 px-4 text-base font-semibold">
@@ -204,6 +211,12 @@ const AdminView = ({ documents, isLoading, onFileUpload, onDeleteDocument, curre
         {fz152Enabled && (
           <TabsContent value="consent" className="space-y-6">
             {currentTenantId && <ConsentSettingsCard tenantId={currentTenantId} />}
+          </TabsContent>
+        )}
+
+        {superAdmin && (
+          <TabsContent value="embeddings" className="space-y-6">
+            <EmbeddingsTab />
           </TabsContent>
         )}
 

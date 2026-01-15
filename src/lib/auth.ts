@@ -43,10 +43,7 @@ export const isAuthenticated = (): boolean => {
 
 export const isSuperAdmin = (): boolean => {
   const user = getAdminUser();
-  const result = user?.role === 'super_admin' || user?.tenant_id === 1;
-  const viewingOtherTenant = sessionStorage.getItem('superadmin_viewing_tenant');
-  console.log('[auth] isSuperAdmin check:', { user, result, viewingOtherTenant, tenantId: user?.tenant_id });
-  return result || viewingOtherTenant === 'true';
+  return user?.role === 'super_admin';
 };
 
 export const getTenantId = (): number | null => {
