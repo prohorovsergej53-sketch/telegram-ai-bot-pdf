@@ -19,6 +19,7 @@ interface FAQ {
 interface ConsentSettings {
   enabled: boolean;
   text: string;
+  messenger_text: string;
 }
 
 const ContentEditor = () => {
@@ -32,7 +33,8 @@ const ContentEditor = () => {
   const [contactInfo, setContactInfo] = useState({ phone: '', email: '', address: '' });
   const [consentSettings, setConsentSettings] = useState<ConsentSettings>({
     enabled: false,
-    text: 'Я согласен на обработку персональных данных в соответствии с Политикой конфиденциальности'
+    text: 'Я согласен на обработку персональных данных в соответствии с Политикой конфиденциальности',
+    messenger_text: 'Продолжая диалог, вы соглашаетесь на обработку персональных данных согласно нашей Политике конфиденциальности.'
   });
   
   const [isLoading, setIsLoading] = useState(false);
@@ -58,7 +60,8 @@ const ContentEditor = () => {
       setContactInfo(data.contact_info || { phone: '', email: '', address: '' });
       setConsentSettings(data.consent_settings || {
         enabled: false,
-        text: 'Я согласен на обработку персональных данных в соответствии с Политикой конфиденциальности'
+        text: 'Я согласен на обработку персональных данных в соответствии с Политикой конфиденциальности',
+        messenger_text: 'Продолжая диалог, вы соглашаетесь на обработку персональных данных согласно нашей Политике конфиденциальности.'
       });
     } catch (error) {
       console.error('Error loading content:', error);
@@ -246,7 +249,7 @@ const ContentEditor = () => {
           </div>
 
           <div className="space-y-2">
-            <Label>Текст согласия</Label>
+            <Label>Текст согласия для веб-чата</Label>
             <Textarea
               value={consentSettings.text}
               onChange={(e) => setConsentSettings({ ...consentSettings, text: e.target.value })}
@@ -254,7 +257,20 @@ const ContentEditor = () => {
               placeholder="Текст согласия на обработку персональных данных..."
             />
             <p className="text-xs text-slate-500">
-              Этот текст будет показан как чекбокс. Рекомендуется добавить ссылку на Политику конфиденциальности.
+              Этот текст будет показан как чекбокс в веб-чате. Рекомендуется добавить ссылку на Политику конфиденциальности.
+            </p>
+          </div>
+
+          <div className="space-y-2">
+            <Label>Текст для мессенджеров (Telegram, VK, MAX)</Label>
+            <Textarea
+              value={consentSettings.messenger_text}
+              onChange={(e) => setConsentSettings({ ...consentSettings, messenger_text: e.target.value })}
+              rows={3}
+              placeholder="Текст согласия для мессенджеров..."
+            />
+            <p className="text-xs text-slate-500">
+              Этот текст будет добавлен в первое приветственное сообщение бота в мессенджерах.
             </p>
           </div>
 

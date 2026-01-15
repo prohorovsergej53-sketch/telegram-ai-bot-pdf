@@ -31,7 +31,8 @@ def handler(event: dict, context) -> dict:
                     t.name,
                     ts.public_description,
                     ts.consent_enabled,
-                    ts.consent_text
+                    ts.consent_text,
+                    ts.consent_messenger_text
                 FROM t_p56134400_telegram_ai_bot_pdf.tenants t
                 LEFT JOIN t_p56134400_telegram_ai_bot_pdf.tenant_settings ts ON t.id = ts.tenant_id
                 WHERE t.id = %s
@@ -51,7 +52,8 @@ def handler(event: dict, context) -> dict:
                 'public_description': row[1] or '',
                 'consent_settings': {
                     'enabled': row[2] if row[2] is not None else False,
-                    'text': row[3] or 'Я согласен на обработку персональных данных в соответствии с Политикой конфиденциальности'
+                    'text': row[3] or 'Я согласен на обработку персональных данных в соответствии с Политикой конфиденциальности',
+                    'messenger_text': row[4] or 'Продолжая диалог, вы соглашаетесь на обработку персональных данных согласно нашей Политике конфиденциальности.'
                 },
                 'welcome_text': '',
                 'faq': [],
@@ -78,12 +80,14 @@ def handler(event: dict, context) -> dict:
                     public_description = %s,
                     consent_enabled = %s,
                     consent_text = %s,
+                    consent_messenger_text = %s,
                     updated_at = CURRENT_TIMESTAMP
                 WHERE tenant_id = %s
             """, (
                 body.get('public_description', ''),
                 consent_settings.get('enabled', False),
                 consent_settings.get('text', ''),
+                consent_settings.get('messenger_text', ''),
                 tenant_id
             ))
 

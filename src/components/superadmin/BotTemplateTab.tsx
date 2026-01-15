@@ -10,6 +10,7 @@ import MAXSettingsCard from '../hotel/MAXSettingsCard';
 import WidgetSettingsCard from '../hotel/WidgetSettingsCard';
 import PageSettingsCard from '../hotel/PageSettingsCard';
 import MessengerAutoMessages from '../hotel/MessengerAutoMessages';
+import { ConsentTemplateCard } from './ConsentTemplateCard';
 import { BACKEND_URLS } from '../hotel/types';
 
 export const BotTemplateTab = () => {
@@ -76,7 +77,7 @@ export const BotTemplateTab = () => {
         </CardHeader>
         <CardContent>
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-            <TabsList className="grid grid-cols-4 lg:grid-cols-8 gap-2">
+            <TabsList className="grid grid-cols-4 lg:grid-cols-9 gap-2">
               <TabsTrigger value="ai" className="text-xs">
                 <Icon name="Brain" size={14} className="mr-1" />
                 AI
@@ -104,6 +105,10 @@ export const BotTemplateTab = () => {
               <TabsTrigger value="automessages" className="text-xs">
                 <Icon name="Clock" size={14} className="mr-1" />
                 Авто
+              </TabsTrigger>
+              <TabsTrigger value="consent" className="text-xs">
+                <Icon name="ShieldCheck" size={14} className="mr-1" />
+                152-ФЗ
               </TabsTrigger>
             </TabsList>
 
@@ -142,6 +147,10 @@ export const BotTemplateTab = () => {
 
             <TabsContent value="automessages" className="space-y-4">
               <MessengerAutoMessages isSuperAdmin={true} />
+            </TabsContent>
+
+            <TabsContent value="consent" className="space-y-4">
+              <ConsentTemplateCard />
             </TabsContent>
           </Tabs>
         </CardContent>
