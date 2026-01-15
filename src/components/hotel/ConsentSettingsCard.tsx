@@ -163,10 +163,10 @@ export const ConsentSettingsCard = ({ tenantId }: ConsentSettingsCardProps) => {
             value={consentSettings.messenger_text}
             onChange={(e) => setConsentSettings({ ...consentSettings, messenger_text: e.target.value })}
             rows={3}
-            placeholder="Текст согласия для мессенджеров..."
+            placeholder="Продолжая диалог, вы соглашаетесь на обработку персональных данных..."
           />
           <p className="text-xs text-slate-500">
-            Этот текст будет добавлен в первое приветственное сообщение бота в мессенджерах.
+            Этот текст будет добавлен в первое приветственное сообщение бота в мессенджерах. Добавьте ссылку на политику, например: "...согласно Политике конфиденциальности: https://ваш-сайт.ru/privacy-policy"
           </p>
         </div>
 
