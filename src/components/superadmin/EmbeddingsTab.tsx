@@ -14,6 +14,7 @@ interface TenantEmbedding extends Tenant {
 }
 
 const BACKEND_URL_EMBEDDINGS = 'https://functions.poehali.dev/eba16a48-59f3-4290-ae64-c0ca649f66a5';
+const BACKEND_URL_REINDEX = 'https://functions.poehali.dev/d84c6a38-349a-45a7-859d-08a51d29caf0';
 
 export const EmbeddingsTab = () => {
   const { toast } = useToast();
@@ -73,7 +74,8 @@ export const EmbeddingsTab = () => {
       if (response.ok) {
         toast({
           title: 'Успешно',
-          description: 'Настройки эмбеддингов обновлены'
+          description: 'Настройки обновлены. Запустите переиндексацию документов.',
+          duration: 5000
         });
         setEditingTenantId(null);
         loadTenants();
@@ -85,6 +87,38 @@ export const EmbeddingsTab = () => {
       toast({
         title: 'Ошибка',
         description: error.message || 'Не удалось обновить настройки',
+        variant: 'destructive'
+      });
+    }
+  };
+
+  const handleReindex = async (tenantId: number, tenantName: string) => {
+    if (!confirm(`Переиндексировать все документы для "${tenantName}"? Это может занять время.`)) {
+      return;
+    }
+
+    try {
+      const response = await authenticatedFetch(`${BACKEND_URL_REINDEX}?tenant_id=${tenantId}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'start' })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        toast({
+          title: 'Переиндексация запущена',
+          description: `Обработано документов: ${data.reindexed} из ${data.total}`,
+          duration: 7000
+        });
+      } else {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to start reindexing');
+      }
+    } catch (error: any) {
+      toast({
+        title: 'Ошибка переиндексации',
+        description: error.message,
         variant: 'destructive'
       });
     }
@@ -131,15 +165,25 @@ export const EmbeddingsTab = () => {
                     )}
                   </div>
                   {!isEditing ? (
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => handleEdit(tenant)}
-                      disabled={isFz152}
-                    >
-                      <Icon name="Settings" size={16} className="mr-2" />
-                      Настроить
-                    </Button>
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleEdit(tenant)}
+                        disabled={isFz152}
+                      >
+                        <Icon name="Settings" size={16} className="mr-2" />
+                        Настроить
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        onClick={() => handleReindex(tenant.id, tenant.name)}
+                      >
+                        <Icon name="RefreshCw" size={16} className="mr-2" />
+                        Переиндексировать
+                      </Button>
+                    </div>
                   ) : (
                     <div className="flex gap-2">
                       <Button size="sm" onClick={() => handleSave(tenant.id)}>
