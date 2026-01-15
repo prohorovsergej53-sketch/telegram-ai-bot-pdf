@@ -87,7 +87,7 @@ export const useIndexActions = (params: UseIndexActionsParams): IndexActions => 
       const tenantId = currentTenantId || getTenantId();
       if (!tenantId) return;
       
-      const response = await fetch(`https://functions.poehali.dev/2f7a79a2-87ef-4692-b9a6-1e23f408edaa?action=public_content&tenant_id=${tenantId}`);
+      const response = await authenticatedFetch(`https://functions.poehali.dev/2f7a79a2-87ef-4692-b9a6-1e23f408edaa?action=public_content&tenant_id=${tenantId}`);
       if (response.ok) {
         const data: PublicContentResponse = await response.json();
         setFz152Enabled(data.fz152_enabled || false);
