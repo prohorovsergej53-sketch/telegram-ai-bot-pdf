@@ -89,9 +89,10 @@ const FlowStepDetails = () => {
                   <ul className="list-disc list-inside text-slate-700 space-y-1">
                     <li>Проверка статуса платежа (succeeded)</li>
                     <li>Извлечение metadata: email, phone, tenant_name, tariff_id</li>
-                    <li><strong>Создание tenant в БД:</strong> INSERT INTO tenants (БЕЗ копирования шаблона)</li>
-                    <li>Генерация уникального slug: generate_random_slug() (например: bot-a8f3d2)</li>
-                    <li>Создание admin-пользователя (username=email, случайный пароль)</li>
+                    <li><strong>Создание tenant в БД:</strong> INSERT INTO tenants (slug, name, owner_email...)</li>
+                    <li><strong className="text-green-600">🎨 Копирование шаблона:</strong> SELECT settings FROM tenant_id=1 → INSERT для нового tenant_id</li>
+                    <li>Генерация уникального slug из metadata (tenant_slug или tenant-{'{'}payment_id{'}'})</li>
+                    <li>Создание admin-пользователя (username={'{'}slug{'}'}_user, случайный пароль)</li>
                     <li>Установка tariff_id и subscription_end_date (тариф + 30 дней)</li>
                     <li>Отправка email с доступами через send-order-email</li>
                   </ul>
