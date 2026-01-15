@@ -142,7 +142,7 @@ const TenantApiKeysCard = ({ tenantId, tenantName, fz152Enabled = false }: Tenan
         </CardTitle>
         <CardDescription>
           {fz152Enabled 
-            ? `Для соблюдения 152-ФЗ вам доступны только Яндекс модели для ${tenantName}` 
+            ? `Для соблюдения 152-ФЗ необходимо использовать собственный API ключ YandexGPT для ${tenantName}` 
             : `Управление ключами для ${tenantName}. Каждый бот использует свои ключи.`}
         </CardDescription>
       </CardHeader>
@@ -154,13 +154,32 @@ const TenantApiKeysCard = ({ tenantId, tenantName, fz152Enabled = false }: Tenan
         ) : (
           <>
             <div className="space-y-4">
+              {fz152Enabled && (
+                <div className="bg-amber-50 border border-amber-300 rounded-lg p-4">
+                  <div className="flex items-start gap-2">
+                    <Icon name="ShieldCheck" size={16} className="text-amber-600 mt-0.5" />
+                    <div className="text-sm text-amber-900">
+                      <p className="font-semibold mb-2">Требования 152-ФЗ</p>
+                      <p className="text-amber-800 mb-1">
+                        Для обработки персональных данных клиентов необходимо использовать собственный API ключ YandexGPT.
+                      </p>
+                      <p className="text-amber-800">
+                        Это обеспечивает соответствие законодательству о защите персональных данных.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+              
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                 <div className="flex items-start gap-2">
                   <Icon name="Info" size={16} className="text-blue-600 mt-0.5" />
                   <div className="text-sm text-blue-900">
                     <p className="font-medium mb-1">Яндекс API</p>
                     <p className="text-blue-800">
-                      Используется моделью YandexGPT и для эмбеддингов всех OpenRouter моделей
+                      {fz152Enabled 
+                        ? 'Используется для чата (YandexGPT Lite) и эмбеддингов (text-search-doc, text-search-query)'
+                        : 'Используется моделью YandexGPT и для эмбеддингов всех OpenRouter моделей'}
                     </p>
                   </div>
                 </div>

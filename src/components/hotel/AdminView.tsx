@@ -70,7 +70,7 @@ const AdminView = ({ documents, isLoading, onFileUpload, onDeleteDocument, curre
       )}
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className={`bg-gradient-to-r from-blue-500 to-purple-500 shadow-lg p-2 grid gap-2 h-auto ${superAdmin ? (fz152Enabled ? 'grid-cols-4 lg:grid-cols-8' : 'grid-cols-4 lg:grid-cols-7') : (fz152Enabled ? 'grid-cols-3 lg:grid-cols-7' : 'grid-cols-3 lg:grid-cols-6')}`}>
+        <TabsList className={`bg-gradient-to-r from-blue-500 to-purple-500 shadow-lg p-2 grid gap-2 h-auto ${superAdmin ? (fz152Enabled ? 'grid-cols-4 lg:grid-cols-8' : 'grid-cols-4 lg:grid-cols-7') : (fz152Enabled ? 'grid-cols-4 lg:grid-cols-7' : 'grid-cols-3 lg:grid-cols-6')}`}>
           <TabsTrigger value="documents" className="data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=inactive]:text-white py-3 px-4 text-base font-semibold">
             <Icon name="FileText" size={20} className="mr-2" />
             <span>Документы</span>
@@ -79,10 +79,12 @@ const AdminView = ({ documents, isLoading, onFileUpload, onDeleteDocument, curre
             <Icon name="MessageCircle" size={20} className="mr-2" />
             <span>Мессенджеры</span>
           </TabsTrigger>
-          <TabsTrigger value="ai" className="data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=inactive]:text-white py-3 px-4 text-base font-semibold">
-            <Icon name="Brain" size={20} className="mr-2" />
-            <span>AI</span>
-          </TabsTrigger>
+          {(superAdmin || fz152Enabled) && (
+            <TabsTrigger value="ai" className="data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=inactive]:text-white py-3 px-4 text-base font-semibold">
+              <Icon name="Brain" size={20} className="mr-2" />
+              <span>AI</span>
+            </TabsTrigger>
+          )}
           <TabsTrigger value="page" className="data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=inactive]:text-white py-3 px-4 text-base font-semibold">
             <Icon name="Layout" size={20} className="mr-2" />
             <span>Страница</span>
@@ -165,7 +167,7 @@ const AdminView = ({ documents, isLoading, onFileUpload, onDeleteDocument, curre
               )}
               {currentTenantId && tenantName && (fz152Enabled || superAdmin) && (
                 <>
-                  <ApiKeysGuideCard />
+                  {!fz152Enabled && <ApiKeysGuideCard />}
                   <TenantApiKeysCard
                     tenantId={currentTenantId}
                     tenantName={tenantName}
