@@ -14,6 +14,7 @@ import { EmailTemplatesTab } from '@/components/superadmin/EmailTemplatesTab';
 import { SystemMonitoringTab } from '@/components/superadmin/SystemMonitoringTab';
 import { TenantEditDialog } from '@/components/superadmin/TenantEditDialog';
 import { TariffEditDialog } from '@/components/superadmin/TariffEditDialog';
+import { CreateTenantDialog } from '@/components/superadmin/CreateTenantDialog';
 import LogicFlowTab from '@/components/superadmin/LogicFlowTab';
 
 const SuperAdmin = () => {
@@ -24,6 +25,7 @@ const SuperAdmin = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [editingTenant, setEditingTenant] = useState<Tenant | null>(null);
   const [editingTariff, setEditingTariff] = useState<Tariff | null>(null);
+  const [isCreatingTenant, setIsCreatingTenant] = useState(false);
 
   useEffect(() => {
     if (!isSuperAdmin()) {
@@ -224,6 +226,7 @@ const SuperAdmin = () => {
               tenants={tenants}
               onEnterTenant={handleEnterTenantAdmin}
               onManageTenant={handleManageTenant}
+              onCreateTenant={() => setIsCreatingTenant(true)}
             />
           </TabsContent>
 
@@ -265,6 +268,19 @@ const SuperAdmin = () => {
         onClose={() => setEditingTariff(null)}
         onSave={saveTariffChanges}
         onUpdate={setEditingTariff}
+      />
+      
+      <CreateTenantDialog
+        isOpen={isCreatingTenant}
+        onClose={() => setIsCreatingTenant(false)}
+        onSuccess={() => {
+          loadTenants();
+          toast({
+            title: 'Успешно',
+            description: 'Новый клиент создан',
+          });
+        }}
+        tariffs={tariffs}
       />
     </div>
   );

@@ -8,14 +8,23 @@ interface TenantsTabProps {
   tenants: Tenant[];
   onEnterTenant: (tenant: Tenant) => void;
   onManageTenant: (tenant: Tenant) => void;
+  onCreateTenant: () => void;
 }
 
-export const TenantsTab = ({ tenants, onEnterTenant, onManageTenant }: TenantsTabProps) => {
+export const TenantsTab = ({ tenants, onEnterTenant, onManageTenant, onCreateTenant }: TenantsTabProps) => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Управление клиентами</CardTitle>
-        <CardDescription>Все боты в системе</CardDescription>
+        <div className="flex items-center justify-between">
+          <div>
+            <CardTitle>Управление клиентами</CardTitle>
+            <CardDescription>Все боты в системе</CardDescription>
+          </div>
+          <Button onClick={onCreateTenant}>
+            <Icon name="Plus" size={16} className="mr-2" />
+            Создать клиента
+          </Button>
+        </div>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">

@@ -102,6 +102,107 @@ def handler(event: dict, context) -> dict:
                 'isBase64Encoded': False
             }
 
+        elif method == 'POST':
+            # Создать нового тенанта вручную (без оплаты)
+            import hashlib
+            import secrets
+            import string
+            from datetime import datetime, timedelta
+            
+            body = json.loads(event.get('body', '{}'))
+            tenant_name = body.get('name')
+            tenant_slug = body.get('slug')
+            owner_email = body.get('owner_email')
+            owner_phone = body.get('owner_phone', '')
+            tariff_id = body.get('tariff_id', 'basic')
+            subscription_months = body.get('subscription_months', 1)
+            
+            if not tenant_name or not tenant_slug or not owner_email:
+                return {
+                    'statusCode': 400,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'name, slug and owner_email required'}),
+                    'isBase64Encoded': False
+                }
+            
+            # Проверка уникальности slug
+            cur.execute(f"SELECT id FROM {schema}.tenants WHERE slug = %s", (tenant_slug,))
+            if cur.fetchone():
+                return {
+                    'statusCode': 400,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'Slug already exists'}),
+                    'isBase64Encoded': False
+                }
+            
+            # Вычисляем дату окончания подписки
+            subscription_end = datetime.utcnow() + timedelta(days=30 * subscription_months)
+            
+            # Создаем тенант
+            cur.execute(f"""
+                INSERT INTO {schema}.tenants 
+                (slug, name, description, owner_email, owner_phone, template_version, auto_update, status, 
+                 is_public, subscription_status, subscription_end_date, tariff_id)
+                VALUES (%s, %s, %s, %s, %s, '1.0.0', false, 'active', true, 'active', %s, %s)
+                RETURNING id
+            """, (tenant_slug, tenant_name, 'Создан суперадмином вручную', owner_email, owner_phone, subscription_end, tariff_id))
+            
+            tenant_id = cur.fetchone()['id']
+            
+            # Копируем настройки из ШАБЛОНА (tenant_id=1)
+            cur.execute(f"""
+                SELECT ai_settings, widget_settings, messenger_settings, page_settings
+                FROM {schema}.tenant_settings
+                WHERE tenant_id = 1
+            """)
+            template_settings = cur.fetchone()
+            
+            if template_settings:
+                cur.execute(f"""
+                    INSERT INTO {schema}.tenant_settings 
+                    (tenant_id, ai_settings, widget_settings, messenger_settings, page_settings)
+                    VALUES (%s, %s, %s, %s, %s)
+                """, (tenant_id, template_settings['ai_settings'], template_settings['widget_settings'], 
+                      template_settings['messenger_settings'], template_settings['page_settings']))
+            else:
+                # Fallback: создаем пустую запись, если шаблон не найден
+                cur.execute(f"""
+                    INSERT INTO {schema}.tenant_settings (tenant_id)
+                    VALUES (%s)
+                """, (tenant_id,))
+            
+            # Создаем пользователя-владельца
+            username = f"{tenant_slug}_admin"
+            password = ''.join(secrets.choice(string.ascii_letters + string.digits) for _ in range(12))
+            password_hash = hashlib.sha256(password.encode()).hexdigest()
+            
+            cur.execute(f"""
+                INSERT INTO {schema}.admin_users 
+                (username, password_hash, email, role, tenant_id, is_active, subscription_status, subscription_end_date, tariff_id)
+                VALUES (%s, %s, %s, 'content_editor', %s, true, 'active', %s, %s)
+                RETURNING id
+            """, (username, password_hash, owner_email, tenant_id, subscription_end, tariff_id))
+            
+            user_id = cur.fetchone()['id']
+            
+            conn.commit()
+            cur.close()
+            conn.close()
+            
+            return {
+                'statusCode': 200,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({
+                    'success': True, 
+                    'tenant_id': tenant_id,
+                    'user_id': user_id,
+                    'username': username,
+                    'password': password,
+                    'login_url': f"https://ai-ru.ru/content-editor?tenant_id={tenant_id}"
+                }),
+                'isBase64Encoded': False
+            }
+
         elif method == 'PUT':
             # Обновить тенанта (например, сменить тариф)
             body = json.loads(event.get('body', '{}'))
