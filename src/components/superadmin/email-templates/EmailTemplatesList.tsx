@@ -25,12 +25,12 @@ export const EmailTemplatesList = ({
   onCreateNew 
 }: EmailTemplatesListProps) => {
   return (
-    <Card className="lg:col-span-1">
-      <CardHeader>
+    <Card className="lg:col-span-1 flex flex-col max-h-[calc(100vh-12rem)]">
+      <CardHeader className="flex-shrink-0">
         <CardTitle>Шаблоны писем</CardTitle>
         <CardDescription>Выберите шаблон для редактирования</CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="flex-1 overflow-y-auto">
         <div className="space-y-2">
           <Button
             variant="outline"
@@ -44,13 +44,13 @@ export const EmailTemplatesList = ({
             <Button
               key={template.id}
               variant={selectedTemplate?.id === template.id ? 'default' : 'outline'}
-              className="w-full justify-start"
+              className="w-full justify-start h-auto py-3"
               onClick={() => onSelectTemplate(template)}
             >
-              <Icon name="Mail" size={16} className="mr-2" />
-              <div className="text-left">
-                <div className="font-medium">{template.template_key}</div>
-                <div className="text-xs opacity-70">{template.description}</div>
+              <Icon name="Mail" size={16} className="mr-2 flex-shrink-0" />
+              <div className="text-left flex-1 min-w-0">
+                <div className="font-medium truncate">{template.template_key}</div>
+                <div className="text-xs opacity-70 line-clamp-2">{template.description}</div>
               </div>
             </Button>
           ))}
