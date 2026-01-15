@@ -116,6 +116,7 @@ def handler(event: dict, context) -> dict:
             owner_phone = body.get('owner_phone', '')
             tariff_id = body.get('tariff_id', 'basic')
             subscription_months = body.get('subscription_months', 1)
+            fz152_enabled = body.get('fz152_enabled', False)
             
             if not tenant_name or not tenant_slug or not owner_email:
                 return {
@@ -142,10 +143,10 @@ def handler(event: dict, context) -> dict:
             cur.execute(f"""
                 INSERT INTO {schema}.tenants 
                 (slug, name, description, owner_email, owner_phone, template_version, auto_update, status, 
-                 is_public, subscription_status, subscription_end_date, tariff_id)
-                VALUES (%s, %s, %s, %s, %s, '1.0.0', false, 'active', true, 'active', %s, %s)
+                 is_public, subscription_status, subscription_end_date, tariff_id, fz152_enabled)
+                VALUES (%s, %s, %s, %s, %s, '1.0.0', false, 'active', true, 'active', %s, %s, %s)
                 RETURNING id
-            """, (tenant_slug, tenant_name, 'Создан суперадмином вручную', owner_email, owner_phone, subscription_end, tariff_id))
+            """, (tenant_slug, tenant_name, 'Создан суперадмином вручную', owner_email, owner_phone, subscription_end, tariff_id, fz152_enabled))
             
             tenant_id = cur.fetchone()['id']
             

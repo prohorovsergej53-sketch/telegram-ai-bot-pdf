@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Checkbox } from '@/components/ui/checkbox';
 import Icon from '@/components/ui/icon';
 import { Tariff } from './types';
 
@@ -25,6 +26,7 @@ export const CreateTenantDialog = ({ isOpen, onClose, onSuccess, tariffs }: Crea
     tariff_id: 'basic',
     subscription_months: 1
   });
+  const [fz152Enabled, setFz152Enabled] = useState(false);
 
   const handleCreate = async () => {
     if (!formData.name || !formData.slug || !formData.owner_email) {
@@ -40,7 +42,7 @@ export const CreateTenantDialog = ({ isOpen, onClose, onSuccess, tariffs }: Crea
       const response = await authenticatedFetch(BACKEND_URLS.tenants, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
+        body: JSON.stringify({ ...formData, fz152_enabled: fz152Enabled })
       });
 
       if (response.ok) {
@@ -72,6 +74,7 @@ export const CreateTenantDialog = ({ isOpen, onClose, onSuccess, tariffs }: Crea
       tariff_id: 'basic',
       subscription_months: 1
     });
+    setFz152Enabled(false);
     setResult(null);
     onClose();
   };
@@ -165,6 +168,22 @@ export const CreateTenantDialog = ({ isOpen, onClose, onSuccess, tariffs }: Crea
               <p className="text-xs text-muted-foreground mt-1">
                 На сколько месяцев выдать доступ (1-12)
               </p>
+            </div>
+
+            <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+              <div className="flex items-start gap-3">
+                <Checkbox 
+                  id="fz152_enabled" 
+                  checked={fz152Enabled}
+                  onCheckedChange={(checked) => setFz152Enabled(checked as boolean)}
+                />
+                <Label htmlFor="fz152_enabled" className="cursor-pointer">
+                  <span className="font-semibold text-amber-900">Клиент будет обрабатывать персональные данные (152-ФЗ)</span>
+                  <p className="text-xs text-amber-800 mt-1">
+                    При активации будут доступны: вкладка "152-ФЗ", настройки согласий, настройки AI с YandexGPT, логирование обработки данных
+                  </p>
+                </Label>
+              </div>
             </div>
 
             <div className="flex gap-2 pt-4">
