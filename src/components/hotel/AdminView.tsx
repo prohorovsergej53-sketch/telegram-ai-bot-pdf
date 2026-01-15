@@ -31,9 +31,10 @@ interface AdminViewProps {
   onDeleteDocument: (documentId: number) => void;
   currentTenantId: number | null;
   tenantName?: string;
+  fz152Enabled?: boolean;
 }
 
-const AdminView = ({ documents, isLoading, onFileUpload, onDeleteDocument, currentTenantId, tenantName }: AdminViewProps) => {
+const AdminView = ({ documents, isLoading, onFileUpload, onDeleteDocument, currentTenantId, tenantName, fz152Enabled = true }: AdminViewProps) => {
   const navigate = useNavigate();
   const { tenantSlug } = useParams<{ tenantSlug: string }>();
   const tenantId = getTenantId();
@@ -68,7 +69,7 @@ const AdminView = ({ documents, isLoading, onFileUpload, onDeleteDocument, curre
       )}
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="bg-gradient-to-r from-blue-500 to-purple-500 shadow-lg p-2 grid grid-cols-3 lg:grid-cols-7 gap-2 h-auto">
+        <TabsList className={`bg-gradient-to-r from-blue-500 to-purple-500 shadow-lg p-2 grid gap-2 h-auto ${fz152Enabled ? 'grid-cols-3 lg:grid-cols-7' : 'grid-cols-3 lg:grid-cols-6'}`}>
           <TabsTrigger value="documents" className="data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=inactive]:text-white py-3 px-4 text-base font-semibold">
             <Icon name="FileText" size={20} className="mr-2" />
             <span>Документы</span>
@@ -89,10 +90,12 @@ const AdminView = ({ documents, isLoading, onFileUpload, onDeleteDocument, curre
             <Icon name="Code" size={20} className="mr-2" />
             <span>Виджет</span>
           </TabsTrigger>
-          <TabsTrigger value="consent" className="data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=inactive]:text-white py-3 px-4 text-base font-semibold">
-            <Icon name="ShieldCheck" size={20} className="mr-2" />
-            <span>152-ФЗ</span>
-          </TabsTrigger>
+          {fz152Enabled && (
+            <TabsTrigger value="consent" className="data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=inactive]:text-white py-3 px-4 text-base font-semibold">
+              <Icon name="ShieldCheck" size={20} className="mr-2" />
+              <span>152-ФЗ</span>
+            </TabsTrigger>
+          )}
           <TabsTrigger value="stats" className="data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=inactive]:text-white py-3 px-4 text-base font-semibold">
             <Icon name="BarChart" size={20} className="mr-2" />
             <span>Статистика</span>
@@ -193,9 +196,11 @@ const AdminView = ({ documents, isLoading, onFileUpload, onDeleteDocument, curre
           />
         </TabsContent>
 
-        <TabsContent value="consent" className="space-y-6">
-          {currentTenantId && <ConsentSettingsCard tenantId={currentTenantId} />}
-        </TabsContent>
+        {fz152Enabled && (
+          <TabsContent value="consent" className="space-y-6">
+            {currentTenantId && <ConsentSettingsCard tenantId={currentTenantId} />}
+          </TabsContent>
+        )}
 
         <TabsContent value="stats" className="space-y-6">
           <ChatStatsCard statsUrl={BACKEND_URLS.getChatStats} />

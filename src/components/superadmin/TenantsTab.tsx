@@ -9,9 +9,10 @@ interface TenantsTabProps {
   onEnterTenant: (tenant: Tenant) => void;
   onManageTenant: (tenant: Tenant) => void;
   onCreateTenant: () => void;
+  onToggleFz152: (tenant: Tenant) => void;
 }
 
-export const TenantsTab = ({ tenants, onEnterTenant, onManageTenant, onCreateTenant }: TenantsTabProps) => {
+export const TenantsTab = ({ tenants, onEnterTenant, onManageTenant, onCreateTenant, onToggleFz152 }: TenantsTabProps) => {
   return (
     <Card>
       <CardHeader>
@@ -47,6 +48,19 @@ export const TenantsTab = ({ tenants, onEnterTenant, onManageTenant, onCreateTen
                   {tenant.subscription_end_date && (
                     <div>Подписка до: {new Date(tenant.subscription_end_date).toLocaleDateString('ru-RU')}</div>
                   )}
+                  <div className="flex items-center gap-2 mt-2">
+                    <span className="font-medium">152-ФЗ:</span>
+                    <button
+                      onClick={() => onToggleFz152(tenant)}
+                      className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
+                        tenant.fz152_enabled 
+                          ? 'bg-green-100 text-green-700 hover:bg-green-200' 
+                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                      }`}
+                    >
+                      {tenant.fz152_enabled ? 'Включено' : 'Выключено'}
+                    </button>
+                  </div>
                 </div>
               </div>
               <div className="flex gap-2">

@@ -14,6 +14,7 @@ interface ConsentSettings {
   messenger_enabled: boolean;
   text: string;
   messenger_text: string;
+  privacy_policy_text: string;
 }
 
 interface ConsentSettingsCardProps {
@@ -28,7 +29,8 @@ export const ConsentSettingsCard = ({ tenantId }: ConsentSettingsCardProps) => {
     webchat_enabled: false,
     messenger_enabled: false,
     text: 'Я согласен на обработку персональных данных в соответствии с <a href="/privacy-policy" target="_blank">Политикой конфиденциальности</a>',
-    messenger_text: 'Продолжая диалог, вы соглашаетесь на обработку персональных данных согласно Политике конфиденциальности.'
+    messenger_text: 'Продолжая диалог, вы соглашаетесь на обработку персональных данных согласно Политике конфиденциальности.',
+    privacy_policy_text: ''
   });
 
   useEffect(() => {
@@ -168,6 +170,23 @@ export const ConsentSettingsCard = ({ tenantId }: ConsentSettingsCardProps) => {
           </p>
         </div>
 
+        <div className="space-y-2">
+          <Label className="flex items-center gap-2">
+            <Icon name="FileText" size={18} />
+            Политика конфиденциальности
+          </Label>
+          <Textarea
+            value={consentSettings.privacy_policy_text}
+            onChange={(e) => setConsentSettings({ ...consentSettings, privacy_policy_text: e.target.value })}
+            rows={10}
+            placeholder="Введите текст Политики конфиденциальности..."
+            className="font-mono text-sm"
+          />
+          <p className="text-xs text-slate-500">
+            Этот текст будет отображаться на странице /privacy-policy вашего сайта. Используйте HTML для форматирования.
+          </p>
+        </div>
+
         {(consentSettings.webchat_enabled || consentSettings.messenger_enabled) && (
           <div className="space-y-4">
             {consentSettings.webchat_enabled && (
@@ -225,9 +244,9 @@ export const ConsentSettingsCard = ({ tenantId }: ConsentSettingsCardProps) => {
               <p className="font-semibold mb-2">Важно о 152-ФЗ:</p>
               <ul className="list-disc list-inside space-y-1">
                 <li>Требуйте согласие ДО сбора персональных данных</li>
-                <li>Укажите ссылку на Политику конфиденциальности</li>
-                <li>Храните подтверждения согласия пользователей</li>
-                <li>Предоставьте возможность отозвать согласие</li>
+                <li>Ссылка на Политику конфиденциальности встроена в текст согласия</li>
+                <li>У каждого клиента своя страница /privacy-policy с уникальным текстом</li>
+                <li>Суперадмин регулирует доступ к 152-ФЗ для каждого клиента</li>
               </ul>
             </div>
           </div>

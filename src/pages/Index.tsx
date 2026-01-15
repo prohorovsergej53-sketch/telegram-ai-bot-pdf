@@ -32,6 +32,7 @@ const Index = () => {
   const [quickQuestions, setQuickQuestions] = useState<QuickQuestion[]>([]);
   const [consentEnabled, setConsentEnabled] = useState(false);
   const [consentText, setConsentText] = useState('');
+  const [fz152Enabled, setFz152Enabled] = useState(false);
   const { toast } = useToast();
 
   // Слушатель автосообщений от виджета
@@ -156,6 +157,7 @@ const Index = () => {
       const response = await fetch(`https://functions.poehali.dev/2f7a79a2-87ef-4692-b9a6-1e23f408edaa?action=public_content&tenant_id=${tenantId}`);
       if (response.ok) {
         const data = await response.json();
+        setFz152Enabled(data.fz152_enabled || false);
         if (data.consent_settings) {
           setConsentEnabled(data.consent_settings.webchat_enabled || false);
           setConsentText(data.consent_settings.text || '');
@@ -477,6 +479,7 @@ const Index = () => {
             onDeleteDocument={handleDeleteDocument}
             currentTenantId={currentTenantId}
             tenantName={currentTenantName || pageSettings?.header_title || ''}
+            fz152Enabled={fz152Enabled}
           />
         )}
 

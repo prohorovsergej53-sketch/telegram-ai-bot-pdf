@@ -20,6 +20,7 @@ export interface Tenant {
   admins_count: number;
   admin_emails: string;
   created_at: string;
+  fz152_enabled: boolean;
 }
 
 export const BACKEND_URLS = {

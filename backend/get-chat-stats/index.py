@@ -28,6 +28,8 @@ def handler(event: dict, context) -> dict:
             'isBase64Encoded': False
         }
 
+    conn = None
+    cur = None
     try:
         tenant_id, auth_error = get_tenant_id_from_request(event)
         if auth_error:
@@ -104,9 +106,6 @@ def handler(event: dict, context) -> dict:
         top_users = cur.fetchall()
         top_users_list = [{'user': u[0], 'messages': u[1]} for u in top_users]
 
-        cur.close()
-        conn.close()
-
         return {
             'statusCode': 200,
             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
@@ -129,3 +128,8 @@ def handler(event: dict, context) -> dict:
             'body': json.dumps({'error': str(e)}),
             'isBase64Encoded': False
         }
+    finally:
+        if cur:
+            cur.close()
+        if conn:
+            conn.close()

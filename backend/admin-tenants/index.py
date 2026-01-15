@@ -71,7 +71,7 @@ def handler(event: dict, context) -> dict:
             # Получить всех тенантов
             cur.execute(f"""
                 SELECT t.id, t.slug, t.name, t.description, t.tariff_id, 
-                       t.subscription_end_date, t.created_at,
+                       t.subscription_end_date, t.created_at, t.fz152_enabled,
                        COUNT(DISTINCT d.id) as documents_count,
                        COUNT(DISTINCT u.id) as admins_count,
                        STRING_AGG(DISTINCT u.email, ', ') as admin_emails
@@ -79,7 +79,7 @@ def handler(event: dict, context) -> dict:
                 LEFT JOIN {schema}.tenant_documents d ON t.id = d.tenant_id
                 LEFT JOIN {schema}.admin_users u ON t.id = u.tenant_id
                 GROUP BY t.id, t.slug, t.name, t.description, t.tariff_id, 
-                         t.subscription_end_date, t.created_at
+                         t.subscription_end_date, t.created_at, t.fz152_enabled
                 ORDER BY t.created_at DESC
             """)
             
@@ -227,6 +227,10 @@ def handler(event: dict, context) -> dict:
             if 'subscription_end_date' in body:
                 update_fields.append('subscription_end_date = %s')
                 params.append(body['subscription_end_date'])
+            
+            if 'fz152_enabled' in body:
+                update_fields.append('fz152_enabled = %s')
+                params.append(body['fz152_enabled'])
             
             if not update_fields:
                 return {

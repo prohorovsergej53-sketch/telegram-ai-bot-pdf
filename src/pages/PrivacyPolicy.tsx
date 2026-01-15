@@ -1,12 +1,66 @@
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import Icon from '@/components/ui/icon';
 import { getCompanyInfo } from '@/lib/company-info';
+import { getTenantId } from '@/lib/auth';
+import { BACKEND_URLS } from '@/components/hotel/types';
 
 const PrivacyPolicy = () => {
   const navigate = useNavigate();
+  const { tenantSlug } = useParams<{ tenantSlug: string }>();
   const company = getCompanyInfo();
+  const [customText, setCustomText] = useState<string>('');
+  const [isLoading, setIsLoading] = useState(true);
+  const [tenantId, setTenantId] = useState<number | null>(null);
+
+  useEffect(() => {
+    loadTenantInfo();
+  }, [tenantSlug]);
+
+  useEffect(() => {
+    if (tenantId) {
+      loadPrivacyPolicy();
+    }
+  }, [tenantId]);
+
+  const loadTenantInfo = async () => {
+    if (!tenantSlug) {
+      setTenantId(getTenantId());
+      return;
+    }
+    
+    try {
+      const response = await fetch(`${BACKEND_URLS.getTenantBySlug}?slug=${tenantSlug}`);
+      if (response.ok) {
+        const data = await response.json();
+        setTenantId(data.tenant_id);
+      } else {
+        setTenantId(getTenantId());
+      }
+    } catch (error) {
+      console.error('Error loading tenant info:', error);
+      setTenantId(getTenantId());
+    }
+  };
+
+  const loadPrivacyPolicy = async () => {
+    setIsLoading(true);
+    try {
+      const response = await fetch(`https://functions.poehali.dev/2f7a79a2-87ef-4692-b9a6-1e23f408edaa?action=public_content&tenant_id=${tenantId}`);
+      if (response.ok) {
+        const data = await response.json();
+        if (data.consent_settings?.privacy_policy_text) {
+          setCustomText(data.consent_settings.privacy_policy_text);
+        }
+      }
+    } catch (error) {
+      console.error('Error loading privacy policy:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 py-12 px-4">
@@ -26,6 +80,13 @@ const PrivacyPolicy = () => {
             <p className="text-sm text-muted-foreground">Дата последнего обновления: 13 января 2026 г.</p>
           </CardHeader>
           <CardContent className="prose prose-sm max-w-none space-y-6">
+            {isLoading ? (
+              <div className="flex justify-center items-center py-12">
+                <Icon name="Loader2" className="animate-spin" size={32} />
+              </div>
+            ) : customText ? (
+              <div dangerouslySetInnerHTML={{ __html: customText }} />
+            ) : (
             <section>
               <h2 className="text-xl font-semibold mb-3">1. Общие положения</h2>
               <p>
@@ -192,6 +253,7 @@ const PrivacyPolicy = () => {
                 сайта отображается баннер с запросом согласия на использование cookies.
               </p>
             </section>
+            )}
           </CardContent>
         </Card>
         

@@ -29,11 +29,13 @@ def handler(event: dict, context) -> dict:
             cur.execute("""
                 SELECT 
                     t.name,
+                    t.fz152_enabled,
                     ts.public_description,
                     ts.consent_webchat_enabled,
                     ts.consent_messenger_enabled,
                     ts.consent_text,
-                    ts.consent_messenger_text
+                    ts.consent_messenger_text,
+                    ts.privacy_policy_text
                 FROM t_p56134400_telegram_ai_bot_pdf.tenants t
                 LEFT JOIN t_p56134400_telegram_ai_bot_pdf.tenant_settings ts ON t.id = ts.tenant_id
                 WHERE t.id = %s
@@ -50,12 +52,14 @@ def handler(event: dict, context) -> dict:
 
             result = {
                 'name': row[0] or '',
-                'public_description': row[1] or '',
+                'fz152_enabled': row[1] if row[1] is not None else False,
+                'public_description': row[2] or '',
                 'consent_settings': {
-                    'webchat_enabled': row[2] if row[2] is not None else False,
-                    'messenger_enabled': row[3] if row[3] is not None else False,
-                    'text': row[4] or 'Я согласен на обработку персональных данных в соответствии с <a href="/privacy-policy" target="_blank">Политикой конфиденциальности</a>',
-                    'messenger_text': row[5] or 'Продолжая диалог, вы соглашаетесь на обработку персональных данных согласно Политике конфиденциальности.'
+                    'webchat_enabled': row[3] if row[3] is not None else False,
+                    'messenger_enabled': row[4] if row[4] is not None else False,
+                    'text': row[5] or 'Я согласен на обработку персональных данных в соответствии с <a href="/privacy-policy" target="_blank">Политикой конфиденциальности</a>',
+                    'messenger_text': row[6] or 'Продолжая диалог, вы соглашаетесь на обработку персональных данных согласно Политике конфиденциальности.',
+                    'privacy_policy_text': row[7] or ''
                 },
                 'welcome_text': '',
                 'faq': [],
@@ -84,6 +88,7 @@ def handler(event: dict, context) -> dict:
                     consent_messenger_enabled = %s,
                     consent_text = %s,
                     consent_messenger_text = %s,
+                    privacy_policy_text = %s,
                     updated_at = CURRENT_TIMESTAMP
                 WHERE tenant_id = %s
             """, (
@@ -92,6 +97,7 @@ def handler(event: dict, context) -> dict:
                 consent_settings.get('messenger_enabled', False),
                 consent_settings.get('text', ''),
                 consent_settings.get('messenger_text', ''),
+                consent_settings.get('privacy_policy_text', ''),
                 tenant_id
             ))
 

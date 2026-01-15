@@ -103,9 +103,10 @@ const SuperAdmin = () => {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          id: editingTenant.id,
+          tenant_id: editingTenant.id,
           tariff_id: editingTenant.tariff_id,
-          subscription_end_date: editingTenant.subscription_end_date
+          subscription_end_date: editingTenant.subscription_end_date,
+          fz152_enabled: editingTenant.fz152_enabled
         })
       });
 
@@ -123,6 +124,35 @@ const SuperAdmin = () => {
       toast({
         title: 'Ошибка',
         description: 'Не удалось обновить клиента',
+        variant: 'destructive'
+      });
+    }
+  };
+
+  const handleToggleFz152 = async (tenant: Tenant) => {
+    try {
+      const response = await authenticatedFetch(BACKEND_URLS.tenants, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          tenant_id: tenant.id,
+          fz152_enabled: !tenant.fz152_enabled
+        })
+      });
+
+      if (response.ok) {
+        toast({
+          title: 'Успешно',
+          description: `152-ФЗ ${!tenant.fz152_enabled ? 'включен' : 'выключен'} для ${tenant.name}`,
+        });
+        loadTenants();
+      } else {
+        throw new Error('Failed to toggle fz152');
+      }
+    } catch (error) {
+      toast({
+        title: 'Ошибка',
+        description: 'Не удалось изменить настройки 152-ФЗ',
         variant: 'destructive'
       });
     }
@@ -227,6 +257,7 @@ const SuperAdmin = () => {
               onEnterTenant={handleEnterTenantAdmin}
               onManageTenant={handleManageTenant}
               onCreateTenant={() => setIsCreatingTenant(true)}
+              onToggleFz152={handleToggleFz152}
             />
           </TabsContent>
 
