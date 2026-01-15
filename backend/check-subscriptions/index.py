@@ -64,7 +64,7 @@ def handler(event: dict, context) -> dict:
             target_date_end = target_date_start + timedelta(hours=24)
             
             cur.execute("""
-                SELECT t.id, t.name, t.owner_email, t.subscription_end_date, 
+                SELECT t.id, t.name, t.slug, t.owner_email, t.subscription_end_date, 
                        tp.renewal_price, tp.name as tariff_name
                 FROM t_p56134400_telegram_ai_bot_pdf.tenants t
                 LEFT JOIN t_p56134400_telegram_ai_bot_pdf.tariff_plans tp ON tp.id = t.tariff_id
@@ -77,13 +77,13 @@ def handler(event: dict, context) -> dict:
             tenants_to_notify = cur.fetchall()
             
             for tenant_data in tenants_to_notify:
-                tenant_id, tenant_name, owner_email, end_date, renewal_price, tariff_name = tenant_data
+                tenant_id, tenant_name, tenant_slug, owner_email, end_date, renewal_price, tariff_name = tenant_data
                 
                 # Отправляем уведомление
                 email_sent = send_expiration_warning(
                     to_email=owner_email,
                     tenant_name=tenant_name,
-                    tenant_id=tenant_id,
+                    tenant_slug=tenant_slug,
                     days_left=days,
                     renewal_price=float(renewal_price) if renewal_price else 0,
                     tariff_name=tariff_name or 'Базовый',
@@ -128,7 +128,7 @@ def handler(event: dict, context) -> dict:
         }
 
 
-def send_expiration_warning(to_email: str, tenant_name: str, tenant_id: int, days_left: int, 
+def send_expiration_warning(to_email: str, tenant_name: str, tenant_slug: str, days_left: int, 
                            renewal_price: float, tariff_name: str, cur) -> bool:
     """Отправка предупреждения об истечении подписки через шаблоны из БД"""
     try:
@@ -177,7 +177,7 @@ def send_expiration_warning(to_email: str, tenant_name: str, tenant_id: int, day
         subject_template, body_template = template_row
         
         # Формируем URL продления
-        renewal_url = f"https://ai-ru.ru/{tenant_id}/admin"
+        renewal_url = f"https://ai-ru.ru/{tenant_slug}/admin"
         
         # Заменяем переменные в шаблоне
         variables = {

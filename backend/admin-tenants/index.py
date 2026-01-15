@@ -195,10 +195,11 @@ def handler(event: dict, context) -> dict:
                 'body': json.dumps({
                     'success': True, 
                     'tenant_id': tenant_id,
+                    'tenant_slug': tenant_slug,
                     'user_id': user_id,
                     'username': username,
                     'password': password,
-                    'login_url': f"https://ai-ru.ru/{tenant_id}/admin"
+                    'login_url': f"https://ai-ru.ru/{tenant_slug}/admin"
                 }),
                 'isBase64Encoded': False
             }
