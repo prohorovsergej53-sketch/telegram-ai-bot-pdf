@@ -30,7 +30,6 @@ const App = () => (
           <Route path="/payment/success" element={<PaymentSuccess />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/terms-of-service" element={<TermsOfService />} />
-          <Route path="/master-admin" element={<Navigate to="/super-admin" replace />} />
           <Route path="/super-admin" element={<SuperAdmin />} />
           <Route path="/content-editor" element={<ContentEditor />} />
           <Route path="/:tenantSlug" element={<Index />} />
