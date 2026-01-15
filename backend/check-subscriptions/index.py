@@ -177,7 +177,7 @@ def send_expiration_warning(to_email: str, tenant_name: str, tenant_id: int, day
         subject_template, body_template = template_row
         
         # Формируем URL продления
-        renewal_url = f"https://your-domain.com/content-editor?tenant_id={tenant_id}"
+        renewal_url = f"https://ai-ru.ru/content-editor?tenant_id={tenant_id}"
         
         # Заменяем переменные в шаблоне
         variables = {
