@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,6 +8,8 @@ import { useToast } from '@/hooks/use-toast';
 import { authenticatedFetch } from '@/lib/auth';
 import Icon from '@/components/ui/icon';
 import { BACKEND_URLS } from './types';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 interface EmailTemplate {
   id: number;
@@ -30,6 +32,9 @@ export const EmailTemplatesTab = () => {
   const [showVariablesEditor, setShowVariablesEditor] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
   const [newTemplate, setNewTemplate] = useState({ template_key: '', subject: '', body: '', description: '' });
+  const [showPreview, setShowPreview] = useState(false);
+  const [previewMode, setPreviewMode] = useState<'code' | 'visual'>('visual');
+  const bodyInputRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     loadTemplates();
@@ -165,6 +170,65 @@ export const EmailTemplatesTab = () => {
     } finally {
       setIsSendingTest(false);
     }
+  };
+
+  const insertVariable = (variable: string) => {
+    if (!selectedTemplate) return;
+    
+    const textarea = bodyInputRef.current;
+    if (textarea) {
+      const start = textarea.selectionStart;
+      const end = textarea.selectionEnd;
+      const text = selectedTemplate.body;
+      const before = text.substring(0, start);
+      const after = text.substring(end);
+      const newText = before + `{{ ${variable} }}` + after;
+      
+      setSelectedTemplate({ ...selectedTemplate, body: newText });
+      
+      setTimeout(() => {
+        textarea.focus();
+        textarea.setSelectionRange(start + variable.length + 6, start + variable.length + 6);
+      }, 0);
+    }
+  };
+
+  const getAvailableVariables = () => {
+    if (!selectedTemplate) return [];
+    
+    if (selectedTemplate.template_key.startsWith('subscription_reminder_')) {
+      return ['tenant_name', 'tariff_name', 'renewal_price', 'renewal_url'];
+    }
+    return ['email', 'password', 'login_url', 'tariff_name'];
+  };
+
+  const renderPreview = () => {
+    if (!selectedTemplate) return { html: '', subject: '' };
+    
+    const testData = selectedTemplate.template_key.startsWith('subscription_reminder_') 
+      ? {
+          tenant_name: testVariables.tenant_name || 'Тестовый проект',
+          tariff_name: testVariables.tariff_name || 'Бизнес',
+          renewal_price: testVariables.renewal_price || '7990.00',
+          renewal_url: testVariables.renewal_url || 'https://example.com/content-editor?tenant_id=123'
+        }
+      : {
+          email: testVariables.email || 'test@example.com',
+          password: testVariables.password || 'demo123456',
+          login_url: testVariables.login_url || 'https://example.com/admin-login',
+          tariff_name: testVariables.tariff_name || 'Базовый'
+        };
+    
+    let html = selectedTemplate.body;
+    let subject = selectedTemplate.subject;
+    
+    Object.entries(testData).forEach(([key, value]) => {
+      const regex = new RegExp(`\\{\\{\\s*${key}\\s*\\}\\}`, 'g');
+      html = html.replace(regex, value);
+      subject = subject.replace(regex, value);
+    });
+    
+    return { html, subject };
   };
 
   if (isLoading) {
@@ -341,8 +405,34 @@ export const EmailTemplatesTab = () => {
             </div>
 
             <div className="space-y-2">
-              <Label>Текст письма (HTML)</Label>
+              <div className="flex items-center justify-between">
+                <Label>Текст письма (HTML)</Label>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowPreview(true)}
+                >
+                  <Icon name="Eye" size={14} className="mr-1" />
+                  Предпросмотр
+                </Button>
+              </div>
+              
+              <div className="flex flex-wrap gap-2 mb-2">
+                {getAvailableVariables().map((variable) => (
+                  <Button
+                    key={variable}
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => insertVariable(variable)}
+                  >
+                    <Icon name="Plus" size={12} className="mr-1" />
+                    {variable}
+                  </Button>
+                ))}
+              </div>
+              
               <Textarea
+                ref={bodyInputRef}
                 value={selectedTemplate.body}
                 onChange={(e) => setSelectedTemplate({ ...selectedTemplate, body: e.target.value })}
                 placeholder="HTML код письма"
@@ -350,11 +440,7 @@ export const EmailTemplatesTab = () => {
                 className="font-mono text-sm"
               />
               <p className="text-xs text-slate-500">
-                {selectedTemplate.template_key.startsWith('subscription_reminder_') ? (
-                  <>Доступные переменные: {'{{ tenant_name }}'}, {'{{ tariff_name }}'}, {'{{ renewal_price }}'}, {'{{ renewal_url }}'}</>
-                ) : (
-                  <>Доступные переменные: {'{{ email }}'}, {'{{ password }}'}, {'{{ login_url }}'}</>
-                )}
+                Нажмите на переменную выше, чтобы вставить её в нужное место
               </p>
             </div>
 
@@ -491,6 +577,68 @@ export const EmailTemplatesTab = () => {
           </CardContent>
         </Card>
       )}
+
+      <Dialog open={showPreview} onOpenChange={setShowPreview}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Предпросмотр письма</DialogTitle>
+          </DialogHeader>
+          
+          <Tabs value={previewMode} onValueChange={(v) => setPreviewMode(v as 'code' | 'visual')}>
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="visual">
+                <Icon name="Eye" size={14} className="mr-2" />
+                Визуальный вид
+              </TabsTrigger>
+              <TabsTrigger value="code">
+                <Icon name="Code" size={14} className="mr-2" />
+                HTML код
+              </TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="visual" className="space-y-4">
+              <div className="border-b pb-4">
+                <p className="text-sm text-slate-600 mb-2">Тема письма:</p>
+                <p className="text-lg font-semibold">{renderPreview().subject}</p>
+              </div>
+              
+              <div className="border rounded-lg p-4 bg-white">
+                <iframe
+                  srcDoc={renderPreview().html}
+                  className="w-full border-0"
+                  style={{ minHeight: '500px', height: 'auto' }}
+                  title="Email Preview"
+                />
+              </div>
+              
+              <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
+                <p className="text-xs text-amber-800">
+                  <Icon name="Info" size={14} className="inline mr-1" />
+                  Предпросмотр использует тестовые значения переменных. Для изменения значений используйте редактор переменных при отправке тестового письма.
+                </p>
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="code">
+              <div className="space-y-4">
+                <div>
+                  <Label className="text-sm text-slate-600">Тема письма:</Label>
+                  <pre className="mt-2 p-4 bg-slate-50 rounded-lg text-sm overflow-x-auto">
+                    {renderPreview().subject}
+                  </pre>
+                </div>
+                
+                <div>
+                  <Label className="text-sm text-slate-600">HTML код с подставленными значениями:</Label>
+                  <pre className="mt-2 p-4 bg-slate-50 rounded-lg text-sm overflow-x-auto font-mono">
+                    {renderPreview().html}
+                  </pre>
+                </div>
+              </div>
+            </TabsContent>
+          </Tabs>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
