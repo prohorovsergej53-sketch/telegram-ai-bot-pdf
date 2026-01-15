@@ -35,6 +35,7 @@ const PaymentPage = () => {
     owner_email: '',
     owner_phone: ''
   });
+  const [requiresFz152, setRequiresFz152] = useState(false);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [agreedToPrivacy, setAgreedToPrivacy] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -113,7 +114,8 @@ const PaymentPage = () => {
           owner_phone: formData.owner_phone,
           tariff_id: selectedTariff,
           tariff_name: selectedPlan.name,
-          first_month_included: selectedPlan.first_month_included
+          first_month_included: selectedPlan.first_month_included,
+          requires_fz152: requiresFz152
         }
       };
 
@@ -280,6 +282,29 @@ const PaymentPage = () => {
                   placeholder="+7 (999) 123-45-67"
                 />
               </div>
+
+              {/* Чекбокс 152-ФЗ только для Бизнес и Премиум */}
+              {(selectedTariff === 'professional' || selectedTariff === 'enterprise') && (
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <div className="flex items-start gap-3">
+                    <Checkbox 
+                      id="requires_fz152" 
+                      checked={requiresFz152}
+                      onCheckedChange={(checked) => setRequiresFz152(checked as boolean)}
+                    />
+                    <div className="flex-1">
+                      <Label htmlFor="requires_fz152" className="text-sm font-semibold cursor-pointer flex items-center gap-2">
+                        <Icon name="Shield" size={16} className="text-blue-600" />
+                        Требуется соответствие 152-ФЗ
+                      </Label>
+                      <p className="text-xs text-slate-600 mt-1">
+                        Если вы обрабатываете персональные данные гостей (паспорта, бронирования), отметьте эту опцию. 
+                        Вы сможете использовать собственный API ключ YandexGPT для соответствия требованиям закона.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               <div className="space-y-4 pt-4 border-t">
                 <div className="flex items-start gap-3">
