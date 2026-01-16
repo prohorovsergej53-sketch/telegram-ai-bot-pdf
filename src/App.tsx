@@ -32,6 +32,7 @@ const App = () => (
         <CookieConsent />
         <Routes>
           <Route path="/" element={<LandingPage />} />
+          <Route path="/admin" element={<Index />} />
           <Route path="/payment" element={<PaymentPage />} />
           <Route path="/payment/success" element={<PaymentSuccess />} />
           <Route path="/super-admin" element={<SuperAdmin />} />
