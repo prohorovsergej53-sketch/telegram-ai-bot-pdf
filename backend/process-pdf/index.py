@@ -126,26 +126,27 @@ def handler(event: dict, context) -> dict:
         
         import requests
         
-        # Получаем API ключи ДО транзакции
+        # Получаем API ключи ДО транзакции (опционально)
+        yandex_api_key = None
+        yandex_folder_id = None
         if embedding_provider == 'yandex':
             yandex_api_key, error = get_tenant_api_key(tenant_id, 'yandex', 'api_key')
             if error:
-                cur.close()
-                conn.close()
-                return error
-            
-            yandex_folder_id, error = get_tenant_api_key(tenant_id, 'yandex', 'folder_id')
-            if error:
-                cur.close()
-                conn.close()
-                return error
+                print(f"No Yandex API key found, skipping embeddings")
+                yandex_api_key = None
+            else:
+                yandex_folder_id, error = get_tenant_api_key(tenant_id, 'yandex', 'folder_id')
+                if error:
+                    print(f"No Yandex folder_id found, skipping embeddings")
+                    yandex_folder_id = None
         
-        # Генерируем все эмбеддинги ДО транзакции
+        # Генерируем все эмбеддинги ДО транзакции (если есть API ключи)
         import time
         chunk_embeddings = []
         for idx, chunk_text in enumerate(chunks):
+            embedding_json = None
             try:
-                if embedding_provider == 'yandex':
+                if embedding_provider == 'yandex' and yandex_api_key and yandex_folder_id:
                     emb_response = requests.post(
                         'https://llm.api.cloud.yandex.net/foundationModels/v1/textEmbedding',
                         headers={
@@ -165,8 +166,8 @@ def handler(event: dict, context) -> dict:
                     if (idx + 1) % 10 == 0:
                         time.sleep(0.5)
                 else:
-                    print(f"Unknown embedding provider: {embedding_provider}")
-                    embedding_json = None
+                    if idx == 0:
+                        print(f"Embeddings disabled: provider={embedding_provider}, has_key={bool(yandex_api_key)}")
             except Exception as emb_error:
                 print(f"Embedding error for chunk {idx}: {emb_error}")
                 embedding_json = None

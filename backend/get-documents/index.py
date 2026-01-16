@@ -46,10 +46,17 @@ def handler(event: dict, context) -> dict:
         documents = []
         
         for row in rows:
+            size_bytes = row[2]
+            if size_bytes and size_bytes > 0:
+                size_mb = size_bytes / 1024 / 1024
+                size_str = f"{size_mb:.1f} МБ"
+            else:
+                size_str = "—"
+            
             doc = {
                 'id': row[0],
                 'name': row[1],
-                'size': f"{row[2] / 1024 / 1024:.1f} MB" if row[2] else "0 MB",
+                'size': size_str,
                 'pages': row[3] or 0,
                 'category': row[4] or 'Общая',
                 'status': row[5],
