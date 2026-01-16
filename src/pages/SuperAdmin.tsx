@@ -13,6 +13,7 @@ import { BotTemplateTab } from '@/components/superadmin/BotTemplateTab';
 import { EmailTemplatesTab } from '@/components/superadmin/EmailTemplatesTab';
 import { SystemMonitoringTab } from '@/components/superadmin/SystemMonitoringTab';
 import { ConsentLogsTab } from '@/components/superadmin/ConsentLogsTab';
+import { EmbeddingsTab } from '@/components/superadmin/EmbeddingsTab';
 import { TenantEditDialog } from '@/components/superadmin/TenantEditDialog';
 import { TariffEditDialog } from '@/components/superadmin/TariffEditDialog';
 import { CreateTenantDialog } from '@/components/superadmin/CreateTenantDialog';
@@ -247,6 +248,10 @@ const SuperAdmin = () => {
               <Icon name="Mail" size={16} className="mr-2" />
               Email-шаблоны
             </TabsTrigger>
+            <TabsTrigger value="embeddings">
+              <Icon name="BrainCircuit" size={16} className="mr-2" />
+              Эмбеддинги
+            </TabsTrigger>
             <TabsTrigger value="monitoring">
               <Icon name="Activity" size={16} className="mr-2" />
               Мониторинг
@@ -292,6 +297,10 @@ const SuperAdmin = () => {
 
           <TabsContent value="emails" className="space-y-6">
             <EmailTemplatesTab />
+          </TabsContent>
+
+          <TabsContent value="embeddings" className="space-y-6">
+            <EmbeddingsTab />
           </TabsContent>
 
           <TabsContent value="monitoring" className="space-y-6">
