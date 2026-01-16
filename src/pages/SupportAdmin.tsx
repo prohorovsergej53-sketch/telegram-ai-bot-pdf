@@ -8,6 +8,7 @@ import SupportChat from '@/components/SupportChat';
 
 const SUPPORT_ADMIN_URL = FUNC_URLS['support-admin'];
 const SUPPORT_CHAT_URL = FUNC_URLS['support-chat'];
+const WEBHOOK_SETUP_URL = FUNC_URLS['support-webhook-setup'];
 
 interface Session {
   session_id: string;
@@ -33,6 +34,8 @@ const SupportAdmin = () => {
   const [selectedSession, setSelectedSession] = useState<Session | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [webhookInfo, setWebhookInfo] = useState<any>(null);
+  const [webhookSetupStatus, setWebhookSetupStatus] = useState<string>('');
 
   const loadSessions = async () => {
     try {
@@ -71,9 +74,38 @@ const SupportAdmin = () => {
     }
   };
 
+  const checkWebhook = async () => {
+    try {
+      const response = await fetch(WEBHOOK_SETUP_URL);
+      const data = await response.json();
+      if (response.ok) {
+        setWebhookInfo(data);
+      }
+    } catch (error) {
+      console.error('Error checking webhook:', error);
+    }
+  };
+
+  const setupWebhook = async () => {
+    setWebhookSetupStatus('Настройка...');
+    try {
+      const response = await fetch(WEBHOOK_SETUP_URL, { method: 'POST' });
+      const data = await response.json();
+      if (response.ok) {
+        setWebhookSetupStatus('✅ ' + data.message);
+        checkWebhook();
+      } else {
+        setWebhookSetupStatus('❌ ' + (data.error || 'Ошибка настройки'));
+      }
+    } catch (error) {
+      setWebhookSetupStatus('❌ Ошибка: ' + error);
+    }
+  };
+
   useEffect(() => {
     loadSessions();
-    const interval = setInterval(loadSessions, 5000); // Обновляем каждые 5 секунд
+    checkWebhook();
+    const interval = setInterval(loadSessions, 5000);
     return () => clearInterval(interval);
   }, []);
 
@@ -114,10 +146,41 @@ const SupportAdmin = () => {
       <div className="container mx-auto p-6">
         <Card className="mb-6">
           <CardHeader>
-            <CardTitle className="flex items-center gap-3 text-2xl">
-              <Icon name="Headphones" size={28} className="text-blue-600" />
-              Чат поддержки - Все обращения
-            </CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center gap-3 text-2xl">
+                <Icon name="Headphones" size={28} className="text-blue-600" />
+                Чат поддержки - Все обращения
+              </CardTitle>
+              <div className="flex items-center gap-3">
+                {webhookInfo && (
+                  <div className="text-sm text-slate-600">
+                    {webhookInfo.webhook_info?.result?.url ? (
+                      <span className="flex items-center gap-2">
+                        <Icon name="CheckCircle" size={16} className="text-green-600" />
+                        Вебхук настроен
+                      </span>
+                    ) : (
+                      <span className="flex items-center gap-2">
+                        <Icon name="AlertCircle" size={16} className="text-orange-600" />
+                        Вебхук не настроен
+                      </span>
+                    )}
+                  </div>
+                )}
+                <Button 
+                  onClick={setupWebhook}
+                  size="sm"
+                  variant="outline"
+                  className="gap-2"
+                >
+                  <Icon name="Settings" size={16} />
+                  Настроить вебхук
+                </Button>
+              </div>
+            </div>
+            {webhookSetupStatus && (
+              <p className="mt-2 text-sm text-slate-600">{webhookSetupStatus}</p>
+            )}
           </CardHeader>
         </Card>
 
