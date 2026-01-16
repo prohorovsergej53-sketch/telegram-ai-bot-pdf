@@ -54,7 +54,7 @@ def handler(event: dict, context) -> dict:
             target_tenant_id = query_params.get('tenant_id')
 
             if target_tenant_id:
-                cur.execute(f"""
+                cur.execute("""
                     SELECT 
                         ts.embedding_provider,
                         ts.embedding_doc_model,
@@ -62,8 +62,8 @@ def handler(event: dict, context) -> dict:
                         t.fz152_enabled
                     FROM t_p56134400_telegram_ai_bot_pdf.tenant_settings ts
                     JOIN t_p56134400_telegram_ai_bot_pdf.tenants t ON t.id = ts.tenant_id
-                    WHERE ts.tenant_id = {target_tenant_id}
-                """)
+                    WHERE ts.tenant_id = %s
+                """, (target_tenant_id,))
                 row = cur.fetchone()
                 
                 if not row:
@@ -146,11 +146,11 @@ def handler(event: dict, context) -> dict:
                     'isBase64Encoded': False
                 }
 
-            cur.execute(f"""
+            cur.execute("""
                 SELECT fz152_enabled 
                 FROM t_p56134400_telegram_ai_bot_pdf.tenants 
-                WHERE id = {target_tenant_id}
-            """)
+                WHERE id = %s
+            """, (target_tenant_id,))
             tenant_row = cur.fetchone()
             
             if not tenant_row:
@@ -174,15 +174,15 @@ def handler(event: dict, context) -> dict:
                     'isBase64Encoded': False
                 }
 
-            cur.execute(f"""
+            cur.execute("""
                 UPDATE t_p56134400_telegram_ai_bot_pdf.tenant_settings
                 SET 
-                    embedding_provider = '{embedding_provider}',
-                    embedding_doc_model = '{embedding_doc_model}',
-                    embedding_query_model = '{embedding_query_model}',
+                    embedding_provider = %s,
+                    embedding_doc_model = %s,
+                    embedding_query_model = %s,
                     updated_at = CURRENT_TIMESTAMP
-                WHERE tenant_id = {target_tenant_id}
-            """)
+                WHERE tenant_id = %s
+            """, (embedding_provider, embedding_doc_model, embedding_query_model, target_tenant_id))
 
             conn.commit()
             cur.close()

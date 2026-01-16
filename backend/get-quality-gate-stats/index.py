@@ -40,8 +40,9 @@ def handler(event: dict, context) -> dict:
                 COUNT(*) as total,
                 SUM(CASE WHEN context_ok THEN 1 ELSE 0 END) as passed,
                 SUM(CASE WHEN NOT context_ok THEN 1 ELSE 0 END) as failed
-            FROM t_p56134400_telegram_ai_bot_pdf.quality_gate_logs
-        """)
+            FROM t_p56134400_telegram_ai_bot_pdf.tenant_quality_gate_logs
+            WHERE tenant_id = %s
+        """, (tenant_id,))
         totals = cur.fetchone()
         total = int(totals[0]) if totals[0] else 0
         passed = int(totals[1]) if totals[1] else 0
@@ -50,46 +51,48 @@ def handler(event: dict, context) -> dict:
 
         cur.execute("""
             SELECT gate_reason, COUNT(*) 
-            FROM t_p56134400_telegram_ai_bot_pdf.quality_gate_logs
+            FROM t_p56134400_telegram_ai_bot_pdf.tenant_quality_gate_logs
+            WHERE tenant_id = %s
             GROUP BY gate_reason
             ORDER BY COUNT(*) DESC
-        """)
+        """, (tenant_id,))
         by_reason = {row[0]: int(row[1]) for row in cur.fetchall()}
 
         cur.execute("""
             SELECT query_type, COUNT(*) 
-            FROM t_p56134400_telegram_ai_bot_pdf.quality_gate_logs
-            WHERE query_type IS NOT NULL
+            FROM t_p56134400_telegram_ai_bot_pdf.tenant_quality_gate_logs
+            WHERE tenant_id = %s AND query_type IS NOT NULL
             GROUP BY query_type
             ORDER BY COUNT(*) DESC
-        """)
+        """, (tenant_id,))
         by_query_type = {row[0]: int(row[1]) for row in cur.fetchall()}
 
         cur.execute("""
             SELECT lang, COUNT(*) 
-            FROM t_p56134400_telegram_ai_bot_pdf.quality_gate_logs
-            WHERE lang IS NOT NULL
+            FROM t_p56134400_telegram_ai_bot_pdf.tenant_quality_gate_logs
+            WHERE tenant_id = %s AND lang IS NOT NULL
             GROUP BY lang
             ORDER BY COUNT(*) DESC
-        """)
+        """, (tenant_id,))
         by_lang = {row[0]: int(row[1]) for row in cur.fetchall()}
 
         cur.execute("""
             SELECT top_k_used, COUNT(*) 
-            FROM t_p56134400_telegram_ai_bot_pdf.quality_gate_logs
-            WHERE top_k_used IS NOT NULL
+            FROM t_p56134400_telegram_ai_bot_pdf.tenant_quality_gate_logs
+            WHERE tenant_id = %s AND top_k_used IS NOT NULL
             GROUP BY top_k_used
             ORDER BY top_k_used
-        """)
+        """, (tenant_id,))
         by_top_k = {int(row[0]): int(row[1]) for row in cur.fetchall()}
 
         cur.execute("""
             SELECT id, user_message, context_ok, gate_reason, query_type, 
                    lang, best_similarity, context_len, overlap, key_tokens, top_k_used, created_at
-            FROM t_p56134400_telegram_ai_bot_pdf.quality_gate_logs
+            FROM t_p56134400_telegram_ai_bot_pdf.tenant_quality_gate_logs
+            WHERE tenant_id = %s
             ORDER BY created_at DESC
             LIMIT 50
-        """)
+        """, (tenant_id,))
         logs_rows = cur.fetchall()
         recent_logs = []
         for row in logs_rows:

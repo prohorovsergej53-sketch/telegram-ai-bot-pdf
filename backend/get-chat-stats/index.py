@@ -38,71 +38,71 @@ def handler(event: dict, context) -> dict:
         conn = psycopg2.connect(os.environ['DATABASE_URL'])
         cur = conn.cursor()
 
-        cur.execute(f"""
+        cur.execute("""
             SELECT COUNT(*) 
             FROM t_p56134400_telegram_ai_bot_pdf.chat_messages 
-            WHERE role = 'user' AND tenant_id = {tenant_id}
-        """)
+            WHERE role = 'user' AND tenant_id = %s
+        """, (tenant_id,))
         total_messages = cur.fetchone()[0]
 
-        cur.execute(f"""
+        cur.execute("""
             SELECT COUNT(DISTINCT session_id) 
             FROM t_p56134400_telegram_ai_bot_pdf.chat_messages
-            WHERE tenant_id = {tenant_id}
-        """)
+            WHERE tenant_id = %s
+        """, (tenant_id,))
         total_users = cur.fetchone()[0]
 
-        cur.execute(f"""
+        cur.execute("""
             SELECT COUNT(*) 
             FROM t_p56134400_telegram_ai_bot_pdf.chat_messages 
             WHERE role = 'user' 
-            AND tenant_id = {tenant_id}
+            AND tenant_id = %s
             AND created_at >= NOW() - INTERVAL '24 hours'
-        """)
+        """, (tenant_id,))
         messages_today = cur.fetchone()[0]
 
-        cur.execute(f"""
+        cur.execute("""
             SELECT COUNT(*) 
             FROM t_p56134400_telegram_ai_bot_pdf.chat_messages 
             WHERE role = 'user' 
-            AND tenant_id = {tenant_id}
+            AND tenant_id = %s
             AND created_at >= NOW() - INTERVAL '7 days'
-        """)
+        """, (tenant_id,))
         messages_week = cur.fetchone()[0]
 
-        cur.execute(f"""
+        cur.execute("""
             SELECT content, COUNT(*) as count
             FROM t_p56134400_telegram_ai_bot_pdf.chat_messages 
-            WHERE role = 'user' AND tenant_id = {tenant_id}
+            WHERE role = 'user' AND tenant_id = %s
             GROUP BY content
             ORDER BY count DESC
             LIMIT 10
-        """)
+        """, (tenant_id,))
         popular_questions = cur.fetchall()
         popular_questions_list = [{'question': q[0], 'count': q[1]} for q in popular_questions]
 
-        cur.execute(f"""
+        cur.execute("""
             SELECT 
                 DATE_TRUNC('day', created_at) as day,
                 COUNT(*) as count
             FROM t_p56134400_telegram_ai_bot_pdf.chat_messages 
             WHERE role = 'user' 
-            AND tenant_id = {tenant_id}
+            AND tenant_id = %s
             AND created_at >= NOW() - INTERVAL '30 days'
             GROUP BY day
             ORDER BY day DESC
-        """)
+        """, (tenant_id,))
         daily_stats = cur.fetchall()
         daily_stats_list = [{'date': d[0].strftime('%Y-%m-%d'), 'count': d[1]} for d in daily_stats]
 
-        cur.execute(f"""
+        cur.execute("""
             SELECT session_id, COUNT(*) as message_count
             FROM t_p56134400_telegram_ai_bot_pdf.chat_messages
-            WHERE role = 'user' AND tenant_id = {tenant_id}
+            WHERE role = 'user' AND tenant_id = %s
             GROUP BY session_id
             ORDER BY message_count DESC
             LIMIT 5
-        """)
+        """, (tenant_id,))
         top_users = cur.fetchall()
         top_users_list = [{'user': u[0], 'messages': u[1]} for u in top_users]
 

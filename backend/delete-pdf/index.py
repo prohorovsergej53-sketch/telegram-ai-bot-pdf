@@ -28,6 +28,8 @@ def handler(event: dict, context) -> dict:
             'isBase64Encoded': False
         }
 
+    conn = None
+    cur = None
     try:
         tenant_id, auth_error = get_tenant_id_from_request(event)
         if auth_error:
@@ -54,8 +56,6 @@ def handler(event: dict, context) -> dict:
         result = cur.fetchone()
 
         if not result:
-            cur.close()
-            conn.close()
             return {
                 'statusCode': 404,
                 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
@@ -76,24 +76,29 @@ def handler(event: dict, context) -> dict:
         except Exception as s3_error:
             print(f"S3 delete warning: {s3_error}")
 
-        cur.execute("""
-            DELETE FROM t_p56134400_telegram_ai_bot_pdf.document_chunks 
-            WHERE document_id = %s
-        """, (document_id,))
+        # Используем транзакцию для атомарности
+        try:
+            cur.execute("BEGIN")
+            
+            cur.execute("""
+                DELETE FROM t_p56134400_telegram_ai_bot_pdf.document_chunks 
+                WHERE document_id = %s
+            """, (document_id,))
 
-        cur.execute("""
-            DELETE FROM t_p56134400_telegram_ai_bot_pdf.tenant_chunks 
-            WHERE document_id = %s
-        """, (document_id,))
+            cur.execute("""
+                DELETE FROM t_p56134400_telegram_ai_bot_pdf.tenant_chunks 
+                WHERE document_id = %s
+            """, (document_id,))
 
-        cur.execute("""
-            DELETE FROM t_p56134400_telegram_ai_bot_pdf.documents 
-            WHERE id = %s
-        """, (document_id,))
+            cur.execute("""
+                DELETE FROM t_p56134400_telegram_ai_bot_pdf.documents 
+                WHERE id = %s
+            """, (document_id,))
 
-        conn.commit()
-        cur.close()
-        conn.close()
+            conn.commit()
+        except Exception as db_error:
+            conn.rollback()
+            raise
 
         return {
             'statusCode': 200,
@@ -106,9 +111,16 @@ def handler(event: dict, context) -> dict:
         }
 
     except Exception as e:
+        if conn:
+            conn.rollback()
         return {
             'statusCode': 500,
             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
             'body': json.dumps({'error': str(e)}),
             'isBase64Encoded': False
         }
+    finally:
+        if cur:
+            cur.close()
+        if conn:
+            conn.close()

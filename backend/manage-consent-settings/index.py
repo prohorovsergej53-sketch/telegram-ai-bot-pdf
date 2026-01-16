@@ -1,13 +1,14 @@
 import json
 import os
 import psycopg2
+from auth_middleware import get_tenant_id_from_request
 
 def handler(event: dict, context) -> dict:
     """Управление настройками согласия 152-ФЗ и публичным контентом"""
     method = event.get('httpMethod', 'GET')
     query_params = event.get('queryStringParameters') or {}
     action = query_params.get('action', '')
-    tenant_id = query_params.get('tenant_id')
+    request_tenant_id = query_params.get('tenant_id')
 
     if method == 'OPTIONS':
         return {
@@ -22,10 +23,18 @@ def handler(event: dict, context) -> dict:
         }
 
     try:
+        # Проверка авторизации
+        auth_tenant_id, auth_error = get_tenant_id_from_request(event)
+        if auth_error:
+            return auth_error
+        
+        # Используем tenant_id из авторизации, игнорируем переданный в query
+        tenant_id = auth_tenant_id
+        
         conn = psycopg2.connect(os.environ['DATABASE_URL'])
         cur = conn.cursor()
 
-        if method == 'GET' and action == 'public_content' and tenant_id:
+        if method == 'GET' and action == 'public_content':
             cur.execute("""
                 SELECT 
                     t.name,
@@ -76,7 +85,7 @@ def handler(event: dict, context) -> dict:
                 'isBase64Encoded': False
             }
 
-        elif method == 'PUT' and action == 'public_content' and tenant_id:
+        elif method == 'PUT' and action == 'public_content':
             body = json.loads(event.get('body', '{}'))
             consent_settings = body.get('consent_settings', {})
 
