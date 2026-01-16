@@ -48,8 +48,33 @@ def handler(event: dict, context) -> dict:
                 'isBase64Encoded': False
             }
 
+        if not file_name.lower().endswith('.pdf'):
+            return {
+                'statusCode': 400,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({'error': 'Только PDF файлы разрешены'}),
+                'isBase64Encoded': False
+            }
+
         file_data = base64.b64decode(file_base64)
         file_size = len(file_data)
+        
+        max_size = 50 * 1024 * 1024  # 50 MB
+        if file_size > max_size:
+            return {
+                'statusCode': 400,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({'error': f'Файл слишком большой. Максимальный размер: 50 МБ'}),
+                'isBase64Encoded': False
+            }
+        
+        if not file_data.startswith(b'%PDF'):
+            return {
+                'statusCode': 400,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({'error': 'Файл не является PDF документом'}),
+                'isBase64Encoded': False
+            }
         file_key = f'documents/{datetime.now().strftime("%Y%m%d_%H%M%S")}_{file_name}'
 
         s3 = boto3.client('s3',
