@@ -23,18 +23,19 @@ def handler(event: dict, context) -> dict:
         }
 
     try:
-        # Проверка авторизации
-        auth_tenant_id, auth_error = get_tenant_id_from_request(event)
-        if auth_error:
-            return auth_error
-        
-        # Используем tenant_id из авторизации, игнорируем переданный в query
-        tenant_id = auth_tenant_id
-        
         conn = psycopg2.connect(os.environ['DATABASE_URL'])
         cur = conn.cursor()
 
         if method == 'GET' and action == 'public_content':
+            # Публичный endpoint - разрешаем доступ без авторизации
+            tenant_id = request_tenant_id
+            if not tenant_id:
+                return {
+                    'statusCode': 400,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'tenant_id required'}),
+                    'isBase64Encoded': False
+                }
             cur.execute("""
                 SELECT 
                     t.name,
@@ -86,6 +87,12 @@ def handler(event: dict, context) -> dict:
             }
 
         elif method == 'PUT' and action == 'public_content':
+            # Для PUT требуется авторизация
+            auth_tenant_id, auth_error = get_tenant_id_from_request(event)
+            if auth_error:
+                return auth_error
+            tenant_id = auth_tenant_id
+            
             body = json.loads(event.get('body', '{}'))
             consent_settings = body.get('consent_settings', {})
 
@@ -121,7 +128,13 @@ def handler(event: dict, context) -> dict:
                 'isBase64Encoded': False
             }
 
-        elif method == 'PUT' and action == 'toggle_fz152' and tenant_id:
+        elif method == 'PUT' and action == 'toggle_fz152':
+            # Для toggle требуется авторизация
+            auth_tenant_id, auth_error = get_tenant_id_from_request(event)
+            if auth_error:
+                return auth_error
+            tenant_id = auth_tenant_id
+            
             body = json.loads(event.get('body', '{}'))
             fz152_enabled = body.get('enabled', False)
 
