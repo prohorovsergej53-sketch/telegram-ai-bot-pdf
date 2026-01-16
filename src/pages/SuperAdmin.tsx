@@ -19,6 +19,7 @@ import { TariffEditDialog } from '@/components/superadmin/TariffEditDialog';
 import { CreateTenantDialog } from '@/components/superadmin/CreateTenantDialog';
 import LogicFlowTab from '@/components/superadmin/LogicFlowTab';
 import TariffAccessTab from '@/components/superadmin/TariffAccessTab';
+import SEOTab from '@/components/superadmin/SEOTab';
 
 const SuperAdmin = () => {
   const navigate = useNavigate();
@@ -260,6 +261,10 @@ const SuperAdmin = () => {
               <Icon name="ShieldCheck" size={16} className="mr-2" />
               Согласия
             </TabsTrigger>
+            <TabsTrigger value="seo">
+              <Icon name="Search" size={16} className="mr-2" />
+              SEO
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="dashboard" className="space-y-6">
@@ -309,6 +314,10 @@ const SuperAdmin = () => {
 
           <TabsContent value="consents" className="space-y-6">
             <ConsentLogsTab />
+          </TabsContent>
+
+          <TabsContent value="seo" className="space-y-6">
+            <SEOTab />
           </TabsContent>
         </Tabs>
       </div>

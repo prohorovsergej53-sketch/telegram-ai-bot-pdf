@@ -13,8 +13,14 @@ import SuperAdmin from "./pages/SuperAdmin";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
 import { CookieConsent } from "./components/CookieConsent";
+import { useSEONotify } from "./hooks/use-seo-notify";
 
 const queryClient = new QueryClient();
+
+const AppContent = () => {
+  useSEONotify();
+  return null;
+};
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -22,6 +28,7 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
+        <AppContent />
         <CookieConsent />
         <Routes>
           <Route path="/" element={<LandingPage />} />
