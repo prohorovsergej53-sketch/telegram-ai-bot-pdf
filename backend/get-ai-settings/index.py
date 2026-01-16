@@ -42,23 +42,23 @@ def handler(event: dict, context) -> dict:
         """, (tenant_id,))
         
         row = cur.fetchone()
-        if row and row[0]:
-            settings_raw = row[0]
-            # Преобразуем строковые значения в числа где нужно
-            settings = {
-                'model': settings_raw.get('model', 'yandexgpt'),
-                'temperature': float(settings_raw.get('temperature', 0.15)),
-                'top_p': float(settings_raw.get('top_p', 1.0)),
-                'frequency_penalty': float(settings_raw.get('frequency_penalty', 0)),
-                'presence_penalty': float(settings_raw.get('presence_penalty', 0)),
-                'max_tokens': int(settings_raw.get('max_tokens', 600)),
-                'system_priority': settings_raw.get('system_priority', 'strict'),
-                'creative_mode': settings_raw.get('creative_mode', 'off'),
-                'chat_provider': settings_raw.get('chat_provider', 'deepseek'),
-                'chat_model': settings_raw.get('chat_model', 'deepseek-chat'),
-                'embedding_provider': settings_raw.get('embedding_provider', 'openai'),
-                'embedding_model': settings_raw.get('embedding_model', 'text-embedding-3-small'),
-                'system_prompt': settings_raw.get('system_prompt', '''Вы - вежливый и профессиональный консьерж отеля. Отвечайте на вопросы гостей, используя только информацию из базы знаний.
+        settings_raw = row[0] if row and row[0] else {}
+        
+        # Преобразуем строковые значения в числа где нужно
+        settings = {
+            'model': settings_raw.get('model', 'yandexgpt'),
+            'temperature': float(settings_raw.get('temperature', 0.15)),
+            'top_p': float(settings_raw.get('top_p', 1.0)),
+            'frequency_penalty': float(settings_raw.get('frequency_penalty', 0)),
+            'presence_penalty': float(settings_raw.get('presence_penalty', 0)),
+            'max_tokens': int(settings_raw.get('max_tokens', 600)),
+            'system_priority': settings_raw.get('system_priority', 'strict'),
+            'creative_mode': settings_raw.get('creative_mode', 'off'),
+            'chat_provider': settings_raw.get('chat_provider', 'deepseek'),
+            'chat_model': settings_raw.get('chat_model', 'deepseek-chat'),
+            'embedding_provider': settings_raw.get('embedding_provider', 'openai'),
+            'embedding_model': settings_raw.get('embedding_model', 'text-embedding-3-small'),
+            'system_prompt': settings_raw.get('system_prompt', '''Вы - вежливый и профессиональный консьерж отеля. Отвечайте на вопросы гостей, используя только информацию из базы знаний.
 
 ПРАВИЛА ФОРМАТИРОВАНИЯ ОТВЕТОВ:
 1. Используйте понятные названия вместо аббревиатур:
@@ -85,29 +85,7 @@ def handler(event: dict, context) -> dict:
 • Полный пансион: 8 800 ₽
 
 Используйте двойной перенос строки (\n\n) между категориями для лучшей читабельности.''')
-            }
-        else:
-            settings = {
-                'model': settings_raw.get('model', 'yandexgpt') if settings_raw else 'yandexgpt',
-                'temperature': 0.15,
-                'top_p': 1.0,
-                'frequency_penalty': 0,
-                'presence_penalty': 0,
-                'max_tokens': 600,
-                'system_priority': 'strict',
-                'creative_mode': 'off',
-                'chat_provider': 'deepseek',
-                'chat_model': 'deepseek-chat',
-                'embedding_provider': 'openai',
-                'embedding_model': 'text-embedding-3-small',
-                'system_prompt': '''Ты — дружелюбный AI-консьерж отеля «Династия» в Telegram.
-
-ИСТОЧНИК ФАКТОВ:
-Единственный источник фактов — блок внутри system prompt, который начинается строкой:
-«Доступная информация из документов:»
-Любой факт в ответе должен прямо подтверждаться строками из этого блока.
-Если факта нет в этом блоке — не придумывай и не "догадывайся".'''
-            }
+        }
 
         cur.close()
         conn.close()
