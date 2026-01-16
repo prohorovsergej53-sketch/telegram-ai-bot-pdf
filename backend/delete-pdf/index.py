@@ -50,7 +50,7 @@ def handler(event: dict, context) -> dict:
         cur = conn.cursor()
 
         cur.execute("""
-            SELECT file_key FROM t_p56134400_telegram_ai_bot_pdf.documents 
+            SELECT file_key FROM t_p56134400_telegram_ai_bot_pdf.tenant_documents 
             WHERE id = %s AND tenant_id = %s
         """, (document_id, tenant_id))
         result = cur.fetchone()
@@ -82,18 +82,20 @@ def handler(event: dict, context) -> dict:
             
             cur.execute("""
                 DELETE FROM t_p56134400_telegram_ai_bot_pdf.document_chunks 
-                WHERE document_id = %s
-            """, (document_id,))
+                WHERE document_id = %s AND document_id IN (
+                    SELECT id FROM t_p56134400_telegram_ai_bot_pdf.tenant_documents WHERE tenant_id = %s
+                )
+            """, (document_id, tenant_id))
 
             cur.execute("""
                 DELETE FROM t_p56134400_telegram_ai_bot_pdf.tenant_chunks 
-                WHERE document_id = %s
-            """, (document_id,))
+                WHERE document_id = %s AND tenant_id = %s
+            """, (document_id, tenant_id))
 
             cur.execute("""
-                DELETE FROM t_p56134400_telegram_ai_bot_pdf.documents 
-                WHERE id = %s
-            """, (document_id,))
+                DELETE FROM t_p56134400_telegram_ai_bot_pdf.tenant_documents 
+                WHERE id = %s AND tenant_id = %s
+            """, (document_id, tenant_id))
 
             conn.commit()
         except Exception as db_error:

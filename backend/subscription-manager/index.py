@@ -142,7 +142,8 @@ def handler(event: dict, context) -> dict:
         cur = conn.cursor()
         
         # Получаем информацию о тенанте и его тарифе
-        cur.execute("""
+        schema = 't_p56134400_telegram_ai_bot_pdf'
+        cur.execute(f"""
             SELECT 
                 t.id,
                 t.name,
@@ -151,8 +152,8 @@ def handler(event: dict, context) -> dict:
                 tar.name as tariff_name,
                 tar.renewal_price,
                 tar.period
-            FROM tenants t
-            LEFT JOIN tariff_plans tar ON t.tariff_id = tar.id
+            FROM {schema}.tenants t
+            LEFT JOIN {schema}.tariff_plans tar ON t.tariff_id = tar.id
             WHERE t.id = %s
         """, (tenant_id,))
         

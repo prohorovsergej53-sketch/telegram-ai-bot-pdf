@@ -97,7 +97,7 @@ def handler(event: dict, context) -> dict:
                 embedding_doc_model = settings_row[1] or 'text-search-doc'
 
                 cur.execute("""
-                    SELECT COUNT(*) FROM t_p56134400_telegram_ai_bot_pdf.documents
+                    SELECT COUNT(*) FROM t_p56134400_telegram_ai_bot_pdf.tenant_documents
                     WHERE tenant_id = %s AND status = 'ready'
                 """, (tenant_id,))
                 total_docs = cur.fetchone()[0]
@@ -124,7 +124,7 @@ def handler(event: dict, context) -> dict:
                 """, (total_docs, f"{embedding_provider}:{embedding_doc_model}", tenant_id))
 
                 cur.execute("""
-                    SELECT id FROM t_p56134400_telegram_ai_bot_pdf.documents
+                    SELECT id FROM t_p56134400_telegram_ai_bot_pdf.tenant_documents
                     WHERE tenant_id = %s AND status = 'ready'
                     ORDER BY id
                 """, (tenant_id,))

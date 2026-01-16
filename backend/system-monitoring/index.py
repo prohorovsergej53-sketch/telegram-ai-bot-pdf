@@ -75,7 +75,7 @@ def handler(event: dict, context) -> dict:
         }
         
         # 3. Статистика документов
-        cur.execute(f"SELECT COUNT(*) FROM {schema}.documents")
+        cur.execute(f"SELECT COUNT(*) FROM {schema}.tenant_documents")
         row = cur.fetchone()
         stats['documents'] = {
             'total': row[0] if row[0] else 0

@@ -10,7 +10,7 @@ sys.path.append('/function/code')
 from api_keys_helper import get_tenant_api_key
 
 def handler(event: dict, context) -> dict:
-    """Обработка PDF: извлечение текста и разбиение на чанки"""
+    """Обработка PDF: извлечение текста, разбиение на чанки и создание эмбеддингов"""
     method = event.get('httpMethod', 'POST')
 
     if method == 'OPTIONS':
@@ -55,7 +55,7 @@ def handler(event: dict, context) -> dict:
         conn = psycopg2.connect(os.environ['DATABASE_URL'])
         cur = conn.cursor()
         
-        cur.execute("SELECT file_key, tenant_id FROM t_p56134400_telegram_ai_bot_pdf.documents WHERE id = %s AND tenant_id = %s", (document_id, tenant_id))
+        cur.execute("SELECT file_key, tenant_id FROM t_p56134400_telegram_ai_bot_pdf.tenant_documents WHERE id = %s AND tenant_id = %s", (document_id, tenant_id))
         result = cur.fetchone()
         
         if not result:
@@ -93,9 +93,11 @@ def handler(event: dict, context) -> dict:
             if chunk.strip():
                 chunks.append(chunk)
 
-        # Удаляем старые чанки перед переиндексацией
-        cur.execute("DELETE FROM t_p56134400_telegram_ai_bot_pdf.document_chunks WHERE document_id = %s", (document_id,))
-        cur.execute("DELETE FROM t_p56134400_telegram_ai_bot_pdf.tenant_chunks WHERE document_id = %s", (document_id,))
+        # Удаляем старые чанки перед переиндексацией (транзакция для атомарности)
+        try:
+            cur.execute("BEGIN")
+            cur.execute("DELETE FROM t_p56134400_telegram_ai_bot_pdf.document_chunks WHERE document_id = %s", (document_id,))
+            cur.execute("DELETE FROM t_p56134400_telegram_ai_bot_pdf.tenant_chunks WHERE document_id = %s", (document_id,))
         
         cur.execute("""
             SELECT embedding_provider, embedding_doc_model
@@ -158,13 +160,16 @@ def handler(event: dict, context) -> dict:
                 VALUES (%s, %s, %s, %s, %s)
             """, (tenant_id, document_id, chunk_text, idx, embedding_json))
 
-        cur.execute("""
-            UPDATE t_p56134400_telegram_ai_bot_pdf.documents 
-            SET status = 'ready', pages = %s, processed_at = %s
-            WHERE id = %s
-        """, (pages_count, datetime.now(), document_id))
-
-        conn.commit()
+            cur.execute("""
+                UPDATE t_p56134400_telegram_ai_bot_pdf.tenant_documents 
+                SET status = 'ready', pages = %s, processed_at = %s
+                WHERE id = %s
+            """, (pages_count, datetime.now(), document_id))
+            
+            conn.commit()
+        except Exception as tx_error:
+            conn.rollback()
+            raise tx_error
         cur.close()
         conn.close()
 
