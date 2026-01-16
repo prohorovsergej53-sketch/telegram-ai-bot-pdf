@@ -31,9 +31,13 @@ export const DashboardTab = ({ tenants, tariffs }: DashboardTabProps) => {
       if (response.ok) {
         const data = await response.json();
         setAutomationSettings(data);
+      } else {
+        console.warn('Automation settings not available:', response.status);
+        setAutomationSettings(null);
       }
     } catch (error) {
       console.error('Error loading automation settings:', error);
+      setAutomationSettings(null);
     }
   };
 
