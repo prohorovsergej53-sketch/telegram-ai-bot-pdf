@@ -193,19 +193,17 @@ const EmbeddingsSettings = ({ currentTenantId, tenantName, fz152Enabled = false 
         </CardDescription>
       </CardHeader>
       <CardContent className="pt-6 space-y-6">
-        {fz152Enabled && (
-          <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-4">
-            <div className="flex items-start gap-3">
-              <Icon name="ShieldCheck" size={24} className="text-blue-600 mt-1 flex-shrink-0" />
-              <div>
-                <h4 className="font-semibold text-blue-900 mb-2">Режим 152-ФЗ включен</h4>
-                <p className="text-sm text-blue-800">
-                  Для этого клиента доступны только модели Яндекса. Данные обрабатываются на территории РФ в соответствии с законодательством о персональных данных.
-                </p>
-              </div>
+        <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-4">
+          <div className="flex items-start gap-3">
+            <Icon name="ShieldCheck" size={24} className="text-blue-600 mt-1 flex-shrink-0" />
+            <div>
+              <h4 className="font-semibold text-blue-900 mb-2">Используются модели Яндекса</h4>
+              <p className="text-sm text-blue-800">
+                Все данные обрабатываются на территории РФ в соответствии с законодательством о персональных данных.
+              </p>
             </div>
           </div>
-        )}
+        </div>
 
         {!isEditing ? (
           <div className="space-y-4">
@@ -231,11 +229,11 @@ const EmbeddingsSettings = ({ currentTenantId, tenantName, fz152Enabled = false 
             <div className="flex gap-3">
               <Button
                 onClick={() => setIsEditing(true)}
-                disabled={fz152Enabled}
+                disabled={true}
                 className="flex-1"
               >
                 <Icon name="Settings" size={18} className="mr-2" />
-                {fz152Enabled ? 'Редактирование заблокировано (152-ФЗ)' : 'Изменить модели'}
+                Редактирование заблокировано
               </Button>
               <Button
                 variant="secondary"
@@ -251,14 +249,12 @@ const EmbeddingsSettings = ({ currentTenantId, tenantName, fz152Enabled = false 
           <div className="space-y-4">
             <div>
               <label className="text-sm font-medium mb-2 block">Провайдер эмбеддингов</label>
-              <Select value={editedProvider} onValueChange={setEditedProvider}>
+              <Select value={editedProvider} onValueChange={setEditedProvider} disabled>
                 <SelectTrigger>
                   <SelectValue placeholder="Выберите провайдера" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="yandex">🇷🇺 Яндекс (256 измерений, ₽0.8/1M)</SelectItem>
-                  <SelectItem value="openrouter">🌐 OpenRouter (1536 измерений, $0.025/1M)</SelectItem>
-                  <SelectItem value="proxyapi">💰 ProxyAPI (1536 измерений, ₽3/1M)</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -291,73 +287,7 @@ const EmbeddingsSettings = ({ currentTenantId, tenantName, fz152Enabled = false 
               </>
             )}
 
-            {editedProvider === 'openrouter' && (
-              <>
-                <div>
-                  <label className="text-sm font-medium mb-2 block">Модель для документов</label>
-                  <Select value={editedDocModel} onValueChange={setEditedDocModel}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="openai/text-embedding-3-small">OpenAI text-embedding-3-small (1536, $0.025/1M)</SelectItem>
-                      <SelectItem value="openai/text-embedding-3-large">OpenAI text-embedding-3-large (3072, $0.13/1M)</SelectItem>
-                      <SelectItem value="openai/text-embedding-ada-002">OpenAI text-embedding-ada-002 (1536, $0.10/1M)</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
 
-                <div>
-                  <label className="text-sm font-medium mb-2 block">Модель для запросов</label>
-                  <Select value={editedQueryModel} onValueChange={setEditedQueryModel}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="openai/text-embedding-3-small">OpenAI text-embedding-3-small (1536, $0.025/1M)</SelectItem>
-                      <SelectItem value="openai/text-embedding-3-large">OpenAI text-embedding-3-large (3072, $0.13/1M)</SelectItem>
-                      <SelectItem value="openai/text-embedding-ada-002">OpenAI text-embedding-ada-002 (1536, $0.10/1M)</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </>
-            )}
-
-            {editedProvider === 'proxyapi' && (
-              <>
-                <div>
-                  <label className="text-sm font-medium mb-2 block">Модель для документов</label>
-                  <Select value={editedDocModel} onValueChange={setEditedDocModel}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="openai/text-embedding-3-small">OpenAI text-embedding-3-small (1536, ₽3/1M)</SelectItem>
-                      <SelectItem value="openai/text-embedding-3-large">OpenAI text-embedding-3-large (3072, ₽15/1M)</SelectItem>
-                      <SelectItem value="openai/text-embedding-ada-002">OpenAI text-embedding-ada-002 (1536, ₽3/1M)</SelectItem>
-                      <SelectItem value="cohere/embed-multilingual-v3.0">Cohere embed-multilingual-v3.0 (1024, ₽1.5/1M)</SelectItem>
-                      <SelectItem value="voyage/voyage-3">Voyage AI voyage-3 (1024, ₽12/1M)</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div>
-                  <label className="text-sm font-medium mb-2 block">Модель для запросов</label>
-                  <Select value={editedQueryModel} onValueChange={setEditedQueryModel}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="openai/text-embedding-3-small">OpenAI text-embedding-3-small (1536, ₽3/1M)</SelectItem>
-                      <SelectItem value="openai/text-embedding-3-large">OpenAI text-embedding-3-large (3072, ₽15/1M)</SelectItem>
-                      <SelectItem value="openai/text-embedding-ada-002">OpenAI text-embedding-ada-002 (1536, ₽3/1M)</SelectItem>
-                      <SelectItem value="cohere/embed-multilingual-v3.0">Cohere embed-multilingual-v3.0 (1024, ₽1.5/1M)</SelectItem>
-                      <SelectItem value="voyage/voyage-3">Voyage AI voyage-3 (1024, ₽12/1M)</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </>
-            )}
 
             <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
               <div className="flex items-start gap-2">
@@ -402,11 +332,7 @@ const EmbeddingsSettings = ({ currentTenantId, tenantName, fz152Enabled = false 
           <div className="space-y-2 text-sm text-slate-600">
             <div className="flex items-start gap-2">
               <Icon name="Check" size={14} className="text-green-600 mt-1 flex-shrink-0" />
-              <span><strong>Яндекс:</strong> 256 измерений, быстрая обработка, данные в РФ</span>
-            </div>
-            <div className="flex items-start gap-2">
-              <Icon name="Check" size={14} className="text-blue-600 mt-1 flex-shrink-0" />
-              <span><strong>OpenAI:</strong> 1536-3072 измерений, более точный поиск, международные серверы</span>
+              <span><strong>Яндекс:</strong> 256 измерений, быстрая обработка, данные хранятся в РФ</span>
             </div>
           </div>
         </div>
