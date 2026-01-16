@@ -8,6 +8,7 @@ import { CalculatorSection } from './CalculatorSection';
 import { CasesSection } from './CasesSection';
 import { TestimonialsSection } from './TestimonialsSection';
 import { SecuritySection } from './SecuritySection';
+import { VectorTechSection } from './VectorTechSection';
 import { PricingSection } from './PricingSection';
 import { FAQSection } from './FAQSection';
 import { YourBotSection } from './YourBotSection';
@@ -44,6 +45,7 @@ const LandingPage = () => {
       <CalculatorSection />
       <CasesSection />
       <TestimonialsSection />
+      <VectorTechSection />
       <SecuritySection />
       <PricingSection onPlanSelect={scrollToForm} />
       <FAQSection />
