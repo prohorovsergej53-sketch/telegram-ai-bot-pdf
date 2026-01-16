@@ -86,9 +86,9 @@ const PaymentSuccess = () => {
               <div className="flex gap-3">
                 <Badge className="bg-primary text-white shrink-0">4</Badge>
                 <div>
-                  <p className="font-medium text-slate-900">Настройте мессенджеры</p>
+                  <p className="font-medium text-slate-900">Настройте каналы связи</p>
                   <p className="text-sm text-slate-600">
-                    Подключите Telegram, WhatsApp или VK для работы с клиентами
+                    Подключите Telegram, WhatsApp, VK самостоятельно или с помощью наших специалистов. Бот доступен по прямой ссылке и есть код для встраивания на сайт
                   </p>
                 </div>
               </div>
