@@ -103,13 +103,13 @@ def handler(event: dict, context) -> dict:
             if chunk.strip():
                 chunks.append(chunk)
         
-        if len(chunks) > 2000:
+        if len(chunks) > 200:
             cur.close()
             conn.close()
             return {
                 'statusCode': 400,
                 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                'body': json.dumps({'error': f'Слишком много текста: {len(chunks)} фрагментов. Максимум: 2000'}),
+                'body': json.dumps({'error': f'Слишком много текста: {len(chunks)} фрагментов. Максимум: 200'}),
                 'isBase64Encoded': False
             }
 
