@@ -7,7 +7,7 @@ import Icon from '@/components/ui/icon';
 
 const PaymentSuccess = () => {
   const navigate = useNavigate();
-  const [countdown, setCountdown] = useState(15);
+  const [countdown, setCountdown] = useState(60);
 
   useEffect(() => {
     const timer = setInterval(() => {
