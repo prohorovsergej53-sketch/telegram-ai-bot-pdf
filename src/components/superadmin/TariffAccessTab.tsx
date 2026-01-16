@@ -122,36 +122,44 @@ const TariffAccessTab = () => {
             <div className="bg-white p-3 rounded border border-green-200">
               <h5 className="font-semibold text-sm text-green-800 mb-2">Старт (basic)</h5>
               <ul className="text-xs text-slate-600 space-y-1">
-                <li>✅ Документы</li>
-                <li>✅ Мессенджеры (веб-чат)</li>
+                <li>✅ Документы (до 10)</li>
+                <li>✅ Мессенджеры (виджет + автосообщения)</li>
                 <li>✅ Страница</li>
                 <li>✅ Виджет</li>
                 <li>❌ AI (только с 152-ФЗ)</li>
                 <li>❌ Статистика</li>
+                <li>❌ Эмбеддинги</li>
               </ul>
             </div>
             <div className="bg-white p-3 rounded border border-blue-200">
               <h5 className="font-semibold text-sm text-blue-800 mb-2">Бизнес (professional)</h5>
               <ul className="text-xs text-slate-600 space-y-1">
-                <li>✅ Документы</li>
+                <li>✅ Документы (до 25)</li>
                 <li>✅ Мессенджеры (+ Telegram)</li>
                 <li>✅ Страница</li>
                 <li>✅ Виджет</li>
                 <li>✅ Статистика</li>
                 <li>❌ AI (только с 152-ФЗ)</li>
+                <li>❌ Эмбеддинги</li>
               </ul>
             </div>
             <div className="bg-white p-3 rounded border border-purple-200">
               <h5 className="font-semibold text-sm text-purple-800 mb-2">Премиум (enterprise)</h5>
               <ul className="text-xs text-slate-600 space-y-1">
-                <li>✅ Документы</li>
-                <li>✅ Мессенджеры (всё)</li>
+                <li>✅ Документы (до 100)</li>
+                <li>✅ Мессенджеры (Telegram + VK + MAX)</li>
                 <li>✅ Страница</li>
                 <li>✅ Виджет</li>
                 <li>✅ Статистика</li>
                 <li>❌ AI (только с 152-ФЗ)</li>
+                <li>❌ Эмбеддинги</li>
               </ul>
             </div>
+          </div>
+          <div className="mt-3 p-3 bg-yellow-50 border border-yellow-200 rounded">
+            <p className="text-xs text-yellow-900">
+              <strong>Суперадмин:</strong> Имеет доступ ко всем вкладкам всегда, включая эксклюзивную "Эмбеддинги". При просмотре клиентов видит все возможности независимо от тарифа.
+            </p>
           </div>
         </div>
       </CardContent>

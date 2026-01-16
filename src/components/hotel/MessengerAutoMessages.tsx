@@ -9,7 +9,8 @@ import Icon from '@/components/ui/icon';
 import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { BACKEND_URLS } from './types';
-import { authenticatedFetch, getTenantId } from '@/lib/auth';
+import { authenticatedFetch, getTenantId, getTariffId, isSuperAdmin as checkSuperAdmin } from '@/lib/auth';
+import { hasFeatureAccess } from '@/lib/tariff-limits';
 
 interface MessengerAutoMessagesProps {
   isSuperAdmin: boolean;
@@ -42,12 +43,21 @@ const MessengerAutoMessages = ({ isSuperAdmin }: MessengerAutoMessagesProps) => 
   const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<MessengerType>('widget');
   const tenantId = getTenantId();
+  const tariffId = getTariffId();
+  const superAdmin = checkSuperAdmin();
+
+  const availableMessengers = MESSENGERS.filter(m => {
+    if (m.id === 'widget') return true; // Виджет доступен всем
+    if (superAdmin) return true; // Суперадмин видит всё
+    if (m.id === 'telegram') return hasFeatureAccess('hasTelegram', tariffId);
+    if (m.id === 'vk') return hasFeatureAccess('hasVK', tariffId);
+    if (m.id === 'max') return hasFeatureAccess('hasMAX', tariffId);
+    return false;
+  });
 
   useEffect(() => {
-    if (isSuperAdmin) {
-      loadSettings();
-    }
-  }, [isSuperAdmin]);
+    loadSettings();
+  }, []);
 
   const loadSettings = async () => {
     try {
@@ -112,7 +122,7 @@ const MessengerAutoMessages = ({ isSuperAdmin }: MessengerAutoMessagesProps) => 
     }));
   };
 
-  if (!isSuperAdmin) {
+  if (availableMessengers.length === 0) {
     return null;
   }
 
@@ -121,7 +131,7 @@ const MessengerAutoMessages = ({ isSuperAdmin }: MessengerAutoMessagesProps) => 
       <CardHeader className="border-b bg-gradient-to-r from-purple-50 to-pink-50">
         <CardTitle className="flex items-center gap-2">
           <Icon name="Clock" size={20} />
-          Автосообщения по мессенджерам (SuperAdmin)
+          Автосообщения{superAdmin && ' (SuperAdmin)'}
         </CardTitle>
         <CardDescription>
           Настройка автосообщений при бездействии пользователя для каждого канала отдельно
@@ -129,8 +139,8 @@ const MessengerAutoMessages = ({ isSuperAdmin }: MessengerAutoMessagesProps) => 
       </CardHeader>
       <CardContent className="pt-6">
         <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as MessengerType)}>
-          <TabsList className="grid w-full grid-cols-5">
-            {MESSENGERS.map(messenger => (
+          <TabsList className={`grid w-full grid-cols-${availableMessengers.length}`}>
+            {availableMessengers.map(messenger => (
               <TabsTrigger key={messenger.id} value={messenger.id} className="flex items-center gap-1">
                 <Icon name={messenger.icon as any} size={14} />
                 <span className="hidden sm:inline">{messenger.label}</span>
@@ -138,7 +148,7 @@ const MessengerAutoMessages = ({ isSuperAdmin }: MessengerAutoMessagesProps) => 
             ))}
           </TabsList>
 
-          {MESSENGERS.map(messenger => {
+          {availableMessengers.map(messenger => {
             const config = getCurrentConfig(messenger.id);
 
             return (

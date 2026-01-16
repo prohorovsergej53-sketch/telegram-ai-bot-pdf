@@ -23,6 +23,7 @@ import { getTenantId, getTariffId, isSuperAdmin, getAdminUser, exitTenantView } 
 import { useNavigate, useParams } from 'react-router-dom';
 import { hasFeatureAccess } from '@/lib/tariff-limits';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
 
 interface AdminViewProps {
@@ -162,6 +163,32 @@ const AdminView = ({ documents, isLoading, onFileUpload, onDeleteDocument, curre
           </div>
 
           <MessengerAutoMessages isSuperAdmin={superAdmin} />
+          
+          {!superAdmin && !hasFeatureAccess('hasTelegram', tariffId) && !hasFeatureAccess('hasVK', tariffId) && !hasFeatureAccess('hasMAX', tariffId) && (
+            <Card className="shadow-xl border-2 border-orange-200">
+              <CardHeader className="bg-gradient-to-r from-orange-50 to-yellow-50">
+                <CardTitle className="flex items-center gap-2">
+                  <Icon name="Zap" size={20} />
+                  Больше возможностей
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="pt-6">
+                <p className="text-slate-600 mb-4">
+                  Ваш тариф <strong>Старт</strong> включает базовый функционал. Чтобы подключить интеграции с мессенджерами:
+                </p>
+                <div className="space-y-2 mb-4">
+                  <div className="flex items-center gap-2">
+                    <Icon name="Check" size={16} className="text-green-600" />
+                    <span className="text-sm"><strong>Бизнес:</strong> Telegram + Статистика</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Icon name="Check" size={16} className="text-purple-600" />
+                    <span className="text-sm"><strong>Премиум:</strong> Telegram + VK + MAX + Персональный менеджер</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </TabsContent>
 
         <TabsContent value="ai" className="space-y-6">
