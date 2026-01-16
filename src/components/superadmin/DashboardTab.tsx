@@ -241,81 +241,101 @@ export const DashboardTab = ({ tenants, tariffs }: DashboardTabProps) => {
                   </div>
                 </div>
 
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between p-2 bg-slate-50 rounded">
-                    <div className="flex items-center gap-2 text-sm">
-                      <Icon name="Bell" size={14} />
-                      <span>Проверка подписок</span>
+                <div className="space-y-3">
+                  <div className="border border-slate-200 rounded-lg p-3">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        <Icon name="Bell" size={16} className="text-blue-600" />
+                        <span className="font-medium text-sm">Проверка подписок</span>
+                      </div>
+                      <Button
+                        size="sm"
+                        variant={automationSettings.check_subscriptions_job?.enabled ? 'outline' : 'default'}
+                        onClick={() => toggleJob('subscription_check', !automationSettings.check_subscriptions_job?.enabled)}
+                        disabled={isSaving}
+                      >
+                        {automationSettings.check_subscriptions_job?.enabled ? (
+                          <Icon name="Power" size={14} className="text-green-600" />
+                        ) : (
+                          <Icon name="PowerOff" size={14} />
+                        )}
+                      </Button>
                     </div>
-                    <Button
-                      size="sm"
-                      variant={automationSettings.check_subscriptions_job?.enabled ? 'outline' : 'default'}
-                      onClick={() => toggleJob('subscription_check', !automationSettings.check_subscriptions_job?.enabled)}
-                      disabled={isSaving}
-                    >
-                      {automationSettings.check_subscriptions_job?.enabled ? (
-                        <Icon name="Power" size={14} className="text-green-600" />
-                      ) : (
-                        <Icon name="PowerOff" size={14} />
-                      )}
-                    </Button>
+                    <p className="text-xs text-slate-600 leading-relaxed">
+                      Ежедневно в 9:00 проверяет истекшие подписки клиентов и отправляет email-уведомления владельцам ботов за 7, 3 и 1 день до окончания подписки
+                    </p>
                   </div>
 
-                  <div className="flex items-center justify-between p-2 bg-slate-50 rounded">
-                    <div className="flex items-center gap-2 text-sm">
-                      <Icon name="Trash2" size={14} />
-                      <span>Очистка эмбеддингов</span>
+                  <div className="border border-slate-200 rounded-lg p-3">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        <Icon name="Trash2" size={16} className="text-orange-600" />
+                        <span className="font-medium text-sm">Очистка эмбеддингов</span>
+                      </div>
+                      <Button
+                        size="sm"
+                        variant={automationSettings.cleanup_embeddings_job?.enabled ? 'outline' : 'default'}
+                        onClick={() => toggleJob('embeddings_cleanup', !automationSettings.cleanup_embeddings_job?.enabled)}
+                        disabled={isSaving}
+                      >
+                        {automationSettings.cleanup_embeddings_job?.enabled ? (
+                          <Icon name="Power" size={14} className="text-green-600" />
+                        ) : (
+                          <Icon name="PowerOff" size={14} />
+                        )}
+                      </Button>
                     </div>
-                    <Button
-                      size="sm"
-                      variant={automationSettings.cleanup_embeddings_job?.enabled ? 'outline' : 'default'}
-                      onClick={() => toggleJob('embeddings_cleanup', !automationSettings.cleanup_embeddings_job?.enabled)}
-                      disabled={isSaving}
-                    >
-                      {automationSettings.cleanup_embeddings_job?.enabled ? (
-                        <Icon name="Power" size={14} className="text-green-600" />
-                      ) : (
-                        <Icon name="PowerOff" size={14} />
-                      )}
-                    </Button>
+                    <p className="text-xs text-slate-600 leading-relaxed">
+                      Каждую ночь в 3:00 удаляет из БД векторные представления удалённых документов, освобождая место и оптимизируя производительность поиска
+                    </p>
                   </div>
 
-                  <div className="flex items-center justify-between p-2 bg-slate-50 rounded">
-                    <div className="flex items-center gap-2 text-sm">
-                      <Icon name="Database" size={14} />
-                      <span>Бэкап БД</span>
+                  <div className="border border-slate-200 rounded-lg p-3">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        <Icon name="Database" size={16} className="text-purple-600" />
+                        <span className="font-medium text-sm">Бэкап БД</span>
+                      </div>
+                      <Button
+                        size="sm"
+                        variant={automationSettings.db_backup_job?.enabled ? 'outline' : 'default'}
+                        onClick={() => toggleJob('db_backup', !automationSettings.db_backup_job?.enabled)}
+                        disabled={isSaving}
+                      >
+                        {automationSettings.db_backup_job?.enabled ? (
+                          <Icon name="Power" size={14} className="text-green-600" />
+                        ) : (
+                          <Icon name="PowerOff" size={14} />
+                        )}
+                      </Button>
                     </div>
-                    <Button
-                      size="sm"
-                      variant={automationSettings.db_backup_job?.enabled ? 'outline' : 'default'}
-                      onClick={() => toggleJob('db_backup', !automationSettings.db_backup_job?.enabled)}
-                      disabled={isSaving}
-                    >
-                      {automationSettings.db_backup_job?.enabled ? (
-                        <Icon name="Power" size={14} className="text-green-600" />
-                      ) : (
-                        <Icon name="PowerOff" size={14} />
-                      )}
-                    </Button>
+                    <p className="text-xs text-slate-600 leading-relaxed">
+                      Ежедневно в 2:00 создаёт резервную копию всей базы данных (схемы, таблицы, данные) и сохраняет в S3 хранилище с датой в названии файла
+                    </p>
                   </div>
 
-                  <div className="flex items-center justify-between p-2 bg-slate-50 rounded">
-                    <div className="flex items-center gap-2 text-sm">
-                      <Icon name="BarChart3" size={14} />
-                      <span>Еженедельный отчёт</span>
+                  <div className="border border-slate-200 rounded-lg p-3">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        <Icon name="BarChart3" size={16} className="text-green-600" />
+                        <span className="font-medium text-sm">Еженедельный отчёт</span>
+                      </div>
+                      <Button
+                        size="sm"
+                        variant={automationSettings.analytics_report_job?.enabled ? 'outline' : 'default'}
+                        onClick={() => toggleJob('analytics_report', !automationSettings.analytics_report_job?.enabled)}
+                        disabled={isSaving}
+                      >
+                        {automationSettings.analytics_report_job?.enabled ? (
+                          <Icon name="Power" size={14} className="text-green-600" />
+                        ) : (
+                          <Icon name="PowerOff" size={14} />
+                        )}
+                      </Button>
                     </div>
-                    <Button
-                      size="sm"
-                      variant={automationSettings.analytics_report_job?.enabled ? 'outline' : 'default'}
-                      onClick={() => toggleJob('analytics_report', !automationSettings.analytics_report_job?.enabled)}
-                      disabled={isSaving}
-                    >
-                      {automationSettings.analytics_report_job?.enabled ? (
-                        <Icon name="Power" size={14} className="text-green-600" />
-                      ) : (
-                        <Icon name="PowerOff" size={14} />
-                      )}
-                    </Button>
+                    <p className="text-xs text-slate-600 leading-relaxed">
+                      Каждый понедельник в 10:00 формирует статистику по всем клиентам (активность, сообщения, документы) и отправляет на email суперадмина
+                    </p>
                   </div>
                 </div>
               </div>
