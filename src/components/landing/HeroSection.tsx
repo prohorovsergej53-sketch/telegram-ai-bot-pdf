@@ -27,8 +27,7 @@ export const HeroSection = ({ }: HeroSectionProps) => {
           </h1>
           
           <p className="text-2xl md:text-3xl text-slate-700 mb-12 max-w-4xl mx-auto leading-relaxed font-medium">
-            Вы даёте информацию — 
-            <span className="text-primary font-bold"> мы запустим AI-консультанта за 24 часа.</span>
+            <span className="text-primary font-bold">Запустим AI-консультанта за 24 часа</span> по вашим данным.
             <br/>Отвечает за 3 сек. Работает 24/7. Повышает конверсию на 67%.
           </p>
 
