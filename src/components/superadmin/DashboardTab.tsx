@@ -184,17 +184,21 @@ export const DashboardTab = ({ tenants, tariffs }: DashboardTabProps) => {
           </CardContent>
         </Card>
 
-        {automationSettings !== null && (
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Icon name="Bot" size={20} />
-                Автоматизация
-              </CardTitle>
-              <CardDescription>Управление автоматическими задачами</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {!automationSettings?.cronjob_enabled ? (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Icon name="Bot" size={20} />
+              Автоматизация
+            </CardTitle>
+            <CardDescription>Управление автоматическими задачами</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {automationSettings === null ? (
+              <div className="text-center py-4">
+                <Icon name="Loader2" className="animate-spin mx-auto mb-2" size={24} />
+                <p className="text-sm text-slate-600">Загрузка...</p>
+              </div>
+            ) : !automationSettings?.cronjob_enabled ? (
               <>
                 {!showApiKeyForm ? (
                   <div className="text-center py-4">
@@ -316,9 +320,8 @@ export const DashboardTab = ({ tenants, tariffs }: DashboardTabProps) => {
                 </div>
               </div>
             )}
-            </CardContent>
-          </Card>
-        )}
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
