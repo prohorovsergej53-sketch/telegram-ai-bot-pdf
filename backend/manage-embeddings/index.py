@@ -20,16 +20,24 @@ def handler(event: dict, context) -> dict:
         }
 
     try:
+        print(f"[manage-embeddings] Method: {method}")
+        print(f"[manage-embeddings] Headers: {event.get('headers', {})}")
+        print(f"[manage-embeddings] Query params: {event.get('queryStringParameters', {})}")
+        
         # Проверка авторизации
         authorized, payload, auth_error = require_auth(event)
         if not authorized:
+            print(f"[manage-embeddings] Auth failed: {auth_error}")
             return auth_error
 
         # Проверка что пользователь - суперадмин
         user_role = payload.get('role')
         user_tenant_id = payload.get('tenant_id')
         
+        print(f"[manage-embeddings] User role: {user_role}, tenant_id: {user_tenant_id}")
+        
         if user_role != 'super_admin':
+            print(f"[manage-embeddings] Access denied - not super admin")
             return {
                 'statusCode': 403,
                 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
@@ -39,6 +47,7 @@ def handler(event: dict, context) -> dict:
 
         conn = psycopg2.connect(os.environ['DATABASE_URL'])
         cur = conn.cursor()
+        print(f"[manage-embeddings] DB connected successfully")
 
         if method == 'GET':
             query_params = event.get('queryStringParameters') or {}
