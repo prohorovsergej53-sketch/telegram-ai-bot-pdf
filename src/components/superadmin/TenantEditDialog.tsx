@@ -4,6 +4,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card } from '@/components/ui/card';
+import { Switch } from '@/components/ui/switch';
+import Icon from '@/components/ui/icon';
 import { Tenant, Tariff } from './types';
 
 interface TenantEditDialogProps {
@@ -59,6 +61,24 @@ export const TenantEditDialog = ({ tenant, tariffs, onClose, onSave, onUpdate }:
               value={tenant.subscription_end_date?.split('T')[0] || ''}
               onChange={(e) => onUpdate({...tenant, subscription_end_date: e.target.value})}
             />
+          </div>
+          <div className="space-y-2">
+            <div className="flex items-center justify-between p-4 border rounded-lg bg-slate-50">
+              <div className="flex items-center gap-3">
+                <Icon name="ShieldCheck" size={20} className={tenant.fz152_enabled ? 'text-green-600' : 'text-gray-400'} />
+                <div>
+                  <Label htmlFor="fz152" className="cursor-pointer font-medium">Режим 152-ФЗ</Label>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Ограничение на российские модели и обработку данных в РФ
+                  </p>
+                </div>
+              </div>
+              <Switch 
+                id="fz152"
+                checked={tenant.fz152_enabled}
+                onCheckedChange={(checked) => onUpdate({...tenant, fz152_enabled: checked})}
+              />
+            </div>
           </div>
           <div className="grid grid-cols-2 gap-4 pt-2">
             <Card className="p-3">
