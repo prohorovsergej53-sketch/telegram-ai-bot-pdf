@@ -46,8 +46,40 @@ export const FooterSection = () => {
             </div>
           </div>
         </div>
-        <div className="border-t border-slate-800 pt-8 text-center text-slate-400">
-          <p>&copy; {new Date().getFullYear()} ai-ru.ru Все права защищены.</p>
+        <div className="border-t border-slate-800 pt-8">
+          <div className="mb-6">
+            <h3 className="text-center text-lg font-semibold mb-4">Остались вопросы?</h3>
+            <p className="text-center text-slate-400 mb-4">Напишите в MAX.ru или чат-боту — обычно отвечаем в течение часа</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-w-md mx-auto">
+              <a 
+                href="https://max.ru/u/f9LHodD0cOIrknUlAYx1LxuVyfuHRhIq-OHhkpPMbwJ_WcjW4dhTFpEEez0" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 p-3 border border-slate-700 rounded-lg hover:bg-slate-800 transition-colors"
+              >
+                <Icon name="MessageCircle" size={20} className="text-blue-400" />
+                <div>
+                  <p className="font-medium text-sm text-white">MAX-чат</p>
+                  <p className="text-xs text-slate-400">Быстрая поддержка</p>
+                </div>
+              </a>
+              <a 
+                href="https://ai-ru.ru/chat"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 p-3 border border-slate-700 rounded-lg hover:bg-slate-800 transition-colors"
+              >
+                <Icon name="Bot" size={20} className="text-purple-400" />
+                <div>
+                  <p className="font-medium text-sm text-white">Чат-бот AI-ру</p>
+                  <p className="text-xs text-slate-400">Ответит на вопросы</p>
+                </div>
+              </a>
+            </div>
+          </div>
+          <div className="text-center text-slate-400">
+            <p>&copy; {new Date().getFullYear()} ai-ru.ru Все права защищены.</p>
+          </div>
         </div>
       </div>
     </div>
