@@ -33,7 +33,7 @@ export const WeDoEverythingSection = () => {
     {
       icon: 'Cpu',
       title: 'Обучаем бота',
-      description: 'На ваших документах, тестируем точность ответов',
+      description: 'Загружаем документы в векторную базу данных для AI, тестируем точность ответов',
       gradient: 'from-indigo-500 to-purple-500'
     },
     {

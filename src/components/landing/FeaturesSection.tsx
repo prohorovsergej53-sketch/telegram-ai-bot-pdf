@@ -48,7 +48,7 @@ export const FeaturesSection = () => {
     {
       icon: 'Brain',
       title: 'Знает ВСЁ о вас',
-      description: 'Загружаете прайсы, инструкции, правила — и он становится экспертом',
+      description: 'Бот работает на векторной базе данных для AI — загружаете прайсы, инструкции, правила и он мгновенно находит точные ответы',
       bgColor: 'bg-purple-100',
       iconColor: 'text-purple-600',
       value: '97%',
