@@ -1,16 +1,15 @@
 {
   "tests": [
     {
-      "name": "Update tenant slug (safe test - same value)",
+      "name": "Reject unauthorized access",
       "method": "POST",
       "body": {
         "tenant_id": 777,
         "slug": "sales"
       },
-      "expectedStatus": 200,
+      "expectedStatus": 401,
       "expectedBody": {
-        "success": true,
-        "slug": "sales"
+        "error": "Authorization required"
       },
       "bodyMatcher": "partial"
     }

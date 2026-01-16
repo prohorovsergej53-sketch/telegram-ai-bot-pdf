@@ -1,12 +1,12 @@
 {
   "tests": [
     {
-      "name": "Get cronjob status",
+      "name": "Reject unauthorized access",
       "method": "GET",
       "path": "/?action=status",
-      "expectedStatus": 200,
+      "expectedStatus": 401,
       "expectedBody": {
-        "success": true
+        "error": "Authorization required"
       },
       "bodyMatcher": "partial"
     }

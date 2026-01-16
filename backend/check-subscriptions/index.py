@@ -9,6 +9,20 @@ from datetime import datetime, timedelta
 def handler(event: dict, context) -> dict:
     """Проверка истечения подписок и отправка уведомлений (запускается ежедневно)"""
     method = event.get('httpMethod', 'GET')
+    
+    # КРИТИЧНО: проверка API ключа для cron-задачи
+    headers = event.get('headers', {})
+    api_key = headers.get('X-API-Key') or headers.get('x-api-key')
+    expected_key = os.environ.get('CRON_API_KEY')
+    
+    # Если установлен CRON_API_KEY, проверяем его
+    if expected_key and api_key != expected_key:
+        return {
+            'statusCode': 403,
+            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+            'body': json.dumps({'error': 'Unauthorized: invalid API key'}),
+            'isBase64Encoded': False
+        }
 
     if method == 'OPTIONS':
         return {

@@ -7,6 +7,19 @@ def handler(event: dict, context) -> dict:
     '''Отправка email по шаблону из БД с подстановкой переменных'''
     method = event.get('httpMethod', 'POST')
     
+    # КРИТИЧНО: проверка секретного токена для внутренних вызовов
+    headers = event.get('headers', {})
+    internal_token = headers.get('X-Internal-Token') or headers.get('x-internal-token')
+    expected_token = os.environ.get('INTERNAL_API_TOKEN')
+    
+    # Если установлен INTERNAL_API_TOKEN, проверяем его
+    if expected_token and internal_token != expected_token:
+        return {
+            'statusCode': 403,
+            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+            'body': json.dumps({'error': 'Unauthorized: invalid internal token'})
+        }
+    
     if method == 'OPTIONS':
         return {
             'statusCode': 200,
@@ -49,7 +62,7 @@ def handler(event: dict, context) -> dict:
     cur = conn.cursor()
     
     try:
-        cur.execute('SELECT subject, body FROM email_templates WHERE template_key = %s', (template_key,))
+        cur.execute('SELECT subject, body FROM t_p56134400_telegram_ai_bot_pdf.email_templates WHERE template_key = %s', (template_key,))
         row = cur.fetchone()
         
         if not row:

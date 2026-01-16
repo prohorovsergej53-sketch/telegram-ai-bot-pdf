@@ -2,6 +2,7 @@ import json
 import os
 import requests
 import uuid
+import psycopg2
 
 def handler(event: dict, context) -> dict:
     """Создание платежа через ЮKassa API"""
@@ -30,11 +31,31 @@ def handler(event: dict, context) -> dict:
     try:
         body = json.loads(event.get('body', '{}'))
         amount = body.get('amount')
+        tariff_id = body.get('tariff_id')
         description = body.get('description', 'Оплата услуг отеля')
         return_url = body.get('return_url', 'https://example.com')
 
         if not amount or amount <= 0:
             raise ValueError('Invalid amount')
+        
+        # КРИТИЧНО: валидация amount против тарифов (защита от подделки сумм)
+        if tariff_id:
+            conn = psycopg2.connect(os.environ['DATABASE_URL'])
+            cur = conn.cursor()
+            cur.execute("""
+                SELECT setup_fee, renewal_price 
+                FROM t_p56134400_telegram_ai_bot_pdf.tariff_plans 
+                WHERE id = %s
+            """, (tariff_id,))
+            tariff = cur.fetchone()
+            cur.close()
+            conn.close()
+            
+            if tariff:
+                setup_fee, renewal_price = tariff
+                valid_amounts = [float(setup_fee), float(renewal_price)]
+                if float(amount) not in valid_amounts:
+                    raise ValueError(f'Invalid amount for tariff {tariff_id}: expected {valid_amounts}, got {amount}')
 
         shop_id = os.environ.get('YOOKASSA_SHOP_ID')
         secret_key = os.environ.get('YOOKASSA_SECRET_KEY')
@@ -44,6 +65,11 @@ def handler(event: dict, context) -> dict:
 
         idempotence_key = str(uuid.uuid4())
 
+        # Добавляем metadata с tariff_id для проверки в webhook
+        payment_metadata = body.get('metadata', {})
+        if tariff_id:
+            payment_metadata['tariff_id'] = tariff_id
+        
         yookassa_response = requests.post(
             'https://api.yookassa.ru/v3/payments',
             auth=(shop_id, secret_key),
@@ -61,7 +87,8 @@ def handler(event: dict, context) -> dict:
                     'return_url': return_url
                 },
                 'description': description,
-                'capture': True
+                'capture': True,
+                'metadata': payment_metadata
             },
             timeout=10
         )

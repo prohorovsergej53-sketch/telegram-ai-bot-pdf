@@ -2,6 +2,9 @@ import json
 import os
 import psycopg2
 from psycopg2.extras import RealDictCursor
+import sys
+sys.path.append('/function/code')
+from auth_middleware import require_auth
 
 
 def handler(event: dict, context) -> dict:
@@ -25,6 +28,19 @@ def handler(event: dict, context) -> dict:
             'statusCode': 405,
             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
             'body': json.dumps({'error': 'Method not allowed'})
+        }
+
+    # КРИТИЧНО: только super_admin может менять slug тенантов
+    authorized, payload, error_response = require_auth(event)
+    if not authorized:
+        return error_response
+    
+    user_role = payload.get('role')
+    if user_role != 'super_admin':
+        return {
+            'statusCode': 403,
+            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+            'body': json.dumps({'error': 'Access denied: super_admin role required'})
         }
 
     try:

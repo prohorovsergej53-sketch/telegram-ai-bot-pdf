@@ -7,6 +7,20 @@ from email.mime.multipart import MIMEMultipart
 def handler(event: dict, context) -> dict:
     """Отправка email-уведомлений после успешного заказа"""
     method = event.get('httpMethod', 'POST')
+    
+    # КРИТИЧНО: проверка секретного токена для внутренних вызовов
+    headers = event.get('headers', {})
+    internal_token = headers.get('X-Internal-Token') or headers.get('x-internal-token')
+    expected_token = os.environ.get('INTERNAL_API_TOKEN')
+    
+    # Если установлен INTERNAL_API_TOKEN, проверяем его
+    if expected_token and internal_token != expected_token:
+        return {
+            'statusCode': 403,
+            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+            'body': json.dumps({'error': 'Unauthorized: invalid internal token'}),
+            'isBase64Encoded': False
+        }
 
     if method == 'OPTIONS':
         return {
