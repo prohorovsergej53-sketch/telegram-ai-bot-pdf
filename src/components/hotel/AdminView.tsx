@@ -18,6 +18,7 @@ import ConsentSettingsCard from './ConsentSettingsCard';
 import { DocumentStatsCards } from './DocumentStatsCards';
 import { DocumentsPanel } from './DocumentsPanel';
 import EmbeddingsSettings from './EmbeddingsSettings';
+import SupportChat from '@/components/SupportChat';
 import { Document, BACKEND_URLS } from './types';
 import { getTenantId, getTariffId, isSuperAdmin, getAdminUser, exitTenantView } from '@/lib/auth';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -267,6 +268,10 @@ const AdminView = ({ documents, isLoading, onFileUpload, onDeleteDocument, curre
           </TabsContent>
         )}
       </Tabs>
+      <SupportChat 
+        userName={currentUser?.name} 
+        userEmail={currentUser?.email}
+      />
     </div>
   );
 };

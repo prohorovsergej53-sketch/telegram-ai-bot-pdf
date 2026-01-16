@@ -20,6 +20,7 @@ import { CreateTenantDialog } from '@/components/superadmin/CreateTenantDialog';
 import LogicFlowTab from '@/components/superadmin/LogicFlowTab';
 import TariffAccessTab from '@/components/superadmin/TariffAccessTab';
 import SEOTab from '@/components/superadmin/SEOTab';
+import SupportChat from '@/components/SupportChat';
 
 
 const SuperAdmin = () => {
@@ -345,6 +346,7 @@ const SuperAdmin = () => {
         }}
         tariffs={tariffs}
       />
+      <SupportChat userName="SuperAdmin" />
     </div>
   );
 };

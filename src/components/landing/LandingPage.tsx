@@ -14,6 +14,7 @@ import { FAQSection } from './FAQSection';
 
 import { OrderFormSection } from './OrderFormSection';
 import { FooterSection } from './FooterSection';
+import SupportChat from '@/components/SupportChat';
 
 const LandingPage = () => {
   const location = useLocation();
@@ -51,6 +52,7 @@ const LandingPage = () => {
       <FAQSection />
       <OrderFormSection selectedTariff={selectedTariff} />
       <FooterSection />
+      <SupportChat />
     </div>
   );
 };
