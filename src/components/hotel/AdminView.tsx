@@ -17,7 +17,7 @@ import ChatTestCard from './ChatTestCard';
 import ConsentSettingsCard from './ConsentSettingsCard';
 import { DocumentStatsCards } from './DocumentStatsCards';
 import { DocumentsPanel } from './DocumentsPanel';
-import { EmbeddingsTab } from '@/components/superadmin/EmbeddingsTab';
+import EmbeddingsSettings from './EmbeddingsSettings';
 import { Document, BACKEND_URLS } from './types';
 import { getTenantId, getTariffId, isSuperAdmin, getAdminUser, exitTenantView } from '@/lib/auth';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -69,6 +69,7 @@ const AdminView = ({ documents, isLoading, onFileUpload, onDeleteDocument, curre
         isViewingOtherTenant={isViewingOtherTenant}
         tenantId={tenantId}
         tariffId={tariffId}
+        fz152Enabled={fz152Enabled}
         onExitTenantView={handleExitTenantView}
       />
 
@@ -252,7 +253,11 @@ const AdminView = ({ documents, isLoading, onFileUpload, onDeleteDocument, curre
 
         {superAdmin && (
           <TabsContent value="embeddings" className="space-y-6">
-            <EmbeddingsTab />
+            <EmbeddingsSettings
+              currentTenantId={currentTenantId}
+              tenantName={tenantName}
+              fz152Enabled={fz152Enabled}
+            />
           </TabsContent>
         )}
 
