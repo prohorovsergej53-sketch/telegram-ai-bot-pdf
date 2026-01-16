@@ -124,14 +124,14 @@ const PaymentSuccess = () => {
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <a 
-                href="https://t.me/+QgiLIa1gFRY4Y2Iy" 
+                href="https://max.ru/u/f9LHodD0cOIrknUlAYx1LxuVyfuHRhIq-OHhkpPMbwJ_WcjW4dhTFpEEez0" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="flex items-center gap-2 p-3 border rounded-lg hover:bg-slate-50 transition-colors"
               >
                 <Icon name="MessageCircle" size={20} className="text-blue-600" />
                 <div>
-                  <p className="font-medium text-sm">Telegram-чат</p>
+                  <p className="font-medium text-sm">MAX-чат</p>
                   <p className="text-xs text-slate-600">Быстрая поддержка</p>
                 </div>
               </a>
