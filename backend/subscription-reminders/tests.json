@@ -1,0 +1,13 @@
+{
+  "tests": [{
+    "name": "Send subscription reminders",
+    "method": "POST",
+    "path": "/",
+    "expectedStatus": 200,
+    "expectedBody": {
+      "status": "success",
+      "reminders_sent": "object"
+    },
+    "bodyMatcher": "partial"
+  }]
+}

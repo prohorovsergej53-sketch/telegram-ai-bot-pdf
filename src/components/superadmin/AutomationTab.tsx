@@ -29,6 +29,12 @@ interface AutomationSettings {
   cleanup_embeddings_job?: CronJob;
   db_backup_job?: CronJob;
   analytics_report_job?: CronJob;
+  daily_analytics_job?: CronJob;
+  error_monitoring_job?: CronJob;
+  cleanup_logs_job?: CronJob;
+  subscription_reminders_job?: CronJob;
+  admin_alerts_job?: CronJob;
+  security_audit_job?: CronJob;
 }
 
 export const AutomationTab = () => {
@@ -567,6 +573,318 @@ export const AutomationTab = () => {
             >
               {isSaving ? <Icon name="Loader2" className="animate-spin mr-2" size={16} /> : null}
               {settings.analytics_report_job?.enabled ? 'Отключить' : 'Включить'}
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Ежедневная аналитика */}
+      {settings?.cronjob_enabled && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Icon name="TrendingUp" size={20} />
+              Ежедневная аналитика активности
+            </CardTitle>
+            <CardDescription>
+              Отчёт по новым пользователям, активным тенантам и сообщениям за вчера
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-3">
+              <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                <div>
+                  <p className="font-medium">Статус</p>
+                  <p className="text-sm text-slate-600">
+                    {settings.daily_analytics_job?.enabled ? 'Включено' : 'Отключено'}
+                  </p>
+                </div>
+                {settings.daily_analytics_job?.enabled ? (
+                  <Icon name="CheckCircle2" size={24} className="text-green-600" />
+                ) : (
+                  <Icon name="XCircle" size={24} className="text-slate-400" />
+                )}
+              </div>
+
+              {settings.daily_analytics_job?.enabled && (
+                <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                  <div>
+                    <p className="font-medium">Расписание</p>
+                    <p className="text-sm text-slate-600">Ежедневно в 9:00 (МСК)</p>
+                  </div>
+                  <Icon name="Clock" size={24} className="text-blue-600" />
+                </div>
+              )}
+            </div>
+
+            <Button
+              onClick={() => toggleJob('daily_analytics', !settings.daily_analytics_job?.enabled)}
+              disabled={isSaving}
+              variant={settings.daily_analytics_job?.enabled ? 'outline' : 'default'}
+              className="w-full"
+            >
+              {isSaving ? <Icon name="Loader2" className="animate-spin mr-2" size={16} /> : null}
+              {settings.daily_analytics_job?.enabled ? 'Отключить' : 'Включить'}
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Мониторинг ошибок */}
+      {settings?.cronjob_enabled && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Icon name="AlertTriangle" size={20} />
+              Мониторинг ошибок системы
+            </CardTitle>
+            <CardDescription>
+              Отслеживание ошибок и падений функций (каждые 6 часов)
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-3">
+              <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                <div>
+                  <p className="font-medium">Статус</p>
+                  <p className="text-sm text-slate-600">
+                    {settings.error_monitoring_job?.enabled ? 'Включено' : 'Отключено'}
+                  </p>
+                </div>
+                {settings.error_monitoring_job?.enabled ? (
+                  <Icon name="CheckCircle2" size={24} className="text-green-600" />
+                ) : (
+                  <Icon name="XCircle" size={24} className="text-slate-400" />
+                )}
+              </div>
+
+              {settings.error_monitoring_job?.enabled && (
+                <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                  <div>
+                    <p className="font-medium">Расписание</p>
+                    <p className="text-sm text-slate-600">Каждые 6 часов (0:00, 6:00, 12:00, 18:00 МСК)</p>
+                  </div>
+                  <Icon name="Clock" size={24} className="text-blue-600" />
+                </div>
+              )}
+            </div>
+
+            <Button
+              onClick={() => toggleJob('error_monitoring', !settings.error_monitoring_job?.enabled)}
+              disabled={isSaving}
+              variant={settings.error_monitoring_job?.enabled ? 'outline' : 'default'}
+              className="w-full"
+            >
+              {isSaving ? <Icon name="Loader2" className="animate-spin mr-2" size={16} /> : null}
+              {settings.error_monitoring_job?.enabled ? 'Отключить' : 'Включить'}
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Очистка логов */}
+      {settings?.cronjob_enabled && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Icon name="Eraser" size={20} />
+              Очистка старых логов
+            </CardTitle>
+            <CardDescription>
+              Удаление логов старше 30 дней для экономии места
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-3">
+              <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                <div>
+                  <p className="font-medium">Статус</p>
+                  <p className="text-sm text-slate-600">
+                    {settings.cleanup_logs_job?.enabled ? 'Включено' : 'Отключено'}
+                  </p>
+                </div>
+                {settings.cleanup_logs_job?.enabled ? (
+                  <Icon name="CheckCircle2" size={24} className="text-green-600" />
+                ) : (
+                  <Icon name="XCircle" size={24} className="text-slate-400" />
+                )}
+              </div>
+
+              {settings.cleanup_logs_job?.enabled && (
+                <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                  <div>
+                    <p className="font-medium">Расписание</p>
+                    <p className="text-sm text-slate-600">Ежедневно в 4:00 (МСК)</p>
+                  </div>
+                  <Icon name="Clock" size={24} className="text-blue-600" />
+                </div>
+              )}
+            </div>
+
+            <Button
+              onClick={() => toggleJob('cleanup_logs', !settings.cleanup_logs_job?.enabled)}
+              disabled={isSaving}
+              variant={settings.cleanup_logs_job?.enabled ? 'outline' : 'default'}
+              className="w-full"
+            >
+              {isSaving ? <Icon name="Loader2" className="animate-spin mr-2" size={16} /> : null}
+              {settings.cleanup_logs_job?.enabled ? 'Отключить' : 'Включить'}
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Напоминания о подписке */}
+      {settings?.cronjob_enabled && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Icon name="Mail" size={20} />
+              Напоминания о подписке
+            </CardTitle>
+            <CardDescription>
+              Отправка писем за 7 и 3 дня до окончания подписки
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-3">
+              <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                <div>
+                  <p className="font-medium">Статус</p>
+                  <p className="text-sm text-slate-600">
+                    {settings.subscription_reminders_job?.enabled ? 'Включено' : 'Отключено'}
+                  </p>
+                </div>
+                {settings.subscription_reminders_job?.enabled ? (
+                  <Icon name="CheckCircle2" size={24} className="text-green-600" />
+                ) : (
+                  <Icon name="XCircle" size={24} className="text-slate-400" />
+                )}
+              </div>
+
+              {settings.subscription_reminders_job?.enabled && (
+                <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                  <div>
+                    <p className="font-medium">Расписание</p>
+                    <p className="text-sm text-slate-600">Ежедневно в 10:00 (МСК)</p>
+                  </div>
+                  <Icon name="Clock" size={24} className="text-blue-600" />
+                </div>
+              )}
+            </div>
+
+            <Button
+              onClick={() => toggleJob('subscription_reminders', !settings.subscription_reminders_job?.enabled)}
+              disabled={isSaving}
+              variant={settings.subscription_reminders_job?.enabled ? 'outline' : 'default'}
+              className="w-full"
+            >
+              {isSaving ? <Icon name="Loader2" className="animate-spin mr-2" size={16} /> : null}
+              {settings.subscription_reminders_job?.enabled ? 'Отключить' : 'Включить'}
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Уведомления админам */}
+      {settings?.cronjob_enabled && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Icon name="BellRing" size={20} />
+              Уведомления админам о событиях
+            </CardTitle>
+            <CardDescription>
+              Алерты о новых подписках, ошибках, активности (2 раза в день)
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-3">
+              <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                <div>
+                  <p className="font-medium">Статус</p>
+                  <p className="text-sm text-slate-600">
+                    {settings.admin_alerts_job?.enabled ? 'Включено' : 'Отключено'}
+                  </p>
+                </div>
+                {settings.admin_alerts_job?.enabled ? (
+                  <Icon name="CheckCircle2" size={24} className="text-green-600" />
+                ) : (
+                  <Icon name="XCircle" size={24} className="text-slate-400" />
+                )}
+              </div>
+
+              {settings.admin_alerts_job?.enabled && (
+                <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                  <div>
+                    <p className="font-medium">Расписание</p>
+                    <p className="text-sm text-slate-600">2 раза в день (8:00, 20:00 МСК)</p>
+                  </div>
+                  <Icon name="Clock" size={24} className="text-blue-600" />
+                </div>
+              )}
+            </div>
+
+            <Button
+              onClick={() => toggleJob('admin_alerts', !settings.admin_alerts_job?.enabled)}
+              disabled={isSaving}
+              variant={settings.admin_alerts_job?.enabled ? 'outline' : 'default'}
+              className="w-full"
+            >
+              {isSaving ? <Icon name="Loader2" className="animate-spin mr-2" size={16} /> : null}
+              {settings.admin_alerts_job?.enabled ? 'Отключить' : 'Включить'}
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Аудит безопасности */}
+      {settings?.cronjob_enabled && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Icon name="Shield" size={20} />
+              Аудит безопасности системы
+            </CardTitle>
+            <CardDescription>
+              Проверка подозрительной активности, аномалий, попыток взлома (2 раза в день)
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-3">
+              <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                <div>
+                  <p className="font-medium">Статус</p>
+                  <p className="text-sm text-slate-600">
+                    {settings.security_audit_job?.enabled ? 'Включено' : 'Отключено'}
+                  </p>
+                </div>
+                {settings.security_audit_job?.enabled ? (
+                  <Icon name="CheckCircle2" size={24} className="text-green-600" />
+                ) : (
+                  <Icon name="XCircle" size={24} className="text-slate-400" />
+                )}
+              </div>
+
+              {settings.security_audit_job?.enabled && (
+                <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                  <div>
+                    <p className="font-medium">Расписание</p>
+                    <p className="text-sm text-slate-600">2 раза в день (1:00, 13:00 МСК)</p>
+                  </div>
+                  <Icon name="Clock" size={24} className="text-blue-600" />
+                </div>
+              )}
+            </div>
+
+            <Button
+              onClick={() => toggleJob('security_audit', !settings.security_audit_job?.enabled)}
+              disabled={isSaving}
+              variant={settings.security_audit_job?.enabled ? 'outline' : 'default'}
+              className="w-full"
+            >
+              {isSaving ? <Icon name="Loader2" className="animate-spin mr-2" size={16} /> : null}
+              {settings.security_audit_job?.enabled ? 'Отключить' : 'Включить'}
             </Button>
           </CardContent>
         </Card>

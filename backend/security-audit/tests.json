@@ -1,0 +1,14 @@
+{
+  "tests": [{
+    "name": "Run security audit",
+    "method": "POST",
+    "path": "/",
+    "expectedStatus": 200,
+    "expectedBody": {
+      "status": "string",
+      "alerts_count": "number",
+      "critical_count": "number"
+    },
+    "bodyMatcher": "partial"
+  }]
+}

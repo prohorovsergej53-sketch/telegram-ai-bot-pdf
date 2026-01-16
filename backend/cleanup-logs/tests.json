@@ -1,0 +1,14 @@
+{
+  "tests": [{
+    "name": "Cleanup old logs",
+    "method": "POST",
+    "path": "/",
+    "expectedStatus": 200,
+    "expectedBody": {
+      "status": "success",
+      "deleted_total": "number",
+      "details": "object"
+    },
+    "bodyMatcher": "partial"
+  }]
+}

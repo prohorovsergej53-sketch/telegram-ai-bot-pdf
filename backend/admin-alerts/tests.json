@@ -1,0 +1,14 @@
+{
+  "tests": [{
+    "name": "Get admin alerts",
+    "method": "POST",
+    "path": "/",
+    "expectedStatus": 200,
+    "expectedBody": {
+      "status": "success",
+      "alerts_count": "number",
+      "alerts": "array"
+    },
+    "bodyMatcher": "partial"
+  }]
+}
