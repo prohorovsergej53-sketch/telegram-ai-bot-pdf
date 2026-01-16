@@ -71,7 +71,7 @@ def handler(event: dict, context) -> dict:
         cur = conn.cursor()
         
         cur.execute("""
-            INSERT INTO t_p56134400_telegram_ai_bot_pdf.documents (tenant_id, name, file_key, size_bytes, category, status)
+            INSERT INTO t_p56134400_telegram_ai_bot_pdf.tenant_documents (tenant_id, name, file_key, size_bytes, category, status)
             VALUES (%s, %s, %s, %s, %s, 'processing')
             RETURNING id
         """, (tenant_id, file_name, file_key, file_size, category))

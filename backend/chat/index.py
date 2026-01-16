@@ -651,10 +651,11 @@ MINI-SYSTEM: РАСЧЁТ ЦЕН (используй только для зап�
         except Exception as emb_error:
             print(f"Embedding search error: {emb_error}")
             cur.execute("""
-                SELECT chunk_text FROM t_p56134400_telegram_ai_bot_pdf.document_chunks 
+                SELECT chunk_text FROM t_p56134400_telegram_ai_bot_pdf.tenant_chunks 
+                WHERE tenant_id = %s
                 ORDER BY id DESC 
                 LIMIT 3
-            """)
+            """, (tenant_id,))
             chunks = cur.fetchall()
             context = "\n\n".join([chunk[0] for chunk in chunks]) if chunks else ""
             context_ok = False
@@ -663,16 +664,17 @@ MINI-SYSTEM: РАСЧЁТ ЦЕН (используй только для зап�
             gate_debug = {"error": str(emb_error)}
 
         cur.execute("""
-            INSERT INTO t_p56134400_telegram_ai_bot_pdf.chat_messages (session_id, role, content)
-            VALUES (%s, %s, %s)
-        """, (session_id, 'user', user_message))
+            INSERT INTO t_p56134400_telegram_ai_bot_pdf.chat_messages (session_id, role, content, tenant_id)
+            VALUES (%s, %s, %s, %s)
+        """, (session_id, 'user', user_message, tenant_id))
         
         cur.execute("""
-            INSERT INTO t_p56134400_telegram_ai_bot_pdf.quality_gate_logs 
-            (user_message, context_ok, gate_reason, query_type, lang, 
+            INSERT INTO t_p56134400_telegram_ai_bot_pdf.tenant_quality_gate_logs 
+            (tenant_id, user_message, context_ok, gate_reason, query_type, lang, 
              best_similarity, context_len, overlap, key_tokens, top_k_used)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         """, (
+            tenant_id,
             user_message,
             context_ok,
             gate_reason,
@@ -784,9 +786,9 @@ MINI-SYSTEM: РАСЧЁТ ЦЕН (используй только для зап�
             }
 
         cur.execute("""
-            INSERT INTO t_p56134400_telegram_ai_bot_pdf.chat_messages (session_id, role, content)
-            VALUES (%s, %s, %s)
-        """, (session_id, 'assistant', assistant_message))
+            INSERT INTO t_p56134400_telegram_ai_bot_pdf.chat_messages (session_id, role, content, tenant_id)
+            VALUES (%s, %s, %s, %s)
+        """, (session_id, 'assistant', assistant_message, tenant_id))
         conn.commit()
 
         cur.close()

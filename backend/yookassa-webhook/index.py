@@ -108,68 +108,76 @@ def handler(event: dict, context) -> dict:
                     # Setup fee без месяца - подписка истекает сразу
                     subscription_end = datetime.utcnow()
                 
-                # Создаем тенант
-                cur.execute("""
-                    INSERT INTO t_p56134400_telegram_ai_bot_pdf.tenants 
-                    (slug, name, description, owner_email, owner_phone, template_version, auto_update, status, 
-                     is_public, subscription_status, subscription_end_date, tariff_id, fz152_enabled)
-                    VALUES (%s, %s, %s, %s, %s, '1.0.0', false, 'active', true, 'active', %s, %s, %s)
-                    RETURNING id
-                """, (tenant_slug, tenant_name, f'Создан после оплаты {payment_id}', owner_email, owner_phone, subscription_end, tariff_id, requires_fz152))
-                
-                tenant_id = cur.fetchone()[0]
-                
-                # Копируем настройки из ШАБЛОНА (tenant_id=1: template)
-                # Шаблон содержит все настройки по умолчанию: AI, промпт, виджет, мессенджеры, автосообщения
-                cur.execute("""
-                    SELECT ai_settings, widget_settings, messenger_settings, page_settings
-                    FROM t_p56134400_telegram_ai_bot_pdf.tenant_settings
-                    WHERE tenant_id = 1
-                """)
-                template_settings = cur.fetchone()
-                
-                if template_settings:
+                # Начинаем транзакцию для атомарного создания тенанта
+                try:
+                    cur.execute("BEGIN")
+                    
+                    # Создаем тенант
                     cur.execute("""
-                        INSERT INTO t_p56134400_telegram_ai_bot_pdf.tenant_settings 
-                        (tenant_id, ai_settings, widget_settings, messenger_settings, page_settings)
-                        VALUES (%s, %s, %s, %s, %s)
-                    """, (tenant_id, template_settings[0], template_settings[1], template_settings[2], template_settings[3]))
-                else:
-                    # Fallback: создаем пустую запись, если шаблон не найден
+                        INSERT INTO t_p56134400_telegram_ai_bot_pdf.tenants 
+                        (slug, name, description, owner_email, owner_phone, template_version, auto_update, status, 
+                         is_public, subscription_status, subscription_end_date, tariff_id, fz152_enabled)
+                        VALUES (%s, %s, %s, %s, %s, '1.0.0', false, 'active', true, 'active', %s, %s, %s)
+                        RETURNING id
+                    """, (tenant_slug, tenant_name, f'Создан после оплаты {payment_id}', owner_email, owner_phone, subscription_end, tariff_id, requires_fz152))
+                    
+                    tenant_id = cur.fetchone()[0]
+                    
+                    # Копируем настройки из ШАБЛОНА (tenant_id=1: template)
+                    # Шаблон содержит все настройки по умолчанию: AI, промпт, виджет, мессенджеры, автосообщения
                     cur.execute("""
-                        INSERT INTO t_p56134400_telegram_ai_bot_pdf.tenant_settings (tenant_id)
-                        VALUES (%s)
-                    """, (tenant_id,))
-                
-                # Создаем пользователя
-                username = f"{tenant_slug}_user"
-                password = ''.join(secrets.choice(string.ascii_letters + string.digits) for _ in range(12))
-                password_hash = hashlib.sha256(password.encode()).hexdigest()
-                
-                cur.execute("""
-                    INSERT INTO t_p56134400_telegram_ai_bot_pdf.admin_users 
-                    (username, password_hash, email, role, tenant_id, is_active, subscription_status, subscription_end_date, tariff_id)
-                    VALUES (%s, %s, %s, 'tenant_admin', %s, true, 'active', %s, %s)
-                    RETURNING id
-                """, (username, password_hash, owner_email, tenant_id, subscription_end, tariff_id))
-                
-                user_id = cur.fetchone()[0]
-                
-                # Записываем платеж в таблицу подписок
-                cur.execute("""
-                    INSERT INTO t_p56134400_telegram_ai_bot_pdf.subscription_payments
-                    (tenant_id, payment_id, amount, status, tariff_id, payment_type)
-                    VALUES (%s, %s, %s, %s, %s, 'initial')
-                """, (tenant_id, payment_id, amount, status, tariff_id))
-                
-                # Обновляем запись платежа с tenant_id
-                cur.execute(f"""
-                    UPDATE {schema}.payments 
-                    SET description = description || ' | Tenant ID: ' || %s
-                    WHERE payment_id = %s
-                """, (tenant_id, payment_id))
-                
-                conn.commit()
+                        SELECT ai_settings, widget_settings, messenger_settings, page_settings
+                        FROM t_p56134400_telegram_ai_bot_pdf.tenant_settings
+                        WHERE tenant_id = 1
+                    """)
+                    template_settings = cur.fetchone()
+                    
+                    if template_settings:
+                        cur.execute("""
+                            INSERT INTO t_p56134400_telegram_ai_bot_pdf.tenant_settings 
+                            (tenant_id, ai_settings, widget_settings, messenger_settings, page_settings)
+                            VALUES (%s, %s, %s, %s, %s)
+                        """, (tenant_id, template_settings[0], template_settings[1], template_settings[2], template_settings[3]))
+                    else:
+                        # Fallback: создаем пустую запись, если шаблон не найден
+                        cur.execute("""
+                            INSERT INTO t_p56134400_telegram_ai_bot_pdf.tenant_settings (tenant_id)
+                            VALUES (%s)
+                        """, (tenant_id,))
+                    
+                    # Создаем пользователя
+                    username = f"{tenant_slug}_user"
+                    password = ''.join(secrets.choice(string.ascii_letters + string.digits) for _ in range(12))
+                    password_hash = hashlib.sha256(password.encode()).hexdigest()
+                    
+                    cur.execute("""
+                        INSERT INTO t_p56134400_telegram_ai_bot_pdf.admin_users 
+                        (username, password_hash, email, role, tenant_id, is_active, subscription_status, subscription_end_date, tariff_id)
+                        VALUES (%s, %s, %s, 'tenant_admin', %s, true, 'active', %s, %s)
+                        RETURNING id
+                    """, (username, password_hash, owner_email, tenant_id, subscription_end, tariff_id))
+                    
+                    user_id = cur.fetchone()[0]
+                    
+                    # Записываем платеж в таблицу подписок
+                    cur.execute("""
+                        INSERT INTO t_p56134400_telegram_ai_bot_pdf.subscription_payments
+                        (tenant_id, payment_id, amount, status, tariff_id, payment_type)
+                        VALUES (%s, %s, %s, %s, %s, 'initial')
+                    """, (tenant_id, payment_id, amount, status, tariff_id))
+                    
+                    # Обновляем запись платежа с tenant_id
+                    cur.execute(f"""
+                        UPDATE {schema}.payments 
+                        SET description = description || ' | Tenant ID: ' || %s
+                        WHERE payment_id = %s
+                    """, (tenant_id, payment_id))
+                    
+                    conn.commit()
+                except Exception as tenant_error:
+                    conn.rollback()
+                    print(f"Error creating tenant: {tenant_error}")
+                    raise
                 
                 # Отправляем email уведомление через отдельный сервис
                 tariff_names = {

@@ -23,13 +23,22 @@ def handler(event: dict, context) -> dict:
         cur = conn.cursor()
         
         cur.execute("""
-            DELETE FROM t_p56134400_telegram_ai_bot_pdf.document_embeddings
+            DELETE FROM t_p56134400_telegram_ai_bot_pdf.tenant_chunks
+            WHERE document_id NOT IN (
+                SELECT id FROM t_p56134400_telegram_ai_bot_pdf.tenant_documents
+            )
+        """)
+        
+        deleted_tenant_chunks = cur.rowcount
+        
+        cur.execute("""
+            DELETE FROM t_p56134400_telegram_ai_bot_pdf.document_chunks
             WHERE document_id NOT IN (
                 SELECT id FROM t_p56134400_telegram_ai_bot_pdf.documents
             )
         """)
         
-        deleted_count = cur.rowcount
+        deleted_count = deleted_tenant_chunks + cur.rowcount
         conn.commit()
         
         cur.close()
