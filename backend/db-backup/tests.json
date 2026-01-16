@@ -1,13 +1,12 @@
 {
   "tests": [
     {
-      "name": "Create database backup",
+      "name": "Reject unauthorized access",
       "method": "GET",
       "path": "/",
-      "expectedStatus": 200,
+      "expectedStatus": 401,
       "expectedBody": {
-        "ok": "boolean",
-        "backup_file": "string"
+        "error": "Authorization required"
       },
       "bodyMatcher": "partial"
     }

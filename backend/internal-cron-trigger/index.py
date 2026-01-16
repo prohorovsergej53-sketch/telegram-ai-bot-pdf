@@ -2,7 +2,7 @@ import json
 import os
 import requests
 
-CHECK_SUBSCRIPTIONS_URL = 'https://functions.poehali.dev/2b45e5d6-8138-4bae-9236-237fe424ef95'
+CHECK_SUBSCRIPTIONS_URL = os.environ.get('CHECK_SUBSCRIPTIONS_URL', 'https://functions.poehali.dev/2b45e5d6-8138-4bae-9236-237fe424ef95')
 
 def handler(event: dict, context) -> dict:
     """Встроенный cron-триггер для проверки подписок
@@ -18,16 +18,52 @@ def handler(event: dict, context) -> dict:
     5. Выберите эту функцию (internal-cron-trigger)
     """
     
+    # КРИТИЧНО: проверка авторизации (Yandex Cloud Trigger или секретный токен)
+    headers = event.get('headers', {})
+    auth_token = headers.get('X-Auth-Token') or headers.get('x-auth-token')
+    expected_token = os.environ.get('CRON_SECRET_TOKEN')
+    
+    # Если установлен CRON_SECRET_TOKEN, проверяем его
+    if expected_token and auth_token != expected_token:
+        return {
+            'statusCode': 403,
+            'body': json.dumps({
+                'success': False,
+                'error': 'Unauthorized: invalid cron token'
+            })
+        }
+    
     try:
         print(f'Cron trigger fired at {context.request_id}')
         
         # Вызываем функцию проверки подписок
-        response = requests.post(
-            CHECK_SUBSCRIPTIONS_URL,
-            json={},
-            headers={'Content-Type': 'application/json'},
-            timeout=30
-        )
+        try:
+            response = requests.post(
+                CHECK_SUBSCRIPTIONS_URL,
+                json={},
+                headers={'Content-Type': 'application/json'},
+                timeout=30
+            )
+        except requests.exceptions.Timeout:
+            error_msg = 'Timeout calling check-subscriptions function'
+            print(error_msg)
+            return {
+                'statusCode': 500,
+                'body': json.dumps({
+                    'success': False,
+                    'error': error_msg
+                })
+            }
+        except requests.exceptions.RequestException as e:
+            error_msg = f'Request error: {str(e)}'
+            print(error_msg)
+            return {
+                'statusCode': 500,
+                'body': json.dumps({
+                    'success': False,
+                    'error': error_msg
+                })
+            }
         
         if response.status_code == 200:
             result = response.json()

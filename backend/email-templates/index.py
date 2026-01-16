@@ -2,6 +2,9 @@ import json
 import os
 import psycopg2
 from typing import Optional
+import sys
+sys.path.append('/function/code')
+from auth_middleware import require_auth
 
 def handler(event: dict, context) -> dict:
     '''Управление email-шаблонами: получение списка, обновление, отправка тестовых писем'''
@@ -13,9 +16,23 @@ def handler(event: dict, context) -> dict:
             'headers': {
                 'Access-Control-Allow-Origin': '*',
                 'Access-Control-Allow-Methods': 'GET, POST, PUT, OPTIONS',
-                'Access-Control-Allow-Headers': 'Content-Type, Authorization'
+                'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Authorization'
             },
             'body': '',
+            'isBase64Encoded': False
+        }
+    
+    # КРИТИЧНО: только super_admin может управлять email-шаблонами
+    authorized, payload, error_response = require_auth(event)
+    if not authorized:
+        return error_response
+    
+    user_role = payload.get('role')
+    if user_role != 'super_admin':
+        return {
+            'statusCode': 403,
+            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+            'body': json.dumps({'error': 'Access denied: super_admin role required'}),
             'isBase64Encoded': False
         }
     

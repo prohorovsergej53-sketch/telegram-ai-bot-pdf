@@ -5,6 +5,9 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from datetime import datetime, timedelta
+import sys
+sys.path.append('/function/code')
+from auth_middleware import require_auth
 
 def handler(event: dict, context) -> dict:
     """Еженедельный отчёт по аналитике всех тенантов"""
@@ -16,9 +19,23 @@ def handler(event: dict, context) -> dict:
             'headers': {
                 'Access-Control-Allow-Origin': '*',
                 'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-                'Access-Control-Allow-Headers': 'Content-Type'
+                'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Authorization'
             },
             'body': '',
+            'isBase64Encoded': False
+        }
+
+    # КРИТИЧНО: только super_admin может получать аналитику
+    authorized, payload, error_response = require_auth(event)
+    if not authorized:
+        return error_response
+    
+    user_role = payload.get('role')
+    if user_role != 'super_admin':
+        return {
+            'statusCode': 403,
+            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+            'body': json.dumps({'error': 'Access denied: super_admin role required'}),
             'isBase64Encoded': False
         }
 

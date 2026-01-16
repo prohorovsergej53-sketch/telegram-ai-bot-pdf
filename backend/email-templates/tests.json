@@ -1,13 +1,17 @@
 {
   "tests": [
     {
-      "name": "Get all email templates",
+      "name": "Reject unauthorized GET request",
       "method": "GET",
       "path": "/",
-      "expectedStatus": 200
+      "expectedStatus": 401,
+      "expectedBody": {
+        "error": "Authorization required"
+      },
+      "bodyMatcher": "partial"
     },
     {
-      "name": "Update email template",
+      "name": "Reject unauthorized PUT request",
       "method": "PUT",
       "path": "/",
       "body": {
@@ -15,9 +19,9 @@
         "subject": "Test Subject",
         "body": "<p>Test body</p>"
       },
-      "expectedStatus": 200,
+      "expectedStatus": 401,
       "expectedBody": {
-        "success": true
+        "error": "Authorization required"
       },
       "bodyMatcher": "partial"
     }

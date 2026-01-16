@@ -3,6 +3,9 @@ import os
 import psycopg2
 import boto3
 from datetime import datetime
+import sys
+sys.path.append('/function/code')
+from auth_middleware import require_auth
 
 def handler(event: dict, context) -> dict:
     """Резервное копирование базы данных в S3 (экспорт критичных таблиц)"""
@@ -14,9 +17,23 @@ def handler(event: dict, context) -> dict:
             'headers': {
                 'Access-Control-Allow-Origin': '*',
                 'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-                'Access-Control-Allow-Headers': 'Content-Type'
+                'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Authorization'
             },
             'body': '',
+            'isBase64Encoded': False
+        }
+
+    # КРИТИЧНО: только super_admin может делать бэкап БД
+    authorized, payload, error_response = require_auth(event)
+    if not authorized:
+        return error_response
+    
+    user_role = payload.get('role')
+    if user_role != 'super_admin':
+        return {
+            'statusCode': 403,
+            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+            'body': json.dumps({'error': 'Access denied: super_admin role required'}),
             'isBase64Encoded': False
         }
 

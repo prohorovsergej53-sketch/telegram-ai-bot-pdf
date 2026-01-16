@@ -1,13 +1,12 @@
 {
   "tests": [
     {
-      "name": "Send weekly analytics report",
+      "name": "Reject unauthorized access",
       "method": "GET",
       "path": "/",
-      "expectedStatus": 200,
+      "expectedStatus": 401,
       "expectedBody": {
-        "ok": "boolean",
-        "total_tenants": "number"
+        "error": "Authorization required"
       },
       "bodyMatcher": "partial"
     }
