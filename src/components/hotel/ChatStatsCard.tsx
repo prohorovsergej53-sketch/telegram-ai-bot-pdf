@@ -15,23 +15,41 @@ interface ChatStats {
   topUsers: Array<{ user: string; messages: number }>;
 }
 
-const ChatStatsCard = () => {
+interface ChatStatsCardProps {
+  currentTenantId?: number | null;
+}
+
+const ChatStatsCard = ({ currentTenantId }: ChatStatsCardProps) => {
   const [stats, setStats] = useState<ChatStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    loadStats();
-  }, []);
+    const tenantId = currentTenantId || getTenantId();
+    if (tenantId) {
+      loadStats(tenantId);
+    } else {
+      setError('Не удалось определить ID клиента');
+      setIsLoading(false);
+    }
+  }, [currentTenantId]);
 
-  const loadStats = async () => {
+  const loadStats = async (tenantId: number) => {
     try {
-      const tenantId = getTenantId();
-      const url = tenantId ? `${BACKEND_URLS.getChatStats}?tenant_id=${tenantId}` : BACKEND_URLS.getChatStats;
+      setIsLoading(true);
+      setError(null);
+      const url = `${BACKEND_URLS.getChatStats}?tenant_id=${tenantId}`;
       const response = await authenticatedFetch(url);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      
       const data = await response.json();
       setStats(data);
     } catch (error) {
       console.error('Error loading stats:', error);
+      setError(error instanceof Error ? error.message : 'Не удалось загрузить статистику');
     } finally {
       setIsLoading(false);
     }
@@ -48,6 +66,22 @@ const ChatStatsCard = () => {
         </CardHeader>
         <CardContent className="pt-6 flex items-center justify-center h-64">
           <Icon name="Loader2" size={32} className="animate-spin text-slate-400" />
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (error) {
+    return (
+      <Card className="shadow-xl">
+        <CardHeader className="border-b bg-gradient-to-r from-red-50 to-orange-50">
+          <CardTitle className="flex items-center gap-2 text-red-600">
+            <Icon name="AlertCircle" size={20} />
+            Ошибка загрузки статистики
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="pt-6">
+          <p className="text-sm text-slate-600">{error}</p>
         </CardContent>
       </Card>
     );

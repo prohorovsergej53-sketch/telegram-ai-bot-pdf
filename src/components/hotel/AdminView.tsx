@@ -231,7 +231,7 @@ const AdminView = ({ documents, isLoading, onFileUpload, onDeleteDocument, curre
 
         {(superAdmin || hasFeatureAccess('hasStats', tariffId)) && (
           <TabsContent value="stats" className="space-y-6">
-            <ChatStatsCard statsUrl={BACKEND_URLS.getChatStats} />
+            <ChatStatsCard currentTenantId={currentTenantId} />
           </TabsContent>
         )}
       </Tabs>
