@@ -228,7 +228,13 @@ export const useIndexActions = (params: UseIndexActionsParams): IndexActions => 
         const uploadData = await uploadResponse.json();
 
         if (!uploadResponse.ok) {
-          throw new Error(uploadData.error);
+          const errorMsg = uploadData.error || 'Ошибка загрузки';
+          toast({
+            title: `Ошибка при загрузке ${file.name}`,
+            description: errorMsg,
+            variant: 'destructive'
+          });
+          throw new Error(errorMsg);
         }
 
         const processUrl = tenantId ? `${BACKEND_URLS.processPdf}?tenant_id=${tenantId}` : BACKEND_URLS.processPdf;
@@ -243,7 +249,13 @@ export const useIndexActions = (params: UseIndexActionsParams): IndexActions => 
         if (processResponse.ok) {
           successCount++;
         } else {
-          throw new Error(processData.error);
+          const errorMsg = processData.error || 'Ошибка обработки';
+          toast({
+            title: `Ошибка при обработке ${file.name}`,
+            description: errorMsg,
+            variant: 'destructive'
+          });
+          throw new Error(errorMsg);
         }
       } catch (error: any) {
         console.error(`Error uploading ${file.name}:`, error);
