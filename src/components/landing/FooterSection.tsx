@@ -49,7 +49,7 @@ export const FooterSection = () => {
         <div className="border-t border-slate-800 pt-8">
           <div className="mb-6">
             <h3 className="text-center text-lg font-semibold mb-4">Остались вопросы?</h3>
-            <p className="text-center text-slate-400 mb-4">Напишите в MAX.ru или чат-боту — обычно отвечаем в течение часа</p>
+            <p className="text-center text-slate-400 mb-4">Напишите в MAX.ru или чат-боту — обычно отвечаем в течение 10 минут</p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-w-md mx-auto">
               <a 
                 href="https://max.ru/u/f9LHodD0cOIrknUlAYx1LxuVyfuHRhIq-OHhkpPMbwJ_WcjW4dhTFpEEez0" 
@@ -64,15 +64,13 @@ export const FooterSection = () => {
                 </div>
               </a>
               <a 
-                href="https://ai-ru.ru/chat"
-                target="_blank"
-                rel="noopener noreferrer"
+                href="mailto:info@298100.ru"
                 className="flex items-center gap-2 p-3 border border-slate-700 rounded-lg hover:bg-slate-800 transition-colors"
               >
-                <Icon name="Bot" size={20} className="text-purple-400" />
+                <Icon name="Mail" size={20} className="text-green-400" />
                 <div>
-                  <p className="font-medium text-sm text-white">Чат-бот AI-ру</p>
-                  <p className="text-xs text-slate-400">Ответит на вопросы</p>
+                  <p className="font-medium text-sm text-white">Email</p>
+                  <p className="text-xs text-slate-400">info@298100.ru</p>
                 </div>
               </a>
             </div>
