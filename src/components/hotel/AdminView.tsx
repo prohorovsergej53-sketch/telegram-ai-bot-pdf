@@ -48,8 +48,7 @@ const AdminView = ({ documents, isLoading, onFileUpload, onDeleteDocument, curre
 
   // Подсчёт количества видимых вкладок
   const tabsCount = 
-    3 + // Документы, Мессенджеры, Страница (всегда)
-    ((superAdmin || hasFeatureAccess('hasWidget', tariffId)) ? 1 : 0) + // Виджет
+    4 + // Документы, Мессенджеры, Страница, Виджет (всегда)
     ((superAdmin || fz152Enabled) ? 1 : 0) + // AI
     (fz152Enabled ? 1 : 0) + // 152-ФЗ
     (superAdmin ? 1 : 0) + // Эмбеддинги
@@ -96,12 +95,10 @@ const AdminView = ({ documents, isLoading, onFileUpload, onDeleteDocument, curre
             <Icon name="Layout" size={20} className="mr-2" />
             <span>Страница</span>
           </TabsTrigger>
-          {(superAdmin || hasFeatureAccess('hasWidget', tariffId)) && (
-            <TabsTrigger value="widget" className="data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=inactive]:text-white py-3 px-4 text-base font-semibold">
-              <Icon name="Code" size={20} className="mr-2" />
-              <span>Виджет</span>
-            </TabsTrigger>
-          )}
+          <TabsTrigger value="widget" className="data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=inactive]:text-white py-3 px-4 text-base font-semibold">
+            <Icon name="Code" size={20} className="mr-2" />
+            <span>Виджет</span>
+          </TabsTrigger>
           {fz152Enabled && (
             <TabsTrigger value="consent" className="data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=inactive]:text-white py-3 px-4 text-base font-semibold">
               <Icon name="ShieldCheck" size={20} className="mr-2" />
@@ -213,14 +210,12 @@ const AdminView = ({ documents, isLoading, onFileUpload, onDeleteDocument, curre
           />
         </TabsContent>
 
-        {(superAdmin || hasFeatureAccess('hasWidget', tariffId)) && (
-          <TabsContent value="widget" className="space-y-6">
-            <WidgetSettingsCard
-              getSettingsUrl={BACKEND_URLS.getWidgetSettings}
-              updateSettingsUrl={BACKEND_URLS.updateWidgetSettings}
-            />
-          </TabsContent>
-        )}
+        <TabsContent value="widget" className="space-y-6">
+          <WidgetSettingsCard
+            getSettingsUrl={BACKEND_URLS.getWidgetSettings}
+            updateSettingsUrl={BACKEND_URLS.updateWidgetSettings}
+          />
+        </TabsContent>
 
         {fz152Enabled && (
           <TabsContent value="consent" className="space-y-6">

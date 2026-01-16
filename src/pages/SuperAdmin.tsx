@@ -17,6 +17,7 @@ import { TenantEditDialog } from '@/components/superadmin/TenantEditDialog';
 import { TariffEditDialog } from '@/components/superadmin/TariffEditDialog';
 import { CreateTenantDialog } from '@/components/superadmin/CreateTenantDialog';
 import LogicFlowTab from '@/components/superadmin/LogicFlowTab';
+import TariffAccessTab from '@/components/superadmin/TariffAccessTab';
 
 const SuperAdmin = () => {
   const navigate = useNavigate();
@@ -230,6 +231,10 @@ const SuperAdmin = () => {
               <Icon name="DollarSign" size={16} className="mr-2" />
               Тарифы
             </TabsTrigger>
+            <TabsTrigger value="access">
+              <Icon name="Table" size={16} className="mr-2" />
+              Доступ
+            </TabsTrigger>
             <TabsTrigger value="template">
               <Icon name="Package" size={16} className="mr-2" />
               Шаблон ботов
@@ -271,6 +276,10 @@ const SuperAdmin = () => {
               tariffs={tariffs}
               onEditTariff={handleEditTariff}
             />
+          </TabsContent>
+
+          <TabsContent value="access" className="space-y-6">
+            <TariffAccessTab />
           </TabsContent>
 
           <TabsContent value="template" className="space-y-6">
