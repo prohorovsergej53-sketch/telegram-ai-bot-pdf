@@ -1,7 +1,7 @@
 import json
 import os
 import psycopg2
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 import requests
 
 def handler(event: dict, context) -> dict:
@@ -109,13 +109,17 @@ def handler(event: dict, context) -> dict:
             if support_bot_token and support_chat_id:
                 try:
                     # Формируем сообщение для Telegram
+                    # Преобразуем время в GMT+3
+                    moscow_tz = timezone(timedelta(hours=3))
+                    moscow_time = created_at.replace(tzinfo=timezone.utc).astimezone(moscow_tz)
+                    
                     telegram_text = f"💬 Новое сообщение в поддержку\n\n"
                     telegram_text += f"👤 Имя: {user_name or 'Не указано'}\n"
                     telegram_text += f"📧 Email: {user_email or 'Не указано'}\n"
                     telegram_text += f"📱 Телефон: {user_phone or 'Не указано'}\n"
                     telegram_text += f"🔑 Session: {session_id}\n\n"
                     telegram_text += f"📝 Сообщение:\n{message_text}\n\n"
-                    telegram_text += f"⏰ {created_at.strftime('%d.%m.%Y %H:%M')}"
+                    telegram_text += f"⏰ {moscow_time.strftime('%d.%m.%Y %H:%M')} МСК"
 
                     telegram_url = f"https://api.telegram.org/bot{support_bot_token}/sendMessage"
                     print(f"[support-chat] Sending to Telegram: {support_chat_id}")

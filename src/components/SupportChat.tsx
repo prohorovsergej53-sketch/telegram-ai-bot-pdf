@@ -202,7 +202,8 @@ export const SupportChat = ({ userName, userEmail, userPhone }: SupportChatProps
                   >
                     {new Date(msg.created_at).toLocaleTimeString('ru-RU', {
                       hour: '2-digit',
-                      minute: '2-digit'
+                      minute: '2-digit',
+                      timeZone: 'Europe/Moscow'
                     })}
                   </p>
                 </div>
