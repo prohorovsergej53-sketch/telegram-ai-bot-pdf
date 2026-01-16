@@ -26,9 +26,10 @@ export const HeroSection = ({ }: HeroSectionProps) => {
             <span className="bg-gradient-to-r from-primary via-blue-600 to-cyan-500 bg-clip-text text-transparent">из-за долгих ответов</span>
           </h1>
           
-          <p className="text-2xl md:text-3xl text-slate-700 mb-12 max-w-4xl mx-auto leading-relaxed font-medium">
+          <p className="text-2xl md:text-3xl text-slate-700 mb-12 max-w-4xl mx-auto font-medium" style={{ lineHeight: '1.6' }}>
             <span className="text-primary font-bold">Запустим AI-консультанта за 24 часа</span> по вашим данным.
-            <br/>Отвечает за 3 сек. Работает 24/7. Повышает конверсию на 67%.
+            <br/><br/>
+            Отвечает за 3 сек. Работает 24/7. Конверсия +67%.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-6 justify-center mb-16">
