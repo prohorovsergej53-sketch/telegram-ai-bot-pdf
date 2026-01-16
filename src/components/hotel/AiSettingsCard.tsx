@@ -5,7 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { BACKEND_URLS, AI_PROVIDERS, AI_MODELS_BY_PROVIDER, DEFAULT_AI_SETTINGS, AiModelSettings, EMBEDDING_CONFIG } from './types';
+import { BACKEND_URLS, AI_PROVIDERS, AI_MODELS_BY_PROVIDER, DEFAULT_AI_SETTINGS, AiModelSettings } from './types';
 import Icon from '@/components/ui/icon';
 import AiSettingsSliders from './AiSettingsSliders';
 import { authenticatedFetch, getTenantId } from '@/lib/auth';
@@ -26,18 +26,13 @@ const AiSettingsCard = ({ currentTenantId, isSuperAdmin = false }: AiSettingsCar
   const [hasOpenRouterKeys, setHasOpenRouterKeys] = useState(false);
   const [hasProxyApiKeys, setHasProxyApiKeys] = useState(false);
   const [checkingKeys, setCheckingKeys] = useState(true);
-  const [embeddingsSettings, setEmbeddingsSettings] = useState<{
-    provider: string;
-    doc_model: string;
-    query_model: string;
-  } | null>(null);
+
 
   const { toast } = useToast();
 
   useEffect(() => {
     loadSettings();
     checkApiKeys();
-    loadEmbeddingsSettings();
   }, []);
 
   const getStatusBadge = () => {
@@ -122,28 +117,7 @@ const AiSettingsCard = ({ currentTenantId, isSuperAdmin = false }: AiSettingsCar
     }
   };
 
-  const loadEmbeddingsSettings = async () => {
-    try {
-      const tenantId = currentTenantId !== null && currentTenantId !== undefined ? currentTenantId : getTenantId();
-      const url = tenantId !== null && tenantId !== undefined 
-        ? `${BACKEND_URLS.manageEmbeddings}?tenant_id=${tenantId}` 
-        : BACKEND_URLS.manageEmbeddings;
-      
-      const response = await authenticatedFetch(url);
-      const data = await response.json();
-      
-      if (response.ok && data.tenants && data.tenants.length > 0) {
-        const tenant = data.tenants[0];
-        setEmbeddingsSettings({
-          provider: tenant.embedding_provider || 'yandex',
-          doc_model: tenant.embedding_doc_model || 'text-search-doc',
-          query_model: tenant.embedding_query_model || 'text-search-query'
-        });
-      }
-    } catch (error) {
-      console.error('Error loading embeddings settings:', error);
-    }
-  };
+
 
   const handleProviderChange = (provider: string) => {
     const currentPrompt = settings.system_prompt;
@@ -238,22 +212,20 @@ const AiSettingsCard = ({ currentTenantId, isSuperAdmin = false }: AiSettingsCar
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
-        {embeddingsSettings && (
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <div className="flex items-start gap-3">
-              <Icon name="Database" size={20} className="text-blue-600 mt-0.5" />
-              <div className="flex-1">
-                <p className="font-semibold text-blue-900 mb-2">Эмбеддинги (не изменяются):</p>
-                <div className="text-sm text-blue-800 space-y-1">
-                  <p><strong>Провайдер:</strong> {embeddingsSettings.provider === 'yandex' ? 'Yandex' : embeddingsSettings.provider}</p>
-                  <p><strong>Размерность:</strong> 256D</p>
-                  <p><strong>doc:</strong> {embeddingsSettings.doc_model}/latest</p>
-                  <p><strong>query:</strong> {embeddingsSettings.query_model}/latest</p>
-                </div>
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <div className="flex items-start gap-3">
+            <Icon name="Database" size={20} className="text-blue-600 mt-0.5" />
+            <div className="flex-1">
+              <p className="font-semibold text-blue-900 mb-2">Эмбеддинги (не изменяются):</p>
+              <div className="text-sm text-blue-800 space-y-1">
+                <p><strong>Провайдер:</strong> Yandex</p>
+                <p><strong>Размерность:</strong> 256D</p>
+                <p><strong>doc:</strong> text-search-doc/latest</p>
+                <p><strong>query:</strong> text-search-query/latest</p>
               </div>
             </div>
           </div>
-        )}
+        </div>
 
         {missingKeys && (
           <div className="bg-amber-50 border border-amber-300 rounded-lg p-4">
@@ -355,22 +327,7 @@ const AiSettingsCard = ({ currentTenantId, isSuperAdmin = false }: AiSettingsCar
               )}
             </div>
 
-            <div className="bg-slate-50/30 border border-slate-200/50 rounded-lg p-3">
-              <div className="flex items-start gap-2">
-                <Icon name="Database" size={16} className="text-slate-500 mt-0.5" />
-                <div className="text-xs text-slate-700">
-                  <p className="font-semibold mb-1">Эмбеддинги (не изменяются):</p>
-                  <div className="bg-white/60 rounded p-2 space-y-1">
-                    <p><strong>Провайдер:</strong> {EMBEDDING_CONFIG.provider === 'yandex' ? 'Yandex' : EMBEDDING_CONFIG.provider}</p>
-                    <p><strong>Размерность:</strong> {EMBEDDING_CONFIG.dimension}D</p>
-                    <p className="font-mono text-[10px] text-slate-600">
-                      doc: {EMBEDDING_CONFIG.models.doc}<br/>
-                      query: {EMBEDDING_CONFIG.models.query}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
+
           </div>
         ) : (
           <div className="bg-slate-50 border border-slate-200 rounded-lg p-4 space-y-2">
