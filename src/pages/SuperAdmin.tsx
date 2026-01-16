@@ -20,7 +20,7 @@ import { CreateTenantDialog } from '@/components/superadmin/CreateTenantDialog';
 import LogicFlowTab from '@/components/superadmin/LogicFlowTab';
 import TariffAccessTab from '@/components/superadmin/TariffAccessTab';
 import SEOTab from '@/components/superadmin/SEOTab';
-import { AutomationTab } from '@/components/superadmin/AutomationTab';
+
 
 const SuperAdmin = () => {
   const navigate = useNavigate();
@@ -266,10 +266,6 @@ const SuperAdmin = () => {
               <Icon name="Search" size={16} className="mr-2" />
               SEO
             </TabsTrigger>
-            <TabsTrigger value="automation">
-              <Icon name="Bot" size={16} className="mr-2" />
-              Автоматизация
-            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="dashboard" className="space-y-6">
@@ -323,10 +319,6 @@ const SuperAdmin = () => {
 
           <TabsContent value="seo" className="space-y-6">
             <SEOTab />
-          </TabsContent>
-
-          <TabsContent value="automation" className="space-y-6">
-            <AutomationTab />
           </TabsContent>
         </Tabs>
       </div>
