@@ -101,7 +101,7 @@ def handler(event: dict, context) -> dict:
 
             # Отправить в Telegram
             support_bot_token = os.environ.get('SUPPORT_BOT_TOKEN')
-            support_chat_id = os.environ.get('SUPPORT_CHAT_ID')
+            support_chat_id = os.environ.get('SUPPORT_CHAT_ID_NEW') or os.environ.get('SUPPORT_CHAT_ID')
 
             print(f"[support-chat] Bot token present: {bool(support_bot_token)}")
             print(f"[support-chat] Chat ID present: {bool(support_chat_id)}")
