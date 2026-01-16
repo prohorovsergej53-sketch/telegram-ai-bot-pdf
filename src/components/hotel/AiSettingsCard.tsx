@@ -26,12 +26,18 @@ const AiSettingsCard = ({ currentTenantId, isSuperAdmin = false }: AiSettingsCar
   const [hasOpenRouterKeys, setHasOpenRouterKeys] = useState(false);
   const [hasProxyApiKeys, setHasProxyApiKeys] = useState(false);
   const [checkingKeys, setCheckingKeys] = useState(true);
+  const [embeddingsSettings, setEmbeddingsSettings] = useState<{
+    provider: string;
+    doc_model: string;
+    query_model: string;
+  } | null>(null);
 
   const { toast } = useToast();
 
   useEffect(() => {
     loadSettings();
     checkApiKeys();
+    loadEmbeddingsSettings();
   }, []);
 
   const getStatusBadge = () => {
@@ -113,6 +119,29 @@ const AiSettingsCard = ({ currentTenantId, isSuperAdmin = false }: AiSettingsCar
     } catch (error) {
       console.error('Error loading AI settings:', error);
       setConfigStatus('error');
+    }
+  };
+
+  const loadEmbeddingsSettings = async () => {
+    try {
+      const tenantId = currentTenantId !== null && currentTenantId !== undefined ? currentTenantId : getTenantId();
+      const url = tenantId !== null && tenantId !== undefined 
+        ? `${BACKEND_URLS.manageEmbeddings}?tenant_id=${tenantId}` 
+        : BACKEND_URLS.manageEmbeddings;
+      
+      const response = await authenticatedFetch(url);
+      const data = await response.json();
+      
+      if (response.ok && data.tenants && data.tenants.length > 0) {
+        const tenant = data.tenants[0];
+        setEmbeddingsSettings({
+          provider: tenant.embedding_provider || 'yandex',
+          doc_model: tenant.embedding_doc_model || 'text-search-doc',
+          query_model: tenant.embedding_query_model || 'text-search-query'
+        });
+      }
+    } catch (error) {
+      console.error('Error loading embeddings settings:', error);
     }
   };
 
@@ -209,6 +238,23 @@ const AiSettingsCard = ({ currentTenantId, isSuperAdmin = false }: AiSettingsCar
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
+        {embeddingsSettings && (
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <div className="flex items-start gap-3">
+              <Icon name="Database" size={20} className="text-blue-600 mt-0.5" />
+              <div className="flex-1">
+                <p className="font-semibold text-blue-900 mb-2">Эмбеддинги (не изменяются):</p>
+                <div className="text-sm text-blue-800 space-y-1">
+                  <p><strong>Провайдер:</strong> {embeddingsSettings.provider === 'yandex' ? 'Yandex' : embeddingsSettings.provider}</p>
+                  <p><strong>Размерность:</strong> 256D</p>
+                  <p><strong>doc:</strong> {embeddingsSettings.doc_model}/latest</p>
+                  <p><strong>query:</strong> {embeddingsSettings.query_model}/latest</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {missingKeys && (
           <div className="bg-amber-50 border border-amber-300 rounded-lg p-4">
             <div className="flex items-start gap-3">
