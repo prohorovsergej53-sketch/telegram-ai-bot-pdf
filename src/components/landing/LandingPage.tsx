@@ -11,7 +11,7 @@ import { SecuritySection } from './SecuritySection';
 import { VectorTechSection } from './VectorTechSection';
 import { PricingSection } from './PricingSection';
 import { FAQSection } from './FAQSection';
-import { YourBotSection } from './YourBotSection';
+
 import { OrderFormSection } from './OrderFormSection';
 import { FooterSection } from './FooterSection';
 
@@ -49,7 +49,6 @@ const LandingPage = () => {
       <SecuritySection />
       <PricingSection onPlanSelect={scrollToForm} />
       <FAQSection />
-      <YourBotSection />
       <OrderFormSection selectedTariff={selectedTariff} />
       <FooterSection />
     </div>

@@ -29,7 +29,7 @@ export const HeroSection = ({ }: HeroSectionProps) => {
           <p className="text-2xl md:text-3xl text-slate-700 mb-12 max-w-4xl mx-auto leading-relaxed font-medium">
             Вы даёте информацию — 
             <span className="text-primary font-bold"> мы запустим AI-консультанта за 24 часа.</span>
-            <br/>Отвечает за 3 сек. Работает 24/7. Это ВАШ бот — подписчики навсегда с вами.
+            <br/>Отвечает за 3 сек. Работает 24/7. Увеличивает продажи на 67%.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-6 justify-center mb-16">
@@ -38,7 +38,7 @@ export const HeroSection = ({ }: HeroSectionProps) => {
               Запустить за 1 день
             </Button>
             <Button size="lg" variant="outline" className="text-xl px-12 py-8 border-2 hover:bg-blue-50" asChild>
-              <a href="https://chat.ai-ru.ru" target="_blank" rel="noopener">
+              <a href="https://ai-ru.ru/chat" target="_blank" rel="noopener">
                 <Icon name="MessageCircle" className="mr-3" size={24} />
                 Попробовать чат-бота
               </a>
