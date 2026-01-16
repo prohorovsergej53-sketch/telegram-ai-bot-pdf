@@ -27,11 +27,11 @@ def handler(event: dict, context) -> dict:
         conn = psycopg2.connect(os.environ['DATABASE_URL'])
         cur = conn.cursor()
 
-        cur.execute("""
+        cur.execute(f"""
             SELECT is_super_admin 
             FROM t_p56134400_telegram_ai_bot_pdf.tenants 
-            WHERE id = %s
-        """, (tenant_id,))
+            WHERE id = {tenant_id}
+        """)
         result = cur.fetchone()
         
         if not result or not result[0]:
@@ -49,7 +49,7 @@ def handler(event: dict, context) -> dict:
             target_tenant_id = query_params.get('tenant_id')
 
             if target_tenant_id:
-                cur.execute("""
+                cur.execute(f"""
                     SELECT 
                         ts.embedding_provider,
                         ts.embedding_doc_model,
@@ -57,8 +57,8 @@ def handler(event: dict, context) -> dict:
                         t.fz152_enabled
                     FROM t_p56134400_telegram_ai_bot_pdf.tenant_settings ts
                     JOIN t_p56134400_telegram_ai_bot_pdf.tenants t ON t.id = ts.tenant_id
-                    WHERE ts.tenant_id = %s
-                """, (target_tenant_id,))
+                    WHERE ts.tenant_id = {target_tenant_id}
+                """)
                 row = cur.fetchone()
                 
                 if not row:
@@ -84,7 +84,7 @@ def handler(event: dict, context) -> dict:
                 return {
                     'statusCode': 200,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                    'body': json.dumps(result),
+                    'body': json.dumps({'tenants': [result]}),
                     'isBase64Encoded': False
                 }
             else:
@@ -141,11 +141,11 @@ def handler(event: dict, context) -> dict:
                     'isBase64Encoded': False
                 }
 
-            cur.execute("""
+            cur.execute(f"""
                 SELECT fz152_enabled 
                 FROM t_p56134400_telegram_ai_bot_pdf.tenants 
-                WHERE id = %s
-            """, (target_tenant_id,))
+                WHERE id = {target_tenant_id}
+            """)
             tenant_row = cur.fetchone()
             
             if not tenant_row:
@@ -169,15 +169,15 @@ def handler(event: dict, context) -> dict:
                     'isBase64Encoded': False
                 }
 
-            cur.execute("""
+            cur.execute(f"""
                 UPDATE t_p56134400_telegram_ai_bot_pdf.tenant_settings
                 SET 
-                    embedding_provider = %s,
-                    embedding_doc_model = %s,
-                    embedding_query_model = %s,
+                    embedding_provider = '{embedding_provider}',
+                    embedding_doc_model = '{embedding_doc_model}',
+                    embedding_query_model = '{embedding_query_model}',
                     updated_at = CURRENT_TIMESTAMP
-                WHERE tenant_id = %s
-            """, (embedding_provider, embedding_doc_model, embedding_query_model, target_tenant_id))
+                WHERE tenant_id = {target_tenant_id}
+            """)
 
             conn.commit()
             cur.close()
