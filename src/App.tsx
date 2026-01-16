@@ -10,6 +10,7 @@ import LandingPage from "./components/landing/LandingPage";
 import PaymentPage from "./pages/PaymentPage";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import SuperAdmin from "./pages/SuperAdmin";
+import SupportAdmin from "./pages/SupportAdmin";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
 import { CookieConsent } from "./components/CookieConsent";
@@ -35,6 +36,7 @@ const App = () => (
           <Route path="/payment" element={<PaymentPage />} />
           <Route path="/payment/success" element={<PaymentSuccess />} />
           <Route path="/super-admin" element={<SuperAdmin />} />
+          <Route path="/support-admin" element={<SupportAdmin />} />
           <Route path="/:tenantSlug" element={<Index />} />
           <Route path="/:tenantSlug/admin" element={<Index />} />
           <Route path="/:tenantSlug/privacy-policy" element={<PrivacyPolicy />} />
