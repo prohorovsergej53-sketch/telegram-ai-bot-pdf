@@ -28,17 +28,24 @@ def extract_token_from_headers(headers: Dict) -> Optional[str]:
     - Authorization: Bearer <token>
     - X-Authorization: Bearer <token> (после прокси)
     """
+    print(f"[auth_middleware] All headers: {list(headers.keys())}")
     auth_header = headers.get('Authorization') or headers.get('authorization')
     x_auth_header = headers.get('X-Authorization') or headers.get('x-authorization')
+    
+    print(f"[auth_middleware] Authorization: {auth_header}, X-Authorization: {x_auth_header}")
     
     token_header = auth_header or x_auth_header
     
     if not token_header:
+        print(f"[auth_middleware] No token found in headers")
         return None
     
     if token_header.startswith('Bearer '):
-        return token_header[7:]
+        token = token_header[7:]
+        print(f"[auth_middleware] Extracted token (first 20 chars): {token[:20]}...")
+        return token
     
+    print(f"[auth_middleware] Token without Bearer prefix")
     return token_header
 
 def check_tenant_access(user_role: str, user_tenant_id: Optional[int], requested_tenant_id: int) -> Tuple[bool, Optional[str]]:
