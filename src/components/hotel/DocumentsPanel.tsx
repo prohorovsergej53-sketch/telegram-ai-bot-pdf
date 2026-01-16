@@ -34,51 +34,56 @@ export const DocumentsPanel = ({
 
   const scrollAreaHeight = useMemo(() => {
     const count = filteredDocuments.length;
-    if (count === 0) return 'h-[200px]';
-    if (count <= 3) return 'h-[180px]';
-    if (count <= 6) return 'h-[360px]';
-    if (count <= 12) return 'h-[540px]';
-    return 'h-[720px]';
+    if (count === 0) return 'h-[150px]';
+    if (count <= 2) return 'h-[200px]';
+    if (count <= 4) return 'h-[300px]';
+    if (count <= 8) return 'h-[450px]';
+    return 'h-[600px]';
   }, [filteredDocuments.length]);
 
   return (
-    <Card className="shadow-xl">
-      <CardHeader className="border-b bg-gradient-to-r from-slate-50 to-blue-50">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <CardTitle className="flex items-center gap-2">
-              <Icon name="Library" size={20} />
-              База знаний
-            </CardTitle>
-            <CardDescription>{filteredDocuments.length} из {documents.length} документов</CardDescription>
+    <div className="space-y-4">
+      <Card className="shadow-lg">
+        <CardHeader className="border-b bg-gradient-to-r from-slate-50 to-blue-50 pb-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div>
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <Icon name="Library" size={20} />
+                База знаний
+              </CardTitle>
+              <CardDescription className="text-sm">{filteredDocuments.length} из {documents.length} документов</CardDescription>
+            </div>
+            <select
+              value={selectedStatus}
+              onChange={(e) => setSelectedStatus(e.target.value)}
+              className="px-3 py-1.5 text-sm border border-slate-300 rounded-lg bg-white hover:border-slate-400 focus:outline-none focus:ring-2 focus:ring-primary"
+            >
+              <option value="all">Все статусы</option>
+              <option value="ready">Готовы</option>
+              <option value="processing">Обработка</option>
+            </select>
           </div>
-          <select
-            value={selectedStatus}
-            onChange={(e) => setSelectedStatus(e.target.value)}
-            className="px-3 py-1.5 text-sm border border-slate-300 rounded-lg bg-white hover:border-slate-400 focus:outline-none focus:ring-2 focus:ring-primary"
-          >
-            <option value="all">Все статусы</option>
-            <option value="ready">Готовы</option>
-            <option value="processing">Обработка</option>
-          </select>
-        </div>
-      </CardHeader>
-      <CardContent className="pt-6 pb-4">
-        <DocumentUploadArea
-          isLoading={isLoading}
-          canUpload={canUpload}
-          limits={limits}
-          currentDocCount={documents.length}
-          onFileUpload={onFileUpload}
-        />
-      </CardContent>
-      <CardContent className="p-0">
-        <DocumentGrid
-          documents={filteredDocuments}
-          scrollAreaHeight={scrollAreaHeight}
-          onDeleteDocument={onDeleteDocument}
-        />
-      </CardContent>
-    </Card>
+        </CardHeader>
+        <CardContent className="p-0">
+          <DocumentGrid
+            documents={filteredDocuments}
+            scrollAreaHeight={scrollAreaHeight}
+            onDeleteDocument={onDeleteDocument}
+          />
+        </CardContent>
+      </Card>
+      
+      <Card className="shadow-lg">
+        <CardContent className="pt-4 pb-4">
+          <DocumentUploadArea
+            isLoading={isLoading}
+            canUpload={canUpload}
+            limits={limits}
+            currentDocCount={documents.length}
+            onFileUpload={onFileUpload}
+          />
+        </CardContent>
+      </Card>
+    </div>
   );
 };
