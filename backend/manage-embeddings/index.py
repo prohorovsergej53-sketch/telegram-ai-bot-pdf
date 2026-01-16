@@ -1,7 +1,7 @@
 import json
 import os
 import psycopg2
-from auth_middleware import get_tenant_id_from_request
+from auth_middleware import require_auth
 
 def handler(event: dict, context) -> dict:
     """Управление настройками эмбеддингов для суперадмина"""
@@ -20,29 +20,25 @@ def handler(event: dict, context) -> dict:
         }
 
     try:
-        tenant_id, auth_error = get_tenant_id_from_request(event)
-        if auth_error:
+        # Проверка авторизации
+        authorized, payload, auth_error = require_auth(event)
+        if not authorized:
             return auth_error
 
-        conn = psycopg2.connect(os.environ['DATABASE_URL'])
-        cur = conn.cursor()
-
-        cur.execute(f"""
-            SELECT is_super_admin 
-            FROM t_p56134400_telegram_ai_bot_pdf.tenants 
-            WHERE id = {tenant_id}
-        """)
-        result = cur.fetchone()
+        # Проверка что пользователь - суперадмин
+        user_role = payload.get('role')
+        user_tenant_id = payload.get('tenant_id')
         
-        if not result or not result[0]:
-            cur.close()
-            conn.close()
+        if user_role != 'super_admin':
             return {
                 'statusCode': 403,
                 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
                 'body': json.dumps({'error': 'Access denied. Super admin only'}),
                 'isBase64Encoded': False
             }
+
+        conn = psycopg2.connect(os.environ['DATABASE_URL'])
+        cur = conn.cursor()
 
         if method == 'GET':
             query_params = event.get('queryStringParameters') or {}
