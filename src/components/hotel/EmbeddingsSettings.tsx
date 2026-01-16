@@ -151,9 +151,9 @@ const EmbeddingsSettings = ({ currentTenantId, tenantName, fz152Enabled = false 
     if (editedProvider === 'yandex') {
       setEditedDocModel('text-search-doc');
       setEditedQueryModel('text-search-query');
-    } else if (editedProvider === 'openai') {
-      setEditedDocModel('text-embedding-3-small');
-      setEditedQueryModel('text-embedding-3-small');
+    } else if (editedProvider === 'voyage') {
+      setEditedDocModel('voyage-3');
+      setEditedQueryModel('voyage-3');
     }
   }, [editedProvider]);
 
@@ -210,7 +210,7 @@ const EmbeddingsSettings = ({ currentTenantId, tenantName, fz152Enabled = false 
               <div className="p-4 rounded-lg bg-slate-50 border border-slate-200">
                 <div className="text-xs text-slate-600 mb-1">Провайдер</div>
                 <div className="font-semibold text-slate-900">
-                  {settings.embedding_provider === 'yandex' ? '🇷🇺 Яндекс' : '🌐 OpenAI'}
+                  {settings.embedding_provider === 'yandex' ? '🇷🇺 Яндекс' : settings.embedding_provider === 'voyage' ? '🌊 Voyage AI' : settings.embedding_provider}
                 </div>
               </div>
 
@@ -253,8 +253,8 @@ const EmbeddingsSettings = ({ currentTenantId, tenantName, fz152Enabled = false 
                   <SelectValue placeholder="Выберите провайдера" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="yandex">🇷🇺 Яндекс (256 измерений)</SelectItem>
-                  <SelectItem value="openai">🌐 OpenAI (1536 измерений)</SelectItem>
+                  <SelectItem value="yandex">🇷🇺 Яндекс (256 измерений, ₽0.8/1M)</SelectItem>
+                  <SelectItem value="voyage">🌊 Voyage AI (1024 измерений, $0.10/1M)</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -268,7 +268,7 @@ const EmbeddingsSettings = ({ currentTenantId, tenantName, fz152Enabled = false 
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="text-search-doc">text-search-doc (256)</SelectItem>
+                      <SelectItem value="text-search-doc">text-search-doc (256, ₽0.8/1M)</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -280,14 +280,14 @@ const EmbeddingsSettings = ({ currentTenantId, tenantName, fz152Enabled = false 
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="text-search-query">text-search-query (256)</SelectItem>
+                      <SelectItem value="text-search-query">text-search-query (256, ₽0.8/1M)</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
               </>
             )}
 
-            {editedProvider === 'openai' && (
+            {editedProvider === 'voyage' && (
               <>
                 <div>
                   <label className="text-sm font-medium mb-2 block">Модель для документов</label>
@@ -296,9 +296,10 @@ const EmbeddingsSettings = ({ currentTenantId, tenantName, fz152Enabled = false 
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="text-embedding-3-small">text-embedding-3-small (1536)</SelectItem>
-                      <SelectItem value="text-embedding-3-large">text-embedding-3-large (3072)</SelectItem>
-                      <SelectItem value="text-embedding-ada-002">text-embedding-ada-002(1536)</SelectItem>
+                      <SelectItem value="voyage-3">voyage-3 (1024, $0.10/1M)</SelectItem>
+                      <SelectItem value="voyage-3-lite">voyage-3-lite (512, $0.06/1M)</SelectItem>
+                      <SelectItem value="voyage-finance-2">voyage-finance-2 (1024, $0.12/1M)</SelectItem>
+                      <SelectItem value="voyage-law-2">voyage-law-2 (1024, $0.12/1M)</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -310,9 +311,10 @@ const EmbeddingsSettings = ({ currentTenantId, tenantName, fz152Enabled = false 
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="text-embedding-3-small">text-embedding-3-small (1536)</SelectItem>
-                      <SelectItem value="text-embedding-3-large">text-embedding-3-large (3072)</SelectItem>
-                      <SelectItem value="text-embedding-ada-002">text-embedding-ada-002 (1536)</SelectItem>
+                      <SelectItem value="voyage-3">voyage-3 (1024, $0.10/1M)</SelectItem>
+                      <SelectItem value="voyage-3-lite">voyage-3-lite (512, $0.06/1M)</SelectItem>
+                      <SelectItem value="voyage-finance-2">voyage-finance-2 (1024, $0.12/1M)</SelectItem>
+                      <SelectItem value="voyage-law-2">voyage-law-2 (1024, $0.12/1M)</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
