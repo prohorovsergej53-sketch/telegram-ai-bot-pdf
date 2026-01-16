@@ -31,7 +31,12 @@ def handler(event: dict, context) -> dict:
             
             return {
                 'statusCode': 200,
-                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'headers': {
+                    'Content-Type': 'application/json', 
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+                    'Access-Control-Allow-Headers': 'Content-Type, X-Authorization'
+                },
                 'body': json.dumps(settings),
                 'isBase64Encoded': False
             }
@@ -166,16 +171,28 @@ def handler(event: dict, context) -> dict:
 
             return {
                 'statusCode': 200,
-                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'headers': {
+                    'Content-Type': 'application/json', 
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+                    'Access-Control-Allow-Headers': 'Content-Type, X-Authorization'
+                },
                 'body': json.dumps(result),
                 'isBase64Encoded': False
             }
 
     except Exception as e:
         print(f'Error in automation settings: {str(e)}')
+        import traceback
+        traceback.print_exc()
         return {
             'statusCode': 500,
-            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+            'headers': {
+                'Content-Type': 'application/json', 
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+                'Access-Control-Allow-Headers': 'Content-Type, X-Authorization'
+            },
             'body': json.dumps({'error': str(e)}),
             'isBase64Encoded': False
         }
