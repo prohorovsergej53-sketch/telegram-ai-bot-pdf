@@ -54,7 +54,7 @@ export const HowItWorksSection = () => {
   ];
 
   return (
-    <div className="bg-gradient-to-br from-slate-50 via-blue-50 to-slate-50 py-20">
+    <div id="how-it-works" className="bg-gradient-to-br from-slate-50 via-blue-50 to-slate-50 py-20">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
           <div className="inline-block mb-4 px-6 py-3 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full shadow-lg">

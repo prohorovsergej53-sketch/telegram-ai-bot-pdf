@@ -45,7 +45,7 @@ export const CasesSection = () => {
   ];
 
   return (
-    <div className="bg-slate-50 py-20">
+    <div id="cases" className="bg-slate-50 py-20">
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
           <div className="inline-block mb-4 px-4 py-2 bg-green-50 border border-green-200 rounded-full">

@@ -41,7 +41,7 @@ export const FAQSection = () => {
   ];
 
   return (
-    <div className="bg-slate-50 py-20">
+    <div id="faq" className="bg-slate-50 py-20">
       <div className="container mx-auto px-4">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">
