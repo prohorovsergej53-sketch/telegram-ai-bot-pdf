@@ -137,7 +137,7 @@ export const SupportChat = ({ userName, userEmail, userPhone }: SupportChatProps
         <Button
           size="lg"
           onClick={() => setIsOpen(true)}
-          className="relative h-16 w-16 rounded-full shadow-2xl bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 transition-all hover:scale-110"
+          className="relative h-16 w-16 rounded-full shadow-2xl bg-blue-600 hover:bg-blue-700 transition-all hover:scale-110"
         >
           <Icon name="MessageCircle" size={28} />
           {hasNewMessages && (
@@ -151,7 +151,7 @@ export const SupportChat = ({ userName, userEmail, userPhone }: SupportChatProps
   return (
     <div className="fixed bottom-6 right-6 z-50 w-96 max-w-[calc(100vw-3rem)]">
       <Card className="shadow-2xl border-2 border-blue-200">
-        <CardHeader className="bg-gradient-to-r from-blue-600 to-purple-600 text-white pb-4">
+        <CardHeader className="bg-blue-600 text-white pb-4">
           <div className="flex items-center justify-between">
             <CardTitle className="flex items-center gap-2 text-lg">
               <Icon name="Headphones" size={20} />

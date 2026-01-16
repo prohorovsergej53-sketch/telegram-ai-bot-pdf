@@ -103,6 +103,9 @@ def handler(event: dict, context) -> dict:
             support_bot_token = os.environ.get('SUPPORT_BOT_TOKEN')
             support_chat_id = os.environ.get('SUPPORT_CHAT_ID')
 
+            print(f"[support-chat] Bot token present: {bool(support_bot_token)}")
+            print(f"[support-chat] Chat ID present: {bool(support_chat_id)}")
+
             if support_bot_token and support_chat_id:
                 try:
                     # Формируем сообщение для Telegram
@@ -115,15 +118,20 @@ def handler(event: dict, context) -> dict:
                     telegram_text += f"⏰ {created_at.strftime('%d.%m.%Y %H:%M')}"
 
                     telegram_url = f"https://api.telegram.org/bot{support_bot_token}/sendMessage"
+                    print(f"[support-chat] Sending to Telegram: {support_chat_id}")
+                    
                     telegram_response = requests.post(telegram_url, json={
                         'chat_id': support_chat_id,
-                        'text': telegram_text,
-                        'parse_mode': 'HTML'
+                        'text': telegram_text
                     }, timeout=5)
+
+                    print(f"[support-chat] Telegram response status: {telegram_response.status_code}")
+                    print(f"[support-chat] Telegram response: {telegram_response.text}")
 
                     if telegram_response.ok:
                         telegram_data = telegram_response.json()
                         telegram_message_id = telegram_data.get('result', {}).get('message_id')
+                        print(f"[support-chat] Telegram message sent: {telegram_message_id}")
 
                         # Сохраняем telegram_message_id для связи ответов
                         cur.execute(f"""
@@ -132,9 +140,15 @@ def handler(event: dict, context) -> dict:
                             WHERE id = %s
                         """, (telegram_message_id, message_id))
                         conn.commit()
+                    else:
+                        print(f"[support-chat] Telegram error: {telegram_response.text}")
 
                 except Exception as telegram_error:
-                    print(f"Telegram send error: {telegram_error}")
+                    print(f"[support-chat] Telegram exception: {telegram_error}")
+                    import traceback
+                    traceback.print_exc()
+            else:
+                print(f"[support-chat] Telegram credentials missing!")
 
             cur.close()
             conn.close()
