@@ -82,13 +82,13 @@ def handler(event: dict, context) -> dict:
         pdf_reader = PyPDF2.PdfReader(BytesIO(pdf_data))
         pages_count = len(pdf_reader.pages)
         
-        if pages_count > 500:
+        if pages_count > 20:
             cur.close()
             conn.close()
             return {
                 'statusCode': 400,
                 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                'body': json.dumps({'error': f'PDF слишком большой: {pages_count} страниц. Максимум: 500 страниц'}),
+                'body': json.dumps({'error': f'PDF слишком большой: {pages_count} страниц. Максимум: 20 страниц'}),
                 'isBase64Encoded': False
             }
         

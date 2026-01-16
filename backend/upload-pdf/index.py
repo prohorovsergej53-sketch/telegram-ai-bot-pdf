@@ -35,6 +35,27 @@ def handler(event: dict, context) -> dict:
         if auth_error:
             return auth_error
         
+        # Проверяем наличие API ключей ДО загрузки файла
+        conn = psycopg2.connect(os.environ['DATABASE_URL'])
+        cur = conn.cursor()
+        
+        cur.execute("""
+            SELECT COUNT(*) FROM t_p56134400_telegram_ai_bot_pdf.tenant_api_keys 
+            WHERE tenant_id = %s AND provider = 'yandex' AND key_name = 'api_key'
+        """, (tenant_id,))
+        
+        has_api_key = cur.fetchone()[0] > 0
+        cur.close()
+        conn.close()
+        
+        if not has_api_key:
+            return {
+                'statusCode': 400,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({'error': 'Для загрузки документов необходимо добавить Yandex API ключи в разделе «AI» → «API Ключи»'}),
+                'isBase64Encoded': False
+            }
+        
         body = json.loads(event.get('body', '{}'))
         file_name = body.get('fileName')
         file_base64 = body.get('fileData')
@@ -59,12 +80,12 @@ def handler(event: dict, context) -> dict:
         file_data = base64.b64decode(file_base64)
         file_size = len(file_data)
         
-        max_size = 50 * 1024 * 1024  # 50 MB
+        max_size = 10 * 1024 * 1024  # 10 MB
         if file_size > max_size:
             return {
                 'statusCode': 400,
                 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                'body': json.dumps({'error': f'Файл слишком большой. Максимальный размер: 50 МБ'}),
+                'body': json.dumps({'error': f'Файл слишком большой. Максимальный размер: 10 МБ'}),
                 'isBase64Encoded': False
             }
         

@@ -74,15 +74,15 @@ const DocumentUploadArea = ({
         disabled={isLoading}
       />
       
-      <div className="mt-3 bg-slate-50 border border-slate-200 rounded-lg p-3">
+      <div className="mt-3 bg-amber-50 border border-amber-200 rounded-lg p-3">
         <div className="flex items-start gap-2">
-          <Icon name="Info" size={16} className="text-slate-600 mt-0.5 flex-shrink-0" />
-          <div className="text-xs text-slate-700">
-            <p className="font-semibold text-slate-900 mb-1">Требования:</p>
+          <Icon name="AlertCircle" size={16} className="text-amber-600 mt-0.5 flex-shrink-0" />
+          <div className="text-xs text-amber-900">
+            <p className="font-semibold mb-1">Требования:</p>
             <div className="space-y-0.5">
-              <div>• Только PDF, до 50 МБ</div>
-              <div>• Максимум 500 страниц</div>
-              <div>• Максимум 2000 фрагментов</div>
+              <div>• Только PDF, до 10 МБ</div>
+              <div>• Максимум 20 страниц</div>
+              <div>• Необходимы Yandex API ключи в разделе «AI» → «API Ключи»</div>
             </div>
           </div>
         </div>
