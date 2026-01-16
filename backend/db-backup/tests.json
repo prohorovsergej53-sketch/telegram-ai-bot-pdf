@@ -1,0 +1,15 @@
+{
+  "tests": [
+    {
+      "name": "Create database backup",
+      "method": "GET",
+      "path": "/",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "ok": "boolean",
+        "backup_file": "string"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

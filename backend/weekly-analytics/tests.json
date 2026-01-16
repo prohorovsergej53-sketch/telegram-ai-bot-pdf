@@ -1,0 +1,15 @@
+{
+  "tests": [
+    {
+      "name": "Send weekly analytics report",
+      "method": "GET",
+      "path": "/",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "ok": "boolean",
+        "total_tenants": "number"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

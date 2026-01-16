@@ -1,4 +1,7 @@
 {
+  "weekly-analytics": "https://functions.poehali.dev/25740d7e-5ddb-4b5c-8c5b-3eb8d1443fba",
+  "db-backup": "https://functions.poehali.dev/e01ced46-3748-405d-b336-283fdbc04b71",
+  "cleanup-embeddings": "https://functions.poehali.dev/53a14995-b007-4a99-a49a-596ff9370544",
   "automation-settings": "https://functions.poehali.dev/a56d419e-8694-4b5f-836e-3e7351155c7f",
   "indexnow": "https://functions.poehali.dev/9f68c535-c71e-4e3d-a71e-dd0f905ae0c4",
   "reindex-embeddings": "https://functions.poehali.dev/d84c6a38-349a-45a7-859d-08a51d29caf0",

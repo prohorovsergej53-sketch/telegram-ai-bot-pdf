@@ -85,6 +85,79 @@ def handler(event: dict, context) -> dict:
                     'notifications_sent': test_result.get('notifications_sent', 0)
                 }
 
+            elif action == 'enable_embeddings_cleanup':
+                api_key = get_cronjob_api_key(cur)
+                if not api_key:
+                    raise ValueError('Сначала сохраните API ключ Cron-job.org')
+                
+                job_id = create_cronjob(
+                    api_key=api_key,
+                    title='Очистка устаревших эмбеддингов',
+                    url='https://functions.poehali.dev/53a14995-b007-4a99-a49a-596ff9370544',
+                    hours=[3],
+                    enabled=True
+                )
+                save_cronjob_id(cur, 'cleanup_embeddings', job_id)
+                conn.commit()
+                
+                result = {'ok': True, 'message': 'Автоочистка эмбеддингов включена'}
+
+            elif action == 'disable_embeddings_cleanup':
+                api_key = get_cronjob_api_key(cur)
+                job_id = get_cronjob_id(cur, 'cleanup_embeddings')
+                if job_id:
+                    disable_cronjob(api_key, job_id)
+                result = {'ok': True, 'message': 'Автоочистка эмбеддингов отключена'}
+
+            elif action == 'enable_db_backup':
+                api_key = get_cronjob_api_key(cur)
+                if not api_key:
+                    raise ValueError('Сначала сохраните API ключ Cron-job.org')
+                
+                job_id = create_cronjob(
+                    api_key=api_key,
+                    title='Резервное копирование БД',
+                    url='https://functions.poehali.dev/e01ced46-3748-405d-b336-283fdbc04b71',
+                    hours=[2],
+                    enabled=True
+                )
+                save_cronjob_id(cur, 'db_backup', job_id)
+                conn.commit()
+                
+                result = {'ok': True, 'message': 'Автобэкап БД включён'}
+
+            elif action == 'disable_db_backup':
+                api_key = get_cronjob_api_key(cur)
+                job_id = get_cronjob_id(cur, 'db_backup')
+                if job_id:
+                    disable_cronjob(api_key, job_id)
+                result = {'ok': True, 'message': 'Автобэкап БД отключён'}
+
+            elif action == 'enable_analytics_report':
+                api_key = get_cronjob_api_key(cur)
+                if not api_key:
+                    raise ValueError('Сначала сохраните API ключ Cron-job.org')
+                
+                job_id = create_cronjob(
+                    api_key=api_key,
+                    title='Еженедельный отчёт по аналитике',
+                    url='https://functions.poehali.dev/25740d7e-5ddb-4b5c-8c5b-3eb8d1443fba',
+                    hours=[10],
+                    wdays=[1],
+                    enabled=True
+                )
+                save_cronjob_id(cur, 'analytics_report', job_id)
+                conn.commit()
+                
+                result = {'ok': True, 'message': 'Еженедельный отчёт включён'}
+
+            elif action == 'disable_analytics_report':
+                api_key = get_cronjob_api_key(cur)
+                job_id = get_cronjob_id(cur, 'analytics_report')
+                if job_id:
+                    disable_cronjob(api_key, job_id)
+                result = {'ok': True, 'message': 'Еженедельный отчёт отключён'}
+
             else:
                 raise ValueError(f'Неизвестное действие: {action}')
 
@@ -118,11 +191,19 @@ def get_automation_settings(cur) -> dict:
     }
     
     if api_key:
-        job_id = get_cronjob_id(cur, 'check_subscriptions')
-        if job_id:
-            job_info = get_cronjob_info(api_key, job_id)
-            if job_info:
-                settings['check_subscriptions_job'] = job_info
+        jobs = [
+            ('check_subscriptions', 'check_subscriptions_job'),
+            ('cleanup_embeddings', 'cleanup_embeddings_job'),
+            ('db_backup', 'db_backup_job'),
+            ('analytics_report', 'analytics_report_job')
+        ]
+        
+        for job_name, settings_key in jobs:
+            job_id = get_cronjob_id(cur, job_name)
+            if job_id:
+                job_info = get_cronjob_info(api_key, job_id)
+                if job_info:
+                    settings[settings_key] = job_info
     
     return settings
 
@@ -185,6 +266,40 @@ def create_or_update_cronjob(api_key: str, enabled: bool = True) -> int:
                 'minutes': [0],
                 'months': [-1],
                 'wdays': [-1]
+            },
+            'requestMethod': 1
+        }
+    }
+    
+    response = requests.put(
+        'https://api.cron-job.org/jobs',
+        headers={
+            'Authorization': f'Bearer {api_key}',
+            'Content-Type': 'application/json'
+        },
+        json=job_data,
+        timeout=10
+    )
+    
+    response.raise_for_status()
+    result = response.json()
+    return result['jobId']
+
+
+def create_cronjob(api_key: str, title: str, url: str, hours: list, enabled: bool = True, wdays: list = None) -> int:
+    """Создать новое cron-задание"""
+    job_data = {
+        'job': {
+            'enabled': enabled,
+            'title': title,
+            'url': url,
+            'schedule': {
+                'timezone': 'Europe/Moscow',
+                'hours': hours,
+                'mdays': [-1],
+                'minutes': [0],
+                'months': [-1],
+                'wdays': wdays if wdays else [-1]
             },
             'requestMethod': 1
         }

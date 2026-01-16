@@ -26,6 +26,9 @@ interface AutomationSettings {
   cronjob_api_key: string;
   cronjob_enabled: boolean;
   check_subscriptions_job?: CronJob;
+  cleanup_embeddings_job?: CronJob;
+  db_backup_job?: CronJob;
+  analytics_report_job?: CronJob;
 }
 
 export const AutomationTab = () => {
@@ -194,6 +197,38 @@ export const AutomationTab = () => {
       });
     } finally {
       setIsTestingSubscriptions(false);
+    }
+  };
+
+  const toggleJob = async (jobName: string, enable: boolean) => {
+    setIsSaving(true);
+    try {
+      const action = enable ? `enable_${jobName}` : `disable_${jobName}`;
+      const response = await authenticatedFetch(BACKEND_URLS.automationSettings, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action })
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        toast({
+          title: 'Успешно',
+          description: result.message
+        });
+        await loadSettings();
+      } else {
+        const error = await response.json();
+        throw new Error(error.error || 'Ошибка переключения');
+      }
+    } catch (error: any) {
+      toast({
+        title: 'Ошибка',
+        description: error.message || 'Не удалось переключить задание',
+        variant: 'destructive'
+      });
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -380,6 +415,162 @@ export const AutomationTab = () => {
           )}
         </CardContent>
       </Card>
+
+      {/* Очистка эмбеддингов */}
+      {settings?.cronjob_enabled && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Icon name="Trash2" size={20} />
+              Очистка устаревших эмбеддингов
+            </CardTitle>
+            <CardDescription>
+              Автоматическое удаление эмбеддингов удалённых документов (экономия места в БД)
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-3">
+              <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                <div>
+                  <p className="font-medium">Статус</p>
+                  <p className="text-sm text-slate-600">
+                    {settings.cleanup_embeddings_job?.enabled ? 'Включено' : 'Отключено'}
+                  </p>
+                </div>
+                {settings.cleanup_embeddings_job?.enabled ? (
+                  <Icon name="CheckCircle2" size={24} className="text-green-600" />
+                ) : (
+                  <Icon name="XCircle" size={24} className="text-slate-400" />
+                )}
+              </div>
+
+              {settings.cleanup_embeddings_job?.enabled && (
+                <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                  <div>
+                    <p className="font-medium">Расписание</p>
+                    <p className="text-sm text-slate-600">Ежедневно в 3:00 (МСК)</p>
+                  </div>
+                  <Icon name="Clock" size={24} className="text-blue-600" />
+                </div>
+              )}
+            </div>
+
+            <Button
+              onClick={() => toggleJob('cleanup_embeddings', !settings.cleanup_embeddings_job?.enabled)}
+              disabled={isSaving}
+              variant={settings.cleanup_embeddings_job?.enabled ? 'outline' : 'default'}
+              className="w-full"
+            >
+              {isSaving ? <Icon name="Loader2" className="animate-spin mr-2" size={16} /> : null}
+              {settings.cleanup_embeddings_job?.enabled ? 'Отключить' : 'Включить'}
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Резервное копирование БД */}
+      {settings?.cronjob_enabled && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Icon name="Database" size={20} />
+              Резервное копирование БД
+            </CardTitle>
+            <CardDescription>
+              Ежедневный автоматический бэкап базы данных в S3 хранилище
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-3">
+              <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                <div>
+                  <p className="font-medium">Статус</p>
+                  <p className="text-sm text-slate-600">
+                    {settings.db_backup_job?.enabled ? 'Включено' : 'Отключено'}
+                  </p>
+                </div>
+                {settings.db_backup_job?.enabled ? (
+                  <Icon name="CheckCircle2" size={24} className="text-green-600" />
+                ) : (
+                  <Icon name="XCircle" size={24} className="text-slate-400" />
+                )}
+              </div>
+
+              {settings.db_backup_job?.enabled && (
+                <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                  <div>
+                    <p className="font-medium">Расписание</p>
+                    <p className="text-sm text-slate-600">Ежедневно в 2:00 (МСК)</p>
+                  </div>
+                  <Icon name="Clock" size={24} className="text-blue-600" />
+                </div>
+              )}
+            </div>
+
+            <Button
+              onClick={() => toggleJob('db_backup', !settings.db_backup_job?.enabled)}
+              disabled={isSaving}
+              variant={settings.db_backup_job?.enabled ? 'outline' : 'default'}
+              className="w-full"
+            >
+              {isSaving ? <Icon name="Loader2" className="animate-spin mr-2" size={16} /> : null}
+              {settings.db_backup_job?.enabled ? 'Отключить' : 'Включить'}
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Еженедельный отчёт */}
+      {settings?.cronjob_enabled && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Icon name="BarChart3" size={20} />
+              Еженедельный отчёт по аналитике
+            </CardTitle>
+            <CardDescription>
+              Автоматическая отправка отчёта по всем тенантам на email суперадмина (по понедельникам)
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-3">
+              <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                <div>
+                  <p className="font-medium">Статус</p>
+                  <p className="text-sm text-slate-600">
+                    {settings.analytics_report_job?.enabled ? 'Включено' : 'Отключено'}
+                  </p>
+                </div>
+                {settings.analytics_report_job?.enabled ? (
+                  <Icon name="CheckCircle2" size={24} className="text-green-600" />
+                ) : (
+                  <Icon name="XCircle" size={24} className="text-slate-400" />
+                )}
+              </div>
+
+              {settings.analytics_report_job?.enabled && (
+                <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                  <div>
+                    <p className="font-medium">Расписание</p>
+                    <p className="text-sm text-slate-600">Каждый понедельник в 10:00 (МСК)</p>
+                  </div>
+                  <Icon name="Clock" size={24} className="text-blue-600" />
+                </div>
+              )}
+            </div>
+
+            <Button
+              onClick={() => toggleJob('analytics_report', !settings.analytics_report_job?.enabled)}
+              disabled={isSaving}
+              variant={settings.analytics_report_job?.enabled ? 'outline' : 'default'}
+              className="w-full"
+            >
+              {isSaving ? <Icon name="Loader2" className="animate-spin mr-2" size={16} /> : null}
+              {settings.analytics_report_job?.enabled ? 'Отключить' : 'Включить'}
+            </Button>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 };
