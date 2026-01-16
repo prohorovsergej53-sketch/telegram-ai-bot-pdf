@@ -82,6 +82,16 @@ def handler(event: dict, context) -> dict:
         pdf_reader = PyPDF2.PdfReader(BytesIO(pdf_data))
         pages_count = len(pdf_reader.pages)
         
+        if pages_count > 500:
+            cur.close()
+            conn.close()
+            return {
+                'statusCode': 400,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({'error': f'PDF слишком большой: {pages_count} страниц. Максимум: 500 страниц'}),
+                'isBase64Encoded': False
+            }
+        
         full_text = ""
         for page in pdf_reader.pages:
             full_text += page.extract_text() + "\n\n"
@@ -92,6 +102,16 @@ def handler(event: dict, context) -> dict:
             chunk = full_text[i:i + chunk_size]
             if chunk.strip():
                 chunks.append(chunk)
+        
+        if len(chunks) > 2000:
+            cur.close()
+            conn.close()
+            return {
+                'statusCode': 400,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({'error': f'Слишком много текста: {len(chunks)} фрагментов. Максимум: 2000'}),
+                'isBase64Encoded': False
+            }
 
         # Получаем настройки эмбеддингов ДО транзакции
         cur.execute("""
@@ -121,6 +141,7 @@ def handler(event: dict, context) -> dict:
                 return error
         
         # Генерируем все эмбеддинги ДО транзакции
+        import time
         chunk_embeddings = []
         for idx, chunk_text in enumerate(chunks):
             try:
@@ -140,6 +161,9 @@ def handler(event: dict, context) -> dict:
                     emb_data = emb_response.json()
                     embedding_vector = emb_data['embedding']
                     embedding_json = json.dumps(embedding_vector)
+                    
+                    if (idx + 1) % 10 == 0:
+                        time.sleep(0.5)
                 else:
                     print(f"Unknown embedding provider: {embedding_provider}")
                     embedding_json = None
