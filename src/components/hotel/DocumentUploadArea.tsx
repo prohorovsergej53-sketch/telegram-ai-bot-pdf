@@ -69,6 +69,21 @@ const DocumentUploadArea = ({
         onChange={onFileUpload}
         disabled={isLoading}
       />
+      
+      <div className="mt-4 bg-slate-50 border border-slate-200 rounded-lg p-4">
+        <div className="flex items-start gap-3">
+          <Icon name="Info" size={18} className="text-slate-600 mt-0.5 flex-shrink-0" />
+          <div className="text-sm text-slate-700 space-y-1">
+            <p className="font-semibold text-slate-900">Требования к файлам:</p>
+            <ul className="space-y-1 list-disc list-inside ml-1">
+              <li>Только PDF формат</li>
+              <li>Максимальный размер: 50 МБ</li>
+              <li>Максимум 500 страниц в одном документе</li>
+              <li>Максимум 2000 фрагментов текста после обработки</li>
+            </ul>
+          </div>
+        </div>
+      </div>
     </>
   );
 };
