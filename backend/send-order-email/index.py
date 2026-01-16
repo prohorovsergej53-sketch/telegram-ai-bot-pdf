@@ -182,20 +182,48 @@ def create_customer_email(name: str, email: str, tariff: str, amount: float, ten
                     <p><a href="{login_url}" class="button" style="display: inline-block; background: #0284c7; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; margin-top: 10px;">Войти в админ-панель</a></p>
                 </div>''' if username and password else ''}
                 
-                <p><strong>📖 Инструкция по работе с админ-панелью:</strong></p>
+                <p><strong>📖 Что дальше?</strong></p>
                 
                 <div class="info" style="background: #fef3c7; border-left: 4px solid #f59e0b;">
-                    <h4 style="margin-top: 0;">Шаг 1: Загрузите документы</h4>
-                    <p>В разделе "Документы" загрузите PDF-файлы с информацией об отеле (прайс-листы, описания услуг, правила)</p>
+                    <div style="display: flex; gap: 12px; margin-bottom: 16px;">
+                        <div style="background: #667eea; color: white; width: 28px; height: 28px; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-weight: bold; flex-shrink: 0;">1</div>
+                        <div>
+                            <p style="margin: 0; font-weight: 600;">Получите доступы на email</p>
+                            <p style="margin: 4px 0 0 0; font-size: 14px; color: #64748b;">Логин и пароль для входа в админ-панель</p>
+                        </div>
+                    </div>
                     
-                    <h4>Шаг 2: Настройте AI</h4>
-                    <p>В разделе "Настройки AI" отредактируйте приветственное сообщение и поведение консультанта</p>
+                    <div style="display: flex; gap: 12px; margin-bottom: 16px;">
+                        <div style="background: #667eea; color: white; width: 28px; height: 28px; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-weight: bold; flex-shrink: 0;">2</div>
+                        <div>
+                            <p style="margin: 0; font-weight: 600;">Войдите в систему</p>
+                            <p style="margin: 4px 0 0 0; font-size: 14px; color: #64748b;">Перейдите в админ-панель по ссылке из письма</p>
+                        </div>
+                    </div>
                     
-                    <h4>Шаг 3: Подключите мессенджеры</h4>
-                    <p>В разделе "Интеграции" подключите Telegram, WhatsApp или VK для общения с гостями</p>
+                    <div style="display: flex; gap: 12px; margin-bottom: 16px;">
+                        <div style="background: #667eea; color: white; width: 28px; height: 28px; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-weight: bold; flex-shrink: 0;">3</div>
+                        <div>
+                            <p style="margin: 0; font-weight: 600;">Загрузите документы</p>
+                            <p style="margin: 4px 0 0 0; font-size: 14px; color: #64748b;">Добавьте PDF-файлы с информацией о вашем бизнесе</p>
+                        </div>
+                    </div>
                     
-                    <h4>Шаг 4: Тестирование</h4>
-                    <p>Используйте виджет чата на сайте, чтобы проверить работу AI-консультанта</p>
+                    <div style="display: flex; gap: 12px; margin-bottom: 16px;">
+                        <div style="background: #667eea; color: white; width: 28px; height: 28px; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-weight: bold; flex-shrink: 0;">4</div>
+                        <div>
+                            <p style="margin: 0; font-weight: 600;">Настройте каналы связи</p>
+                            <p style="margin: 4px 0 0 0; font-size: 14px; color: #64748b;">Подключите Telegram, WhatsApp, VK самостоятельно или с помощью наших специалистов. Бот также доступен по прямой ссылке и есть код для встраивания на сайт</p>
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; gap: 12px;">
+                        <div style="background: #667eea; color: white; width: 28px; height: 28px; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-weight: bold; flex-shrink: 0;">5</div>
+                        <div>
+                            <p style="margin: 0; font-weight: 600;">Всё готово!</p>
+                            <p style="margin: 4px 0 0 0; font-size: 14px; color: #64748b;">AI-консультант начнёт отвечать на вопросы клиентов</p>
+                        </div>
+                    </div>
                 </div>
                 
                 <p style="margin-top: 20px;"><strong>Дополнительные возможности:</strong></p>
