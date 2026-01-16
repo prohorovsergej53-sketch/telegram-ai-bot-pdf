@@ -152,11 +152,11 @@ const EmbeddingsSettings = ({ currentTenantId, tenantName, fz152Enabled = false 
       setEditedDocModel('text-search-doc');
       setEditedQueryModel('text-search-query');
     } else if (editedProvider === 'openrouter') {
-      setEditedDocModel('text-embedding-3-small');
-      setEditedQueryModel('text-embedding-3-small');
+      setEditedDocModel('openai/text-embedding-3-small');
+      setEditedQueryModel('openai/text-embedding-3-small');
     } else if (editedProvider === 'proxyapi') {
-      setEditedDocModel('text-embedding-3-small');
-      setEditedQueryModel('text-embedding-3-small');
+      setEditedDocModel('openai/text-embedding-3-small');
+      setEditedQueryModel('openai/text-embedding-3-small');
     }
   }, [editedProvider]);
 
@@ -300,8 +300,9 @@ const EmbeddingsSettings = ({ currentTenantId, tenantName, fz152Enabled = false 
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="text-embedding-3-small">text-embedding-3-small (1536, $0.025/1M)</SelectItem>
-                      <SelectItem value="text-embedding-3-large">text-embedding-3-large (3072, $0.13/1M)</SelectItem>
+                      <SelectItem value="openai/text-embedding-3-small">OpenAI text-embedding-3-small (1536, $0.025/1M)</SelectItem>
+                      <SelectItem value="openai/text-embedding-3-large">OpenAI text-embedding-3-large (3072, $0.13/1M)</SelectItem>
+                      <SelectItem value="openai/text-embedding-ada-002">OpenAI text-embedding-ada-002 (1536, $0.10/1M)</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -313,8 +314,9 @@ const EmbeddingsSettings = ({ currentTenantId, tenantName, fz152Enabled = false 
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="text-embedding-3-small">text-embedding-3-small (1536, $0.025/1M)</SelectItem>
-                      <SelectItem value="text-embedding-3-large">text-embedding-3-large (3072, $0.13/1M)</SelectItem>
+                      <SelectItem value="openai/text-embedding-3-small">OpenAI text-embedding-3-small (1536, $0.025/1M)</SelectItem>
+                      <SelectItem value="openai/text-embedding-3-large">OpenAI text-embedding-3-large (3072, $0.13/1M)</SelectItem>
+                      <SelectItem value="openai/text-embedding-ada-002">OpenAI text-embedding-ada-002 (1536, $0.10/1M)</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -330,9 +332,11 @@ const EmbeddingsSettings = ({ currentTenantId, tenantName, fz152Enabled = false 
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="text-embedding-3-small">text-embedding-3-small (1536, ₽3/1M)</SelectItem>
-                      <SelectItem value="text-embedding-3-large">text-embedding-3-large (3072, ₽15/1M)</SelectItem>
-                      <SelectItem value="text-embedding-ada-002">text-embedding-ada-002 (1536, ₽3/1M)</SelectItem>
+                      <SelectItem value="openai/text-embedding-3-small">OpenAI text-embedding-3-small (1536, ₽3/1M)</SelectItem>
+                      <SelectItem value="openai/text-embedding-3-large">OpenAI text-embedding-3-large (3072, ₽15/1M)</SelectItem>
+                      <SelectItem value="openai/text-embedding-ada-002">OpenAI text-embedding-ada-002 (1536, ₽3/1M)</SelectItem>
+                      <SelectItem value="cohere/embed-multilingual-v3.0">Cohere embed-multilingual-v3.0 (1024, ₽1.5/1M)</SelectItem>
+                      <SelectItem value="voyage/voyage-3">Voyage AI voyage-3 (1024, ₽12/1M)</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -344,9 +348,11 @@ const EmbeddingsSettings = ({ currentTenantId, tenantName, fz152Enabled = false 
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="text-embedding-3-small">text-embedding-3-small (1536, ₽3/1M)</SelectItem>
-                      <SelectItem value="text-embedding-3-large">text-embedding-3-large (3072, ₽15/1M)</SelectItem>
-                      <SelectItem value="text-embedding-ada-002">text-embedding-ada-002 (1536, ₽3/1M)</SelectItem>
+                      <SelectItem value="openai/text-embedding-3-small">OpenAI text-embedding-3-small (1536, ₽3/1M)</SelectItem>
+                      <SelectItem value="openai/text-embedding-3-large">OpenAI text-embedding-3-large (3072, ₽15/1M)</SelectItem>
+                      <SelectItem value="openai/text-embedding-ada-002">OpenAI text-embedding-ada-002 (1536, ₽3/1M)</SelectItem>
+                      <SelectItem value="cohere/embed-multilingual-v3.0">Cohere embed-multilingual-v3.0 (1024, ₽1.5/1M)</SelectItem>
+                      <SelectItem value="voyage/voyage-3">Voyage AI voyage-3 (1024, ₽12/1M)</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
