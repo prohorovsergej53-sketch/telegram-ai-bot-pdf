@@ -257,8 +257,7 @@ const EmbeddingsSettings = ({ currentTenantId, tenantName, fz152Enabled = false 
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="yandex">🇷🇺 Яндекс (256 измерений, ₽0.8/1M)</SelectItem>
-                  <SelectItem value="openai">🌐 OpenAI (1536-3072 измерений, точный поиск, международные серверы)</SelectItem>
-                  <SelectItem value="openrouter">🔗 OpenRouter (1536 измерений, $0.025/1M)</SelectItem>
+                  <SelectItem value="openrouter">🌐 OpenRouter (1536 измерений, $0.025/1M)</SelectItem>
                   <SelectItem value="proxyapi">💰 ProxyAPI (1536 измерений, ₽3/1M)</SelectItem>
                 </SelectContent>
               </Select>
