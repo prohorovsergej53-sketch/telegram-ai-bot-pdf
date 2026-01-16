@@ -62,22 +62,26 @@ def handler(event: dict, context) -> dict:
 
         chat_function_url = 'https://functions.poehali.dev/7b58f4fb-5db0-4f85-bb3b-55bafa4cbf73'
 
-        chat_response = requests.post(
-            chat_function_url,
-            json={
-                'message': user_message,
-                'sessionId': session_id,
-                'tenantId': tenant_id
-            },
-            headers={'Content-Type': 'application/json'},
-            timeout=30
-        )
-
-        if not chat_response.ok:
-            raise Exception(f'Chat function error: {chat_response.status_code}')
-
-        chat_data = chat_response.json()
-        ai_message = chat_data.get('message', 'Извините, не могу ответить')
+        try:
+            chat_response = requests.post(
+                chat_function_url,
+                json={
+                    'message': user_message,
+                    'sessionId': session_id,
+                    'tenantId': tenant_id
+                },
+                headers={'Content-Type': 'application/json'},
+                timeout=30
+            )
+            chat_response.raise_for_status()
+            chat_data = chat_response.json()
+            ai_message = chat_data.get('message', 'Извините, не могу ответить')
+            
+        except requests.exceptions.Timeout:
+            ai_message = 'Извините, сервис временно недоступен. Попробуйте позже.'
+        except requests.exceptions.RequestException as e:
+            print(f'Chat function error: {e}')
+            ai_message = 'Извините, произошла ошибка. Попробуйте позже.'
 
         telegram_api_url = f'https://api.telegram.org/bot{bot_token}/sendMessage'
         telegram_response = requests.post(

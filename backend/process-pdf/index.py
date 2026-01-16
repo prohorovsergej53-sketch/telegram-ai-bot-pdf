@@ -93,12 +93,7 @@ def handler(event: dict, context) -> dict:
             if chunk.strip():
                 chunks.append(chunk)
 
-        # Удаляем старые чанки перед переиндексацией (транзакция для атомарности)
-        try:
-            cur.execute("BEGIN")
-            cur.execute("DELETE FROM t_p56134400_telegram_ai_bot_pdf.document_chunks WHERE document_id = %s", (document_id,))
-            cur.execute("DELETE FROM t_p56134400_telegram_ai_bot_pdf.tenant_chunks WHERE document_id = %s", (document_id,))
-        
+        # Получаем настройки эмбеддингов ДО транзакции
         cur.execute("""
             SELECT embedding_provider, embedding_doc_model
             FROM t_p56134400_telegram_ai_bot_pdf.tenant_settings
@@ -111,6 +106,7 @@ def handler(event: dict, context) -> dict:
         
         import requests
         
+        # Получаем API ключи ДО транзакции
         if embedding_provider == 'yandex':
             yandex_api_key, error = get_tenant_api_key(tenant_id, 'yandex', 'api_key')
             if error:
@@ -123,7 +119,9 @@ def handler(event: dict, context) -> dict:
                 cur.close()
                 conn.close()
                 return error
-
+        
+        # Генерируем все эмбеддинги ДО транзакции
+        chunk_embeddings = []
         for idx, chunk_text in enumerate(chunks):
             try:
                 if embedding_provider == 'yandex':
@@ -136,7 +134,8 @@ def handler(event: dict, context) -> dict:
                         json={
                             'modelUri': f'emb://{yandex_folder_id}/{embedding_doc_model}/latest',
                             'text': chunk_text
-                        }
+                        },
+                        timeout=30
                     )
                     emb_data = emb_response.json()
                     embedding_vector = emb_data['embedding']
@@ -147,26 +146,41 @@ def handler(event: dict, context) -> dict:
             except Exception as emb_error:
                 print(f"Embedding error for chunk {idx}: {emb_error}")
                 embedding_json = None
-
-            cur.execute("""
-                INSERT INTO t_p56134400_telegram_ai_bot_pdf.document_chunks 
-                (document_id, chunk_text, chunk_index, embedding_text)
-                VALUES (%s, %s, %s, %s)
-            """, (document_id, chunk_text, idx, embedding_json))
             
-            cur.execute("""
-                INSERT INTO t_p56134400_telegram_ai_bot_pdf.tenant_chunks 
-                (tenant_id, document_id, chunk_text, chunk_index, embedding_text)
-                VALUES (%s, %s, %s, %s, %s)
-            """, (tenant_id, document_id, chunk_text, idx, embedding_json))
+            chunk_embeddings.append((chunk_text, embedding_json))
 
+        # АТОМАРНАЯ ТРАНЗАКЦИЯ: удаление старых + вставка новых + обновление статуса
+        try:
+            cur.execute("BEGIN")
+            
+            # Удаляем старые чанки
+            cur.execute("DELETE FROM t_p56134400_telegram_ai_bot_pdf.document_chunks WHERE document_id = %s", (document_id,))
+            cur.execute("DELETE FROM t_p56134400_telegram_ai_bot_pdf.tenant_chunks WHERE document_id = %s", (document_id,))
+            
+            # Вставляем все новые чанки
+            for idx, (chunk_text, embedding_json) in enumerate(chunk_embeddings):
+                cur.execute("""
+                    INSERT INTO t_p56134400_telegram_ai_bot_pdf.document_chunks 
+                    (document_id, chunk_text, chunk_index, embedding_text)
+                    VALUES (%s, %s, %s, %s)
+                """, (document_id, chunk_text, idx, embedding_json))
+                
+                cur.execute("""
+                    INSERT INTO t_p56134400_telegram_ai_bot_pdf.tenant_chunks 
+                    (tenant_id, document_id, chunk_text, chunk_index, embedding_text)
+                    VALUES (%s, %s, %s, %s, %s)
+                """, (tenant_id, document_id, chunk_text, idx, embedding_json))
+            
+            # Обновляем статус документа (один раз в конце)
             cur.execute("""
                 UPDATE t_p56134400_telegram_ai_bot_pdf.tenant_documents 
                 SET status = 'ready', pages = %s, processed_at = %s
                 WHERE id = %s
             """, (pages_count, datetime.now(), document_id))
             
+            # Один commit в конце всей транзакции
             conn.commit()
+            
         except Exception as tx_error:
             conn.rollback()
             raise tx_error

@@ -33,27 +33,22 @@ def handler(event: dict, context) -> dict:
         cur = conn.cursor()
         
         if method == 'GET':
-            query_params = event.get('queryStringParameters') or {}
-            requested_tenant_id = query_params.get('tenant_id')
-            
-            if requested_tenant_id:
-                requested_tenant_id = int(requested_tenant_id)
-            else:
-                requested_tenant_id = tenant_id
-            
+            # КРИТИЧНО: используем только tenant_id из авторизации, игнорируем query параметры
             cur.execute("""
                 SELECT provider, key_name, key_value, is_active
                 FROM t_p56134400_telegram_ai_bot_pdf.tenant_api_keys
                 WHERE tenant_id = %s
-            """, (requested_tenant_id,))
+            """, (tenant_id,))
             
             rows = cur.fetchall()
             keys = []
             for row in rows:
+                # КРИТИЧНО: маскируем секретные ключи, показываем только последние 4 символа
+                masked_value = '***' + row[2][-4:] if row[2] and len(row[2]) > 4 else '***'
                 keys.append({
                     'provider': row[0],
                     'key_name': row[1],
-                    'key_value': row[2],
+                    'key_value': masked_value,
                     'is_active': row[3]
                 })
             
@@ -69,7 +64,7 @@ def handler(event: dict, context) -> dict:
         
         elif method == 'POST' or method == 'PUT':
             body = json.loads(event.get('body', '{}'))
-            requested_tenant_id = body.get('tenant_id', tenant_id)
+            # КРИТИЧНО: используем только tenant_id из авторизации, игнорируем body
             keys_to_save = body.get('keys', [])
             
             if not keys_to_save:
@@ -96,7 +91,7 @@ def handler(event: dict, context) -> dict:
                     ON CONFLICT (tenant_id, provider, key_name)
                     DO UPDATE SET key_value = EXCLUDED.key_value, 
                                   updated_at = CURRENT_TIMESTAMP
-                """, (requested_tenant_id, provider, key_name, key_value))
+                """, (tenant_id, provider, key_name, key_value))
                 saved_count += 1
             
             conn.commit()
