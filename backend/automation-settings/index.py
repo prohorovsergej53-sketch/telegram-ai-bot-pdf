@@ -42,8 +42,11 @@ def handler(event: dict, context) -> dict:
             }
 
         elif method == 'POST':
-            body = json.loads(event.get('body', '{}'))
+            body_str = event.get('body', '{}')
+            print(f'POST body: {body_str}')
+            body = json.loads(body_str)
             action = body.get('action')
+            print(f'Action: {action}')
 
             if action == 'save_api_key':
                 api_key = body.get('api_key', '').strip()
