@@ -13,6 +13,7 @@ import { BotTemplateTab } from '@/components/superadmin/BotTemplateTab';
 import { EmailTemplatesTab } from '@/components/superadmin/EmailTemplatesTab';
 import { SystemMonitoringTab } from '@/components/superadmin/SystemMonitoringTab';
 import { ConsentLogsTab } from '@/components/superadmin/ConsentLogsTab';
+import { SupportTab } from '@/components/superadmin/SupportTab';
 
 import { TenantEditDialog } from '@/components/superadmin/TenantEditDialog';
 import { TariffEditDialog } from '@/components/superadmin/TariffEditDialog';
@@ -264,6 +265,10 @@ const SuperAdmin = () => {
               <Icon name="Search" size={16} className="mr-2" />
               SEO
             </TabsTrigger>
+            <TabsTrigger value="support">
+              <Icon name="Headphones" size={16} className="mr-2" />
+              Поддержка
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="dashboard" className="space-y-6">
@@ -315,6 +320,10 @@ const SuperAdmin = () => {
 
           <TabsContent value="seo" className="space-y-6">
             <SEOTab />
+          </TabsContent>
+
+          <TabsContent value="support" className="space-y-6">
+            <SupportTab />
           </TabsContent>
         </Tabs>
       </div>
