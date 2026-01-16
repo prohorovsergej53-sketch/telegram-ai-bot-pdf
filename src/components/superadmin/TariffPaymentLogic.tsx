@@ -236,11 +236,165 @@ const TariffPaymentLogic = () => {
           </div>
         </div>
 
+        {/* Доступ к функциям по тарифам */}
+        <div>
+          <h3 className="font-semibold text-lg mb-3 flex items-center gap-2">
+            <Icon name="Shield" size={18} className="text-green-600" />
+            Доступ к функциям в админ-панели клиента
+          </h3>
+          
+          <div className="grid gap-4 md:grid-cols-3">
+            {/* Старт */}
+            <div className="border border-green-200 rounded-lg p-4 bg-green-50">
+              <h4 className="font-bold text-green-900 mb-3 flex items-center gap-2">
+                <Icon name="Zap" size={16} />
+                Старт (basic)
+              </h4>
+              <div className="space-y-1 text-xs">
+                <div className="flex items-start gap-2">
+                  <Icon name="Check" size={12} className="text-green-600 mt-0.5 flex-shrink-0" />
+                  <span>Документы (до 10 PDF)</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <Icon name="Check" size={12} className="text-green-600 mt-0.5 flex-shrink-0" />
+                  <span>Мессенджеры (виджет)</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <Icon name="Check" size={12} className="text-green-600 mt-0.5 flex-shrink-0" />
+                  <span>Страница настроек</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <Icon name="Check" size={12} className="text-green-600 mt-0.5 flex-shrink-0" />
+                  <span>Виджет</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <Icon name="X" size={12} className="text-red-400 mt-0.5 flex-shrink-0" />
+                  <span className="text-slate-600">AI (только с 152-ФЗ)</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <Icon name="X" size={12} className="text-red-400 mt-0.5 flex-shrink-0" />
+                  <span className="text-slate-600">Статистика</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Бизнес */}
+            <div className="border border-blue-200 rounded-lg p-4 bg-blue-50">
+              <h4 className="font-bold text-blue-900 mb-3 flex items-center gap-2">
+                <Icon name="Briefcase" size={16} />
+                Бизнес (professional)
+              </h4>
+              <div className="space-y-1 text-xs">
+                <div className="flex items-start gap-2">
+                  <Icon name="Check" size={12} className="text-green-600 mt-0.5 flex-shrink-0" />
+                  <span>Документы (до 25 PDF)</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <Icon name="Check" size={12} className="text-green-600 mt-0.5 flex-shrink-0" />
+                  <span>Мессенджеры (+ Telegram)</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <Icon name="Check" size={12} className="text-green-600 mt-0.5 flex-shrink-0" />
+                  <span>Страница настроек</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <Icon name="Check" size={12} className="text-green-600 mt-0.5 flex-shrink-0" />
+                  <span>Виджет</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <Icon name="Check" size={12} className="text-green-600 mt-0.5 flex-shrink-0" />
+                  <span className="font-semibold">Статистика</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <Icon name="X" size={12} className="text-red-400 mt-0.5 flex-shrink-0" />
+                  <span className="text-slate-600">AI (только с 152-ФЗ)</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Премиум */}
+            <div className="border border-purple-200 rounded-lg p-4 bg-purple-50">
+              <h4 className="font-bold text-purple-900 mb-3 flex items-center gap-2">
+                <Icon name="Crown" size={16} />
+                Премиум (enterprise)
+              </h4>
+              <div className="space-y-1 text-xs">
+                <div className="flex items-start gap-2">
+                  <Icon name="Check" size={12} className="text-green-600 mt-0.5 flex-shrink-0" />
+                  <span>Документы (до 100 PDF)</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <Icon name="Check" size={12} className="text-green-600 mt-0.5 flex-shrink-0" />
+                  <span>Мессенджеры (все каналы)</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <Icon name="Check" size={12} className="text-green-600 mt-0.5 flex-shrink-0" />
+                  <span>Страница настроек</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <Icon name="Check" size={12} className="text-green-600 mt-0.5 flex-shrink-0" />
+                  <span>Виджет</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <Icon name="Check" size={12} className="text-green-600 mt-0.5 flex-shrink-0" />
+                  <span className="font-semibold">Статистика</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <Icon name="X" size={12} className="text-red-400 mt-0.5 flex-shrink-0" />
+                  <span className="text-slate-600">AI (только с 152-ФЗ)</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div className="mt-4 space-y-3">
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+              <div className="flex items-start gap-2">
+                <Icon name="Clock" size={16} className="text-yellow-600 mt-0.5 flex-shrink-0" />
+                <div className="text-sm">
+                  <div className="font-semibold text-yellow-900 mb-1">Автосообщения</div>
+                  <div className="text-yellow-800">
+                    Настройка автосообщений доступна <strong>только суперадмину</strong>. 
+                    По умолчанию автосообщения <strong>выключены для всех клиентов</strong>. 
+                    Суперадмин может включить и настроить задержку + текст для каждого мессенджера отдельно (виджет, Telegram, VK, MAX).
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+              <div className="flex items-start gap-2">
+                <Icon name="ShieldCheck" size={16} className="text-blue-600 mt-0.5 flex-shrink-0" />
+                <div className="text-sm">
+                  <div className="font-semibold text-blue-900 mb-1">Вкладка AI и 152-ФЗ</div>
+                  <div className="text-blue-800">
+                    Вкладка "AI" появляется у клиентов только при включенном режиме <strong>152-ФЗ</strong> или для суперадмина. 
+                    Вкладка "152-ФЗ" доступна только при активации этого режима.
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div className="bg-purple-50 border border-purple-200 rounded-lg p-3">
+              <div className="flex items-start gap-2">
+                <Icon name="Crown" size={16} className="text-purple-600 mt-0.5 flex-shrink-0" />
+                <div className="text-sm">
+                  <div className="font-semibold text-purple-900 mb-1">Суперадмин</div>
+                  <div className="text-purple-800">
+                    Суперадмин видит <strong>все вкладки всегда</strong>, включая эксклюзивную вкладку "Эмбеддинги". 
+                    При просмотре клиентов через /slug/admin получает полный доступ независимо от тарифа.
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Техническая реализация */}
         <div>
           <h3 className="font-semibold text-lg mb-3 flex items-center gap-2">
             <Icon name="Code" size={18} className="text-indigo-600" />
-            Техническая реализация
+            Техническая реализация биллинга
           </h3>
           
           <div className="space-y-3">

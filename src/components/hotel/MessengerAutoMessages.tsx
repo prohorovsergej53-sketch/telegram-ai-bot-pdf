@@ -56,8 +56,10 @@ const MessengerAutoMessages = ({ isSuperAdmin }: MessengerAutoMessagesProps) => 
   });
 
   useEffect(() => {
-    loadSettings();
-  }, []);
+    if (superAdmin) {
+      loadSettings();
+    }
+  }, [superAdmin]);
 
   const loadSettings = async () => {
     try {
@@ -126,15 +128,54 @@ const MessengerAutoMessages = ({ isSuperAdmin }: MessengerAutoMessagesProps) => 
     return null;
   }
 
+  if (!superAdmin) {
+    return (
+      <Card className="shadow-xl border-2 border-blue-200">
+        <CardHeader className="border-b bg-gradient-to-r from-blue-50 to-cyan-50">
+          <CardTitle className="flex items-center gap-2">
+            <Icon name="Info" size={20} />
+            Автосообщения
+          </CardTitle>
+          <CardDescription>
+            Автоматическая отправка сообщений при бездействии пользователя
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="pt-6">
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <div className="flex items-start gap-3">
+              <Icon name="Clock" size={24} className="text-blue-600 mt-1 flex-shrink-0" />
+              <div>
+                <h4 className="font-semibold text-blue-900 mb-2">Автосообщения по умолчанию выключены</h4>
+                <p className="text-sm text-blue-800 mb-3">
+                  Функция автосообщений позволяет системе автоматически отправлять приветственные сообщения 
+                  в виджет, Telegram, VK или MAX при бездействии пользователя.
+                </p>
+                <div className="bg-white rounded p-3 border border-blue-100">
+                  <p className="text-sm text-slate-700 mb-2">
+                    <strong>Как включить:</strong>
+                  </p>
+                  <p className="text-sm text-slate-600">
+                    Для настройки автосообщений обратитесь к администратору системы или в службу поддержки. 
+                    После активации вы сможете настроить задержку отправки и текст сообщений для каждого канала отдельно.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <Card className="shadow-xl border-2 border-purple-200">
       <CardHeader className="border-b bg-gradient-to-r from-purple-50 to-pink-50">
         <CardTitle className="flex items-center gap-2">
           <Icon name="Clock" size={20} />
-          Автосообщения{superAdmin && ' (SuperAdmin)'}
+          Автосообщения (SuperAdmin)
         </CardTitle>
         <CardDescription>
-          Настройка автосообщений при бездействии пользователя для каждого канала отдельно
+          Настройка автосообщений при бездействии пользователя для каждого канала отдельно. По умолчанию выключены для всех клиентов.
         </CardDescription>
       </CardHeader>
       <CardContent className="pt-6">
