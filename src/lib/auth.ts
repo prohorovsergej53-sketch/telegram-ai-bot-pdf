@@ -111,7 +111,9 @@ export const authenticatedFetch = async (url: string, options: RequestInit = {})
     
     if (response.status === 401) {
       logout();
-      window.location.reload();
+      if (window.location.pathname !== '/admin') {
+        window.location.href = '/admin';
+      }
     }
     
     return response;
