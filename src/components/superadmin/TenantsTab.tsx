@@ -13,6 +13,8 @@ interface TenantsTabProps {
 }
 
 export const TenantsTab = ({ tenants, onEnterTenant, onManageTenant, onCreateTenant, onToggleFz152 }: TenantsTabProps) => {
+  const clientTenants = tenants.filter(tenant => tenant.id !== 1);
+  
   return (
     <Card>
       <CardHeader>
@@ -29,7 +31,7 @@ export const TenantsTab = ({ tenants, onEnterTenant, onManageTenant, onCreateTen
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          {tenants.map(tenant => (
+          {clientTenants.map(tenant => (
             <div key={tenant.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-slate-50">
               <div className="flex-1">
                 <div className="flex items-center gap-3 mb-2">
