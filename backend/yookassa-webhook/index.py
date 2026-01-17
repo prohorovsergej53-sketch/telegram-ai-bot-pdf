@@ -156,6 +156,21 @@ def handler(event: dict, context) -> dict:
                             VALUES (%s)
                         """, (tenant_id,))
                     
+                    # Копируем API-ключи из шаблона (для эмбеддингов и AI)
+                    cur.execute("""
+                        SELECT provider, key_name, key_value, is_active
+                        FROM t_p56134400_telegram_ai_bot_pdf.tenant_api_keys
+                        WHERE tenant_id = 1 AND is_active = true
+                    """)
+                    template_keys = cur.fetchall()
+                    
+                    for key_row in template_keys:
+                        cur.execute("""
+                            INSERT INTO t_p56134400_telegram_ai_bot_pdf.tenant_api_keys
+                            (tenant_id, provider, key_name, key_value, is_active)
+                            VALUES (%s, %s, %s, %s, %s)
+                        """, (tenant_id, key_row[0], key_row[1], key_row[2], key_row[3]))
+                    
                     # Создаем пользователя
                     username = f"{tenant_slug}_user"
                     password = ''.join(secrets.choice(string.ascii_letters + string.digits) for _ in range(12))
