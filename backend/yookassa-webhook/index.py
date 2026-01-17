@@ -144,11 +144,24 @@ def handler(event: dict, context) -> dict:
                     template_settings = cur.fetchone()
                     
                     if template_settings:
+                        # Подставляем данные клиента в page_settings
+                        page_settings = template_settings[3] or {}
+                        if isinstance(page_settings, dict):
+                            # Подставляем название бота
+                            if tenant_name:
+                                page_settings['header_title'] = tenant_name
+                            
+                            # Подставляем контакты клиента
+                            if owner_email:
+                                page_settings['contact_email_value'] = owner_email
+                            if owner_phone:
+                                page_settings['contact_phone_value'] = owner_phone
+                        
                         cur.execute("""
                             INSERT INTO t_p56134400_telegram_ai_bot_pdf.tenant_settings 
                             (tenant_id, ai_settings, widget_settings, telegram_settings, page_settings)
                             VALUES (%s, %s, %s, %s, %s)
-                        """, (tenant_id, template_settings[0], template_settings[1], template_settings[2], template_settings[3]))
+                        """, (tenant_id, template_settings[0], template_settings[1], template_settings[2], page_settings))
                     else:
                         # Fallback: создаем пустую запись, если шаблон не найден
                         cur.execute("""
