@@ -125,9 +125,15 @@ def handler(event: dict, context) -> dict:
         
         if settings_row and settings_row[0]:
             settings = settings_row[0]
-            ai_model = settings.get('model', 'yandexgpt')
+            ai_model = settings.get('chat_model') or settings.get('model', 'yandexgpt')
             
-            if ai_model.startswith('openrouter-'):
+            # Приоритет: chat_provider из настроек (новая схема) или автоопределение по модели (старая схема)
+            explicit_provider = settings.get('chat_provider')
+            
+            if explicit_provider:
+                # Новая схема: chat_provider явно указан в настройках
+                ai_provider = explicit_provider
+            elif ai_model.startswith('openrouter-'):
                 ai_provider = 'openrouter'
                 ai_model = ai_model.replace('openrouter-', '')
             elif ai_model in ['yandexgpt', 'yandexgpt-lite']:
@@ -138,7 +144,7 @@ def handler(event: dict, context) -> dict:
                               'claude-3-opus', 'gemini-pro-1.5', 'llama-3.1-70b', 'mixtral-8x7b', 'claude-3-haiku', 
                               'gpt-3.5-turbo', 'gemini-flash-1.5']:
                 ai_provider = 'openrouter'
-            elif ai_model in ['gpt-4o-mini', 'o1-mini', 'o1', 'claude-3-haiku', 'claude-3-5-sonnet-20241022', 'claude-3-opus-20240229']:
+            elif ai_model in ['gpt-4o-mini', 'o1-mini', 'o1']:
                 ai_provider = 'proxyapi'
             else:
                 ai_provider = settings.get('provider', 'yandex')

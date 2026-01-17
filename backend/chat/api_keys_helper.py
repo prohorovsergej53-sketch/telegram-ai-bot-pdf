@@ -5,11 +5,11 @@ import psycopg2
 
 def get_tenant_api_key(tenant_id: int, provider: str, key_name: str) -> tuple[str | None, dict | None]:
     """
-    Получить API ключ клиента из tenant_api_keys.
+    Получить API ключ клиента из tenant_api_keys или секретов проекта.
     
     Args:
         tenant_id: ID клиента
-        provider: Провайдер (yandexgpt, openai, deepseek, telegram)
+        provider: Провайдер (yandexgpt, openai, deepseek, telegram, proxyapi)
         key_name: Название ключа (api_key, folder_id, bot_token)
     
     Returns:
@@ -33,6 +33,12 @@ def get_tenant_api_key(tenant_id: int, provider: str, key_name: str) -> tuple[st
         conn.close()
         
         if not row:
+            # Fallback на секреты проекта для ProxyAPI
+            if provider == 'proxyapi' and key_name == 'api_key':
+                project_key = os.environ.get('PROXYAPI_API_KEY')
+                if project_key:
+                    return project_key, None
+            
             error_msg = f"API ключ не настроен: {provider}.{key_name}. Добавьте ключи в админ-панели."
             return None, {
                 'statusCode': 400,
@@ -40,6 +46,12 @@ def get_tenant_api_key(tenant_id: int, provider: str, key_name: str) -> tuple[st
                 'body': json.dumps({'error': error_msg}),
                 'isBase64Encoded': False
             }
+        
+        # Если в БД placeholder — используем секрет проекта
+        if row[0] == 'sk-proxy-placeholder' and provider == 'proxyapi':
+            project_key = os.environ.get('PROXYAPI_API_KEY')
+            if project_key:
+                return project_key, None
         
         return row[0], None
         
