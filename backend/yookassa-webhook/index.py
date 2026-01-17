@@ -1,11 +1,14 @@
 import json
 import os
 import psycopg2
+import psycopg2.extras
 import hashlib
 import secrets
 import string
 import requests
 from datetime import datetime, timedelta
+
+psycopg2.extensions.register_adapter(dict, psycopg2.extras.Json)
 
 SEND_EMAIL_URL = 'https://functions.poehali.dev/38938588-b119-4fcc-99d9-952e16dd8d6a'
 
@@ -132,9 +135,9 @@ def handler(event: dict, context) -> dict:
                     tenant_id = cur.fetchone()[0]
                     
                     # Копируем настройки из ШАБЛОНА (tenant_id=1: template)
-                    # Шаблон содержит все настройки по умолчанию: AI, промпт, виджет, мессенджеры, автосообщения
+                    # Шаблон содержит все настройки по умолчанию: AI, промпт, виджет, telegram, автосообщения
                     cur.execute("""
-                        SELECT ai_settings, widget_settings, messenger_settings, page_settings
+                        SELECT ai_settings, widget_settings, telegram_settings, page_settings
                         FROM t_p56134400_telegram_ai_bot_pdf.tenant_settings
                         WHERE tenant_id = 1
                     """)
@@ -143,7 +146,7 @@ def handler(event: dict, context) -> dict:
                     if template_settings:
                         cur.execute("""
                             INSERT INTO t_p56134400_telegram_ai_bot_pdf.tenant_settings 
-                            (tenant_id, ai_settings, widget_settings, messenger_settings, page_settings)
+                            (tenant_id, ai_settings, widget_settings, telegram_settings, page_settings)
                             VALUES (%s, %s, %s, %s, %s)
                         """, (tenant_id, template_settings[0], template_settings[1], template_settings[2], template_settings[3]))
                     else:
