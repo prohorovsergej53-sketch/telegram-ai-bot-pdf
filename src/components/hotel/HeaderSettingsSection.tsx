@@ -3,6 +3,7 @@ import { Label } from '@/components/ui/label';
 import Icon from '@/components/ui/icon';
 import IconPicker from './IconPicker';
 import { PageSettings } from './types';
+import { isSuperAdmin } from '@/lib/auth';
 
 interface HeaderSettingsSectionProps {
   settings: PageSettings;
@@ -30,12 +31,20 @@ export const HeaderSettingsSection = ({
           </div>
         </div>
         <div>
-          <Label htmlFor="header_title">Название</Label>
+          <Label htmlFor="header_title" className="flex items-center gap-2">
+            Название
+            {isSuperAdmin() && (
+              <span className="text-xs font-normal text-amber-600 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
+                автозаполнение из формы оплаты
+              </span>
+            )}
+          </Label>
           <Input
             id="header_title"
             value={settings.header_title}
             onChange={(e) => onSettingsChange({ ...settings, header_title: e.target.value })}
             placeholder="Отель Пушкин"
+            className={isSuperAdmin() ? "border-amber-300 bg-amber-50/30" : ""}
           />
         </div>
         <div>

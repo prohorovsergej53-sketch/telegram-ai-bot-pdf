@@ -1,6 +1,7 @@
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { PageSettings } from './types';
+import { isSuperAdmin } from '@/lib/auth';
 
 interface ContactsSettingsSectionProps {
   settings: PageSettings;
@@ -25,11 +26,19 @@ export const ContactsSettingsSection = ({
             />
           </div>
           <div>
-            <Label htmlFor="contact_phone_value">Номер телефона</Label>
+            <Label htmlFor="contact_phone_value" className="flex items-center gap-2">
+              Номер телефона
+              {isSuperAdmin() && (
+                <span className="text-xs font-normal text-amber-600 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
+                  автозаполнение
+                </span>
+              )}
+            </Label>
             <Input
               id="contact_phone_value"
               value={settings.contact_phone_value}
               onChange={(e) => onSettingsChange({ ...settings, contact_phone_value: e.target.value })}
+              className={isSuperAdmin() ? "border-amber-300 bg-amber-50/30" : ""}
             />
           </div>
         </div>
@@ -43,12 +52,20 @@ export const ContactsSettingsSection = ({
             />
           </div>
           <div>
-            <Label htmlFor="contact_email_value">Email</Label>
+            <Label htmlFor="contact_email_value" className="flex items-center gap-2">
+              Email
+              {isSuperAdmin() && (
+                <span className="text-xs font-normal text-amber-600 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
+                  автозаполнение
+                </span>
+              )}
+            </Label>
             <Input
               id="contact_email_value"
               type="email"
               value={settings.contact_email_value}
               onChange={(e) => onSettingsChange({ ...settings, contact_email_value: e.target.value })}
+              className={isSuperAdmin() ? "border-amber-300 bg-amber-50/30" : ""}
             />
           </div>
         </div>

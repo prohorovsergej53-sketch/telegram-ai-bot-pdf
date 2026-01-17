@@ -29,17 +29,35 @@ export const BotTemplateTab = () => {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <div className="flex items-start gap-3">
-              <Icon name="Info" size={20} className="text-blue-600 mt-0.5" />
-              <div className="text-sm text-blue-800">
-                <p className="font-semibold mb-2">Как работает шаблон:</p>
-                <ul className="list-disc list-inside space-y-1">
-                  <li>Все настройки отсюда копируются новым клиентам при оплате через ЮKassa</li>
-                  <li>Изменения шаблона НЕ влияют на уже созданные боты</li>
-                  <li>Включает: AI промпт, мессенджеры, виджет, автосообщения, настройки страницы</li>
-                  <li>Это отдельный бот — можете тестировать настройки перед применением</li>
-                </ul>
+          <div className="space-y-3">
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <div className="flex items-start gap-3">
+                <Icon name="Info" size={20} className="text-blue-600 mt-0.5" />
+                <div className="text-sm text-blue-800">
+                  <p className="font-semibold mb-2">Как работает шаблон:</p>
+                  <ul className="list-disc list-inside space-y-1">
+                    <li>Все настройки отсюда копируются новым клиентам при оплате через ЮKassa</li>
+                    <li>Изменения шаблона НЕ влияют на уже созданные боты</li>
+                    <li>Включает: AI промпт, мессенджеры, виджет, автосообщения, настройки страницы</li>
+                    <li>Это отдельный бот — можете тестировать настройки перед применением</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+            
+            <div className="bg-amber-50 border border-amber-300 rounded-lg p-4">
+              <div className="flex items-start gap-3">
+                <Icon name="Wand2" size={20} className="text-amber-600 mt-0.5" />
+                <div className="text-sm text-amber-900">
+                  <p className="font-semibold mb-2">Автоматическая подстановка данных:</p>
+                  <p className="mb-2">При создании нового бота некоторые поля автоматически заполняются данными из формы оплаты:</p>
+                  <ul className="list-disc list-inside space-y-1">
+                    <li><strong>Название бота</strong> (header_title) → название из формы оплаты</li>
+                    <li><strong>Email контакт</strong> → email клиента</li>
+                    <li><strong>Телефон контакт</strong> → телефон клиента</li>
+                  </ul>
+                  <p className="mt-2 text-amber-700 italic">Поля с автозаполнением отмечены янтарной рамкой в настройках страницы</p>
+                </div>
               </div>
             </div>
           </div>
