@@ -76,10 +76,18 @@ def handler(event: dict, context) -> dict:
             
             if owner_email:
                 tariff_id = metadata.get('tariff_id', 'basic')
-                first_month_included = metadata.get('first_month_included', False)
                 consent_text = metadata.get('consent_text', '')
                 session_id = metadata.get('session_id', '')
                 requires_fz152 = metadata.get('requires_fz152', False)
+                
+                # Получаем first_month_included из БД по tariff_id
+                cur.execute("""
+                    SELECT first_month_included 
+                    FROM t_p56134400_telegram_ai_bot_pdf.tariff_plans 
+                    WHERE id = %s
+                """, (tariff_id,))
+                tariff_row = cur.fetchone()
+                first_month_included = tariff_row[0] if tariff_row else False
                 
                 # Получаем IP и User-Agent из контекста запроса
                 request_context = event.get('requestContext', {})
@@ -277,6 +285,11 @@ def send_order_notification(customer_email: str, customer_name: str, customer_ph
                            username: str = '', password: str = '', login_url: str = '') -> bool:
     """Отправка email уведомления через отдельный сервис"""
     try:
+        headers = {}
+        internal_token = os.environ.get('INTERNAL_API_TOKEN')
+        if internal_token:
+            headers['X-Internal-Token'] = internal_token
+        
         response = requests.post(
             SEND_EMAIL_URL,
             json={
@@ -291,6 +304,7 @@ def send_order_notification(customer_email: str, customer_name: str, customer_ph
                 'password': password,
                 'login_url': login_url
             },
+            headers=headers,
             timeout=10
         )
         
