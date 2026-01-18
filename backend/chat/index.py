@@ -170,11 +170,28 @@ def handler(event: dict, context) -> dict:
                 ai_provider = 'proxyapi'
             else:
                 ai_provider = settings.get('provider', 'yandex')
-            ai_temperature = float(settings.get('temperature', 0.15))
-            ai_top_p = float(settings.get('top_p', 1.0))
-            ai_frequency_penalty = float(settings.get('frequency_penalty', 0))
-            ai_presence_penalty = float(settings.get('presence_penalty', 0))
-            ai_max_tokens = int(settings.get('max_tokens', 600))
+            # Безопасное преобразование типов (значения могут быть строками из JSON)
+            def safe_float(value, default):
+                if isinstance(value, (int, float)):
+                    return float(value)
+                try:
+                    return float(value) if value else default
+                except (ValueError, TypeError):
+                    return default
+            
+            def safe_int(value, default):
+                if isinstance(value, int):
+                    return value
+                try:
+                    return int(float(value)) if value else default
+                except (ValueError, TypeError):
+                    return default
+            
+            ai_temperature = safe_float(settings.get('temperature', 0.15), 0.15)
+            ai_top_p = safe_float(settings.get('top_p', 1.0), 1.0)
+            ai_frequency_penalty = safe_float(settings.get('frequency_penalty', 0), 0.0)
+            ai_presence_penalty = safe_float(settings.get('presence_penalty', 0), 0.0)
+            ai_max_tokens = safe_int(settings.get('max_tokens', 600), 600)
             ai_system_priority = settings.get('system_priority', 'strict')
             ai_creative_mode = settings.get('creative_mode', 'off')
             system_prompt_template = settings.get('system_prompt', '''Ты — дружелюбный AI-консьерж отеля «Династия» в Telegram.
