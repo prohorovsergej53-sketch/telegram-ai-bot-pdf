@@ -110,9 +110,11 @@ const DocumentGrid = ({ documents, scrollAreaHeight, onDeleteDocument }: Documen
               <Icon name="AlertTriangle" size={24} className="text-orange-600" />
               Удалить документ?
             </AlertDialogTitle>
-            <AlertDialogDescription className="space-y-2">
-              <p>Документ: <strong>{documentToDelete?.name}</strong></p>
-              <p className="text-orange-600 font-medium">Все данные будут удалены из базы знаний!</p>
+            <AlertDialogDescription>
+              <div className="space-y-2">
+                <p>Документ: <strong>{documentToDelete?.name}</strong></p>
+                <p className="text-orange-600 font-medium">Все данные будут удалены из базы знаний!</p>
+              </div>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

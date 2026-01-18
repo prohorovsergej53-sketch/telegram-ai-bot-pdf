@@ -33,6 +33,7 @@ export const DocumentsPanel = ({
   onDeleteDocument
 }: DocumentsPanelProps) => {
   const [selectedStatus, setSelectedStatus] = useState<string>('all');
+  const [sortBy, setSortBy] = useState<'name' | 'size' | 'date'>('date');
   const [showDeleteAllDialog, setShowDeleteAllDialog] = useState(false);
   const [isDeletingAll, setIsDeletingAll] = useState(false);
   const [deleteProgress, setDeleteProgress] = useState({ current: 0, total: 0 });
@@ -41,11 +42,29 @@ export const DocumentsPanel = ({
   const canUpload = canUploadMoreDocuments(documents.length, tariffId);
 
   const filteredDocuments = useMemo(() => {
-    return documents.filter(doc => {
+    const filtered = documents.filter(doc => {
       const statusMatch = selectedStatus === 'all' || doc.status === selectedStatus;
       return statusMatch;
     });
-  }, [documents, selectedStatus]);
+
+    const sorted = [...filtered].sort((a, b) => {
+      if (sortBy === 'name') {
+        return a.name.localeCompare(b.name, 'ru');
+      } else if (sortBy === 'size') {
+        const parseSize = (sizeStr: string) => {
+          if (!sizeStr || sizeStr === '—') return 0;
+          const [value, unit] = sizeStr.split(' ');
+          const num = parseFloat(value);
+          return unit === 'МБ' ? num * 1024 : num;
+        };
+        return parseSize(b.size) - parseSize(a.size);
+      } else {
+        return new Date(b.uploadedAt).getTime() - new Date(a.uploadedAt).getTime();
+      }
+    });
+
+    return sorted;
+  }, [documents, selectedStatus, sortBy]);
 
   const scrollAreaHeight = useMemo(() => {
     const count = filteredDocuments.length;
@@ -112,6 +131,15 @@ export const DocumentsPanel = ({
               </div>
               <div className="flex gap-2">
                 <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value as 'name' | 'size' | 'date')}
+                  className="px-3 py-1.5 text-sm border border-slate-300 rounded-lg bg-white hover:border-slate-400 focus:outline-none focus:ring-2 focus:ring-primary"
+                >
+                  <option value="date">По дате</option>
+                  <option value="name">По имени</option>
+                  <option value="size">По размеру</option>
+                </select>
+                <select
                   value={selectedStatus}
                   onChange={(e) => setSelectedStatus(e.target.value)}
                   className="px-3 py-1.5 text-sm border border-slate-300 rounded-lg bg-white hover:border-slate-400 focus:outline-none focus:ring-2 focus:ring-primary"
@@ -177,9 +205,11 @@ export const DocumentsPanel = ({
               <Icon name="AlertTriangle" size={24} className="text-red-600" />
               Удалить все документы?
             </AlertDialogTitle>
-            <AlertDialogDescription className="space-y-2">
-              <p>Будет удалено: <strong>{documents.length} документов</strong></p>
-              <p className="text-red-600 font-medium">Это действие нельзя отменить!</p>
+            <AlertDialogDescription>
+              <div className="space-y-2">
+                <p>Будет удалено: <strong>{documents.length} документов</strong></p>
+                <p className="text-red-600 font-medium">Это действие нельзя отменить!</p>
+              </div>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
