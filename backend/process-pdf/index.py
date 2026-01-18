@@ -2,13 +2,13 @@ import json
 import os
 import boto3
 import psycopg2
-from datetime import datetime
 from io import BytesIO
 from auth_middleware import get_tenant_id_from_request
 import sys
 sys.path.append('/function/code')
 from api_keys_helper import get_tenant_api_key
 from token_logger import log_token_usage
+from timezone_helper import moscow_naive
 
 def handler(event: dict, context) -> dict:
     """Обработка PDF: извлечение текста, разбиение на чанки и создание эмбеддингов"""
@@ -251,12 +251,25 @@ def handler(event: dict, context) -> dict:
             print(f"📝 Inserted {len(chunk_embeddings)} chunks into database")
             
             # Обновляем статус документа (один раз в конце)
+            print(f"📝 Updating document status: doc_id={document_id}, pages={pages_count}")
+            
+            # Проверяем существование документа перед UPDATE
+            cur.execute("SELECT id, status, tenant_id FROM t_p56134400_telegram_ai_bot_pdf.tenant_documents WHERE id = %s", (document_id,))
+            doc_check = cur.fetchone()
+            print(f"🔍 Document before UPDATE: {doc_check}")
+            
+            if not doc_check:
+                print(f"❌ FATAL: Document {document_id} NOT FOUND before UPDATE!")
+                raise Exception(f"Document {document_id} not found")
+            
             cur.execute("""
                 UPDATE t_p56134400_telegram_ai_bot_pdf.tenant_documents 
                 SET status = 'ready', pages = %s, processed_at = %s
                 WHERE id = %s
-            """, (pages_count, datetime.now(), document_id))
-            print(f"✅ Updated document status to 'ready'")
+                RETURNING id, status
+            """, (pages_count, moscow_naive(), document_id))
+            updated_doc = cur.fetchone()
+            print(f"✅ Updated document status to 'ready': {updated_doc}")
             
             # Один commit в конце всей транзакции
             conn.commit()
