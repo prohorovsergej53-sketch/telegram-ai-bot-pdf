@@ -582,14 +582,19 @@ MINI-SYSTEM: РАСЧЁТ ЦЕН (используй только для зап�
         try:
             if embedding_provider == 'yandex':
                 import requests
-                yandex_api_key, error = get_tenant_api_key(tenant_id, 'yandex', 'api_key')
-                if error:
-                    return error
-                yandex_folder_id, error = get_tenant_api_key(tenant_id, 'yandex', 'folder_id')
-                if error:
-                    return error
+                # ВСЕГДА используем PROJECT секреты для эмбеддингов (не tenant ключи!)
+                yandex_api_key = os.environ.get('YANDEXGPT_API_KEY')
+                yandex_folder_id = os.environ.get('YANDEXGPT_FOLDER_ID')
                 
-                print(f"🚀 SENDING TO YANDEX: api_key={yandex_api_key[:10]}..., folder_id={yandex_folder_id}")
+                if not yandex_api_key or not yandex_folder_id:
+                    return {
+                        'statusCode': 500,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'PROJECT Yandex API keys not configured'}),
+                        'isBase64Encoded': False
+                    }
+                
+                print(f"🚀 SENDING TO YANDEX (PROJECT keys): api_key={yandex_api_key[:10]}..., folder_id={yandex_folder_id}")
                 
                 emb_response = requests.post(
                     'https://llm.api.cloud.yandex.net/foundationModels/v1/textEmbedding',

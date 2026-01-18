@@ -127,19 +127,16 @@ def handler(event: dict, context) -> dict:
         
         import requests
         
-        # Получаем API ключи ДО транзакции (опционально)
+        # Получаем API ключи ДО транзакции (ВСЕГДА используем PROJECT секреты для эмбеддингов)
         yandex_api_key = None
         yandex_folder_id = None
         if embedding_provider == 'yandex':
-            yandex_api_key, error = get_tenant_api_key(tenant_id, 'yandex', 'api_key')
-            if error:
-                print(f"No Yandex API key found, skipping embeddings")
+            yandex_api_key = os.environ.get('YANDEXGPT_API_KEY')
+            yandex_folder_id = os.environ.get('YANDEXGPT_FOLDER_ID')
+            if not yandex_api_key or not yandex_folder_id:
+                print(f"No PROJECT Yandex API keys found, skipping embeddings")
                 yandex_api_key = None
-            else:
-                yandex_folder_id, error = get_tenant_api_key(tenant_id, 'yandex', 'folder_id')
-                if error:
-                    print(f"No Yandex folder_id found, skipping embeddings")
-                    yandex_folder_id = None
+                yandex_folder_id = None
         
         # Генерируем все эмбеддинги ДО транзакции (если есть API ключи)
         import time
