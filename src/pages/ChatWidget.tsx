@@ -93,7 +93,7 @@ const ChatWidget = () => {
   };
 
   return (
-    <div className="h-screen w-full bg-gradient-to-br from-slate-50 to-blue-50 p-4">
+    <div className="h-screen w-full bg-white p-0 m-0" style={{ overflow: 'hidden' }}>
       <ChatArea
         messages={messages}
         inputMessage={inputMessage}
@@ -103,6 +103,7 @@ const ChatWidget = () => {
         pageSettings={pageSettings || undefined}
         consentEnabled={pageSettings?.consent_enabled}
         consentText={pageSettings?.consent_text}
+        isWidget={true}
       />
     </div>
   );

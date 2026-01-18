@@ -16,6 +16,7 @@ interface ChatAreaProps {
   pageSettings?: PageSettings;
   consentEnabled?: boolean;
   consentText?: string;
+  isWidget?: boolean;
 }
 
 const ChatArea = ({
@@ -26,7 +27,8 @@ const ChatArea = ({
   onSendMessage,
   pageSettings,
   consentEnabled = false,
-  consentText = 'Я согласен на обработку персональных данных'
+  consentText = 'Я согласен на обработку персональных данных',
+  isWidget = false
 }: ChatAreaProps) => {
   const [consentGiven, setConsentGiven] = useState(false);
   const [showConsentWarning, setShowConsentWarning] = useState(false);
@@ -44,7 +46,7 @@ const ChatArea = ({
   };
 
   return (
-    <Card className="shadow-xl animate-scale-in h-[calc(100vh-200px)]">
+    <Card className={isWidget ? "h-full rounded-none border-0 shadow-none" : "shadow-xl animate-scale-in h-[calc(100vh-200px)]"}>
       <CardHeader className="border-b bg-gradient-to-r from-slate-50 to-blue-50">
         <CardTitle className="flex items-center gap-2">
           <Icon name="MessageCircle" size={20} />
@@ -52,7 +54,7 @@ const ChatArea = ({
         </CardTitle>
         <CardDescription>{pageSettings?.page_subtitle || 'Задайте любой вопрос о наших услугах'}</CardDescription>
       </CardHeader>
-      <CardContent className="p-0 flex flex-col h-[calc(100%-100px)]">
+      <CardContent className={isWidget ? "p-0 flex flex-col h-[calc(100%-80px)]" : "p-0 flex flex-col h-[calc(100%-100px)]"}>
         <ScrollArea className="flex-1 p-6">
           <div className="space-y-4">
             {messages.map((msg) => (
