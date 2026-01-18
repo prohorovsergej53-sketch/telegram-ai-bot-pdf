@@ -34,9 +34,12 @@ def handler(event: dict, context) -> dict:
         }
 
     try:
+        print(f"🔍 DEBUG upload-pdf: headers={event.get('headers', {})}, queryParams={event.get('queryStringParameters', {})}")
         tenant_id, auth_error = get_tenant_id_from_request(event)
         if auth_error:
+            print(f"❌ AUTH ERROR in upload-pdf: {auth_error}")
             return auth_error
+        print(f"✅ AUTH SUCCESS in upload-pdf: tenant_id={tenant_id}")
         
         # Проверяем наличие API ключей ДО загрузки файла
         conn = psycopg2.connect(os.environ['DATABASE_URL'])

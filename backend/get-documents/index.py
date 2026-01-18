@@ -28,9 +28,12 @@ def handler(event: dict, context) -> dict:
         }
 
     try:
+        print(f"🔍 DEBUG get-documents: headers={event.get('headers', {})}, queryParams={event.get('queryStringParameters', {})}")
         tenant_id, auth_error = get_tenant_id_from_request(event)
         if auth_error:
+            print(f"❌ AUTH ERROR in get-documents: {auth_error}")
             return auth_error
+        print(f"✅ AUTH SUCCESS in get-documents: tenant_id={tenant_id}")
         
         conn = psycopg2.connect(os.environ['DATABASE_URL'])
         cur = conn.cursor()

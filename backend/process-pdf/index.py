@@ -35,9 +35,12 @@ def handler(event: dict, context) -> dict:
         }
 
     try:
+        print(f"🔍 DEBUG process-pdf: headers={event.get('headers', {})}, queryParams={event.get('queryStringParameters', {})}")
         tenant_id, auth_error = get_tenant_id_from_request(event)
         if auth_error:
+            print(f"❌ AUTH ERROR in process-pdf: {auth_error}")
             return auth_error
+        print(f"✅ AUTH SUCCESS in process-pdf: tenant_id={tenant_id}")
         
         import PyPDF2
         from openai import OpenAI
