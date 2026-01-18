@@ -48,8 +48,8 @@ export function TokenStatsTab({ tenants }: TokenStatsTabProps) {
     setIsLoading(true);
     try {
       const url = selectedTenant === 'all'
-        ? `https://functions.poehali.dev/c88cb0c9-4dd7-47a7-b4dc-0d381a8207e1?period=${period}`
-        : `https://functions.poehali.dev/c88cb0c9-4dd7-47a7-b4dc-0d381a8207e1?tenantId=${selectedTenant}&period=${period}`;
+        ? `https://ai-ru.ru/api/get-token-stats?period=${period}`
+        : `https://ai-ru.ru/api/get-token-stats?tenantId=${selectedTenant}&period=${period}`;
       
       const response = await authenticatedFetch(url);
       if (response.ok) {
