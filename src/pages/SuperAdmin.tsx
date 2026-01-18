@@ -14,6 +14,7 @@ import { EmailTemplatesTab } from '@/components/superadmin/EmailTemplatesTab';
 import { SystemMonitoringTab } from '@/components/superadmin/SystemMonitoringTab';
 import { ConsentLogsTab } from '@/components/superadmin/ConsentLogsTab';
 import { SupportTab } from '@/components/superadmin/SupportTab';
+import { TokenStatsTab } from '@/components/superadmin/TokenStatsTab';
 
 import { TenantEditDialog } from '@/components/superadmin/TenantEditDialog';
 import { TariffEditDialog } from '@/components/superadmin/TariffEditDialog';
@@ -269,6 +270,10 @@ const SuperAdmin = () => {
               <Icon name="Headphones" size={16} className="mr-2" />
               Поддержка
             </TabsTrigger>
+            <TabsTrigger value="tokens">
+              <Icon name="BarChart3" size={16} className="mr-2" />
+              Токены
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="dashboard" className="space-y-6">
@@ -324,6 +329,10 @@ const SuperAdmin = () => {
 
           <TabsContent value="support" className="space-y-6">
             <SupportTab />
+          </TabsContent>
+
+          <TabsContent value="tokens" className="space-y-6">
+            <TokenStatsTab tenants={tenants} />
           </TabsContent>
         </Tabs>
       </div>

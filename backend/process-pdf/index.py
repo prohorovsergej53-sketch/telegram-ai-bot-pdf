@@ -8,6 +8,7 @@ from auth_middleware import get_tenant_id_from_request
 import sys
 sys.path.append('/function/code')
 from api_keys_helper import get_tenant_api_key
+from token_logger import log_token_usage
 
 def handler(event: dict, context) -> dict:
     """Обработка PDF: извлечение текста, разбиение на чанки и создание эмбеддингов"""
@@ -162,6 +163,16 @@ def handler(event: dict, context) -> dict:
                     emb_data = emb_response.json()
                     embedding_vector = emb_data['embedding']
                     embedding_json = json.dumps(embedding_vector)
+                    
+                    # Логируем использование токенов (примерно 256 токенов на chunk)
+                    tokens_estimate = min(len(chunk_text) // 4, 256)
+                    log_token_usage(
+                        tenant_id=tenant_id,
+                        operation_type='embedding_create',
+                        model=embedding_doc_model,
+                        tokens_used=tokens_estimate,
+                        metadata={'document_id': document_id, 'chunk_index': idx}
+                    )
                     
                     if (idx + 1) % 10 == 0:
                         time.sleep(0.5)

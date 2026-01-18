@@ -8,6 +8,7 @@ from datetime import datetime
 sys.path.append('/function/code')
 from api_keys_helper import get_tenant_api_key
 from openrouter_models import get_working_free_model
+from token_logger import log_token_usage
 
 from quality_gate import (
     build_context_with_scores, 
@@ -561,6 +562,16 @@ MINI-SYSTEM: РАСЧЁТ ЦЕН (используй только для зап�
                 )
                 emb_data = emb_response.json()
                 query_embedding = emb_data['embedding']
+                
+                # Логируем использование токенов для запроса (примерно по количеству символов)
+                tokens_estimate = min(len(user_message) // 4, 256)
+                log_token_usage(
+                    tenant_id=tenant_id,
+                    operation_type='embedding_query',
+                    model='text-search-query',
+                    tokens_used=tokens_estimate,
+                    request_id=session_id
+                )
             else:
                 return {
                     'statusCode': 400,
@@ -728,6 +739,18 @@ MINI-SYSTEM: РАСЧЁТ ЦЕН (используй только для зап�
             )
             yandex_data = yandex_response.json()
             assistant_message = yandex_data['result']['alternatives'][0]['message']['text']
+            
+            # Логируем использование токенов GPT
+            usage_data = yandex_data.get('result', {}).get('usage', {})
+            total_tokens = usage_data.get('totalTokens', 0)
+            if total_tokens > 0:
+                log_token_usage(
+                    tenant_id=tenant_id,
+                    operation_type='gpt_response',
+                    model=chat_api_model,
+                    tokens_used=total_tokens,
+                    request_id=session_id
+                )
         elif ai_provider == 'openrouter':
             openrouter_key, error = get_tenant_api_key(tenant_id, 'openrouter', 'api_key')
             if error:
