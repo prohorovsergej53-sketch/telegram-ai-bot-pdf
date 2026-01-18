@@ -39,7 +39,7 @@ def handler(event: dict, context) -> dict:
         cur = conn.cursor()
         
         cur.execute("""
-            SELECT id, file_name, file_size_bytes, pages, category, status, uploaded_at, processed_at
+            SELECT id, file_name, file_size_bytes, pages, category, status, uploaded_at
             FROM t_p56134400_telegram_ai_bot_pdf.tenant_documents
             WHERE tenant_id = %s
             ORDER BY uploaded_at DESC
@@ -63,8 +63,7 @@ def handler(event: dict, context) -> dict:
                 'pages': row[3] or 0,
                 'category': row[4] or 'Общая',
                 'status': row[5],
-                'uploadedAt': row[6].strftime('%Y-%m-%d') if row[6] else None,
-                'processedAt': row[7].strftime('%Y-%m-%d %H:%M') if row[7] else None
+                'uploadedAt': row[6].strftime('%Y-%m-%d') if row[6] else None
             }
             documents.append(doc)
 
