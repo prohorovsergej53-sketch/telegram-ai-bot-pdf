@@ -307,42 +307,21 @@ export const useIndexActions = (params: UseIndexActionsParams): IndexActions => 
   };
 
   const handleDeleteDocument = async (documentId: number) => {
-    if (!confirm('Удалить этот документ? Все данные будут удалены из базы знаний.')) {
-      return;
+    const tenantId = currentTenantId || getTenantId();
+    const deleteUrl = tenantId ? `${BACKEND_URLS.deletePdf}?tenant_id=${tenantId}` : BACKEND_URLS.deletePdf;
+    const response = await authenticatedFetch(deleteUrl, {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ documentId })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || 'Не удалось удалить документ');
     }
-
-    setIsLoading(true);
-    toast({ title: 'Удаление...', description: 'Удаляем документ' });
-
-    try {
-      const tenantId = currentTenantId || getTenantId();
-      const deleteUrl = tenantId ? `${BACKEND_URLS.deletePdf}?tenant_id=${tenantId}` : BACKEND_URLS.deletePdf;
-      const response = await authenticatedFetch(deleteUrl, {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ documentId })
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        toast({
-          title: 'Удалено!',
-          description: 'Документ удалён из базы'
-        });
-        loadDocuments();
-      } else {
-        throw new Error(data.error);
-      }
-    } catch (error: any) {
-      toast({
-        title: 'Ошибка',
-        description: error.message || 'Не удалось удалить документ',
-        variant: 'destructive'
-      });
-    } finally {
-      setIsLoading(false);
-    }
+    
+    return data;
   };
 
   const handleAdminLoginSuccess = () => {

@@ -1,17 +1,29 @@
 import { useState, useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import Icon from '@/components/ui/icon';
 import { Document } from './types';
 import { getTariffId } from '@/lib/auth';
 import { getTariffLimits, canUploadMoreDocuments } from '@/lib/tariff-limits';
 import DocumentUploadArea from './DocumentUploadArea';
 import DocumentGrid from './DocumentGrid';
+import { useToast } from '@/hooks/use-toast';
 
 interface DocumentsPanelProps {
   documents: Document[];
   isLoading: boolean;
   onFileUpload: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  onDeleteDocument: (documentId: number) => void;
+  onDeleteDocument: (documentId: number) => Promise<any>;
 }
 
 export const DocumentsPanel = ({
@@ -21,6 +33,9 @@ export const DocumentsPanel = ({
   onDeleteDocument
 }: DocumentsPanelProps) => {
   const [selectedStatus, setSelectedStatus] = useState<string>('all');
+  const [showDeleteAllDialog, setShowDeleteAllDialog] = useState(false);
+  const [isDeletingAll, setIsDeletingAll] = useState(false);
+  const [deleteProgress, setDeleteProgress] = useState({ current: 0, total: 0 });
   const tariffId = getTariffId();
   const limits = getTariffLimits(tariffId);
   const canUpload = canUploadMoreDocuments(documents.length, tariffId);
@@ -41,27 +56,97 @@ export const DocumentsPanel = ({
     return 'h-[600px]';
   }, [filteredDocuments.length]);
 
+  const { toast } = useToast();
+
+  const handleDeleteAll = async () => {
+    setIsDeletingAll(true);
+    setDeleteProgress({ current: 0, total: documents.length });
+    
+    let successCount = 0;
+    let errorCount = 0;
+    
+    for (let i = 0; i < documents.length; i++) {
+      try {
+        await onDeleteDocument(documents[i].id);
+        successCount++;
+        setDeleteProgress({ current: i + 1, total: documents.length });
+      } catch (error) {
+        console.error(`Failed to delete document ${documents[i].id}:`, error);
+        errorCount++;
+      }
+    }
+    
+    setIsDeletingAll(false);
+    setShowDeleteAllDialog(false);
+    setDeleteProgress({ current: 0, total: 0 });
+    
+    if (successCount > 0) {
+      toast({
+        title: 'Готово!',
+        description: `Удалено документов: ${successCount}${errorCount > 0 ? `, ошибок: ${errorCount}` : ''}`
+      });
+      window.location.reload();
+    } else {
+      toast({
+        title: 'Ошибка',
+        description: 'Не удалось удалить документы',
+        variant: 'destructive'
+      });
+    }
+  };
+
   return (
     <div className="space-y-4">
       <Card className="shadow-lg">
         <CardHeader className="border-b bg-gradient-to-r from-slate-50 to-blue-50 pb-4">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-            <div>
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <Icon name="Library" size={20} />
-                База знаний
-              </CardTitle>
-              <CardDescription className="text-sm">{filteredDocuments.length} из {documents.length} документов</CardDescription>
+          <div className="flex flex-col gap-3">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <div>
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <Icon name="Library" size={20} />
+                  База знаний
+                </CardTitle>
+                <CardDescription className="text-sm mt-1">
+                  {documents.length} из {limits.maxDocuments} документов
+                </CardDescription>
+              </div>
+              <div className="flex gap-2">
+                <select
+                  value={selectedStatus}
+                  onChange={(e) => setSelectedStatus(e.target.value)}
+                  className="px-3 py-1.5 text-sm border border-slate-300 rounded-lg bg-white hover:border-slate-400 focus:outline-none focus:ring-2 focus:ring-primary"
+                >
+                  <option value="all">Все статусы</option>
+                  <option value="ready">Готовы</option>
+                  <option value="processing">Обработка</option>
+                </select>
+                {documents.length > 0 && (
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => setShowDeleteAllDialog(true)}
+                    disabled={isDeletingAll}
+                  >
+                    <Icon name="Trash2" size={16} className="mr-2" />
+                    Очистить всё
+                  </Button>
+                )}
+              </div>
             </div>
-            <select
-              value={selectedStatus}
-              onChange={(e) => setSelectedStatus(e.target.value)}
-              className="px-3 py-1.5 text-sm border border-slate-300 rounded-lg bg-white hover:border-slate-400 focus:outline-none focus:ring-2 focus:ring-primary"
-            >
-              <option value="all">Все статусы</option>
-              <option value="ready">Готовы</option>
-              <option value="processing">Обработка</option>
-            </select>
+            {isDeletingAll && (
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                <div className="flex items-center justify-between text-sm mb-2">
+                  <span className="text-blue-900 font-medium">Удаление документов...</span>
+                  <span className="text-blue-700">{deleteProgress.current} из {deleteProgress.total}</span>
+                </div>
+                <div className="w-full bg-blue-200 rounded-full h-2 overflow-hidden">
+                  <div 
+                    className="bg-blue-600 h-2 transition-all duration-300"
+                    style={{ width: `${(deleteProgress.current / deleteProgress.total) * 100}%` }}
+                  />
+                </div>
+              </div>
+            )}
           </div>
         </CardHeader>
         <CardContent className="p-0">
@@ -84,6 +169,31 @@ export const DocumentsPanel = ({
           />
         </CardContent>
       </Card>
+
+      <AlertDialog open={showDeleteAllDialog} onOpenChange={setShowDeleteAllDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <Icon name="AlertTriangle" size={24} className="text-red-600" />
+              Удалить все документы?
+            </AlertDialogTitle>
+            <AlertDialogDescription className="space-y-2">
+              <p>Будет удалено: <strong>{documents.length} документов</strong></p>
+              <p className="text-red-600 font-medium">Это действие нельзя отменить!</p>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Отмена</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteAll}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              <Icon name="Trash2" size={16} className="mr-2" />
+              Да, удалить всё
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

@@ -31,7 +31,7 @@ interface AdminViewProps {
   documents: Document[];
   isLoading: boolean;
   onFileUpload: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  onDeleteDocument: (documentId: number) => void;
+  onDeleteDocument: (documentId: number) => Promise<any>;
   currentTenantId: number | null;
   tenantName?: string;
   fz152Enabled?: boolean;

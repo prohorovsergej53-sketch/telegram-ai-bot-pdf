@@ -1,15 +1,60 @@
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import Icon from '@/components/ui/icon';
 import { Document } from './types';
+import { useToast } from '@/hooks/use-toast';
 
 interface DocumentGridProps {
   documents: Document[];
   scrollAreaHeight: string;
-  onDeleteDocument: (documentId: number) => void;
+  onDeleteDocument: (documentId: number) => Promise<any>;
 }
 
 const DocumentGrid = ({ documents, scrollAreaHeight, onDeleteDocument }: DocumentGridProps) => {
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [documentToDelete, setDocumentToDelete] = useState<Document | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const { toast } = useToast();
+
+  const handleDeleteClick = (doc: Document) => {
+    setDocumentToDelete(doc);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!documentToDelete) return;
+    
+    setIsDeleting(true);
+    try {
+      await onDeleteDocument(documentToDelete.id);
+      toast({
+        title: 'Удалено!',
+        description: `Документ "${documentToDelete.name}" удалён из базы`
+      });
+      setDeleteDialogOpen(false);
+      setDocumentToDelete(null);
+      window.location.reload();
+    } catch (error: any) {
+      toast({
+        title: 'Ошибка',
+        description: error.message || 'Не удалось удалить документ',
+        variant: 'destructive'
+      });
+    } finally {
+      setIsDeleting(false);
+    }
+  };
   if (documents.length === 0) {
     return (
       <ScrollArea className={scrollAreaHeight}>
@@ -49,7 +94,7 @@ const DocumentGrid = ({ documents, scrollAreaHeight, onDeleteDocument }: Documen
                 variant="ghost"
                 size="sm"
                 className="h-8 px-2 text-red-600 hover:text-red-700 hover:bg-red-50 flex-shrink-0"
-                onClick={() => onDeleteDocument(doc.id)}
+                onClick={() => handleDeleteClick(doc)}
               >
                 <Icon name="Trash2" size={14} />
               </Button>
@@ -57,6 +102,41 @@ const DocumentGrid = ({ documents, scrollAreaHeight, onDeleteDocument }: Documen
           </div>
         ))}
       </div>
+
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <Icon name="AlertTriangle" size={24} className="text-orange-600" />
+              Удалить документ?
+            </AlertDialogTitle>
+            <AlertDialogDescription className="space-y-2">
+              <p>Документ: <strong>{documentToDelete?.name}</strong></p>
+              <p className="text-orange-600 font-medium">Все данные будут удалены из базы знаний!</p>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleting}>Отмена</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleConfirmDelete}
+              disabled={isDeleting}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              {isDeleting ? (
+                <>
+                  <Icon name="Loader2" size={16} className="mr-2 animate-spin" />
+                  Удаление...
+                </>
+              ) : (
+                <>
+                  <Icon name="Trash2" size={16} className="mr-2" />
+                  Да, удалить
+                </>
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </ScrollArea>
   );
 };
