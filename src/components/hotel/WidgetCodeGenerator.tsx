@@ -49,6 +49,22 @@ export const generateWidgetCode = (settings: WidgetSettings, tenantSlug?: string
         #ai-bot-button svg { width: ${settings.button_size * 0.5}px; height: ${settings.button_size * 0.5}px; }
         #ai-bot-iframe-container { position: fixed; ${settings.button_position === 'bottom-right' ? 'bottom: 90px; right: 20px;' : settings.button_position === 'bottom-left' ? 'bottom: 90px; left: 20px;' : 'bottom: 90px; right: 20px;'} width: ${settings.window_width}px; height: ${settings.window_height}px; border-radius: ${settings.border_radius}px; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,0.15); display: none; z-index: 999998; background: white; }
         #ai-bot-iframe { width: 100%; height: 100%; border: none; border-radius: ${settings.border_radius}px; }
+        
+        @media (max-width: 768px) {
+            #ai-bot-widget-container { bottom: 10px; right: 10px; left: auto; }
+            #ai-bot-button { width: ${Math.max(50, settings.button_size - 10)}px; height: ${Math.max(50, settings.button_size - 10)}px; }
+            #ai-bot-button svg { width: ${Math.max(25, settings.button_size * 0.5 - 5)}px; height: ${Math.max(25, settings.button_size * 0.5 - 5)}px; }
+            #ai-bot-iframe-container { 
+                bottom: 0 !important; 
+                left: 0 !important; 
+                right: 0 !important; 
+                top: 0 !important;
+                width: 100vw !important; 
+                height: 100vh !important; 
+                border-radius: 0 !important;
+            }
+        }
+        
         ${settings.custom_css || ''}
     \`;
     document.head.appendChild(style);
