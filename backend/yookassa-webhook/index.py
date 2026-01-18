@@ -144,6 +144,15 @@ def handler(event: dict, context) -> dict:
                     template_settings = cur.fetchone()
                     
                     if template_settings:
+                        ai_settings = template_settings[0] or {}
+                        
+                        # ФЗ-152: принудительно Яндекс для чата и эмбеддингов
+                        if requires_fz152:
+                            ai_settings['chat_provider'] = 'yandex'
+                            ai_settings['chat_model'] = 'yandexgpt'
+                            ai_settings['embedding_provider'] = 'yandex'
+                            ai_settings['embedding_model'] = 'text-search-query'
+                        
                         # Подставляем данные клиента в page_settings
                         page_settings = template_settings[3] or {}
                         if isinstance(page_settings, dict):
@@ -159,9 +168,12 @@ def handler(event: dict, context) -> dict:
                         
                         cur.execute("""
                             INSERT INTO t_p56134400_telegram_ai_bot_pdf.tenant_settings 
-                            (tenant_id, ai_settings, widget_settings, telegram_settings, page_settings)
-                            VALUES (%s, %s, %s, %s, %s)
-                        """, (tenant_id, template_settings[0], template_settings[1], template_settings[2], page_settings))
+                            (tenant_id, ai_settings, widget_settings, telegram_settings, page_settings,
+                             embedding_provider, embedding_query_model)
+                            VALUES (%s, %s, %s, %s, %s, %s, %s)
+                        """, (tenant_id, json.dumps(ai_settings), template_settings[1], template_settings[2], page_settings,
+                              ai_settings.get('embedding_provider', 'yandex'),
+                              ai_settings.get('embedding_model', 'text-search-query')))
                     else:
                         # Fallback: создаем пустую запись, если шаблон не найден
                         cur.execute("""
