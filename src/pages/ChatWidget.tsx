@@ -5,7 +5,9 @@ import { Message, PageSettings, BACKEND_URLS } from '@/components/hotel/types';
 import { Loader2 } from 'lucide-react';
 
 const ChatWidget = () => {
+  console.log('[ChatWidget] Component rendering...');
   const { tenantSlug } = useParams();
+  console.log('[ChatWidget] tenantSlug from params:', tenantSlug);
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -14,9 +16,16 @@ const ChatWidget = () => {
 
   useEffect(() => {
     const initialize = async () => {
-      await loadPageSettings();
-      addWelcomeMessage();
-      setIsInitializing(false);
+      try {
+        console.log('[ChatWidget] Initializing with tenantSlug:', tenantSlug);
+        await loadPageSettings();
+        addWelcomeMessage();
+        setIsInitializing(false);
+        console.log('[ChatWidget] Initialized successfully');
+      } catch (error) {
+        console.error('[ChatWidget] Initialization error:', error);
+        setIsInitializing(false);
+      }
     };
     initialize();
   }, [tenantSlug]);
