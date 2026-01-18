@@ -3,6 +3,7 @@ import { Textarea } from '@/components/ui/textarea';
 import Icon from '@/components/ui/icon';
 import { WidgetSettings } from './WidgetColorSchemes';
 import { getIconSvgPath } from './WidgetPreview';
+import { useToast } from '@/hooks/use-toast';
 
 interface WidgetCodeGeneratorProps {
   settings: WidgetSettings;
@@ -123,9 +124,23 @@ export const generateWidgetCode = (settings: WidgetSettings, tenantSlug?: string
 };
 
 const WidgetCodeGenerator = ({ settings, showCode, onToggleCode, tenantSlug }: WidgetCodeGeneratorProps) => {
-  const handleCopyCode = () => {
-    const code = generateWidgetCode(settings, tenantSlug);
-    navigator.clipboard.writeText(code);
+  const { toast } = useToast();
+  
+  const handleCopyCode = async () => {
+    try {
+      const code = generateWidgetCode(settings, tenantSlug);
+      await navigator.clipboard.writeText(code);
+      toast({
+        title: '✓ Скопировано!',
+        description: 'Код виджета скопирован в буфер обмена'
+      });
+    } catch (error) {
+      toast({
+        title: 'Ошибка',
+        description: 'Не удалось скопировать код',
+        variant: 'destructive'
+      });
+    }
   };
 
   return (
