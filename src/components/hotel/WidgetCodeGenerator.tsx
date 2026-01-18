@@ -8,18 +8,29 @@ interface WidgetCodeGeneratorProps {
   settings: WidgetSettings;
   showCode: boolean;
   onToggleCode: () => void;
+  tenantSlug?: string;
 }
 
-export const generateWidgetCode = (settings: WidgetSettings): string => {
+export const generateWidgetCode = (settings: WidgetSettings, tenantSlug?: string): string => {
   let chatUrl = settings.chat_url;
   
   if (!chatUrl) {
+    const pathParts = window.location.pathname.split('/').filter(p => p);
+    const slug = tenantSlug || pathParts[0] || 'demo';
+    
     const currentDomain = window.location.hostname;
+    let baseUrl;
     
     if (currentDomain.startsWith('admin.')) {
-      chatUrl = `${window.location.protocol}//${currentDomain.replace('admin.', '')}`;
+      baseUrl = `${window.location.protocol}//${currentDomain.replace('admin.', '')}`;
     } else {
-      chatUrl = window.location.origin;
+      baseUrl = window.location.origin;
+    }
+    
+    chatUrl = `${baseUrl}/${slug}/chat`;
+  } else {
+    if (!chatUrl.endsWith('/chat')) {
+      chatUrl = `${chatUrl.replace(/\/$/, '')}/chat`;
     }
   }
   
@@ -72,9 +83,9 @@ export const generateWidgetCode = (settings: WidgetSettings): string => {
 </script>`;
 };
 
-const WidgetCodeGenerator = ({ settings, showCode, onToggleCode }: WidgetCodeGeneratorProps) => {
+const WidgetCodeGenerator = ({ settings, showCode, onToggleCode, tenantSlug }: WidgetCodeGeneratorProps) => {
   const handleCopyCode = () => {
-    const code = generateWidgetCode(settings);
+    const code = generateWidgetCode(settings, tenantSlug);
     navigator.clipboard.writeText(code);
   };
 
@@ -98,7 +109,7 @@ const WidgetCodeGenerator = ({ settings, showCode, onToggleCode }: WidgetCodeGen
       
       {showCode && (
         <Textarea
-          value={generateWidgetCode(settings)}
+          value={generateWidgetCode(settings, tenantSlug)}
           readOnly
           className="font-mono text-xs h-64"
         />

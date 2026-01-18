@@ -8,6 +8,7 @@ import Icon from '@/components/ui/icon';
 import IconPicker from './IconPicker';
 import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
+import { useParams } from 'react-router-dom';
 import { BACKEND_URLS } from './types';
 import { COLOR_SCHEMES, WidgetSettings, applyColorScheme } from './WidgetColorSchemes';
 import WidgetPreview from './WidgetPreview';
@@ -16,6 +17,7 @@ import { authenticatedFetch, getTenantId } from '@/lib/auth';
 
 const WidgetSettingsCard = () => {
   const { toast } = useToast();
+  const { tenantSlug } = useParams<{ tenantSlug: string }>();
   const [settings, setSettings] = useState<WidgetSettings>({
     button_color: '#3b82f6',
     button_color_end: '#1d4ed8',
@@ -235,6 +237,7 @@ const WidgetSettingsCard = () => {
             settings={settings}
             showCode={showCode}
             onToggleCode={() => setShowCode(!showCode)}
+            tenantSlug={tenantSlug}
           />
         </div>
       </CardContent>

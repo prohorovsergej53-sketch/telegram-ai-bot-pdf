@@ -12,6 +12,7 @@ import PaymentSuccess from "./pages/PaymentSuccess";
 import SuperAdmin from "./pages/SuperAdmin";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
+import ChatWidget from "./pages/ChatWidget";
 import { CookieConsent } from "./components/CookieConsent";
 import { useSEONotify } from "./hooks/use-seo-notify";
 
@@ -36,6 +37,7 @@ const App = () => (
           <Route path="/payment" element={<PaymentPage />} />
           <Route path="/payment/success" element={<PaymentSuccess />} />
           <Route path="/super-admin" element={<SuperAdmin />} />
+          <Route path="/:tenantSlug/chat" element={<ChatWidget />} />
           <Route path="/:tenantSlug" element={<Index />} />
           <Route path="/:tenantSlug/admin" element={<Index />} />
           <Route path="/:tenantSlug/privacy-policy" element={<PrivacyPolicy />} />
