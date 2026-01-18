@@ -17,11 +17,10 @@ import { useToast } from '@/hooks/use-toast';
 
 interface DocumentGridProps {
   documents: Document[];
-  scrollAreaHeight: string;
   onDeleteDocument: (documentId: number) => Promise<any>;
 }
 
-const DocumentGrid = ({ documents, scrollAreaHeight, onDeleteDocument }: DocumentGridProps) => {
+const DocumentGrid = ({ documents, onDeleteDocument }: DocumentGridProps) => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [documentToDelete, setDocumentToDelete] = useState<Document | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -57,17 +56,15 @@ const DocumentGrid = ({ documents, scrollAreaHeight, onDeleteDocument }: Documen
   };
   if (documents.length === 0) {
     return (
-      <ScrollArea className={scrollAreaHeight}>
-        <div className="p-8 text-center text-slate-500">
-          <Icon name="FileText" size={48} className="mx-auto mb-3 opacity-30" />
-          <p>Нет документов с выбранными фильтрами</p>
-        </div>
-      </ScrollArea>
+      <div className="p-8 text-center text-slate-500">
+        <Icon name="FileText" size={48} className="mx-auto mb-3 opacity-30" />
+        <p>Нет документов с выбранными фильтрами</p>
+      </div>
     );
   }
 
   return (
-    <ScrollArea className={scrollAreaHeight}>
+    <div>
       <div className="p-3 space-y-2">
         {documents.map((doc) => (
           <div
@@ -139,7 +136,7 @@ const DocumentGrid = ({ documents, scrollAreaHeight, onDeleteDocument }: Documen
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </ScrollArea>
+    </div>
   );
 };
 

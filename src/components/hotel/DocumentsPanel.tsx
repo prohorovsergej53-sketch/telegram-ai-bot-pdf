@@ -66,15 +66,7 @@ export const DocumentsPanel = ({
     return sorted;
   }, [documents, selectedStatus, sortBy]);
 
-  const scrollAreaHeight = useMemo(() => {
-    const count = filteredDocuments.length;
-    if (count === 0) return 'h-[150px]';
-    if (count <= 2) return 'h-[200px]';
-    if (count <= 4) return 'h-[300px]';
-    if (count <= 8) return 'h-[450px]';
-    if (count <= 12) return 'h-[700px]';
-    return 'max-h-[800px]';
-  }, [filteredDocuments.length]);
+
 
   const { toast } = useToast();
 
@@ -127,7 +119,7 @@ export const DocumentsPanel = ({
                   База знаний
                 </CardTitle>
                 <CardDescription className="text-sm mt-1">
-                  {documents.length} из {limits.maxDocuments} документов
+                  {documents.length} из {limits.maxPdfDocuments} документов
                 </CardDescription>
               </div>
               <div className="flex gap-2">
@@ -181,7 +173,6 @@ export const DocumentsPanel = ({
         <CardContent className="p-0">
           <DocumentGrid
             documents={filteredDocuments}
-            scrollAreaHeight={scrollAreaHeight}
             onDeleteDocument={onDeleteDocument}
           />
         </CardContent>
