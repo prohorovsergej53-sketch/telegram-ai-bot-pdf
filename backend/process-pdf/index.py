@@ -83,8 +83,21 @@ def handler(event: dict, context) -> dict:
             aws_secret_access_key=os.environ['AWS_SECRET_ACCESS_KEY']
         )
         
-        obj = s3.get_object(Bucket='files', Key=file_key)
-        pdf_data = obj['Body'].read()
+        print(f"📦 TRYING TO GET FILE FROM S3: Bucket='files', Key='{file_key}'")
+        try:
+            obj = s3.get_object(Bucket='files', Key=file_key)
+            pdf_data = obj['Body'].read()
+            print(f"✅ FILE DOWNLOADED FROM S3: {len(pdf_data)} bytes")
+        except Exception as s3_error:
+            print(f"❌ S3 ERROR: {s3_error}")
+            cur.close()
+            conn.close()
+            return {
+                'statusCode': 500,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({'error': f'S3 error: {str(s3_error)}'}),
+                'isBase64Encoded': False
+            }
 
         pdf_reader = PyPDF2.PdfReader(BytesIO(pdf_data))
         pages_count = len(pdf_reader.pages)
