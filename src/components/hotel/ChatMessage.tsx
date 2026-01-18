@@ -5,7 +5,17 @@ interface ChatMessageProps {
   message: Message;
 }
 
+const cleanMessageContent = (content: string): string => {
+  return content
+    .replace(/<a\s+href="tel:[^"]*">([^<]+)<\/a>/gi, '$1')
+    .replace(/<a\s+href="mailto:[^"]*">([^<]+)<\/a>/gi, '$1')
+    .replace(/<a\s+[^>]*>([^<]+)<\/a>/gi, '$1')
+    .replace(/<[^>]+>/g, '');
+};
+
 const ChatMessage = ({ message }: ChatMessageProps) => {
+  const cleanContent = cleanMessageContent(message.content);
+  
   return (
     <div
       className={`flex gap-3 animate-fade-in ${message.role === 'user' ? 'flex-row-reverse' : ''}`}
@@ -25,7 +35,7 @@ const ChatMessage = ({ message }: ChatMessageProps) => {
             ? 'bg-slate-100 text-slate-900'
             : 'bg-primary text-white'
         }`}>
-          <p className="text-sm leading-relaxed">{message.content}</p>
+          <p className="text-sm leading-relaxed">{cleanContent}</p>
         </div>
         <p className="text-xs text-slate-500 mt-1 px-1">{message.timestamp}</p>
       </div>
