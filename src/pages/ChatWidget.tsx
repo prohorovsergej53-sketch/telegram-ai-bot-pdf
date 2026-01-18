@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import ChatArea from '@/components/hotel/ChatArea';
 import { Message, PageSettings, BACKEND_URLS } from '@/components/hotel/types';
+import { Loader2 } from 'lucide-react';
 
 const ChatWidget = () => {
   const { tenantSlug } = useParams();
@@ -9,10 +10,15 @@ const ChatWidget = () => {
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [pageSettings, setPageSettings] = useState<PageSettings | null>(null);
+  const [isInitializing, setIsInitializing] = useState(true);
 
   useEffect(() => {
-    loadPageSettings();
-    addWelcomeMessage();
+    const initialize = async () => {
+      await loadPageSettings();
+      addWelcomeMessage();
+      setIsInitializing(false);
+    };
+    initialize();
   }, [tenantSlug]);
 
   const loadPageSettings = async () => {
@@ -91,6 +97,14 @@ const ChatWidget = () => {
       setIsLoading(false);
     }
   };
+
+  if (isInitializing) {
+    return (
+      <div className="h-screen w-full bg-white flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
+      </div>
+    );
+  }
 
   return (
     <div className="h-screen w-full bg-white p-0 m-0" style={{ overflow: 'hidden' }}>

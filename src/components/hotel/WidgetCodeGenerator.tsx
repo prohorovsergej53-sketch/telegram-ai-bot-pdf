@@ -129,15 +129,33 @@ const WidgetCodeGenerator = ({ settings, showCode, onToggleCode, tenantSlug }: W
   const handleCopyCode = async () => {
     try {
       const code = generateWidgetCode(settings, tenantSlug);
-      await navigator.clipboard.writeText(code);
+      
+      // Попытка использовать Clipboard API
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(code);
+      } else {
+        // Фоллбэк для старых браузеров или заблокированного API
+        const textArea = document.createElement('textarea');
+        textArea.value = code;
+        textArea.style.position = 'fixed';
+        textArea.style.left = '-999999px';
+        textArea.style.top = '-999999px';
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+      }
+      
       toast({
         title: '✓ Скопировано!',
         description: 'Код виджета скопирован в буфер обмена'
       });
     } catch (error) {
+      console.error('Copy error:', error);
       toast({
         title: 'Ошибка',
-        description: 'Не удалось скопировать код',
+        description: 'Не удалось скопировать код. Выделите текст вручную.',
         variant: 'destructive'
       });
     }
