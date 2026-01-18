@@ -244,7 +244,20 @@ export const useIndexActions = (params: UseIndexActionsParams): IndexActions => 
           body: JSON.stringify({ documentId: uploadData.documentId })
         });
 
-        const processData = await processResponse.json();
+        let processData;
+        try {
+          const responseText = await processResponse.text();
+          console.log('[PDF Process] Response text:', responseText);
+          processData = responseText ? JSON.parse(responseText) : {};
+        } catch (parseError) {
+          console.error('[PDF Process] JSON parse error:', parseError);
+          toast({
+            title: `Ошибка при обработке ${file.name}`,
+            description: 'Некорректный ответ сервера',
+            variant: 'destructive'
+          });
+          throw new Error('Invalid server response');
+        }
 
         if (processResponse.ok) {
           successCount++;
