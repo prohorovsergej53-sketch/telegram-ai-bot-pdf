@@ -6,6 +6,7 @@ from datetime import datetime
 import sys
 sys.path.append('/function/code')
 from auth_middleware import require_auth
+from timezone_helper import moscow_naive
 
 def handler(event: dict, context) -> dict:
     """Резервное копирование базы данных в S3 (экспорт критичных таблиц)"""
@@ -41,7 +42,7 @@ def handler(event: dict, context) -> dict:
         conn = psycopg2.connect(os.environ['DATABASE_URL'])
         cur = conn.cursor()
         
-        timestamp = datetime.utcnow().strftime('%Y%m%d_%H%M%S')
+        timestamp = moscow_naive().strftime('%Y%m%d_%H%M%S')
         
         tables_data = {}
         critical_tables = ['tenants', 'admin_users', 'tariff_plans', 'default_settings']

@@ -2,6 +2,9 @@ import json
 import os
 import psycopg2
 from datetime import datetime, timedelta
+import sys
+sys.path.append('/function/code')
+from timezone_helper import moscow_naive
 
 def handler(event: dict, context) -> dict:
     """API для получения статистики использования токенов по тенантам"""
@@ -37,7 +40,7 @@ def handler(event: dict, context) -> dict:
         
         # Вычисляем дату начала периода
         days_ago = int(period)
-        start_date = datetime.now() - timedelta(days=days_ago)
+        start_date = moscow_naive() - timedelta(days=days_ago)
         
         if tenant_id:
             # Статистика по конкретному тенанту

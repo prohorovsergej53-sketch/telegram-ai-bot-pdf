@@ -10,7 +10,7 @@ import sys
 from datetime import datetime, timedelta
 
 sys.path.append('/function/code')
-from timezone_helper import now_moscow
+from timezone_helper import moscow_naive
 
 psycopg2.extensions.register_adapter(dict, psycopg2.extras.Json)
 
@@ -68,7 +68,7 @@ def handler(event: dict, context) -> dict:
             VALUES (%s, %s, %s, %s, %s, %s)
             ON CONFLICT (payment_id) 
             DO UPDATE SET status = EXCLUDED.status, updated_at = CURRENT_TIMESTAMP
-        """, (payment_id, status, amount, description, event_type, now_moscow().replace(tzinfo=None)))
+        """, (payment_id, status, amount, description, event_type, moscow_naive()))
 
         conn.commit()
         
@@ -118,10 +118,10 @@ def handler(event: dict, context) -> dict:
                 # Если first_month_included=true, то первый платеж уже включает 1 месяц
                 # Если false, то первый платеж = setup_fee, период не предоставляется
                 if first_month_included:
-                    subscription_end = now_moscow().replace(tzinfo=None) + timedelta(days=30)
+                    subscription_end = moscow_naive() + timedelta(days=30)
                 else:
                     # Setup fee без месяца - подписка истекает сразу
-                    subscription_end = now_moscow().replace(tzinfo=None)
+                    subscription_end = moscow_naive()
                 
                 # Начинаем транзакцию для атомарного создания тенанта
                 try:

@@ -6,6 +6,9 @@ import os
 import psycopg2
 from datetime import datetime, timedelta
 from decimal import Decimal
+import sys
+sys.path.append('/function/code')
+from timezone_helper import moscow_naive
 
 def handler(event: dict, context) -> dict:
     """Получение информации о подписке клиента или продление (для суперадмина)"""
@@ -88,12 +91,12 @@ def handler(event: dict, context) -> dict:
             
             # Вычисляем новую дату
             if current_end_date and isinstance(current_end_date, datetime):
-                if current_end_date > datetime.now():
+                if current_end_date > moscow_naive():
                     new_end_date = current_end_date + timedelta(days=30 * months)
                 else:
-                    new_end_date = datetime.now() + timedelta(days=30 * months)
+                    new_end_date = moscow_naive() + timedelta(days=30 * months)
             else:
-                new_end_date = datetime.now() + timedelta(days=30 * months)
+                new_end_date = moscow_naive() + timedelta(days=30 * months)
             
             # Обновляем подписку
             cur.execute(f"""
@@ -176,7 +179,7 @@ def handler(event: dict, context) -> dict:
             else:
                 end_datetime = end_date
             
-            now = datetime.now()
+            now = moscow_naive()
             days_left = (end_datetime - now).days
             status = 'active' if days_left > 0 else 'expired'
             end_date_str = end_datetime.isoformat()

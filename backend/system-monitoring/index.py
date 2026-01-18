@@ -2,6 +2,9 @@ import json
 import os
 import psycopg2
 from datetime import datetime
+import sys
+sys.path.append('/function/code')
+from timezone_helper import moscow_naive
 
 def handler(event: dict, context) -> dict:
     '''Мониторинг нагрузки системы: активные тенанты, статистика БД, активность пользователей'''
@@ -131,7 +134,7 @@ def handler(event: dict, context) -> dict:
             'body': json.dumps({
                 'success': True,
                 'stats': stats,
-                'timestamp': datetime.utcnow().isoformat()
+                'timestamp': moscow_naive().isoformat()
             }),
             'isBase64Encoded': False
         }

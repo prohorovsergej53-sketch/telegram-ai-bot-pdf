@@ -8,6 +8,6 @@ def now_moscow():
     """Возвращает текущее время в московском часовом поясе (UTC+3)"""
     return datetime.now(MOSCOW_TZ)
 
-def utcnow_as_moscow():
-    """Возвращает текущее UTC время, но представленное как московское"""
-    return datetime.now(timezone.utc).astimezone(MOSCOW_TZ)
+def moscow_naive():
+    """Возвращает текущее московское время без timezone (для записи в БД)"""
+    return datetime.now(MOSCOW_TZ).replace(tzinfo=None)

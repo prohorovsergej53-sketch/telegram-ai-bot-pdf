@@ -3,6 +3,9 @@ import os
 import psycopg2
 from datetime import datetime, timezone, timedelta
 import requests
+import sys
+sys.path.append('/function/code')
+from timezone_helper import moscow_naive
 
 def handler(event: dict, context) -> dict:
     """API для чата поддержки с интеграцией Telegram"""

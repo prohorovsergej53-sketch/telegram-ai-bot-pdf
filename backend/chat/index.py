@@ -6,7 +6,7 @@ import hashlib
 from datetime import datetime
 
 sys.path.append('/function/code')
-from timezone_helper import now_moscow
+from timezone_helper import now_moscow, moscow_naive
 from api_keys_helper import get_tenant_api_key
 from openrouter_models import get_working_free_model
 from token_logger import log_token_usage
@@ -67,7 +67,7 @@ MODEL_API_NAMES = {
 }
 
 def handler(event: dict, context) -> dict:
-    """AI чат с поиском информации в документах отеля"""
+    """AI чат с поиском информации в документах отеля (Moscow UTC+3)"""
     method = event.get('httpMethod', 'POST')
 
     if method == 'OPTIONS':
@@ -119,12 +119,13 @@ def handler(event: dict, context) -> dict:
             tenant_row = cur.fetchone()
             if tenant_row:
                 tenant_id = tenant_row[0]
-                print(f"DEBUG: Resolved tenant_slug '{tenant_slug}' to tenant_id={tenant_id}")
+                print(f"✅ DEBUG: Resolved tenant_slug '{tenant_slug}' to tenant_id={tenant_id}")
             else:
                 tenant_id = 1
-                print(f"DEBUG: tenant_slug '{tenant_slug}' not found, using tenant_id=1")
+                print(f"⚠️ DEBUG: tenant_slug '{tenant_slug}' not found, using tenant_id=1")
         elif not tenant_id:
             tenant_id = 1
+            print(f"⚠️ DEBUG: No tenant_slug or tenant_id provided, defaulting to tenant_id=1")
 
         cur.execute("""
             SELECT ai_settings, embedding_provider, embedding_query_model
@@ -587,6 +588,8 @@ MINI-SYSTEM: РАСЧЁТ ЦЕН (используй только для зап�
                 yandex_folder_id, error = get_tenant_api_key(tenant_id, 'yandex', 'folder_id')
                 if error:
                     return error
+                
+                print(f"🚀 SENDING TO YANDEX: api_key={yandex_api_key[:10]}..., folder_id={yandex_folder_id}")
                 
                 emb_response = requests.post(
                     'https://llm.api.cloud.yandex.net/foundationModels/v1/textEmbedding',

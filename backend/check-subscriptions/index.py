@@ -5,6 +5,9 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from datetime import datetime, timedelta
+import sys
+sys.path.append('/function/code')
+from timezone_helper import moscow_naive
 
 def handler(event: dict, context) -> dict:
     """Проверка истечения подписок и отправка уведомлений (запускается ежедневно)"""
@@ -40,7 +43,7 @@ def handler(event: dict, context) -> dict:
         conn = psycopg2.connect(os.environ['DATABASE_URL'])
         cur = conn.cursor()
         
-        now = datetime.utcnow()
+        now = moscow_naive()
         
         # 1. Находим истекшие подписки и меняем статус
         cur.execute("""

@@ -4,6 +4,9 @@ import hashlib
 import psycopg2
 import jwt
 from datetime import datetime, timedelta
+import sys
+sys.path.append('/function/code')
+from timezone_helper import moscow_naive
 
 def handler(event: dict, context) -> dict:
     """Авторизация администратора с JWT токенами и защитой от брутфорса"""
@@ -66,7 +69,7 @@ def handler(event: dict, context) -> dict:
             WHERE ip_address = %s 
             AND success = false 
             AND attempt_time > %s
-        """, (ip_address, datetime.now() - attempt_window))
+        """, (ip_address, moscow_naive() - attempt_window))
         
         failed_attempts = cur.fetchone()[0]
 
@@ -82,7 +85,7 @@ def handler(event: dict, context) -> dict:
             
             last_attempt = cur.fetchone()
             if last_attempt:
-                time_since_last = datetime.now() - last_attempt[0]
+                time_since_last = moscow_naive() - last_attempt[0]
                 if time_since_last < lockout_duration:
                     remaining_time = int((lockout_duration - time_since_last).total_seconds() / 60)
                     cur.close()
@@ -134,7 +137,7 @@ def handler(event: dict, context) -> dict:
                 'username': username_db,
                 'role': role,
                 'tenant_id': tenant_id,
-                'exp': datetime.utcnow() + timedelta(days=7)
+                'exp': moscow_naive() + timedelta(days=7)
             }
             jwt_token = jwt.encode(token_payload, jwt_secret, algorithm='HS256')
             
@@ -183,7 +186,7 @@ def handler(event: dict, context) -> dict:
                 WHERE ip_address = %s 
                 AND success = false 
                 AND attempt_time > %s
-            """, (ip_address, datetime.now() - attempt_window))
+            """, (ip_address, moscow_naive() - attempt_window))
             
             current_failed = cur.fetchone()[0]
             attempts_left = max_attempts - current_failed

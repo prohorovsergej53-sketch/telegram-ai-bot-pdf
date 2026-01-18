@@ -19,6 +19,8 @@ def get_tenant_api_key(tenant_id: int, provider: str, key_name: str) -> tuple[st
         conn = psycopg2.connect(os.environ['DATABASE_URL'])
         cur = conn.cursor()
         
+        print(f"🔑 DEBUG get_tenant_api_key: tenant_id={tenant_id}, provider={provider}, key_name={key_name}")
+        
         cur.execute("""
             SELECT key_value
             FROM t_p56134400_telegram_ai_bot_pdf.tenant_api_keys
@@ -29,6 +31,12 @@ def get_tenant_api_key(tenant_id: int, provider: str, key_name: str) -> tuple[st
         """, (tenant_id, provider, key_name))
         
         row = cur.fetchone()
+        
+        if row:
+            print(f"🔑 DEBUG: Found key starting with {row[0][:10]}...")
+        else:
+            print(f"❌ DEBUG: No key found for tenant_id={tenant_id}, provider={provider}, key_name={key_name}")
+        
         cur.close()
         conn.close()
         

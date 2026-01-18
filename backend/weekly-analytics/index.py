@@ -8,6 +8,7 @@ from datetime import datetime, timedelta
 import sys
 sys.path.append('/function/code')
 from auth_middleware import require_auth
+from timezone_helper import moscow_naive
 
 def handler(event: dict, context) -> dict:
     """Еженедельный отчёт по аналитике всех тенантов"""
@@ -43,7 +44,7 @@ def handler(event: dict, context) -> dict:
         conn = psycopg2.connect(os.environ['DATABASE_URL'])
         cur = conn.cursor()
         
-        week_ago = datetime.utcnow() - timedelta(days=7)
+        week_ago = moscow_naive() - timedelta(days=7)
         
         cur.execute("""
             SELECT 
@@ -88,7 +89,7 @@ def handler(event: dict, context) -> dict:
         <html>
         <body style="font-family: Arial, sans-serif;">
             <h2>Еженедельный отчёт AI-консьержа</h2>
-            <p><strong>Период:</strong> {week_ago.strftime('%d.%m.%Y')} - {datetime.utcnow().strftime('%d.%m.%Y')}</p>
+            <p><strong>Период:</strong> {week_ago.strftime('%d.%m.%Y')} - {moscow_naive().strftime('%d.%m.%Y')}</p>
             
             <h3>Статистика тенантов</h3>
             <ul>
@@ -108,7 +109,7 @@ def handler(event: dict, context) -> dict:
         msg = MIMEMultipart('alternative')
         msg['From'] = smtp_settings.get('smtp_user', '')
         msg['To'] = smtp_settings.get('smtp_user', '')
-        msg['Subject'] = f'Еженедельный отчёт AI-консьержа ({datetime.utcnow().strftime("%d.%m.%Y")})'
+        msg['Subject'] = f'Еженедельный отчёт AI-консьержа ({moscow_naive().strftime("%d.%m.%Y")})'
         msg.attach(MIMEText(html_body, 'html', 'utf-8'))
         
         smtp_port = int(smtp_settings.get('smtp_port', 465))

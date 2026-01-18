@@ -5,6 +5,9 @@ import boto3
 import psycopg2
 from datetime import datetime
 from auth_middleware import get_tenant_id_from_request
+import sys
+sys.path.append('/function/code')
+from timezone_helper import moscow_naive
 
 def handler(event: dict, context) -> dict:
     """Загрузка PDF файла в S3 и сохранение метаданных в БД"""
@@ -96,7 +99,7 @@ def handler(event: dict, context) -> dict:
                 'body': json.dumps({'error': 'Файл не является PDF документом'}),
                 'isBase64Encoded': False
             }
-        file_key = f'documents/{datetime.now().strftime("%Y%m%d_%H%M%S")}_{file_name}'
+        file_key = f'documents/{moscow_naive().strftime("%Y%m%d_%H%M%S")}_{file_name}'
 
         s3 = boto3.client('s3',
             endpoint_url='https://bucket.poehali.dev',
