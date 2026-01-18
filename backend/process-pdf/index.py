@@ -274,10 +274,10 @@ def handler(event: dict, context) -> dict:
             
             cur2.execute("""
                 UPDATE t_p56134400_telegram_ai_bot_pdf.tenant_documents 
-                SET status = 'ready', pages = %s, processed_at = %s
+                SET status = 'ready', pages = %s
                 WHERE id = %s
                 RETURNING id, status
-            """, (pages_count, moscow_naive(), document_id))
+            """, (pages_count, document_id))
             updated_doc = cur2.fetchone()
             print(f"✅ Updated document status to 'ready': {updated_doc}")
             
