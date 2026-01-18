@@ -51,8 +51,12 @@ def handler(event: dict, context) -> dict:
         for row in rows:
             size_bytes = row[2]
             if size_bytes and size_bytes > 0:
-                size_mb = size_bytes / 1024 / 1024
-                size_str = f"{size_mb:.1f} МБ"
+                if size_bytes < 1024 * 1024:  # Меньше 1 МБ
+                    size_kb = size_bytes / 1024
+                    size_str = f"{size_kb:.0f} КБ"
+                else:
+                    size_mb = size_bytes / 1024 / 1024
+                    size_str = f"{size_mb:.1f} МБ"
             else:
                 size_str = "—"
             
