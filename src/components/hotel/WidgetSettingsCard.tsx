@@ -273,6 +273,13 @@ const WidgetSettingsCard = () => {
             {isLoading ? 'Сохранение...' : 'Сохранить настройки'}
           </Button>
 
+          {settings.chat_url && (
+            <div className="p-3 bg-muted rounded-lg">
+              <div className="text-sm font-medium mb-1">URL страницы чата:</div>
+              <div className="text-sm text-muted-foreground break-all">{settings.chat_url}</div>
+            </div>
+          )}
+
           <WidgetCodeGenerator
             settings={settings}
             showCode={showCode}
