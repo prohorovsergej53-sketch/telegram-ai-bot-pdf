@@ -99,8 +99,10 @@ def handler(event: dict, context) -> dict:
                 'isBase64Encoded': False
             }
 
+        print(f"📖 PARSING PDF: {len(pdf_data)} bytes")
         pdf_reader = PyPDF2.PdfReader(BytesIO(pdf_data))
         pages_count = len(pdf_reader.pages)
+        print(f"📄 PDF HAS {pages_count} PAGES")
         
         if pages_count > 20:
             cur.close()
@@ -112,9 +114,11 @@ def handler(event: dict, context) -> dict:
                 'isBase64Encoded': False
             }
         
+        print(f"🔤 EXTRACTING TEXT FROM {pages_count} PAGES...")
         full_text = ""
         for page in pdf_reader.pages:
             full_text += page.extract_text() + "\n\n"
+        print(f"✅ TEXT EXTRACTED: {len(full_text)} chars")
 
         chunk_size = 1000
         chunks = []
@@ -122,6 +126,7 @@ def handler(event: dict, context) -> dict:
             chunk = full_text[i:i + chunk_size]
             if chunk.strip():
                 chunks.append(chunk)
+        print(f"✂️ CREATED {len(chunks)} CHUNKS")
         
         if len(chunks) > 200:
             cur.close()
@@ -143,6 +148,7 @@ def handler(event: dict, context) -> dict:
         
         embedding_provider = settings_row[0] if settings_row and settings_row[0] else 'yandex'
         embedding_doc_model = settings_row[1] if settings_row and settings_row[1] else 'text-search-doc'
+        print(f"⚙️ EMBEDDING SETTINGS: provider={embedding_provider}, model={embedding_doc_model}")
         
         import requests
         
@@ -152,13 +158,15 @@ def handler(event: dict, context) -> dict:
         if embedding_provider == 'yandex':
             yandex_api_key = os.environ.get('YANDEXGPT_API_KEY')
             yandex_folder_id = os.environ.get('YANDEXGPT_FOLDER_ID')
+            print(f"🔑 PROJECT KEYS: api_key={'✅ found' if yandex_api_key else '❌ missing'}, folder_id={'✅ found' if yandex_folder_id else '❌ missing'}")
             if not yandex_api_key or not yandex_folder_id:
-                print(f"No PROJECT Yandex API keys found, skipping embeddings")
+                print(f"⚠️ No PROJECT Yandex API keys found, skipping embeddings")
                 yandex_api_key = None
                 yandex_folder_id = None
         
         # Генерируем все эмбеддинги ДО транзакции (если есть API ключи)
         import time
+        print(f"🚀 STARTING EMBEDDING GENERATION for {len(chunks)} chunks...")
         chunk_embeddings = []
         for idx, chunk_text in enumerate(chunks):
             embedding_json = None
@@ -176,9 +184,20 @@ def handler(event: dict, context) -> dict:
                         },
                         timeout=30
                     )
+                    if emb_response.status_code != 200:
+                        print(f"❌ YANDEX API ERROR for chunk {idx}: {emb_response.status_code}, {emb_response.text}")
+                        raise Exception(f"Yandex API error: {emb_response.status_code}")
+                    
                     emb_data = emb_response.json()
+                    if 'embedding' not in emb_data:
+                        print(f"❌ NO 'embedding' in response for chunk {idx}: {emb_data}")
+                        raise Exception(f"Missing 'embedding' in response")
+                    
                     embedding_vector = emb_data['embedding']
                     embedding_json = json.dumps(embedding_vector)
+                    
+                    if (idx + 1) % 5 == 0:
+                        print(f"✅ Processed {idx + 1}/{len(chunks)} chunks")
                     
                     # Логируем использование токенов (примерно 256 токенов на chunk)
                     tokens_estimate = min(len(chunk_text) // 4, 256)
@@ -196,18 +215,24 @@ def handler(event: dict, context) -> dict:
                     if idx == 0:
                         print(f"Embeddings disabled: provider={embedding_provider}, has_key={bool(yandex_api_key)}")
             except Exception as emb_error:
-                print(f"Embedding error for chunk {idx}: {emb_error}")
+                print(f"❌ Embedding error for chunk {idx}: {emb_error}")
+                import traceback
+                traceback.print_exc()
                 embedding_json = None
             
             chunk_embeddings.append((chunk_text, embedding_json))
+        
+        print(f"✅ EMBEDDING GENERATION COMPLETE: {len(chunk_embeddings)} chunks processed")
 
         # АТОМАРНАЯ ТРАНЗАКЦИЯ: удаление старых + вставка новых + обновление статуса
+        print(f"💾 STARTING DATABASE TRANSACTION...")
         try:
             cur.execute("BEGIN")
             
             # Удаляем старые чанки
             cur.execute("DELETE FROM t_p56134400_telegram_ai_bot_pdf.document_chunks WHERE document_id = %s", (document_id,))
             cur.execute("DELETE FROM t_p56134400_telegram_ai_bot_pdf.tenant_chunks WHERE document_id = %s", (document_id,))
+            print(f"🗑️ Deleted old chunks for document_id={document_id}")
             
             # Вставляем все новые чанки
             for idx, (chunk_text, embedding_json) in enumerate(chunk_embeddings):
@@ -223,17 +248,24 @@ def handler(event: dict, context) -> dict:
                     VALUES (%s, %s, %s, %s, %s)
                 """, (tenant_id, document_id, chunk_text, idx, embedding_json))
             
+            print(f"📝 Inserted {len(chunk_embeddings)} chunks into database")
+            
             # Обновляем статус документа (один раз в конце)
             cur.execute("""
                 UPDATE t_p56134400_telegram_ai_bot_pdf.tenant_documents 
                 SET status = 'ready', pages = %s, processed_at = %s
                 WHERE id = %s
             """, (pages_count, datetime.now(), document_id))
+            print(f"✅ Updated document status to 'ready'")
             
             # Один commit в конце всей транзакции
             conn.commit()
+            print(f"✅ TRANSACTION COMMITTED SUCCESSFULLY")
             
         except Exception as tx_error:
+            print(f"❌ TRANSACTION ERROR: {tx_error}")
+            import traceback
+            traceback.print_exc()
             conn.rollback()
             raise tx_error
         cur.close()
