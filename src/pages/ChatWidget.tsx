@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -33,6 +33,7 @@ const ChatWidget = () => {
   const [pageSettings, setPageSettings] = useState<PageSettings | null>(null);
   const [isInitializing, setIsInitializing] = useState(true);
   const [consentGiven, setConsentGiven] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const initialize = async () => {
@@ -61,6 +62,10 @@ const ChatWidget = () => {
     };
     initialize();
   }, [tenantSlug]);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages, isLoading]);
 
   const sendMessage = async () => {
     if (!inputMessage.trim() || isLoading || !tenantSlug) return;
@@ -173,7 +178,14 @@ const ChatWidget = () => {
                         : 'bg-gray-100 text-gray-900'
                     }`}
                   >
-                    <p className="whitespace-pre-wrap break-words">{msg.content}</p>
+                    <div 
+                      className="whitespace-pre-wrap break-words"
+                      dangerouslySetInnerHTML={{
+                        __html: msg.content
+                          .replace(/<b>(.*?)<\/b>/gi, '<strong>$1</strong>')
+                          .replace(/\n/g, '<br />')
+                      }}
+                    />
                   </div>
                 </div>
               ))}
@@ -184,6 +196,7 @@ const ChatWidget = () => {
                   </div>
                 </div>
               )}
+              <div ref={messagesEndRef} />
             </div>
           </ScrollArea>
 
