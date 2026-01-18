@@ -109,6 +109,11 @@ export const authenticatedFetch = async (url: string, options: RequestInit = {})
       credentials: 'omit' // Не отправляем cookies в cross-origin запросы
     });
     
+    if (!response.ok) {
+      const errorBody = await response.text();
+      console.error(`HTTP ${response.status} : ${url}`, errorBody);
+    }
+    
     if (response.status === 401) {
       logout();
       if (window.location.pathname !== '/admin') {
