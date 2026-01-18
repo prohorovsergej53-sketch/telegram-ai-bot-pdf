@@ -225,10 +225,8 @@ def handler(event: dict, context) -> dict:
         print(f"✅ EMBEDDING GENERATION COMPLETE: {len(chunk_embeddings)} chunks processed")
 
         # АТОМАРНАЯ ТРАНЗАКЦИЯ: удаление старых + вставка новых + обновление статуса
-        print(f"💾 STARTING DATABASE TRANSACTION...")
+        print(f"💾 STARTING DATABASE OPERATIONS (auto-transaction)...")
         try:
-            cur.execute("BEGIN")
-            
             # Удаляем старые чанки
             cur.execute("DELETE FROM t_p56134400_telegram_ai_bot_pdf.document_chunks WHERE document_id = %s", (document_id,))
             cur.execute("DELETE FROM t_p56134400_telegram_ai_bot_pdf.tenant_chunks WHERE document_id = %s", (document_id,))
