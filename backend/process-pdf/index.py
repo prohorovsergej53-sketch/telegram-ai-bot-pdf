@@ -225,8 +225,8 @@ def handler(event: dict, context) -> dict:
         
         print(f"✅ EMBEDDING GENERATION COMPLETE: {len(chunk_embeddings)} chunks processed")
 
-        # АТОМАРНАЯ ТРАНЗАКЦИЯ: удаление старых + вставка новых + обновление статуса
-        print(f"💾 STARTING DATABASE OPERATIONS (auto-transaction)...")
+        # Операции с чанками (удаление + вставка)
+        print(f"💾 STARTING CHUNKS OPERATIONS...")
         try:
             # Удаляем старые чанки
             cur.execute("DELETE FROM t_p56134400_telegram_ai_bot_pdf.document_chunks WHERE document_id = %s", (document_id,))
@@ -249,36 +249,49 @@ def handler(event: dict, context) -> dict:
             
             print(f"📝 Inserted {len(chunk_embeddings)} chunks into database")
             
-            # Обновляем статус документа (один раз в конце)
+        except Exception as chunks_error:
+            print(f"❌ CHUNKS ERROR: {chunks_error}")
+            import traceback
+            traceback.print_exc()
+            cur.close()
+            conn.close()
+            raise chunks_error
+        
+        # Закрываем первое соединение
+        cur.close()
+        conn.close()
+        print(f"🔌 Closed first connection after chunks")
+        
+        # Открываем НОВОЕ соединение для UPDATE документа
+        print(f"🔌 Opening NEW connection for document UPDATE...")
+        conn2 = psycopg2.connect(os.environ['DATABASE_URL'])
+        conn2.autocommit = True
+        cur2 = conn2.cursor()
+        
+        try:
+            # Обновляем статус документа
             print(f"📝 Updating document status: doc_id={document_id}, pages={pages_count}")
             
-            # Проверяем существование документа перед UPDATE
-            cur.execute("SELECT id, status, tenant_id FROM t_p56134400_telegram_ai_bot_pdf.tenant_documents WHERE id = %s", (document_id,))
-            doc_check = cur.fetchone()
-            print(f"🔍 Document before UPDATE: {doc_check}")
-            
-            if not doc_check:
-                print(f"❌ FATAL: Document {document_id} NOT FOUND before UPDATE!")
-                raise Exception(f"Document {document_id} not found")
-            
-            cur.execute("""
+            cur2.execute("""
                 UPDATE t_p56134400_telegram_ai_bot_pdf.tenant_documents 
                 SET status = 'ready', pages = %s, processed_at = %s
                 WHERE id = %s
                 RETURNING id, status
             """, (pages_count, moscow_naive(), document_id))
-            updated_doc = cur.fetchone()
+            updated_doc = cur2.fetchone()
             print(f"✅ Updated document status to 'ready': {updated_doc}")
             
-            print(f"✅ ALL OPERATIONS COMPLETED SUCCESSFULLY (autocommit)")
+            print(f"✅ ALL OPERATIONS COMPLETED SUCCESSFULLY")
             
-        except Exception as tx_error:
-            print(f"❌ OPERATION ERROR: {tx_error}")
+        except Exception as update_error:
+            print(f"❌ UPDATE ERROR: {update_error}")
             import traceback
             traceback.print_exc()
-            raise tx_error
-        cur.close()
-        conn.close()
+            raise update_error
+        finally:
+            cur2.close()
+            conn2.close()
+            print(f"🔌 Closed second connection")
 
         return {
             'statusCode': 200,
