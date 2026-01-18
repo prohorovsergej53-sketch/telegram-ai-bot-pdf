@@ -41,6 +41,8 @@ export interface PageSettings {
   footer_link: string;
   input_placeholder: string;
   public_description?: string;
+  consent_enabled?: boolean;
+  consent_text?: string;
 }
 
 export interface AiModelSettings {
