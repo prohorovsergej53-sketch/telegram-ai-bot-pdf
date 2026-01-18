@@ -59,8 +59,10 @@ def handler(event: dict, context) -> dict:
         conn = psycopg2.connect(os.environ['DATABASE_URL'])
         cur = conn.cursor()
         
+        print(f"🔍 SEARCHING FOR DOCUMENT: document_id={document_id}, tenant_id={tenant_id}")
         cur.execute("SELECT file_key, tenant_id FROM t_p56134400_telegram_ai_bot_pdf.tenant_documents WHERE id = %s AND tenant_id = %s", (document_id, tenant_id))
         result = cur.fetchone()
+        print(f"📊 QUERY RESULT: {result}")
         
         if not result:
             print(f"❌ Document not found: document_id={document_id}, tenant_id={tenant_id}")

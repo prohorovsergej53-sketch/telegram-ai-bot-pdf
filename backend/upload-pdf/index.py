@@ -129,7 +129,9 @@ def handler(event: dict, context) -> dict:
         """, (tenant_id, file_name, file_key, file_size, category))
         
         doc_id = cur.fetchone()[0]
+        print(f"📄 CREATED DOCUMENT: doc_id={doc_id}, tenant_id={tenant_id}, file_name={file_name}")
         conn.commit()
+        print(f"✅ COMMITTED to DB: doc_id={doc_id}")
         cur.close()
         conn.close()
 
