@@ -104,7 +104,7 @@ const ChatWidget = () => {
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: data.response || 'Извините, не удалось получить ответ.',
+        content: data.message || data.response || 'Извините, не удалось получить ответ.',
         timestamp: new Date()
       };
 
