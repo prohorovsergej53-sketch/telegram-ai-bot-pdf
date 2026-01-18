@@ -78,23 +78,46 @@ export const generateWidgetCode = (settings: WidgetSettings, tenantSlug?: string
     iframeContainer.id = 'ai-bot-iframe-container';
     widget.appendChild(iframeContainer);
 
+    var closeButton = document.createElement('button');
+    closeButton.id = 'ai-bot-close-button';
+    closeButton.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>';
+    closeButton.style.cssText = 'display: none; position: absolute; top: 10px; right: 10px; width: 40px; height: 40px; border-radius: 50%; background: rgba(0,0,0,0.5); border: none; cursor: pointer; z-index: 1000000; align-items: center; justify-content: center;';
+    iframeContainer.appendChild(closeButton);
+
     var iframe = document.createElement('iframe');
     iframe.id = 'ai-bot-iframe';
     iframe.src = '${chatUrl}';
     iframeContainer.appendChild(iframe);
 
     var isOpen = false;
+    var isMobile = window.innerWidth <= 768;
+    
+    function updateCloseButton() {
+        isMobile = window.innerWidth <= 768;
+        closeButton.style.display = (isOpen && isMobile) ? 'flex' : 'none';
+    }
+    
     button.addEventListener('click', function() {
         isOpen = !isOpen;
         iframeContainer.style.display = isOpen ? 'block' : 'none';
+        updateCloseButton();
+    });
+    
+    closeButton.addEventListener('click', function() {
+        isOpen = false;
+        iframeContainer.style.display = 'none';
+        updateCloseButton();
     });
 
     document.addEventListener('click', function(e) {
-        if (isOpen && !widget.contains(e.target)) {
+        if (isOpen && !isMobile && !widget.contains(e.target)) {
             isOpen = false;
             iframeContainer.style.display = 'none';
+            updateCloseButton();
         }
     });
+    
+    window.addEventListener('resize', updateCloseButton);
 })();
 </script>`;
 };
