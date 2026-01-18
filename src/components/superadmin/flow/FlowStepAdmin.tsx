@@ -73,8 +73,8 @@ const FlowStepAdmin = () => {
         <div className="bg-white p-3 rounded mt-2 border border-pink-300">
           <p className="font-semibold text-pink-800">🔌 Виджет на сайте клиента:</p>
           <ul className="list-disc list-inside text-slate-700 space-y-1">
-            <li><strong>Код:</strong> встраивается через iframe с настройками из админки</li>
-            <li><strong>URL чата:</strong> указывается в настройках виджета (chat_url)</li>
+            <li><strong>Код:</strong> <code>&lt;script src="https://ai-ru.ru/widget.js"&gt;</code></li>
+            <li><strong>Инициализация:</strong> <code>AIWidget.init({'{'}tenantSlug: "{'{'}slug{'}'}"{'}'})</code></li>
             <li><strong>Внешний вид:</strong> настраивается в вкладке "Виджет"</li>
           </ul>
         </div>
