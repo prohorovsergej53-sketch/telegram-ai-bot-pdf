@@ -67,10 +67,26 @@ const WidgetSettingsCard = () => {
     setIsLoading(true);
     try {
       const tenantId = getTenantId();
+      
+      // Автоматически формируем chat_url с правильным slug
+      let chatUrl = settings.chat_url;
+      if (!chatUrl && tenantSlug) {
+        const currentDomain = window.location.hostname;
+        let baseUrl;
+        
+        if (currentDomain.startsWith('admin.')) {
+          baseUrl = `${window.location.protocol}//${currentDomain.replace('admin.', '')}`;
+        } else {
+          baseUrl = window.location.origin;
+        }
+        
+        chatUrl = `${baseUrl}/${tenantSlug}/chat`;
+      }
+      
       const response = await authenticatedFetch(BACKEND_URLS.updateWidgetSettings, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...settings, tenant_id: tenantId })
+        body: JSON.stringify({ ...settings, chat_url: chatUrl, tenant_id: tenantId })
       });
 
       if (response.ok) {
