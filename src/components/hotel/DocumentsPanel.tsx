@@ -72,7 +72,8 @@ export const DocumentsPanel = ({
     if (count <= 2) return 'h-[200px]';
     if (count <= 4) return 'h-[300px]';
     if (count <= 8) return 'h-[450px]';
-    return 'h-[600px]';
+    if (count <= 12) return 'h-[700px]';
+    return 'max-h-[800px]';
   }, [filteredDocuments.length]);
 
   const { toast } = useToast();
