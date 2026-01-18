@@ -109,9 +109,9 @@ export const authenticatedFetch = async (url: string, options: RequestInit = {})
       credentials: 'omit' // Не отправляем cookies в cross-origin запросы
     });
     
+    // Логируем только статус, не читаем body (чтобы не сломать .json() вызывающего кода)
     if (!response.ok) {
-      const errorBody = await response.text();
-      console.error(`HTTP ${response.status} : ${url}`, errorBody);
+      console.error(`HTTP ${response.status} from ${url}`);
     }
     
     if (response.status === 401) {
