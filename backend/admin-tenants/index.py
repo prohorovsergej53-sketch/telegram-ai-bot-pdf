@@ -1,7 +1,11 @@
 import json
 import os
+import sys
 import psycopg2
 from psycopg2.extras import RealDictCursor
+
+sys.path.append('/function/code')
+from timezone_helper import now_moscow
 
 def handler(event: dict, context) -> dict:
     """API для управления тенантами (клиентами) - только для суперадмина"""
@@ -137,7 +141,7 @@ def handler(event: dict, context) -> dict:
                 }
             
             # Вычисляем дату окончания подписки
-            subscription_end = datetime.utcnow() + timedelta(days=30 * subscription_months)
+            subscription_end = now_moscow().replace(tzinfo=None) + timedelta(days=30 * subscription_months)
             
             # Создаем тенант
             cur.execute(f"""

@@ -6,6 +6,7 @@ import hashlib
 from datetime import datetime
 
 sys.path.append('/function/code')
+from timezone_helper import now_moscow
 from api_keys_helper import get_tenant_api_key
 from openrouter_models import get_working_free_model
 from token_logger import log_token_usage
@@ -674,7 +675,7 @@ MINI-SYSTEM: РАСЧЁТ ЦЕН (используй только для зап�
                     'event': 'rag_gate',
                     'request_id': request_id,
                     'query_hash': query_hash,
-                    'timestamp': datetime.utcnow().isoformat(),
+                    'timestamp': now_moscow().isoformat(),
                     'attempt': 1,
                     'top_k': start_top_k,
                     'ok': context_ok,
@@ -693,7 +694,7 @@ MINI-SYSTEM: РАСЧЁТ ЦЕН (используй только для зап�
                         'event': 'rag_gate_fallback',
                         'request_id': request_id,
                         'query_hash': query_hash,
-                        'timestamp': datetime.utcnow().isoformat(),
+                        'timestamp': now_moscow().isoformat(),
                         'attempt': 2,
                         'top_k': RAG_TOPK_FALLBACK,
                         'ok': context_ok2,
