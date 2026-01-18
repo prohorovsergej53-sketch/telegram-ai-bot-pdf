@@ -57,6 +57,7 @@ def handler(event: dict, context) -> dict:
             }
 
         conn = psycopg2.connect(os.environ['DATABASE_URL'])
+        conn.autocommit = True
         cur = conn.cursor()
         
         print(f"🔍 SEARCHING FOR DOCUMENT: document_id={document_id}, tenant_id={tenant_id}")
@@ -269,15 +270,12 @@ def handler(event: dict, context) -> dict:
             updated_doc = cur.fetchone()
             print(f"✅ Updated document status to 'ready': {updated_doc}")
             
-            # Один commit в конце всей транзакции
-            conn.commit()
-            print(f"✅ TRANSACTION COMMITTED SUCCESSFULLY")
+            print(f"✅ ALL OPERATIONS COMPLETED SUCCESSFULLY (autocommit)")
             
         except Exception as tx_error:
-            print(f"❌ TRANSACTION ERROR: {tx_error}")
+            print(f"❌ OPERATION ERROR: {tx_error}")
             import traceback
             traceback.print_exc()
-            conn.rollback()
             raise tx_error
         cur.close()
         conn.close()
