@@ -46,8 +46,8 @@ def handler(event: dict, context) -> dict:
         
         # Преобразуем строковые значения в числа где нужно
         # Новая схема: chat_provider + chat_model, старая схема: provider + model
-        chat_provider = settings_raw.get('chat_provider', settings_raw.get('provider', 'openrouter'))
-        chat_model = settings_raw.get('chat_model', settings_raw.get('model', 'deepseek-chat'))
+        chat_provider = settings_raw.get('chat_provider', settings_raw.get('provider', 'yandex'))
+        chat_model = settings_raw.get('chat_model', settings_raw.get('model', 'yandexgpt'))
         
         # Автоматическая миграция: deepseek → openrouter
         if chat_provider == 'deepseek':
@@ -65,8 +65,8 @@ def handler(event: dict, context) -> dict:
             'creative_mode': settings_raw.get('creative_mode', 'off'),
             'chat_provider': chat_provider,      # Новая схема
             'chat_model': chat_model,            # Новая схема
-            'embedding_provider': settings_raw.get('embedding_provider', 'openai'),
-            'embedding_model': settings_raw.get('embedding_model', 'text-embedding-3-small'),
+            'embedding_provider': settings_raw.get('embedding_provider', 'yandex'),
+            'embedding_model': settings_raw.get('embedding_model', 'text-search-query'),
             'system_prompt': settings_raw.get('system_prompt', '''Вы - вежливый и профессиональный консьерж отеля. Отвечайте на вопросы гостей, используя только информацию из базы знаний.
 
 ПРАВИЛА ФОРМАТИРОВАНИЯ ОТВЕТОВ:

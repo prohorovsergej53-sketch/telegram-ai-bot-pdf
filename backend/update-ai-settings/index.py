@@ -67,10 +67,11 @@ def handler(event: dict, context) -> dict:
                 'max_tokens': 600,
                 'system_priority': 'strict',
                 'creative_mode': 'off',
-                'chat_provider': 'openrouter',
-                'chat_model': 'deepseek-chat',
-                'embedding_provider': 'openai',
-                'embedding_model': 'text-embedding-3-small',
+                'provider': 'yandex',
+                'chat_provider': 'yandex',
+                'chat_model': 'yandexgpt',
+                'embedding_provider': 'yandex',
+                'embedding_model': 'text-search-query',
                 'system_prompt': 'Вы - вежливый и профессиональный консьерж отеля. Отвечайте на вопросы гостей, используя только информацию из базы знаний.'
             }
         
