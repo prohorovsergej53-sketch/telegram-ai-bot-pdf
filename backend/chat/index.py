@@ -95,7 +95,8 @@ def handler(event: dict, context) -> dict:
         body = json.loads(event.get('body', '{}'))
         user_message = body.get('message', '')
         session_id = body.get('sessionId', 'default')
-        tenant_id = body.get('tenantId', 1)
+        tenant_id = body.get('tenantId')
+        tenant_slug = body.get('tenantSlug')
 
         if not user_message:
             return {
@@ -107,6 +108,22 @@ def handler(event: dict, context) -> dict:
 
         conn = psycopg2.connect(os.environ['DATABASE_URL'])
         cur = conn.cursor()
+        
+        # Если передан slug, получаем tenant_id
+        if tenant_slug and not tenant_id:
+            cur.execute("""
+                SELECT id FROM t_p56134400_telegram_ai_bot_pdf.tenants 
+                WHERE slug = %s
+            """, (tenant_slug,))
+            tenant_row = cur.fetchone()
+            if tenant_row:
+                tenant_id = tenant_row[0]
+                print(f"DEBUG: Resolved tenant_slug '{tenant_slug}' to tenant_id={tenant_id}")
+            else:
+                tenant_id = 1
+                print(f"DEBUG: tenant_slug '{tenant_slug}' not found, using tenant_id=1")
+        elif not tenant_id:
+            tenant_id = 1
 
         cur.execute("""
             SELECT ai_settings, embedding_provider, embedding_query_model
@@ -564,7 +581,18 @@ MINI-SYSTEM: РАСЧЁТ ЦЕН (используй только для зап�
                         'text': user_message
                     }
                 )
+                
+                if emb_response.status_code != 200:
+                    print(f"Yandex Embedding API error: {emb_response.status_code}, {emb_response.text}")
+                    raise Exception(f"Yandex API returned {emb_response.status_code}: {emb_response.text}")
+                
                 emb_data = emb_response.json()
+                print(f"DEBUG: Yandex embedding response keys: {emb_data.keys()}")
+                
+                if 'embedding' not in emb_data:
+                    print(f"ERROR: No 'embedding' in response: {emb_data}")
+                    raise Exception(f"Yandex API response missing 'embedding': {emb_data}")
+                
                 query_embedding = emb_data['embedding']
                 
                 # Логируем использование токенов для запроса (примерно по количеству символов)
