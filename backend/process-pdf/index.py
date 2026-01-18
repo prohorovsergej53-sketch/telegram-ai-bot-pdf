@@ -35,7 +35,7 @@ def handler(event: dict, context) -> dict:
         }
 
     try:
-        print(f"🔍 DEBUG process-pdf: headers={event.get('headers', {})}, queryParams={event.get('queryStringParameters', {})}")
+        print(f"🔍 DEBUG process-pdf: headers={event.get('headers', {})}, queryParams={event.get('queryStringParameters', {})}, body={event.get('body', '{}')}")
         tenant_id, auth_error = get_tenant_id_from_request(event)
         if auth_error:
             print(f"❌ AUTH ERROR in process-pdf: {auth_error}")
@@ -63,12 +63,13 @@ def handler(event: dict, context) -> dict:
         result = cur.fetchone()
         
         if not result:
+            print(f"❌ Document not found: document_id={document_id}, tenant_id={tenant_id}")
             cur.close()
             conn.close()
             return {
                 'statusCode': 404,
                 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                'body': json.dumps({'error': 'Document not found'}),
+                'body': json.dumps({'error': f'Document not found: id={document_id}, tenant={tenant_id}'}),
                 'isBase64Encoded': False
             }
 
