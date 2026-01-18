@@ -81,18 +81,18 @@ def handler(event: dict, context) -> dict:
             elif key in ['provider', 'chat_provider', 'chat_model', 'embedding_provider', 'embedding_model', 'system_prompt', 'max_tokens', 'system_priority', 'creative_mode', 'model']:
                 ai_settings[key] = value
         
-        # Автоматическая миграция: если provider отсутствует, определяем его по модели
-        if 'provider' not in ai_settings or not ai_settings['provider']:
-            model = ai_settings.get('model', '')
-            if model in ['yandexgpt', 'yandexgpt-lite']:
-                ai_settings['provider'] = 'yandex'
-            elif model in ['gpt-4o-mini', 'o1-mini', 'o1', 'claude-3-haiku', 'claude-3-5-sonnet-20241022', 'claude-3-opus-20240229']:
-                ai_settings['provider'] = 'proxyapi'
-            elif model.startswith('openrouter-'):
-                ai_settings['provider'] = 'openrouter'
-                ai_settings['model'] = model.replace('openrouter-', '')
-            elif model:
-                ai_settings['provider'] = 'openrouter'
+        # Синхронизация новой и старой схемы (обратная совместимость)
+        # Если пришли provider + model из frontend, обновляем chat_provider + chat_model
+        if 'provider' in settings:
+            ai_settings['chat_provider'] = settings['provider']
+        if 'model' in settings:
+            ai_settings['chat_model'] = settings['model']
+        
+        # Автоматическая миграция deepseek → openrouter
+        if ai_settings.get('chat_provider') == 'deepseek':
+            ai_settings['chat_provider'] = 'openrouter'
+        if ai_settings.get('provider') == 'deepseek':
+            ai_settings['provider'] = 'openrouter'
         
         ai_settings_json = json.dumps(ai_settings)
 
