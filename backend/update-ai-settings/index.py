@@ -67,7 +67,7 @@ def handler(event: dict, context) -> dict:
                 'max_tokens': 600,
                 'system_priority': 'strict',
                 'creative_mode': 'off',
-                'chat_provider': 'deepseek',
+                'chat_provider': 'openrouter',
                 'chat_model': 'deepseek-chat',
                 'embedding_provider': 'openai',
                 'embedding_model': 'text-embedding-3-small',

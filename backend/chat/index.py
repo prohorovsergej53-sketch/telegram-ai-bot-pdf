@@ -133,7 +133,11 @@ def handler(event: dict, context) -> dict:
             
             if explicit_provider:
                 # Новая схема: chat_provider явно указан в настройках
-                ai_provider = explicit_provider
+                # Автоматическая миграция: deepseek → openrouter (для обратной совместимости)
+                if explicit_provider == 'deepseek':
+                    ai_provider = 'openrouter'
+                else:
+                    ai_provider = explicit_provider
             elif ai_model.startswith('openrouter-'):
                 ai_provider = 'openrouter'
                 ai_model = ai_model.replace('openrouter-', '')
