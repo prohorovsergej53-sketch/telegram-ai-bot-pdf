@@ -167,6 +167,102 @@ def handler(event: dict, context) -> dict:
                     disable_cronjob(api_key, job_id)
                 result = {'ok': True, 'message': 'Еженедельный отчёт отключён'}
 
+            elif action == 'enable_daily_analytics':
+                api_key = get_cronjob_api_key(cur)
+                if not api_key:
+                    raise ValueError('Сначала сохраните API ключ Cron-job.org')
+                job_id = create_cronjob(api_key, 'Ежедневная аналитика', 'https://functions.poehali.dev/placeholder-daily-analytics', [9], enabled=True)
+                save_cronjob_id(cur, 'daily_analytics', job_id)
+                conn.commit()
+                result = {'ok': True, 'message': 'Ежедневная аналитика включена'}
+
+            elif action == 'disable_daily_analytics':
+                api_key = get_cronjob_api_key(cur)
+                job_id = get_cronjob_id(cur, 'daily_analytics')
+                if job_id:
+                    disable_cronjob(api_key, job_id)
+                result = {'ok': True, 'message': 'Ежедневная аналитика отключена'}
+
+            elif action == 'enable_error_monitoring':
+                api_key = get_cronjob_api_key(cur)
+                if not api_key:
+                    raise ValueError('Сначала сохраните API ключ Cron-job.org')
+                job_id = create_cronjob(api_key, 'Мониторинг ошибок', 'https://functions.poehali.dev/placeholder-error-monitoring', [0,6,12,18], enabled=True)
+                save_cronjob_id(cur, 'error_monitoring', job_id)
+                conn.commit()
+                result = {'ok': True, 'message': 'Мониторинг ошибок включён'}
+
+            elif action == 'disable_error_monitoring':
+                api_key = get_cronjob_api_key(cur)
+                job_id = get_cronjob_id(cur, 'error_monitoring')
+                if job_id:
+                    disable_cronjob(api_key, job_id)
+                result = {'ok': True, 'message': 'Мониторинг ошибок отключён'}
+
+            elif action == 'enable_cleanup_logs':
+                api_key = get_cronjob_api_key(cur)
+                if not api_key:
+                    raise ValueError('Сначала сохраните API ключ Cron-job.org')
+                job_id = create_cronjob(api_key, 'Очистка логов', 'https://functions.poehali.dev/placeholder-cleanup-logs', [4], wdays=[0], enabled=True)
+                save_cronjob_id(cur, 'cleanup_logs', job_id)
+                conn.commit()
+                result = {'ok': True, 'message': 'Очистка логов включена'}
+
+            elif action == 'disable_cleanup_logs':
+                api_key = get_cronjob_api_key(cur)
+                job_id = get_cronjob_id(cur, 'cleanup_logs')
+                if job_id:
+                    disable_cronjob(api_key, job_id)
+                result = {'ok': True, 'message': 'Очистка логов отключена'}
+
+            elif action == 'enable_subscription_reminders':
+                api_key = get_cronjob_api_key(cur)
+                if not api_key:
+                    raise ValueError('Сначала сохраните API ключ Cron-job.org')
+                job_id = create_cronjob(api_key, 'Напоминания о подписке', 'https://functions.poehali.dev/placeholder-subscription-reminders', [10], enabled=True)
+                save_cronjob_id(cur, 'subscription_reminders', job_id)
+                conn.commit()
+                result = {'ok': True, 'message': 'Напоминания включены'}
+
+            elif action == 'disable_subscription_reminders':
+                api_key = get_cronjob_api_key(cur)
+                job_id = get_cronjob_id(cur, 'subscription_reminders')
+                if job_id:
+                    disable_cronjob(api_key, job_id)
+                result = {'ok': True, 'message': 'Напоминания отключены'}
+
+            elif action == 'enable_admin_alerts':
+                api_key = get_cronjob_api_key(cur)
+                if not api_key:
+                    raise ValueError('Сначала сохраните API ключ Cron-job.org')
+                job_id = create_cronjob(api_key, 'Алерты админа', 'https://functions.poehali.dev/placeholder-admin-alerts', list(range(24)), enabled=True)
+                save_cronjob_id(cur, 'admin_alerts', job_id)
+                conn.commit()
+                result = {'ok': True, 'message': 'Алерты админа включены'}
+
+            elif action == 'disable_admin_alerts':
+                api_key = get_cronjob_api_key(cur)
+                job_id = get_cronjob_id(cur, 'admin_alerts')
+                if job_id:
+                    disable_cronjob(api_key, job_id)
+                result = {'ok': True, 'message': 'Алерты админа отключены'}
+
+            elif action == 'enable_security_audit':
+                api_key = get_cronjob_api_key(cur)
+                if not api_key:
+                    raise ValueError('Сначала сохраните API ключ Cron-job.org')
+                job_id = create_cronjob(api_key, 'Аудит безопасности', 'https://functions.poehali.dev/placeholder-security-audit', [0,12], enabled=True)
+                save_cronjob_id(cur, 'security_audit', job_id)
+                conn.commit()
+                result = {'ok': True, 'message': 'Аудит безопасности включён'}
+
+            elif action == 'disable_security_audit':
+                api_key = get_cronjob_api_key(cur)
+                job_id = get_cronjob_id(cur, 'security_audit')
+                if job_id:
+                    disable_cronjob(api_key, job_id)
+                result = {'ok': True, 'message': 'Аудит безопасности отключён'}
+
             else:
                 raise ValueError(f'Неизвестное действие: {action}')
 
@@ -216,7 +312,13 @@ def get_automation_settings(cur) -> dict:
             ('check_subscriptions', 'check_subscriptions_job'),
             ('cleanup_embeddings', 'cleanup_embeddings_job'),
             ('db_backup', 'db_backup_job'),
-            ('analytics_report', 'analytics_report_job')
+            ('analytics_report', 'analytics_report_job'),
+            ('daily_analytics', 'daily_analytics_job'),
+            ('error_monitoring', 'error_monitoring_job'),
+            ('cleanup_logs', 'cleanup_logs_job'),
+            ('subscription_reminders', 'subscription_reminders_job'),
+            ('admin_alerts', 'admin_alerts_job'),
+            ('security_audit', 'security_audit_job')
         ]
         
         for job_name, settings_key in jobs:
