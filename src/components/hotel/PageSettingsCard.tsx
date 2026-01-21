@@ -33,7 +33,7 @@ const PageSettingsCard = ({ currentTenantId, currentTenantName }: PageSettingsCa
     contact_address_label: 'Адрес',
     contact_address_value: 'Москва, ул. Примерная, 1',
     footer_text: 'Хочу такого бота!',
-    footer_link: 'https://max.im/+79787236035',
+    footer_link: 'https://max.ru/u/f9LHodD0cOIrknUlAYx1LxuVyfuHRhIq-OHhkpPMbwJ_WcjW4dhTFpEEez0',
     input_placeholder: 'Задайте вопрос...'
   });
   const [botName, setBotName] = useState<string>(currentTenantName || '');
