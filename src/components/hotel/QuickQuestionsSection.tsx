@@ -67,7 +67,7 @@ export const QuickQuestionsSection = ({
                 <Input
                   value={q.text}
                   onChange={(e) => onUpdateQuestion(index, 'text', e.target.value)}
-                  placeholder="Номера"
+                  placeholder="Услуги"
                   className="h-8"
                 />
               </div>
@@ -76,7 +76,7 @@ export const QuickQuestionsSection = ({
                 <Input
                   value={q.question}
                   onChange={(e) => onUpdateQuestion(index, 'question', e.target.value)}
-                  placeholder="Какие номера доступны?"
+                  placeholder="Что вы предлагаете?"
                   className="h-8"
                 />
               </div>

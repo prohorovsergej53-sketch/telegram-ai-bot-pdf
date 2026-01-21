@@ -110,7 +110,7 @@ const ChatTestCard = ({ tenantId, tenantName }: ChatTestCardProps) => {
           <Textarea
             value={message}
             onChange={(e) => setMessage(e.target.value)}
-            placeholder="Привет! Какие у вас номера?"
+            placeholder="Привет! Чем можете помочь?"
             rows={3}
             disabled={isLoading}
           />

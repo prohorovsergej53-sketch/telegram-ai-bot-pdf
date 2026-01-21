@@ -23,11 +23,11 @@ export const IndexHeader = ({
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-12 h-12 bg-primary rounded-2xl flex items-center justify-center shadow-lg">
-            <Icon name={pageSettings?.header_icon || 'Hotel'} size={24} className="text-white" />
+            <Icon name={pageSettings?.header_icon || 'Bot'} size={24} className="text-white" />
           </div>
           <div>
-            <h1 className="text-3xl font-bold text-slate-900">{pageSettings?.header_title || 'Hotel Concierge'}</h1>
-            <p className="text-slate-600 text-sm">{pageSettings?.header_subtitle || 'Виртуальный помощник гостей'}</p>
+            <h1 className="text-3xl font-bold text-slate-900">{pageSettings?.header_title || 'AI-помощник'}</h1>
+            <p className="text-slate-600 text-sm">{pageSettings?.header_subtitle || 'Виртуальный помощник клиентов'}</p>
           </div>
         </div>
         <div className="flex gap-2">

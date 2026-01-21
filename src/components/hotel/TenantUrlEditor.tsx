@@ -109,7 +109,7 @@ const TenantUrlEditor = ({ tenantId, currentSlug, tenantName, onSlugUpdated }: T
               id="tenant_slug"
               value={slug}
               onChange={(e) => handleSlugChange(e.target.value)}
-              placeholder="my-hotel-bot"
+              placeholder="my-business-bot"
               className="flex-1 font-mono"
             />
           </div>
