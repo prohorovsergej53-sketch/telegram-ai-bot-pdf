@@ -75,16 +75,16 @@ const TenantApiKeysCard = ({ tenantId, tenantName, fz152Enabled = false }: Tenan
     try {
       const keysToSave: Array<{provider: string, key_name: string, key_value: string}> = [];
       
-      if (yandexApiKey.trim()) {
+      if (yandexApiKey.trim() && !yandexApiKey.startsWith('***')) {
         keysToSave.push({ provider: 'yandex', key_name: 'api_key', key_value: yandexApiKey.trim() });
       }
-      if (yandexFolderId.trim()) {
+      if (yandexFolderId.trim() && !yandexFolderId.startsWith('***')) {
         keysToSave.push({ provider: 'yandex', key_name: 'folder_id', key_value: yandexFolderId.trim() });
       }
-      if (openrouterApiKey.trim()) {
+      if (openrouterApiKey.trim() && !openrouterApiKey.startsWith('***')) {
         keysToSave.push({ provider: 'openrouter', key_name: 'api_key', key_value: openrouterApiKey.trim() });
       }
-      if (proxyapiApiKey.trim()) {
+      if (proxyapiApiKey.trim() && !proxyapiApiKey.startsWith('***')) {
         keysToSave.push({ provider: 'proxyapi', key_name: 'api_key', key_value: proxyapiApiKey.trim() });
       }
 
@@ -189,13 +189,13 @@ const TenantApiKeysCard = ({ tenantId, tenantName, fz152Enabled = false }: Tenan
                 <div className="space-y-2">
                   <Label htmlFor="yandex_api_key" className="flex items-center gap-2">
                     Yandex API Key
-                    {yandexApiKey && (
+                    {yandexApiKey && !yandexApiKey.startsWith('***') && (
                       <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                         <Icon name="CheckCircle2" size={12} />
                         Настроен
                       </span>
                     )}
-                    {!yandexApiKey && (
+                    {(!yandexApiKey || yandexApiKey.startsWith('***')) && (
                       <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-600">
                         <Icon name="CircleDashed" size={12} />
                         Не настроен
@@ -205,12 +205,12 @@ const TenantApiKeysCard = ({ tenantId, tenantName, fz152Enabled = false }: Tenan
                   <Input
                     id="yandex_api_key"
                     type="password"
-                    value={yandexApiKey}
+                    value={yandexApiKey.startsWith('***') ? '' : yandexApiKey}
                     onChange={(e) => setYandexApiKey(e.target.value)}
-                    placeholder="AQVN..."
+                    placeholder="AQVN... (введите новый ключ)"
                     className="font-mono text-sm"
                   />
-                  {yandexApiKey && (
+                  {yandexApiKey && !yandexApiKey.startsWith('***') && (
                     <p className="text-xs text-muted-foreground">
                       Текущий: {maskKey(yandexApiKey)}
                     </p>
@@ -220,13 +220,13 @@ const TenantApiKeysCard = ({ tenantId, tenantName, fz152Enabled = false }: Tenan
                 <div className="space-y-2">
                   <Label htmlFor="yandex_folder_id" className="flex items-center gap-2">
                     Yandex Folder ID
-                    {yandexFolderId && (
+                    {yandexFolderId && !yandexFolderId.startsWith('***') && (
                       <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                         <Icon name="CheckCircle2" size={12} />
                         Настроен
                       </span>
                     )}
-                    {!yandexFolderId && (
+                    {(!yandexFolderId || yandexFolderId.startsWith('***')) && (
                       <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-600">
                         <Icon name="CircleDashed" size={12} />
                         Не настроен
@@ -236,12 +236,12 @@ const TenantApiKeysCard = ({ tenantId, tenantName, fz152Enabled = false }: Tenan
                   <Input
                     id="yandex_folder_id"
                     type="text"
-                    value={yandexFolderId}
+                    value={yandexFolderId.startsWith('***') ? '' : yandexFolderId}
                     onChange={(e) => setYandexFolderId(e.target.value)}
-                    placeholder="b1g..."
+                    placeholder="b1g... (введите новый ID)"
                     className="font-mono text-sm"
                   />
-                  {yandexFolderId && (
+                  {yandexFolderId && !yandexFolderId.startsWith('***') && (
                     <p className="text-xs text-muted-foreground">
                       Текущий: {maskKey(yandexFolderId)}
                     </p>
@@ -271,13 +271,13 @@ const TenantApiKeysCard = ({ tenantId, tenantName, fz152Enabled = false }: Tenan
               <div className="space-y-2">
                 <Label htmlFor="openrouter_api_key" className="flex items-center gap-2">
                   OpenRouter API Key
-                  {openrouterApiKey && (
+                  {openrouterApiKey && !openrouterApiKey.startsWith('***') && (
                     <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                       <Icon name="CheckCircle2" size={12} />
                       Настроен
                     </span>
                   )}
-                  {!openrouterApiKey && (
+                  {(!openrouterApiKey || openrouterApiKey.startsWith('***')) && (
                     <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-600">
                       <Icon name="CircleDashed" size={12} />
                       Не настроен
@@ -287,12 +287,12 @@ const TenantApiKeysCard = ({ tenantId, tenantName, fz152Enabled = false }: Tenan
                 <Input
                   id="openrouter_api_key"
                   type="password"
-                  value={openrouterApiKey}
+                  value={openrouterApiKey.startsWith('***') ? '' : openrouterApiKey}
                   onChange={(e) => setOpenrouterApiKey(e.target.value)}
-                  placeholder="sk-or-..."
+                  placeholder="sk-or-... (введите новый ключ)"
                   className="font-mono text-sm"
                 />
-                {openrouterApiKey && (
+                {openrouterApiKey && !openrouterApiKey.startsWith('***') && (
                   <p className="text-xs text-muted-foreground">
                     Текущий: {maskKey(openrouterApiKey)}
                   </p>
@@ -319,13 +319,13 @@ const TenantApiKeysCard = ({ tenantId, tenantName, fz152Enabled = false }: Tenan
               <div className="space-y-2">
                 <Label htmlFor="proxyapi_api_key" className="flex items-center gap-2">
                   ProxyAPI Key
-                  {proxyapiApiKey && (
+                  {proxyapiApiKey && !proxyapiApiKey.startsWith('***') && (
                     <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                       <Icon name="CheckCircle2" size={12} />
                       Настроен
                     </span>
                   )}
-                  {!proxyapiApiKey && (
+                  {(!proxyapiApiKey || proxyapiApiKey.startsWith('***')) && (
                     <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-600">
                       <Icon name="CircleDashed" size={12} />
                       Не настроен
@@ -335,12 +335,12 @@ const TenantApiKeysCard = ({ tenantId, tenantName, fz152Enabled = false }: Tenan
                 <Input
                   id="proxyapi_api_key"
                   type="password"
-                  value={proxyapiApiKey}
+                  value={proxyapiApiKey.startsWith('***') ? '' : proxyapiApiKey}
                   onChange={(e) => setProxyapiApiKey(e.target.value)}
-                  placeholder="sk-..."
+                  placeholder="sk-... (введите новый ключ)"
                   className="font-mono text-sm"
                 />
-                {proxyapiApiKey && (
+                {proxyapiApiKey && !proxyapiApiKey.startsWith('***') && (
                   <p className="text-xs text-muted-foreground">
                     Текущий: {maskKey(proxyapiApiKey)}
                   </p>
