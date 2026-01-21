@@ -12,12 +12,13 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import Icon from '@/components/ui/icon';
-import { Document } from './types';
-import { getTariffId } from '@/lib/auth';
+import { Document, BACKEND_URLS } from './types';
+import { getTariffId, getTenantId } from '@/lib/auth';
 import { getTariffLimits, canUploadMoreDocuments } from '@/lib/tariff-limits';
 import DocumentUploadArea from './DocumentUploadArea';
 import DocumentGrid from './DocumentGrid';
 import { useToast } from '@/hooks/use-toast';
+import { authenticatedFetch } from '@/lib/auth';
 
 interface DocumentsPanelProps {
   documents: Document[];
@@ -37,6 +38,7 @@ export const DocumentsPanel = ({
   const [showDeleteAllDialog, setShowDeleteAllDialog] = useState(false);
   const [isDeletingAll, setIsDeletingAll] = useState(false);
   const [deleteProgress, setDeleteProgress] = useState({ current: 0, total: 0 });
+  const [isReindexing, setIsReindexing] = useState(false);
   const tariffId = getTariffId();
   const limits = getTariffLimits(tariffId);
   const canUpload = canUploadMoreDocuments(documents.length, tariffId);
@@ -69,6 +71,44 @@ export const DocumentsPanel = ({
 
 
   const { toast } = useToast();
+
+  const handleReindex = async () => {
+    const tenantId = getTenantId();
+    if (!tenantId) return;
+
+    if (!confirm(`Переиндексировать все документы для улучшения поиска? Это может занять несколько минут.`)) {
+      return;
+    }
+
+    setIsReindexing(true);
+    try {
+      const response = await authenticatedFetch(`${BACKEND_URLS.reindexEmbeddings}?tenant_id=${tenantId}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'start' })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        toast({
+          title: '✓ Переиндексация запущена',
+          description: `Обработано документов: ${data.reindexed} из ${data.total}. Качество поиска улучшено.`,
+          duration: 7000
+        });
+      } else {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to start reindexing');
+      }
+    } catch (error: any) {
+      toast({
+        title: 'Ошибка переиндексации',
+        description: error.message,
+        variant: 'destructive'
+      });
+    } finally {
+      setIsReindexing(false);
+    }
+  };
 
   const handleDeleteAll = async () => {
     setIsDeletingAll(true);
@@ -122,7 +162,7 @@ export const DocumentsPanel = ({
                   {documents.length} из {limits.maxPdfDocuments} документов
                 </CardDescription>
               </div>
-              <div className="flex gap-2">
+              <div className="flex gap-2 flex-wrap">
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value as 'name' | 'size' | 'date')}
@@ -142,15 +182,26 @@ export const DocumentsPanel = ({
                   <option value="processing">Обработка</option>
                 </select>
                 {documents.length > 0 && (
-                  <Button
-                    variant="destructive"
-                    size="sm"
-                    onClick={() => setShowDeleteAllDialog(true)}
-                    disabled={isDeletingAll}
-                  >
-                    <Icon name="Trash2" size={16} className="mr-2" />
-                    Очистить всё
-                  </Button>
+                  <>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleReindex}
+                      disabled={isReindexing}
+                    >
+                      <Icon name={isReindexing ? "Loader2" : "RefreshCw"} size={16} className={`mr-2 ${isReindexing ? 'animate-spin' : ''}`} />
+                      {isReindexing ? 'Переиндексация...' : 'Переиндексировать'}
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => setShowDeleteAllDialog(true)}
+                      disabled={isDeletingAll}
+                    >
+                      <Icon name="Trash2" size={16} className="mr-2" />
+                      Очистить всё
+                    </Button>
+                  </>
                 )}
               </div>
             </div>
