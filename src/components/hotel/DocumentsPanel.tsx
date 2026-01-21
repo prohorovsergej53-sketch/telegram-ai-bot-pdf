@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import Icon from '@/components/ui/icon';
 import { Document, BACKEND_URLS } from './types';
-import { getTariffId, getTenantId } from '@/lib/auth';
+import { getTariffId, getTenantId, isSuperAdmin } from '@/lib/auth';
 import { getTariffLimits, canUploadMoreDocuments } from '@/lib/tariff-limits';
 import DocumentUploadArea from './DocumentUploadArea';
 import DocumentGrid from './DocumentGrid';
@@ -42,6 +42,7 @@ export const DocumentsPanel = ({
   const tariffId = getTariffId();
   const limits = getTariffLimits(tariffId);
   const canUpload = canUploadMoreDocuments(documents.length, tariffId);
+  const superAdmin = isSuperAdmin();
 
   const filteredDocuments = useMemo(() => {
     const filtered = documents.filter(doc => {
@@ -183,15 +184,17 @@ export const DocumentsPanel = ({
                 </select>
                 {documents.length > 0 && (
                   <>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={handleReindex}
-                      disabled={isReindexing}
-                    >
-                      <Icon name={isReindexing ? "Loader2" : "RefreshCw"} size={16} className={`mr-2 ${isReindexing ? 'animate-spin' : ''}`} />
-                      {isReindexing ? 'Переиндексация...' : 'Переиндексировать'}
-                    </Button>
+                    {superAdmin && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleReindex}
+                        disabled={isReindexing}
+                      >
+                        <Icon name={isReindexing ? "Loader2" : "RefreshCw"} size={16} className={`mr-2 ${isReindexing ? 'animate-spin' : ''}`} />
+                        {isReindexing ? 'Переиндексация...' : 'Переиндексировать'}
+                      </Button>
+                    )}
                     <Button
                       variant="destructive"
                       size="sm"

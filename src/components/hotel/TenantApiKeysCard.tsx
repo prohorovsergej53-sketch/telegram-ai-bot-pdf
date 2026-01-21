@@ -154,6 +154,22 @@ const TenantApiKeysCard = ({ tenantId, tenantName, fz152Enabled = false }: Tenan
         ) : (
           <>
             <div className="space-y-4">
+              {(yandexApiKey.startsWith('***') || yandexFolderId.startsWith('***') || openrouterApiKey.startsWith('***') || proxyapiApiKey.startsWith('***')) && (
+                <div className="bg-red-50 border-2 border-red-300 rounded-lg p-4">
+                  <div className="flex items-start gap-2">
+                    <Icon name="AlertTriangle" size={20} className="text-red-600 mt-0.5 flex-shrink-0" />
+                    <div className="text-sm text-red-900">
+                      <p className="font-bold mb-2">⚠️ Требуется повторный ввод ключей</p>
+                      <p className="text-red-800 mb-2">
+                        Обнаружены некорректные API ключи (замаскированные значения). Это могло произойти из-за технической ошибки при сохранении.
+                      </p>
+                      <p className="text-red-800 font-medium">
+                        <strong>Действие:</strong> Введите все ключи заново и нажмите "Сохранить ключи". Только реально изменённые ключи будут обновлены в базе.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
               {fz152Enabled && (
                 <div className="bg-amber-50 border border-amber-300 rounded-lg p-4">
                   <div className="flex items-start gap-2">
