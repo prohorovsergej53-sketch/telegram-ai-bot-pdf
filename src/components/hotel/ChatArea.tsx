@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -32,9 +32,14 @@ const ChatArea = ({
 }: ChatAreaProps) => {
   const [consentGiven, setConsentGiven] = useState(false);
   const [showConsentWarning, setShowConsentWarning] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
   
   const hasUserMessages = messages.some(msg => msg.role === 'user');
   const showConsent = consentEnabled && !hasUserMessages && !consentGiven;
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages, isLoading]);
 
   const handleSend = () => {
     if (consentEnabled && !hasUserMessages && !consentGiven) {
@@ -70,6 +75,7 @@ const ChatArea = ({
                 </div>
               </div>
             )}
+            <div ref={messagesEndRef} />
           </div>
         </ScrollArea>
         <div className="p-4 border-t bg-slate-50/50 space-y-3">
