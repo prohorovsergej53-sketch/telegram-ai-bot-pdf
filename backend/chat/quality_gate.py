@@ -162,11 +162,13 @@ def quality_gate(user_text: str, context: str, sims: List[float], tenant_overrid
     }
 
     if len(context) < th["min_len"]:
+        print(f"❌ QUALITY GATE: too_short - context_len={len(context)}, min_len={th['min_len']}")
         return False, f"too_short:{q_type}", debug_info
 
     if sims:
         best = max(sims)
         if best < th["min_sim"]:
+            print(f"❌ QUALITY GATE: low_similarity - best={best:.4f}, min_sim={th['min_sim']}")
             return False, f"low_similarity:{q_type}:{best:.2f}", debug_info
 
     lang = detect_lang_simple(user_text)
@@ -177,9 +179,13 @@ def quality_gate(user_text: str, context: str, sims: List[float], tenant_overrid
     debug_info["lang"] = lang
     debug_info["key_tokens"] = q_key_tokens
 
+    print(f"DEBUG QUALITY GATE: user_text='{user_text}', q_type={q_type}, lang={lang}, overlap={overlap:.4f}, min_overlap={min_overlap}, q_key_tokens={q_key_tokens}")
+
     if q_key_tokens >= 4 and overlap < min_overlap:
+        print(f"❌ QUALITY GATE: low_overlap - overlap={overlap:.4f}, min_overlap={min_overlap}, q_key_tokens={q_key_tokens}")
         return False, f"low_overlap:{q_type}:{lang}:{overlap:.2f}", debug_info
 
+    print(f"✅ QUALITY GATE: PASS - {q_type}/{lang}")
     return True, f"ok:{q_type}:{lang}", debug_info
 
 def compose_system(system_template: str, context: str, context_ok: bool) -> str:
