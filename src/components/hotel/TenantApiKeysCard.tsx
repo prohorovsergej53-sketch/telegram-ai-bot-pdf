@@ -216,13 +216,13 @@ const TenantApiKeysCard = ({ tenantId, tenantName, fz152Enabled = false }: Tenan
                 <div className="space-y-2">
                   <Label htmlFor="yandex_api_key" className="flex items-center gap-2">
                     Yandex API Key
-                    {yandexApiKey && !yandexApiKey.startsWith('***') && (
+                    {yandexApiKey && (
                       <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                         <Icon name="CheckCircle2" size={12} />
                         Настроен
                       </span>
                     )}
-                    {(!yandexApiKey || yandexApiKey.startsWith('***')) && (
+                    {!yandexApiKey && (
                       <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-600">
                         <Icon name="CircleDashed" size={12} />
                         Не настроен
@@ -247,13 +247,13 @@ const TenantApiKeysCard = ({ tenantId, tenantName, fz152Enabled = false }: Tenan
                 <div className="space-y-2">
                   <Label htmlFor="yandex_folder_id" className="flex items-center gap-2">
                     Yandex Folder ID
-                    {yandexFolderId && !yandexFolderId.startsWith('***') && (
+                    {yandexFolderId && (
                       <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                         <Icon name="CheckCircle2" size={12} />
                         Настроен
                       </span>
                     )}
-                    {(!yandexFolderId || yandexFolderId.startsWith('***')) && (
+                    {!yandexFolderId && (
                       <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-600">
                         <Icon name="CircleDashed" size={12} />
                         Не настроен
@@ -298,13 +298,13 @@ const TenantApiKeysCard = ({ tenantId, tenantName, fz152Enabled = false }: Tenan
               <div className="space-y-2">
                 <Label htmlFor="openrouter_api_key" className="flex items-center gap-2">
                   OpenRouter API Key
-                  {openrouterApiKey && !openrouterApiKey.startsWith('***') && (
+                  {openrouterApiKey && (
                     <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                       <Icon name="CheckCircle2" size={12} />
                       Настроен
                     </span>
                   )}
-                  {(!openrouterApiKey || openrouterApiKey.startsWith('***')) && (
+                  {!openrouterApiKey && (
                     <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-600">
                       <Icon name="CircleDashed" size={12} />
                       Не настроен
@@ -346,13 +346,13 @@ const TenantApiKeysCard = ({ tenantId, tenantName, fz152Enabled = false }: Tenan
               <div className="space-y-2">
                 <Label htmlFor="proxyapi_api_key" className="flex items-center gap-2">
                   ProxyAPI Key
-                  {proxyapiApiKey && !proxyapiApiKey.startsWith('***') && (
+                  {proxyapiApiKey && (
                     <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                       <Icon name="CheckCircle2" size={12} />
                       Настроен
                     </span>
                   )}
-                  {(!proxyapiApiKey || proxyapiApiKey.startsWith('***')) && (
+                  {!proxyapiApiKey && (
                     <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-600">
                       <Icon name="CircleDashed" size={12} />
                       Не настроен
