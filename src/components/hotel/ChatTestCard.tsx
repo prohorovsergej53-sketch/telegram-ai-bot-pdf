@@ -20,8 +20,7 @@ const ChatTestCard = ({ tenantId, tenantName }: ChatTestCardProps) => {
 
   const formatTimestamp = (isoString: string) => {
     const date = new Date(isoString);
-    const mskDate = new Date(date.getTime() + (3 * 60 * 60 * 1000));
-    return mskDate.toLocaleString('ru-RU', {
+    return date.toLocaleString('ru-RU', {
       day: '2-digit',
       month: '2-digit',
       year: 'numeric',
