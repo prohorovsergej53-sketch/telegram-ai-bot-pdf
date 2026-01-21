@@ -29,11 +29,13 @@ def handler(event: dict, context) -> dict:
         }
 
     try:
+        body = json.loads(event.get('body', '{}'))
+        
+        # Передаем event в get_tenant_id_from_request, который теперь читает body самостоятельно
         tenant_id, auth_error = get_tenant_id_from_request(event)
         if auth_error:
             return auth_error
-
-        body = json.loads(event.get('body', '{}'))
+        
         settings = body.get('settings', {})
         quick_questions = body.get('quickQuestions', [])
         bot_name = body.get('botName', '')

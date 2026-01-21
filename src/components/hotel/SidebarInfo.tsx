@@ -74,15 +74,17 @@ const SidebarInfo = ({
               <p className="text-slate-600">{pageSettings?.contact_phone_value || '+7 (495) 123-45-67'}</p>
             </div>
           </div>
-          <div className="flex items-center gap-3 text-sm">
-            <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
-              <Icon name="Mail" size={16} className="text-green-600" />
+          {pageSettings?.contact_email_value && (
+            <div className="flex items-center gap-3 text-sm">
+              <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+                <Icon name="Mail" size={16} className="text-green-600" />
+              </div>
+              <div>
+                <p className="font-medium text-slate-900">{pageSettings?.contact_email_label || 'Email'}</p>
+                <p className="text-slate-600">{pageSettings.contact_email_value}</p>
+              </div>
             </div>
-            <div>
-              <p className="font-medium text-slate-900">{pageSettings?.contact_email_label || 'Email'}</p>
-              <p className="text-slate-600">{pageSettings?.contact_email_value || 'info@hotel.ru'}</p>
-            </div>
-          </div>
+          )}
           <div className="flex items-center gap-3 text-sm">
             <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
               <Icon name="MapPin" size={16} className="text-purple-600" />
