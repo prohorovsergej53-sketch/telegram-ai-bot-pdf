@@ -700,8 +700,8 @@ MINI-SYSTEM: РАСЧЁТ ЦЕН (используй только для зап�
                     scored_chunks.append((chunk_text, similarity))
                 
                 scored_chunks.sort(key=lambda x: x[1], reverse=True)
-                print(f"DEBUG: Top 3 chunks for query '{user_message}':")
-                for i, (chunk, sim) in enumerate(scored_chunks[:3]):
+                print(f"DEBUG: Top {RAG_TOPK_DEFAULT} chunks for query '{user_message}':")
+                for i, (chunk, sim) in enumerate(scored_chunks[:RAG_TOPK_DEFAULT]):
                     print(f"  {i+1}. Similarity: {sim:.4f}, Text: {chunk[:200]}...")
 
                 request_id = context.request_id if hasattr(context, 'request_id') else 'unknown'

@@ -97,9 +97,12 @@ def classify_query_type(user_text: str) -> str:
 
     return "services"
 
-def build_context_with_scores(scored_chunks: List[Tuple[str, float]], top_k: int = 3, max_chars_per_chunk: int = 2200) -> Tuple[str, List[float]]:
+def build_context_with_scores(scored_chunks: List[Tuple[str, float]], top_k: int = None, max_chars_per_chunk: int = 2200) -> Tuple[str, List[float]]:
     if not scored_chunks:
         return "", []
+    
+    if top_k is None:
+        top_k = RAG_TOPK_DEFAULT
 
     sorted_chunks = sorted(scored_chunks, key=lambda x: x[1], reverse=True)[:top_k]
 
