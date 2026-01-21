@@ -882,17 +882,22 @@ MINI-SYSTEM: РАСЧЁТ ЦЕН (используй только для зап�
             if error:
                 return error
             
-            # Получаем актуальную рабочую модель
-            try:
-                working_model = get_working_free_model(chat_api_model)
-                print(f"🔄 OpenRouter модель: {chat_api_model} → {working_model}")
-            except Exception as model_error:
-                return {
-                    'statusCode': 400,
-                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                    'body': json.dumps({'error': f'Модель недоступна: {str(model_error)}'}),
-                    'isBase64Encoded': False
-                }
+            # Для бесплатных моделей проверяем доступность, для платных используем напрямую
+            if chat_api_model.endswith(':free') or chat_api_model in ['llama-3.3-70b', 'llama-3.1-8b', 'gemma-2-9b', 'qwen-2.5-7b', 'phi-3-medium', 'mistral-7b', 'mythomist-7b', 'deepseek-r1']:
+                try:
+                    working_model = get_working_free_model(chat_api_model)
+                    print(f"🔄 OpenRouter бесплатная модель: {chat_api_model} → {working_model}")
+                except Exception as model_error:
+                    return {
+                        'statusCode': 400,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': f'Модель недоступна: {str(model_error)}'}),
+                        'isBase64Encoded': False
+                    }
+            else:
+                # Платные модели используем напрямую
+                working_model = chat_api_model
+                print(f"💰 OpenRouter платная модель: {chat_api_model}")
             
             chat_client = OpenAI(
                 api_key=openrouter_key,
