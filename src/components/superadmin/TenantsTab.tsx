@@ -36,6 +36,7 @@ export const TenantsTab = ({ tenants, onEnterTenant, onManageTenant, onCreateTen
               <div className="flex-1">
                 <div className="flex items-center gap-3 mb-2">
                   <h3 className="font-semibold text-lg">{tenant.name}</h3>
+                  <Badge variant="outline" className="font-mono">ID: {tenant.id}</Badge>
                   <Badge>{tenant.tariff_id}</Badge>
                 </div>
                 <div className="text-sm text-muted-foreground space-y-1">
