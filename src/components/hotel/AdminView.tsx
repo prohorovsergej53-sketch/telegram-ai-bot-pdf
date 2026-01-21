@@ -50,8 +50,9 @@ const AdminView = ({ documents, isLoading, onFileUpload, onDeleteDocument, curre
 
   // Подсчёт количества видимых вкладок
   const tabsCount = 
-    5 + // Документы, Мессенджеры, Страница, Виджет, 152-ФЗ (всегда)
+    4 + // Документы, Мессенджеры, Страница, Виджет (всегда)
     ((superAdmin || fz152Enabled) ? 1 : 0) + // AI
+    (fz152Enabled ? 1 : 0) + // 152-ФЗ
     (superAdmin ? 1 : 0) + // Эмбеддинги
     ((superAdmin || hasFeatureAccess('hasStats', tariffId)) ? 1 : 0); // Статистика
 
@@ -101,10 +102,12 @@ const AdminView = ({ documents, isLoading, onFileUpload, onDeleteDocument, curre
             <Icon name="Code" size={20} className="mr-2" />
             <span>Виджет</span>
           </TabsTrigger>
-          <TabsTrigger value="consent" className="data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=inactive]:text-white py-3 px-4 text-base font-semibold">
-            <Icon name="ShieldCheck" size={20} className="mr-2" />
-            <span>152-ФЗ</span>
-          </TabsTrigger>
+          {fz152Enabled && (
+            <TabsTrigger value="consent" className="data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=inactive]:text-white py-3 px-4 text-base font-semibold">
+              <Icon name="ShieldCheck" size={20} className="mr-2" />
+              <span>152-ФЗ</span>
+            </TabsTrigger>
+          )}
           {superAdmin && (
             <TabsTrigger value="embeddings" className="data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=inactive]:text-white py-3 px-4 text-base font-semibold">
               <Icon name="BrainCircuit" size={20} className="mr-2" />
@@ -243,9 +246,11 @@ const AdminView = ({ documents, isLoading, onFileUpload, onDeleteDocument, curre
           />
         </TabsContent>
 
-        <TabsContent value="consent" className="space-y-6">
-          {currentTenantId && <ConsentSettingsCard tenantId={currentTenantId} fz152Enabled={fz152Enabled} />}
-        </TabsContent>
+        {fz152Enabled && (
+          <TabsContent value="consent" className="space-y-6">
+            {currentTenantId && <ConsentSettingsCard tenantId={currentTenantId} />}
+          </TabsContent>
+        )}
 
         {superAdmin && (
           <TabsContent value="embeddings" className="space-y-6">
