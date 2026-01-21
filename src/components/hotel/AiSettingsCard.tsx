@@ -63,8 +63,16 @@ const AiSettingsCard = ({ currentTenantId, isSuperAdmin = false }: AiSettingsCar
   const checkApiKeys = async () => {
     setCheckingKeys(true);
     try {
-      const tenantId = currentTenantId !== null && currentTenantId !== undefined ? currentTenantId : getTenantId();
-      const url = tenantId !== null && tenantId !== undefined ? `${API_KEYS_URL}?tenant_id=${tenantId}` : API_KEYS_URL;
+      // Для супер-админа всегда используем currentTenantId
+      const tenantId = isSuperAdmin ? currentTenantId : (currentTenantId !== null && currentTenantId !== undefined ? currentTenantId : getTenantId());
+      
+      if (tenantId === null || tenantId === undefined) {
+        console.log('[AiSettingsCard] No tenantId available');
+        setCheckingKeys(false);
+        return;
+      }
+      
+      const url = `${API_KEYS_URL}?tenant_id=${tenantId}`;
       const response = await authenticatedFetch(url, { method: 'GET' });
       const data = await response.json();
       
@@ -87,8 +95,15 @@ const AiSettingsCard = ({ currentTenantId, isSuperAdmin = false }: AiSettingsCar
 
   const loadSettings = async () => {
     try {
-      const tenantId = currentTenantId !== null && currentTenantId !== undefined ? currentTenantId : getTenantId();
-      const url = tenantId !== null && tenantId !== undefined ? `${BACKEND_URLS.getAiSettings}?tenant_id=${tenantId}` : BACKEND_URLS.getAiSettings;
+      // Для супер-админа всегда используем currentTenantId
+      const tenantId = isSuperAdmin ? currentTenantId : (currentTenantId !== null && currentTenantId !== undefined ? currentTenantId : getTenantId());
+      
+      if (tenantId === null || tenantId === undefined) {
+        console.log('[AiSettingsCard] No tenantId available for loading settings');
+        return;
+      }
+      
+      const url = `${BACKEND_URLS.getAiSettings}?tenant_id=${tenantId}`;
       const response = await authenticatedFetch(url);
       const data = await response.json();
       if (data.settings) {
@@ -153,9 +168,20 @@ const AiSettingsCard = ({ currentTenantId, isSuperAdmin = false }: AiSettingsCar
   const handleSaveSettings = async () => {
     setIsLoading(true);
     try {
-      const tenantId = currentTenantId !== null && currentTenantId !== undefined ? currentTenantId : getTenantId();
+      // Для супер-админа всегда используем currentTenantId
+      const tenantId = isSuperAdmin ? currentTenantId : (currentTenantId !== null && currentTenantId !== undefined ? currentTenantId : getTenantId());
       
-      const updateUrl = tenantId !== null && tenantId !== undefined ? `${BACKEND_URLS.updateAiSettings}?tenant_id=${tenantId}` : BACKEND_URLS.updateAiSettings;
+      if (tenantId === null || tenantId === undefined) {
+        toast({
+          title: 'Ошибка',
+          description: 'Не удалось определить ID тенанта',
+          variant: 'destructive'
+        });
+        setIsLoading(false);
+        return;
+      }
+      
+      const updateUrl = `${BACKEND_URLS.updateAiSettings}?tenant_id=${tenantId}`;
       
       const response = await authenticatedFetch(updateUrl, {
         method: 'POST',
