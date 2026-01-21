@@ -325,6 +325,16 @@ export const useIndexActions = (params: UseIndexActionsParams): IndexActions => 
   };
 
   const handleAdminLoginSuccess = () => {
+    const adminUser = localStorage.getItem('adminUser');
+    const userRole = adminUser ? JSON.parse(adminUser).role : null;
+    
+    // Супер-админа редиректим на /super-admin
+    if (userRole === 'super_admin') {
+      window.location.href = '/super-admin';
+      return;
+    }
+    
+    // Обычного админа оставляем в админке тенанта
     setIsAdminAuthenticated(true);
     setView('admin');
   };
