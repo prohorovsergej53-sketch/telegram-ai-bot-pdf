@@ -31,9 +31,15 @@ const AiSettingsCard = ({ currentTenantId, isSuperAdmin = false }: AiSettingsCar
   const { toast } = useToast();
 
   useEffect(() => {
+    // Загружаем настройки только когда currentTenantId определен
+    if (isSuperAdmin && !currentTenantId) {
+      console.log('[AiSettingsCard] Waiting for currentTenantId...');
+      return;
+    }
+    
     loadSettings();
     checkApiKeys();
-  }, []);
+  }, [currentTenantId, isSuperAdmin]);
 
   const getStatusBadge = () => {
     if (configStatus === 'active') {
@@ -73,8 +79,10 @@ const AiSettingsCard = ({ currentTenantId, isSuperAdmin = false }: AiSettingsCar
       }
       
       const url = `${API_KEYS_URL}?tenant_id=${tenantId}`;
+      console.log('[AiSettingsCard] Checking keys for tenant:', tenantId, 'URL:', url);
       const response = await authenticatedFetch(url, { method: 'GET' });
       const data = await response.json();
+      console.log('[AiSettingsCard] Keys response:', data);
       
       if (response.ok && data.keys) {
         const yandexApi = data.keys.find((k: any) => k.provider === 'yandex' && k.key_name === 'api_key' && k.key_value && k.key_value.trim() !== '');

@@ -41,10 +41,12 @@ const TenantApiKeysCard = ({ tenantId, tenantName, fz152Enabled = false }: Tenan
   const loadKeys = async () => {
     setIsLoading(true);
     try {
+      console.log('[TenantApiKeysCard] Loading keys for tenant:', tenantId);
       const response = await authenticatedFetch(`${BACKEND_URL}?tenant_id=${tenantId}`, {
         method: 'GET'
       });
       const data = await response.json();
+      console.log('[TenantApiKeysCard] Keys response:', data);
       
       if (response.ok && data.keys) {
         setKeys(data.keys);
@@ -54,12 +56,21 @@ const TenantApiKeysCard = ({ tenantId, tenantName, fz152Enabled = false }: Tenan
         const openrouterApi = data.keys.find((k: ApiKey) => k.provider === 'openrouter' && k.key_name === 'api_key');
         const proxyapiApi = data.keys.find((k: ApiKey) => k.provider === 'proxyapi' && k.key_name === 'api_key');
         
+        console.log('[TenantApiKeysCard] Found keys:', {
+          yandex: !!yandexApi,
+          openrouter: !!openrouterApi,
+          proxyapi: !!proxyapiApi
+        });
+        
         setYandexApiKey(yandexApi?.key_value || '');
         setYandexFolderId(yandexFolder?.key_value || '');
         setOpenrouterApiKey(openrouterApi?.key_value || '');
         setProxyapiApiKey(proxyapiApi?.key_value || '');
+      } else {
+        console.error('[TenantApiKeysCard] Failed to load keys:', response.status, data);
       }
     } catch (error: any) {
+      console.error('[TenantApiKeysCard] Error loading keys:', error);
       toast({
         title: 'Ошибка',
         description: error.message || 'Не удалось загрузить ключи',
