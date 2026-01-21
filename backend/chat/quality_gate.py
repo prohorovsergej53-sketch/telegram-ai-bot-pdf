@@ -132,6 +132,14 @@ def keyword_overlap_ratio(user_text: str, context: str, lang: str) -> Tuple[floa
     overlap = len(q_set & c_set) / max(1, len(q_set))
     return overlap, len(q_set)
 
+def get_tenant_topk(tenant_overrides: Dict = None) -> Tuple[int, int]:
+    """Получить top_k настройки из tenant-specific конфига или дефолтные"""
+    if tenant_overrides:
+        default_topk = tenant_overrides.get('rag_topk_default', RAG_TOPK_DEFAULT)
+        fallback_topk = tenant_overrides.get('rag_topk_fallback', RAG_TOPK_FALLBACK)
+        return default_topk, fallback_topk
+    return RAG_TOPK_DEFAULT, RAG_TOPK_FALLBACK
+
 def quality_gate(user_text: str, context: str, sims: List[float], tenant_overrides: Dict = None) -> Tuple[bool, str, Dict]:
     if not context:
         return False, "empty_context", {}

@@ -18,6 +18,7 @@ from quality_gate import (
     rag_debug_log,
     low_overlap_rate,
     update_low_overlap_stats,
+    get_tenant_topk,
     RAG_TOPK_DEFAULT,
     RAG_TOPK_FALLBACK,
     RAG_LOW_OVERLAP_THRESHOLD,
@@ -137,6 +138,8 @@ def handler(event: dict, context) -> dict:
         embedding_provider = 'yandex'
         embedding_model = 'text-search-query'
         quality_gate_settings = {}
+        tenant_rag_topk_default = RAG_TOPK_DEFAULT
+        tenant_rag_topk_fallback = RAG_TOPK_FALLBACK
         
         if settings_row:
             if settings_row[1]:
@@ -145,6 +148,15 @@ def handler(event: dict, context) -> dict:
                 embedding_model = settings_row[2]
             if settings_row[3]:
                 quality_gate_settings = settings_row[3]
+            
+            # Читаем tenant-specific RAG top_k настройки из ai_settings
+            if settings_row[0]:
+                ai_settings_json = settings_row[0]
+                if 'rag_topk_default' in ai_settings_json:
+                    tenant_rag_topk_default = int(ai_settings_json['rag_topk_default'])
+                if 'rag_topk_fallback' in ai_settings_json:
+                    tenant_rag_topk_fallback = int(ai_settings_json['rag_topk_fallback'])
+                print(f"DEBUG: Tenant {tenant_id} RAG settings: top_k_default={tenant_rag_topk_default}, top_k_fallback={tenant_rag_topk_fallback}")
         
         if settings_row and settings_row[0]:
             settings = settings_row[0]
@@ -700,15 +712,15 @@ MINI-SYSTEM: РАСЧЁТ ЦЕН (используй только для зап�
                     scored_chunks.append((chunk_text, similarity))
                 
                 scored_chunks.sort(key=lambda x: x[1], reverse=True)
-                print(f"DEBUG: Top {RAG_TOPK_DEFAULT} chunks for query '{user_message}':")
-                for i, (chunk, sim) in enumerate(scored_chunks[:RAG_TOPK_DEFAULT]):
+                print(f"DEBUG: Top {tenant_rag_topk_default} chunks for query '{user_message}':")
+                for i, (chunk, sim) in enumerate(scored_chunks[:tenant_rag_topk_default]):
                     print(f"  {i+1}. Similarity: {sim:.4f}, Text: {chunk[:200]}...")
 
                 request_id = context.request_id if hasattr(context, 'request_id') else 'unknown'
                 query_hash = hashlib.sha256(user_message.encode()).hexdigest()[:12]
                 
                 overlap_rate = low_overlap_rate()
-                start_top_k = RAG_TOPK_FALLBACK if (RAG_LOW_OVERLAP_START_TOPK5 and overlap_rate >= RAG_LOW_OVERLAP_THRESHOLD) else RAG_TOPK_DEFAULT
+                start_top_k = tenant_rag_topk_fallback if (RAG_LOW_OVERLAP_START_TOPK5 and overlap_rate >= RAG_LOW_OVERLAP_THRESHOLD) else tenant_rag_topk_default
                 
                 context, sims = build_context_with_scores(scored_chunks, top_k=start_top_k)
                 context_ok, gate_reason, gate_debug = quality_gate(user_message, context, sims, quality_gate_settings)
@@ -728,11 +740,11 @@ MINI-SYSTEM: РАСЧЁТ ЦЕН (используй только для зап�
                     'metrics': gate_debug
                 })
                 
-                if 'low_overlap' in gate_reason and start_top_k < RAG_TOPK_FALLBACK:
-                    context2, sims2 = build_context_with_scores(scored_chunks, top_k=RAG_TOPK_FALLBACK)
+                if 'low_overlap' in gate_reason and start_top_k < tenant_rag_topk_fallback:
+                    context2, sims2 = build_context_with_scores(scored_chunks, top_k=tenant_rag_topk_fallback)
                     context_ok2, gate_reason2, gate_debug2 = quality_gate(user_message, context2, sims2, quality_gate_settings)
                     
-                    gate_debug2['top_k_used'] = RAG_TOPK_FALLBACK
+                    gate_debug2['top_k_used'] = tenant_rag_topk_fallback
                     gate_debug2['overlap_rate'] = overlap_rate
                     
                     rag_debug_log({

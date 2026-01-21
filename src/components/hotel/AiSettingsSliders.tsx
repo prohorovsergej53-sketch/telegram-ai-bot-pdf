@@ -110,6 +110,42 @@ const AiSettingsSliders = ({ settings, selectedModel, onSettingsChange }: AiSett
         </p>
       </div>
 
+      <div className="space-y-2">
+        <div className="flex justify-between items-center">
+          <Label>RAG Top-K (основной)</Label>
+          <span className="text-sm text-slate-500">{settings.rag_topk_default ?? 7}</span>
+        </div>
+        <Slider
+          value={[settings.rag_topk_default ?? 7]}
+          onValueChange={(value) => onSettingsChange({ ...settings, rag_topk_default: value[0] })}
+          min={3}
+          max={20}
+          step={1}
+          className="w-full"
+        />
+        <p className="text-xs text-slate-500">
+          Сколько чанков искать в документах (рекомендуется 7-12)
+        </p>
+      </div>
+
+      <div className="space-y-2">
+        <div className="flex justify-between items-center">
+          <Label>RAG Top-K (резервный)</Label>
+          <span className="text-sm text-slate-500">{settings.rag_topk_fallback ?? 10}</span>
+        </div>
+        <Slider
+          value={[settings.rag_topk_fallback ?? 10]}
+          onValueChange={(value) => onSettingsChange({ ...settings, rag_topk_fallback: value[0] })}
+          min={5}
+          max={25}
+          step={1}
+          className="w-full"
+        />
+        <p className="text-xs text-slate-500">
+          Если первая попытка неудачна, искать больше чанков (рекомендуется 10-15)
+        </p>
+      </div>
+
       {selectedModel === 'yandexgpt' && (
         <>
           <div className="space-y-2">

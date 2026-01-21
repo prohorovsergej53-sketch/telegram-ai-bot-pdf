@@ -56,6 +56,8 @@ export interface AiModelSettings {
   system_priority?: string;
   creative_mode?: string;
   system_prompt?: string;
+  rag_topk_default?: number;
+  rag_topk_fallback?: number;
 }
 
 export const AI_PROVIDERS = [
@@ -135,7 +137,9 @@ export const DEFAULT_AI_SETTINGS: AiModelSettings = {
   max_tokens: 600,
   system_priority: 'strict',
   creative_mode: 'off',
-  system_prompt: ''
+  system_prompt: '',
+  rag_topk_default: 7,
+  rag_topk_fallback: 10
 };
 
 export const BACKEND_URLS = {
