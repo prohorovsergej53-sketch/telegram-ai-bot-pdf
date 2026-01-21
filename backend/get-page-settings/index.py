@@ -35,9 +35,9 @@ def handler(event: dict, context) -> dict:
         conn = psycopg2.connect(os.environ['DATABASE_URL'])
         cur = conn.cursor()
 
-        # Получаем page_settings и public_description из JSONB
+        # Получаем page_settings, public_description и consent настройки из JSONB
         cur.execute("""
-            SELECT page_settings, public_description 
+            SELECT page_settings, public_description, consent_webchat_enabled, consent_text
             FROM t_p56134400_telegram_ai_bot_pdf.tenant_settings
             WHERE tenant_id = %s
         """, (tenant_id,))
@@ -47,6 +47,11 @@ def handler(event: dict, context) -> dict:
         # Добавляем public_description в settings
         if row and row[1]:
             settings['public_description'] = row[1]
+        
+        # Добавляем consent настройки
+        if row:
+            settings['consent_enabled'] = row[2] if row[2] is not None else False
+            settings['consent_text'] = row[3] if row[3] else 'Я согласен на обработку персональных данных'
 
         # Получаем название бота из таблицы tenants
         cur.execute("""
