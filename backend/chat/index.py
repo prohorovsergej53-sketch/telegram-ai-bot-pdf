@@ -128,7 +128,7 @@ def handler(event: dict, context) -> dict:
             print(f"⚠️ DEBUG: No tenant_slug or tenant_id provided, defaulting to tenant_id=1")
 
         cur.execute("""
-            SELECT ai_settings, embedding_provider, embedding_query_model
+            SELECT ai_settings, embedding_provider, embedding_query_model, quality_gate_settings
             FROM t_p56134400_telegram_ai_bot_pdf.tenant_settings
             WHERE tenant_id = %s
         """, (tenant_id,))
@@ -136,12 +136,15 @@ def handler(event: dict, context) -> dict:
         
         embedding_provider = 'yandex'
         embedding_model = 'text-search-query'
+        quality_gate_settings = {}
         
         if settings_row:
             if settings_row[1]:
                 embedding_provider = settings_row[1]
             if settings_row[2]:
                 embedding_model = settings_row[2]
+            if settings_row[3]:
+                quality_gate_settings = settings_row[3]
         
         if settings_row and settings_row[0]:
             settings = settings_row[0]
@@ -698,7 +701,7 @@ MINI-SYSTEM: РАСЧЁТ ЦЕН (используй только для зап�
                 start_top_k = RAG_TOPK_FALLBACK if (RAG_LOW_OVERLAP_START_TOPK5 and overlap_rate >= RAG_LOW_OVERLAP_THRESHOLD) else RAG_TOPK_DEFAULT
                 
                 context, sims = build_context_with_scores(scored_chunks, top_k=start_top_k)
-                context_ok, gate_reason, gate_debug = quality_gate(user_message, context, sims)
+                context_ok, gate_reason, gate_debug = quality_gate(user_message, context, sims, quality_gate_settings)
                 
                 gate_debug['top_k_used'] = start_top_k
                 gate_debug['overlap_rate'] = overlap_rate
@@ -717,7 +720,7 @@ MINI-SYSTEM: РАСЧЁТ ЦЕН (используй только для зап�
                 
                 if 'low_overlap' in gate_reason and start_top_k < RAG_TOPK_FALLBACK:
                     context2, sims2 = build_context_with_scores(scored_chunks, top_k=RAG_TOPK_FALLBACK)
-                    context_ok2, gate_reason2, gate_debug2 = quality_gate(user_message, context2, sims2)
+                    context_ok2, gate_reason2, gate_debug2 = quality_gate(user_message, context2, sims2, quality_gate_settings)
                     
                     gate_debug2['top_k_used'] = RAG_TOPK_FALLBACK
                     gate_debug2['overlap_rate'] = overlap_rate

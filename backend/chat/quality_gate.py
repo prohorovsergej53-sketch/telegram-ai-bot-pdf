@@ -129,12 +129,20 @@ def keyword_overlap_ratio(user_text: str, context: str, lang: str) -> Tuple[floa
     overlap = len(q_set & c_set) / max(1, len(q_set))
     return overlap, len(q_set)
 
-def quality_gate(user_text: str, context: str, sims: List[float]) -> Tuple[bool, str, Dict]:
+def quality_gate(user_text: str, context: str, sims: List[float], tenant_overrides: Dict = None) -> Tuple[bool, str, Dict]:
     if not context:
         return False, "empty_context", {}
 
     q_type = classify_query_type(user_text)
-    th = GATE_THRESHOLDS.get(q_type, GATE_THRESHOLDS["default"])
+    
+    # Сначала берём дефолтные пороги
+    th = GATE_THRESHOLDS.get(q_type, GATE_THRESHOLDS["default"]).copy()
+    
+    # Если есть tenant-специфичные настройки - применяем их
+    if tenant_overrides:
+        tenant_th = tenant_overrides.get(q_type, tenant_overrides.get("default", {}))
+        if tenant_th:
+            th.update(tenant_th)
 
     debug_info = {
         "query_type": q_type,
