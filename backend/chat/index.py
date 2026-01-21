@@ -196,7 +196,7 @@ def handler(event: dict, context) -> dict:
             ai_max_tokens = safe_int(settings.get('max_tokens', 600), 600)
             ai_system_priority = settings.get('system_priority', 'strict')
             ai_creative_mode = settings.get('creative_mode', 'off')
-            system_prompt_template = settings.get('system_prompt', '''Ты — дружелюбный AI-консьерж отеля «Династия» в Telegram.
+            system_prompt_template = settings.get('system_prompt', '''Ты — дружелюбный AI-помощник.
 
 ИСТОЧНИК ФАКТОВ:
 Единственный источник фактов — блок внутри system prompt, который начинается строкой:
@@ -400,7 +400,7 @@ MINI-SYSTEM: РАСЧЁТ ЦЕН (используй только для зап�
             ai_max_tokens = 600
             ai_system_priority = 'strict'
             ai_creative_mode = 'off'
-            system_prompt_template = settings.get('system_prompt', '''Ты — дружелюбный AI-консьерж отеля «Династия» в Telegram.
+            system_prompt_template = settings.get('system_prompt', '''Ты — дружелюбный AI-помощник.
 
 ИСТОЧНИК ФАКТОВ:
 Единственный источник фактов — блок внутри system prompt, который начинается строкой:
