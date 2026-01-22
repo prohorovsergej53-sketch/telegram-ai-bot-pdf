@@ -98,12 +98,6 @@ def handler(event: dict, context) -> dict:
         if 'model' in settings:
             ai_settings['chat_model'] = settings['model']
         
-        # Автоматическая миграция deepseek → openrouter
-        if ai_settings.get('chat_provider') == 'deepseek':
-            ai_settings['chat_provider'] = 'openrouter'
-        if ai_settings.get('provider') == 'deepseek':
-            ai_settings['provider'] = 'openrouter'
-        
         ai_settings_json = json.dumps(ai_settings)
 
         # Используем UPSERT (INSERT ... ON CONFLICT)
