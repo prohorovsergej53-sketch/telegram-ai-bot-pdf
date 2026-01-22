@@ -49,6 +49,7 @@ const ChatWidget = () => {
   const [isInitializing, setIsInitializing] = useState(true);
   const [consentGiven, setConsentGiven] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const initialize = async () => {
@@ -87,7 +88,17 @@ const ChatWidget = () => {
   }, [tenantSlug]);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (scrollAreaRef.current) {
+      const viewport = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]');
+      if (viewport) {
+        setTimeout(() => {
+          viewport.scrollTo({
+            top: viewport.scrollHeight,
+            behavior: 'smooth'
+          });
+        }, 100);
+      }
+    }
   }, [messages, isLoading]);
 
   const sendMessage = async () => {
@@ -185,7 +196,7 @@ const ChatWidget = () => {
         </CardHeader>
 
         <CardContent className="flex-1 flex flex-col p-0">
-          <ScrollArea className="flex-1 p-6">
+          <ScrollArea className="flex-1 p-6" ref={scrollAreaRef}>
             {quickQuestions.length > 0 && !hasUserMessages && (
               <div className="mb-6 flex flex-wrap gap-2 sticky top-0 bg-gradient-to-b from-white via-white to-transparent pb-4 z-10">
                 {quickQuestions.map((q, idx) => (
