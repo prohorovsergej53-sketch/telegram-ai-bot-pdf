@@ -20,6 +20,13 @@ interface PageSettings {
   input_placeholder?: string;
   consent_enabled?: boolean;
   consent_text?: string;
+  page_title?: string;
+}
+
+interface QuickQuestion {
+  text: string;
+  question: string;
+  icon: string;
 }
 
 const CHAT_API = 'https://functions.poehali.dev/7b58f4fb-5db0-4f85-bb3b-55bafa4cbf73';
@@ -31,6 +38,7 @@ const ChatWidget = () => {
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [pageSettings, setPageSettings] = useState<PageSettings | null>(null);
+  const [quickQuestions, setQuickQuestions] = useState<QuickQuestion[]>([]);
   const [isInitializing, setIsInitializing] = useState(true);
   const [consentGiven, setConsentGiven] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -46,6 +54,7 @@ const ChatWidget = () => {
           if (response.ok) {
             const data = await response.json();
             setPageSettings(data.settings || data);
+            setQuickQuestions(data.quickQuestions || []);
             
             // Используем page_title как приветствие, если оно есть
             if (data.settings?.page_title) {
@@ -170,6 +179,23 @@ const ChatWidget = () => {
 
         <CardContent className="flex-1 flex flex-col p-0">
           <ScrollArea className="flex-1 p-6">
+            {quickQuestions.length > 0 && messages.length === 1 && (
+              <div className="mb-6 flex flex-wrap gap-2">
+                {quickQuestions.map((q, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => {
+                      setInputMessage(q.question);
+                      setTimeout(() => sendMessage(), 100);
+                    }}
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-blue-200 rounded-full text-sm text-blue-700 hover:bg-blue-50 hover:border-blue-300 transition-colors shadow-sm"
+                  >
+                    <Icon name={q.icon} size={16} />
+                    {q.text}
+                  </button>
+                ))}
+              </div>
+            )}
             <div className="space-y-4">
               {messages.map((msg) => (
                 <div
