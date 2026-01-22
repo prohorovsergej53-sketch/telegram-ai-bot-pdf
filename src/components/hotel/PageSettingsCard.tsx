@@ -19,22 +19,22 @@ interface PageSettingsCardProps {
 
 const PageSettingsCard = ({ currentTenantId, currentTenantName }: PageSettingsCardProps) => {
   const [settings, setSettings] = useState<PageSettings>({
-    header_icon: 'MessageSquare',
-    header_title: 'AI-консультант',
-    header_subtitle: 'Ваш бизнес-ассистент',
+    header_icon: 'Hotel',
+    header_title: 'Отель «Династия»',
+    header_subtitle: 'AI-консьерж отеля',
     page_title: 'Здравствуйте!',
     page_subtitle: 'Задайте любой вопрос о наших услугах',
     quick_questions_title: 'Быстрые вопросы',
     contacts_title: 'Контакты',
     contact_phone_label: 'Телефон',
-    contact_phone_value: '+7 (495) 123-45-67',
+    contact_phone_value: '+7 (978) 123-45-67',
     contact_email_label: 'Email',
-    contact_email_value: 'info@example.ru',
+    contact_email_value: 'info@dinasty-hotel.ru',
     contact_address_label: 'Адрес',
-    contact_address_value: 'Москва, ул. Примерная, 1',
+    contact_address_value: 'Крым, г. Ялта, набережная Ленина, 10',
     footer_text: 'Хочу такого бота!',
     footer_link: 'https://max.ru/u/f9LHodD0cOIrknUlAYx1LxuVyfuHRhIq-OHhkpPMbwJ_WcjW4dhTFpEEez0',
-    input_placeholder: 'Задайте вопрос...'
+    input_placeholder: 'Спросите о номерах, ценах или бронировании...'
   });
   const [botName, setBotName] = useState<string>(currentTenantName || '');
 
