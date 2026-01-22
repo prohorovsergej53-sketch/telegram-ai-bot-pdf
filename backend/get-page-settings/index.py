@@ -28,12 +28,32 @@ def handler(event: dict, context) -> dict:
         }
 
     try:
-        tenant_id, auth_error = get_tenant_id_from_request(event)
-        if auth_error:
-            return auth_error
-
+        query_params = event.get('queryStringParameters') or {}
+        tenant_slug = query_params.get('slug')
+        
         conn = psycopg2.connect(os.environ['DATABASE_URL'])
         cur = conn.cursor()
+        
+        if tenant_slug:
+            cur.execute("""
+                SELECT id FROM t_p56134400_telegram_ai_bot_pdf.tenants 
+                WHERE slug = %s
+            """, (tenant_slug,))
+            tenant_row = cur.fetchone()
+            if not tenant_row:
+                return {
+                    'statusCode': 404,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'Tenant not found'}),
+                    'isBase64Encoded': False
+                }
+            tenant_id = tenant_row[0]
+        else:
+            tenant_id, auth_error = get_tenant_id_from_request(event)
+            if auth_error:
+                cur.close()
+                conn.close()
+                return auth_error
 
         # Получаем page_settings, public_description и consent настройки из JSONB
         cur.execute("""
