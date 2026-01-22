@@ -3,7 +3,8 @@ import os
 import sys
 import psycopg2
 import hashlib
-from datetime import datetime
+from datetime import datetime, timedelta
+import re
 
 sys.path.append('/function/code')
 from timezone_helper import now_moscow, moscow_naive
@@ -236,10 +237,46 @@ def handler(event: dict, context) -> dict:
         history_rows = cur.fetchall()
         history_messages_preview = [{"role": row[0], "content": row[1]} for row in reversed(history_rows)]
         
+        # Конвертация относительных дат в абсолютные
+        def convert_relative_dates(text):
+            """Конвертирует относительные даты (завтра, послезавтра и т.д.) в абсолютные"""
+            today = now_moscow().date()
+            
+            relative_patterns = {
+                r'\bзавтра\b': today + timedelta(days=1),
+                r'\bпослезавтра\b': today + timedelta(days=2),
+                r'\bчерез\s+(\d+)\s+(?:день|дня|дней)\b': lambda m: today + timedelta(days=int(m.group(1))),
+                r'\bчерез\s+неделю\b': today + timedelta(weeks=1),
+                r'\bчерез\s+(\d+)\s+(?:неделю|недели|недель)\b': lambda m: today + timedelta(weeks=int(m.group(1))),
+                r'\bчерез\s+месяц\b': today + timedelta(days=30),
+                r'\bна\s+следующей\s+неделе\b': today + timedelta(weeks=1),
+            }
+            
+            months_ru = [
+                'января', 'февраля', 'марта', 'апреля', 'мая', 'июня',
+                'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'
+            ]
+            
+            converted_text = text
+            for pattern, replacement in relative_patterns.items():
+                match = re.search(pattern, text, re.IGNORECASE)
+                if match:
+                    if callable(replacement):
+                        date_obj = replacement(match)
+                    else:
+                        date_obj = replacement
+                    
+                    day = date_obj.day
+                    month = months_ru[date_obj.month - 1]
+                    date_str = f"{day} {month}"
+                    converted_text = re.sub(pattern, date_str, converted_text, flags=re.IGNORECASE)
+                    print(f"DEBUG: Converted relative date '{match.group()}' to '{date_str}'")
+            
+            return converted_text
+        
         # Извлекаем даты из истории для обогащения запроса эмбеддинга
         def extract_date_from_history(history_msgs):
             """Извлекает упоминания дат из истории для контекста"""
-            import re
             date_patterns = [
                 r'\d{1,2}\s+(января|февраля|марта|апреля|мая|июня|июля|августа|сентября|октября|ноября|декабря)',
                 r'\d{1,2}\.\d{1,2}\.\d{2,4}',
@@ -255,11 +292,16 @@ def handler(event: dict, context) -> dict:
                             return match.group()
             return None
         
+        # Конвертируем относительные даты в абсолютные в запросе пользователя
+        user_message_converted = convert_relative_dates(user_message)
+        if user_message_converted != user_message:
+            print(f"DEBUG: User message after date conversion: '{user_message_converted}'")
+        
         context_date = extract_date_from_history(history_messages_preview)
-        enriched_query = user_message
-        if context_date and len(user_message.split()) <= 3:  # Обогащаем только короткие запросы
-            enriched_query = f"{user_message} {context_date}"
-            print(f"DEBUG: Enriched query for embedding: '{enriched_query}' (original: '{user_message}')")
+        enriched_query = user_message_converted
+        if context_date and len(user_message_converted.split()) <= 3:  # Обогащаем только короткие запросы
+            enriched_query = f"{user_message_converted} {context_date}"
+            print(f"DEBUG: Enriched query for embedding: '{enriched_query}' (original: '{user_message_converted}'")
 
         try:
             if embedding_provider == 'yandex':
@@ -423,7 +465,7 @@ def handler(event: dict, context) -> dict:
         cur.execute("""
             INSERT INTO t_p56134400_telegram_ai_bot_pdf.chat_messages (session_id, role, content, tenant_id)
             VALUES (%s, %s, %s, %s)
-        """, (session_id, 'user', user_message, tenant_id))
+        """, (session_id, 'user', user_message_converted, tenant_id))
         
         cur.execute("""
             INSERT INTO t_p56134400_telegram_ai_bot_pdf.tenant_quality_gate_logs 
@@ -468,7 +510,7 @@ def handler(event: dict, context) -> dict:
                 })
             
             # Добавляем текущее сообщение
-            yandex_messages.append({"role": "user", "text": user_message})
+            yandex_messages.append({"role": "user", "text": user_message_converted})
             
             payload = {
                 "modelUri": f"gpt://{yandex_folder_id}/{chat_api_model}",
@@ -528,7 +570,7 @@ def handler(event: dict, context) -> dict:
             openrouter_messages = [{"role": "system", "content": system_prompt}]
             for msg in history_messages_preview:
                 openrouter_messages.append({"role": msg["role"], "content": msg["content"]})
-            openrouter_messages.append({"role": "user", "content": user_message})
+            openrouter_messages.append({"role": "user", "content": user_message_converted})
             
             response = chat_client.chat.completions.create(
                 model=working_model,
@@ -551,7 +593,7 @@ def handler(event: dict, context) -> dict:
             deepseek_messages = [{"role": "system", "content": system_prompt}]
             for msg in history_messages_preview:
                 deepseek_messages.append({"role": msg["role"], "content": msg["content"]})
-            deepseek_messages.append({"role": "user", "content": user_message})
+            deepseek_messages.append({"role": "user", "content": user_message_converted})
             
             response = chat_client.chat.completions.create(
                 model=chat_api_model,
@@ -574,7 +616,7 @@ def handler(event: dict, context) -> dict:
             proxyapi_messages = [{"role": "system", "content": system_prompt}]
             for msg in history_messages_preview:
                 proxyapi_messages.append({"role": msg["role"], "content": msg["content"]})
-            proxyapi_messages.append({"role": "user", "content": user_message})
+            proxyapi_messages.append({"role": "user", "content": user_message_converted})
             
             response = chat_client.chat.completions.create(
                 model=chat_api_model,
