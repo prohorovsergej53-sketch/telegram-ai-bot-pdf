@@ -320,7 +320,7 @@ const ChatWidget = () => {
 
       <div className="text-center">
         <a
-          href="https://poehali.dev"
+          href="https://max.ru/u/f9LHodD0cOIrknUlAYx1LxuVyfuHRhIq-OHhkpPMbwJ_WcjW4dhTFpEEez0"
           target="_blank"
           rel="noopener noreferrer"
           className="text-sm text-gray-600 hover:text-blue-600 transition-colors inline-flex items-center gap-2"
