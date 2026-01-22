@@ -39,11 +39,18 @@ const ChatWidget = () => {
     const initialize = async () => {
       try {
         // Загружаем настройки страницы
+        let welcomeMessage = 'Здравствуйте! Я AI-консультант. Чем могу помочь?';
+        
         if (tenantSlug) {
           const response = await fetch(`${SETTINGS_API}?slug=${tenantSlug}`);
           if (response.ok) {
             const data = await response.json();
-            setPageSettings(data);
+            setPageSettings(data.settings || data);
+            
+            // Используем page_title как приветствие, если оно есть
+            if (data.settings?.page_title) {
+              welcomeMessage = data.settings.page_title;
+            }
           }
         }
 
@@ -51,7 +58,7 @@ const ChatWidget = () => {
         setMessages([{
           id: '1',
           role: 'assistant',
-          content: 'Здравствуйте! Я AI-консультант. Чем могу помочь?',
+          content: welcomeMessage,
           timestamp: new Date()
         }]);
       } catch (error) {
