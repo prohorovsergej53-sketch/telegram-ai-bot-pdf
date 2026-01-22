@@ -865,6 +865,11 @@ MINI-SYSTEM: РАСЧЁТ ЦЕН (используй только для зап�
             # Логируем использование токенов GPT
             usage_data = yandex_data.get('result', {}).get('usage', {})
             total_tokens = usage_data.get('totalTokens', 0)
+            # Преобразуем в int на случай если пришла строка
+            try:
+                total_tokens = int(total_tokens) if total_tokens else 0
+            except (ValueError, TypeError):
+                total_tokens = 0
             if total_tokens > 0:
                 log_token_usage(
                     tenant_id=tenant_id,
