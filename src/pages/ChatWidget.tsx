@@ -21,6 +21,7 @@ interface PageSettings {
   consent_enabled?: boolean;
   consent_text?: string;
   page_title?: string;
+  footer_link?: string;
 }
 
 interface QuickQuestion {
@@ -271,6 +272,19 @@ const ChatWidget = () => {
                 <Send className="w-5 h-5" />
               </Button>
             </div>
+
+            {pageSettings?.footer_link && (
+              <div className="mt-3 pt-3 border-t text-center">
+                <a
+                  href={pageSettings.footer_link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs text-gray-500 hover:text-blue-600 transition-colors"
+                >
+                  Забронировать номер
+                </a>
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>
