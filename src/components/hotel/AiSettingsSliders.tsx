@@ -6,10 +6,14 @@ import { AiModelSettings } from './types';
 interface AiSettingsSlidersProps {
   settings: AiModelSettings;
   selectedModel: string;
+  selectedProvider: string;
   onSettingsChange: (settings: AiModelSettings) => void;
 }
 
-const AiSettingsSliders = ({ settings, selectedModel, onSettingsChange }: AiSettingsSlidersProps) => {
+const AiSettingsSliders = ({ settings, selectedModel, selectedProvider, onSettingsChange }: AiSettingsSlidersProps) => {
+  const isYandex = selectedProvider === 'yandex';
+  const isOpenRouter = selectedProvider === 'openrouter';
+  const isProxyApi = selectedProvider === 'proxyapi';
   return (
     <div className="space-y-4 pt-2">
       <div className="space-y-2">
@@ -70,45 +74,45 @@ const AiSettingsSliders = ({ settings, selectedModel, onSettingsChange }: AiSett
         </p>
       </div>
 
-      <div className="space-y-2">
-        <div className="flex justify-between items-center">
-          <Label>Frequency Penalty</Label>
-          <span className="text-sm text-slate-500">{settings.frequency_penalty}</span>
-        </div>
-        <Slider
-          value={[settings.frequency_penalty]}
-          onValueChange={(value) => onSettingsChange({ ...settings, frequency_penalty: value[0] })}
-          min={0}
-          max={2}
-          step={0.1}
-          className="w-full"
-        />
-        <p className="text-xs text-slate-500">
-          {selectedModel === 'yandexgpt'
-            ? 'Рекомендуется 0 — повторы фраз нужны для шаблонов консьержа'
-            : 'Штраф за частые повторы слов'}
-        </p>
-      </div>
+      {!isYandex && (
+        <>
+          <div className="space-y-2">
+            <div className="flex justify-between items-center">
+              <Label>Frequency Penalty</Label>
+              <span className="text-sm text-slate-500">{settings.frequency_penalty}</span>
+            </div>
+            <Slider
+              value={[settings.frequency_penalty]}
+              onValueChange={(value) => onSettingsChange({ ...settings, frequency_penalty: value[0] })}
+              min={0}
+              max={2}
+              step={0.1}
+              className="w-full"
+            />
+            <p className="text-xs text-slate-500">
+              Штраф за частые повторы слов
+            </p>
+          </div>
 
-      <div className="space-y-2">
-        <div className="flex justify-between items-center">
-          <Label>Presence Penalty</Label>
-          <span className="text-sm text-slate-500">{settings.presence_penalty}</span>
-        </div>
-        <Slider
-          value={[settings.presence_penalty]}
-          onValueChange={(value) => onSettingsChange({ ...settings, presence_penalty: value[0] })}
-          min={0}
-          max={2}
-          step={0.1}
-          className="w-full"
-        />
-        <p className="text-xs text-slate-500">
-          {selectedModel === 'yandexgpt'
-            ? 'Рекомендуется 0 — консьерж не должен уходить в новые темы'
-            : 'Штраф за повтор уже использованных тем'}
-        </p>
-      </div>
+          <div className="space-y-2">
+            <div className="flex justify-between items-center">
+              <Label>Presence Penalty</Label>
+              <span className="text-sm text-slate-500">{settings.presence_penalty}</span>
+            </div>
+            <Slider
+              value={[settings.presence_penalty]}
+              onValueChange={(value) => onSettingsChange({ ...settings, presence_penalty: value[0] })}
+              min={0}
+              max={2}
+              step={0.1}
+              className="w-full"
+            />
+            <p className="text-xs text-slate-500">
+              Штраф за повтор уже использованных тем
+            </p>
+          </div>
+        </>
+      )}
 
       <div className="space-y-2">
         <div className="flex justify-between items-center">
@@ -146,7 +150,7 @@ const AiSettingsSliders = ({ settings, selectedModel, onSettingsChange }: AiSett
         </p>
       </div>
 
-      {selectedModel === 'yandexgpt' && (
+      {isYandex && (
         <>
           <div className="space-y-2">
             <Label>System Priority</Label>

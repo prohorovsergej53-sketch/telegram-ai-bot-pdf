@@ -26,43 +26,43 @@ from quality_gate import (
 )
 
 MODEL_API_NAMES = {
+    # Yandex модели
     'yandexgpt': 'yandexgpt',
     'yandexgpt-lite': 'yandexgpt-lite',
-    # Бесплатные модели
+    
+    # OpenRouter бесплатные модели
     'llama-3.3-70b': 'meta-llama/llama-3.3-70b-instruct:free',
+    'gemini-2.0-flash': 'google/gemini-2.0-flash-exp:free',
+    'deepseek-v3': 'deepseek/deepseek-chat:free',
+    'deepseek-r1': 'deepseek/deepseek-r1:free',
     'llama-3.1-405b': 'meta-llama/llama-3.1-405b-instruct:free',
-    'llama-3.2-90b-vision': 'meta-llama/llama-3.2-90b-vision-instruct:free',
-    'llama-3.1-8b': 'meta-llama/llama-3.1-8b-instruct:free',
-    'gemma-2-9b': 'google/gemma-2-27b-it:free',
-    'qwen-2.5-7b': 'qwen/qwen-2.5-7b-instruct:free',
     'qwen-2.5-72b': 'qwen/qwen-2.5-72b-instruct:free',
+    'mistral-small': 'mistralai/mistral-small-3.1-24b-instruct:free',
     'phi-3-medium': 'microsoft/phi-3-medium-128k-instruct:free',
-    'mistral-7b': 'mistralai/mistral-7b-instruct:free',
-    'mythomist-7b': 'gryphe/mythomist-7b:free',
-    'deepseek-r1': 'deepseek/deepseek-r1-distill-llama-70b',
-    # Топовые платные модели
-    'gpt-4o': 'openai/gpt-4o',
-    'gpt-4-turbo': 'openai/gpt-4-turbo',
-    'claude-3.5-sonnet': 'anthropic/claude-3.5-sonnet',
-    'claude-3-opus': 'anthropic/claude-3-opus',
-    'gemini-pro-1.5': 'google/gemini-pro-1.5',
-    # Дешевые платные модели
-    'llama-3.1-70b': 'meta-llama/llama-3.1-70b-instruct',
+    'llama-3.1-8b': 'meta-llama/llama-3.1-8b-instruct:free',
+    'gemma-2-9b': 'google/gemma-2-9b-it:free',
+    'qwen-2.5-7b': 'qwen/qwen-2.5-7b-instruct:free',
+    
+    # OpenRouter дешевые платные модели
+    'gemini-flash-1.5': 'google/gemini-flash-1.5',
+    'deepseek-chat': 'deepseek/deepseek-chat',
     'mixtral-8x7b': 'mistralai/mixtral-8x7b-instruct',
     'claude-3-haiku': 'anthropic/claude-3-haiku',
     'gpt-3.5-turbo': 'openai/gpt-3.5-turbo',
-    'gemini-flash-1.5': 'google/gemini-flash-1.5',
-    # Backward compatibility
-    'openrouter-llama-3.1-8b': 'meta-llama/llama-3.1-8b-instruct:free',
-    'openrouter-gemma-2-9b': 'google/gemma-2-27b-it:free',
-    'openrouter-qwen-2.5-7b': 'qwen/qwen-2.5-7b-instruct:free',
-    'openrouter-phi-3-medium': 'microsoft/phi-3-medium-128k-instruct:free',
-    'openrouter-deepseek-r1': 'deepseek/deepseek-r1-distill-llama-70b',
-    'deepseek-chat': 'deepseek/deepseek-chat',
+    'llama-3.1-70b': 'meta-llama/llama-3.1-70b-instruct',
+    
+    # OpenRouter топовые платные модели
+    'gemini-pro-1.5': 'google/gemini-pro-1.5',
+    'gpt-4o': 'openai/gpt-4o',
+    'claude-3.5-sonnet': 'anthropic/claude-3.5-sonnet',
+    'gpt-4-turbo': 'openai/gpt-4-turbo',
+    'claude-3-opus': 'anthropic/claude-3-opus',
+    
+    # ProxyAPI модели
     'gpt-4o-mini': 'gpt-4o-mini',
     'o1-mini': 'o1-mini',
     'o1': 'o1',
-    'claude-3-haiku': 'claude-3-haiku-20240307',
+    'claude-3-haiku-20240307': 'claude-3-haiku-20240307',
     'claude-3-5-sonnet-20241022': 'claude-3-5-sonnet-20241022',
     'claude-3-opus-20240229': 'claude-3-opus-20240229'
 }
@@ -883,7 +883,13 @@ MINI-SYSTEM: РАСЧЁТ ЦЕН (используй только для зап�
                 return error
             
             # Для бесплатных моделей проверяем доступность, для платных используем напрямую
-            if chat_api_model.endswith(':free') or chat_api_model in ['llama-3.3-70b', 'llama-3.1-8b', 'gemma-2-9b', 'qwen-2.5-7b', 'phi-3-medium', 'mistral-7b', 'mythomist-7b', 'deepseek-r1']:
+            free_models = [
+                'llama-3.3-70b', 'gemini-2.0-flash', 'deepseek-v3', 'deepseek-r1',
+                'llama-3.1-405b', 'qwen-2.5-72b', 'mistral-small', 'phi-3-medium',
+                'llama-3.1-8b', 'gemma-2-9b', 'qwen-2.5-7b'
+            ]
+            
+            if chat_api_model.endswith(':free') or any(chat_api_model.startswith(m) for m in free_models):
                 try:
                     working_model = get_working_free_model(chat_api_model)
                     print(f"🔄 OpenRouter бесплатная модель: {chat_api_model} → {working_model}")

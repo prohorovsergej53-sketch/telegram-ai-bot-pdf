@@ -396,6 +396,7 @@ const AiSettingsCard = ({ currentTenantId, isSuperAdmin = false }: AiSettingsCar
         <AiSettingsSliders
           settings={settings}
           selectedModel={settings.model}
+          selectedProvider={settings.provider}
           onSettingsChange={(newSettings) => setSettings(newSettings)}
         />
 
