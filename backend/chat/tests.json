@@ -1,16 +1,20 @@
 {
   "tests": [
     {
-      "name": "Test chat endpoint responds (no keys scenario)",
+      "name": "Test chat endpoint with default prompt",
       "method": "POST",
       "body": {
         "message": "тест",
         "sessionId": "test",
         "tenantId": 1
       },
-      "expectedStatus": 400,
+      "expectedStatus": 200,
+      "expectedBody": {
+        "message": "string",
+        "sessionId": "string"
+      },
       "bodyMatcher": "partial",
-      "description": "Тест проверяет корректную обработку отсутствующих API ключей"
+      "description": "Тест проверяет что чат отвечает дефолтным промптом когда документы не загружены"
     }
   ]
 }
