@@ -188,75 +188,95 @@ const PageSettingsCard = ({ currentTenantId, currentTenantName }: PageSettingsCa
           />
 
           <div className="pt-4 border-t">
-            <h3 className="text-sm font-semibold text-slate-900 mb-3">Пользовательские ссылки в чате</h3>
-            <p className="text-sm text-muted-foreground mb-4">
-              Добавьте до 3 ссылок, которые будут отображаться в футере чата (например, бронирование, меню, прайс)
-            </p>
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <Label htmlFor="footer_link_1_text">Ссылка 1 - Текст</Label>
-                  <Input
-                    id="footer_link_1_text"
-                    value={settings.footer_link_1_text || ''}
-                    onChange={(e) => setSettings({ ...settings, footer_link_1_text: e.target.value })}
-                    placeholder="Забронировать номер"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="footer_link_1_url">Ссылка 1 - URL</Label>
-                  <Input
-                    id="footer_link_1_url"
-                    value={settings.footer_link_1_url || ''}
-                    onChange={(e) => setSettings({ ...settings, footer_link_1_url: e.target.value })}
-                    placeholder="https://..."
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <Label htmlFor="footer_link_2_text">Ссылка 2 - Текст</Label>
-                  <Input
-                    id="footer_link_2_text"
-                    value={settings.footer_link_2_text || ''}
-                    onChange={(e) => setSettings({ ...settings, footer_link_2_text: e.target.value })}
-                    placeholder="Меню ресторана"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="footer_link_2_url">Ссылка 2 - URL</Label>
-                  <Input
-                    id="footer_link_2_url"
-                    value={settings.footer_link_2_url || ''}
-                    onChange={(e) => setSettings({ ...settings, footer_link_2_url: e.target.value })}
-                    placeholder="https://..."
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <Label htmlFor="footer_link_3_text">Ссылка 3 - Текст</Label>
-                  <Input
-                    id="footer_link_3_text"
-                    value={settings.footer_link_3_text || ''}
-                    onChange={(e) => setSettings({ ...settings, footer_link_3_text: e.target.value })}
-                    placeholder="Прайс-лист"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="footer_link_3_url">Ссылка 3 - URL</Label>
-                  <Input
-                    id="footer_link_3_url"
-                    value={settings.footer_link_3_url || ''}
-                    onChange={(e) => setSettings({ ...settings, footer_link_3_url: e.target.value })}
-                    placeholder="https://..."
-                  />
-                </div>
+            <h3 className="text-sm font-semibold text-slate-900 mb-3">Брендинг</h3>
+            <div className="space-y-3">
+              <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg">
+                <input
+                  type="checkbox"
+                  id="show_bot_promo"
+                  checked={settings.show_bot_promo !== false}
+                  onChange={(e) => setSettings({ ...settings, show_bot_promo: e.target.checked })}
+                  className="w-4 h-4"
+                />
+                <label htmlFor="show_bot_promo" className="text-sm cursor-pointer flex-1">
+                  Показывать ссылку "Хочу такого бота!" под окном чата
+                </label>
               </div>
             </div>
           </div>
+
+          {isSuperAdmin() && (
+            <div className="pt-4 border-t">
+              <h3 className="text-sm font-semibold text-slate-900 mb-3">Пользовательские ссылки в чате</h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                Добавьте до 3 ссылок, которые будут отображаться в футере чата (например, бронирование, меню, прайс)
+              </p>
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <Label htmlFor="footer_link_1_text">Ссылка 1 - Текст</Label>
+                    <Input
+                      id="footer_link_1_text"
+                      value={settings.footer_link_1_text || ''}
+                      onChange={(e) => setSettings({ ...settings, footer_link_1_text: e.target.value })}
+                      placeholder="Забронировать номер"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="footer_link_1_url">Ссылка 1 - URL</Label>
+                    <Input
+                      id="footer_link_1_url"
+                      value={settings.footer_link_1_url || ''}
+                      onChange={(e) => setSettings({ ...settings, footer_link_1_url: e.target.value })}
+                      placeholder="https://..."
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <Label htmlFor="footer_link_2_text">Ссылка 2 - Текст</Label>
+                    <Input
+                      id="footer_link_2_text"
+                      value={settings.footer_link_2_text || ''}
+                      onChange={(e) => setSettings({ ...settings, footer_link_2_text: e.target.value })}
+                      placeholder="Меню ресторана"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="footer_link_2_url">Ссылка 2 - URL</Label>
+                    <Input
+                      id="footer_link_2_url"
+                      value={settings.footer_link_2_url || ''}
+                      onChange={(e) => setSettings({ ...settings, footer_link_2_url: e.target.value })}
+                      placeholder="https://..."
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <Label htmlFor="footer_link_3_text">Ссылка 3 - Текст</Label>
+                    <Input
+                      id="footer_link_3_text"
+                      value={settings.footer_link_3_text || ''}
+                      onChange={(e) => setSettings({ ...settings, footer_link_3_text: e.target.value })}
+                      placeholder="Прайс-лист"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="footer_link_3_url">Ссылка 3 - URL</Label>
+                    <Input
+                      id="footer_link_3_url"
+                      value={settings.footer_link_3_url || ''}
+                      onChange={(e) => setSettings({ ...settings, footer_link_3_url: e.target.value })}
+                      placeholder="https://..."
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="flex justify-end pt-4 border-t">

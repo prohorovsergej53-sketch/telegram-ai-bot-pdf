@@ -27,6 +27,7 @@ interface PageSettings {
   footer_link_2_url?: string;
   footer_link_3_text?: string;
   footer_link_3_url?: string;
+  show_bot_promo?: boolean;
 }
 
 interface QuickQuestion {
@@ -318,17 +319,19 @@ const ChatWidget = () => {
         </CardContent>
       </Card>
 
-      <div className="text-center">
-        <a
-          href="https://max.ru/u/f9LHodD0cOIrknUlAYx1LxuVyfuHRhIq-OHhkpPMbwJ_WcjW4dhTFpEEez0"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-sm text-gray-600 hover:text-blue-600 transition-colors inline-flex items-center gap-2"
-        >
-          <Icon name="Sparkles" size={16} />
-          Хочу такого бота!
-        </a>
-      </div>
+      {pageSettings?.show_bot_promo !== false && (
+        <div className="text-center">
+          <a
+            href="https://max.ru/u/f9LHodD0cOIrknUlAYx1LxuVyfuHRhIq-OHhkpPMbwJ_WcjW4dhTFpEEez0"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-sm text-gray-600 hover:text-blue-600 transition-colors inline-flex items-center gap-2"
+          >
+            <Icon name="Sparkles" size={16} />
+            Хочу такого бота!
+          </a>
+        </div>
+      )}
     </div>
   );
 };

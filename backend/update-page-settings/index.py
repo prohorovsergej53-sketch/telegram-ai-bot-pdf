@@ -40,8 +40,40 @@ def handler(event: dict, context) -> dict:
         quick_questions = body.get('quickQuestions', [])
         bot_name = body.get('botName', '')
 
+        # Проверяем роль пользователя для защиты пользовательских ссылок
+        from auth_middleware import require_auth
+        authorized, payload, error_response = require_auth(event)
+        user_role = payload.get('role') if payload else None
+        
+        # Если НЕ супер-админ, удаляем защищенные поля из настроек
+        if user_role != 'super_admin':
+            protected_fields = [
+                'footer_link_1_text', 'footer_link_1_url',
+                'footer_link_2_text', 'footer_link_2_url',
+                'footer_link_3_text', 'footer_link_3_url'
+            ]
+            for field in protected_fields:
+                if field in settings:
+                    del settings[field]
+
         conn = psycopg2.connect(os.environ['DATABASE_URL'])
         cur = conn.cursor()
+        
+        # Если НЕ супер-админ, загружаем текущие настройки и сохраняем защищенные поля
+        if user_role != 'super_admin':
+            cur.execute("""
+                SELECT page_settings FROM t_p56134400_telegram_ai_bot_pdf.tenant_settings
+                WHERE tenant_id = %s
+            """, (tenant_id,))
+            row = cur.fetchone()
+            if row and row[0]:
+                current_settings = row[0]
+                # Восстанавливаем защищенные поля из текущих настроек
+                for field in ['footer_link_1_text', 'footer_link_1_url', 
+                             'footer_link_2_text', 'footer_link_2_url',
+                             'footer_link_3_text', 'footer_link_3_url']:
+                    if field in current_settings:
+                        settings[field] = current_settings[field]
 
         # Обновляем page_settings в JSONB
         settings_json = json.dumps(settings)

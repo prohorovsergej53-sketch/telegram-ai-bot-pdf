@@ -45,6 +45,7 @@ export interface PageSettings {
   footer_link_3_url?: string;
   footer_text?: string;
   footer_link?: string;
+  show_bot_promo?: boolean;
   input_placeholder: string;
   public_description?: string;
   consent_enabled?: boolean;
