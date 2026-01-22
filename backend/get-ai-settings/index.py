@@ -60,10 +60,6 @@ def handler(event: dict, context) -> dict:
         chat_provider = settings_raw.get('chat_provider', settings_raw.get('provider', 'yandex'))
         chat_model = settings_raw.get('chat_model', settings_raw.get('model', 'yandexgpt'))
         
-        # Автоматическая миграция: deepseek → openrouter
-        if chat_provider == 'deepseek':
-            chat_provider = 'openrouter'
-        
         # Для system_prompt: сначала tenant_settings, потом default из БД, потом заглушка
         system_prompt = settings_raw.get('system_prompt') or default_prompt_from_db
         
