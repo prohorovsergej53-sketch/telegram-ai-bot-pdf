@@ -7,6 +7,7 @@ import PageSettingsCard from './PageSettingsCard';
 import WidgetSettingsCard from './WidgetSettingsCard';
 import AiSettingsCard from './AiSettingsCard';
 import QualityGateSettingsCard from './QualityGateSettingsCard';
+import BackupManagementCard from './BackupManagementCard';
 import SubscriptionWidget from './SubscriptionWidget';
 import MessengerAutoMessages from './MessengerAutoMessages';
 import AdminHeader from './AdminHeader';
@@ -229,6 +230,9 @@ const AdminView = ({ documents, isLoading, onFileUpload, onDeleteDocument, curre
               )}
               {superAdmin && currentTenantId && (
                 <QualityGateSettingsCard currentTenantId={currentTenantId} />
+              )}
+              {superAdmin && currentTenantId && (
+                <BackupManagementCard currentTenantId={currentTenantId} />
               )}
             </div>
           ) : (
