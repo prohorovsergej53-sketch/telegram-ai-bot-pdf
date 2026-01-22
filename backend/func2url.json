@@ -1,5 +1,6 @@
 {
-  "hash-password": "https://functions.poehali.dev/963784ca-424c-448d-8045-996b22d0d3c5",
+  "update-quality-gate-settings": "https://functions.poehali.dev/7d26fcc4-42c6-467f-9788-1da19509460f",
+  "get-quality-gate-settings": "https://functions.poehali.dev/7a83fc62-4b62-4575-b6c7-876c5974d0a0",
   "get-token-stats": "https://functions.poehali.dev/c88cb0c9-4dd7-47a7-b4dc-0d381a8207e1",
   "support-webhook-setup": "https://functions.poehali.dev/14e1f570-168d-4186-9692-010b4333cbbe",
   "support-admin": "https://functions.poehali.dev/99a74bb7-48d7-4d7f-b19d-add3074b37f0",
@@ -25,7 +26,6 @@
   "admin-tenants": "https://functions.poehali.dev/b1bdd2fb-cf88-4093-a3d7-15d273763e4c",
   "internal-cron-trigger": "https://functions.poehali.dev/3a1a56fb-46fc-43d0-a573-0b3f67cd7da5",
   "send-order-email": "https://functions.poehali.dev/38938588-b119-4fcc-99d9-952e16dd8d6a",
-  "yandex-api-validation": "https://functions.poehali.dev/d7cc5843-8cc2-4c50-a819-04b1b43b744d",
   "tariff-management": "https://functions.poehali.dev/9aaca202-0192-4234-9f65-591df1552960",
   "setup-cronjob": "https://functions.poehali.dev/5d34eeb6-9825-4d73-80eb-bc6c1ded58c9",
   "check-subscriptions": "https://functions.poehali.dev/2b45e5d6-8138-4bae-9236-237fe424ef95",
