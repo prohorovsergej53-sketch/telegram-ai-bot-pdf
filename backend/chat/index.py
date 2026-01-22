@@ -226,6 +226,41 @@ def handler(event: dict, context) -> dict:
             ai_max_tokens = safe_int(settings.get('max_tokens'), 1500)
             system_prompt_template = settings.get('system_prompt') or default_prompt_from_db
 
+        # Загружаем историю ДО эмбеддингов для обогащения запроса
+        cur.execute("""
+            SELECT role, content FROM t_p56134400_telegram_ai_bot_pdf.chat_messages 
+            WHERE session_id = %s AND tenant_id = %s
+            ORDER BY created_at DESC
+            LIMIT 10
+        """, (session_id, tenant_id))
+        history_rows = cur.fetchall()
+        history_messages_preview = [{"role": row[0], "content": row[1]} for row in reversed(history_rows)]
+        
+        # Извлекаем даты из истории для обогащения запроса эмбеддинга
+        def extract_date_from_history(history_msgs):
+            """Извлекает упоминания дат из истории для контекста"""
+            import re
+            date_patterns = [
+                r'\d{1,2}\s+(января|февраля|марта|апреля|мая|июня|июля|августа|сентября|октября|ноября|декабря)',
+                r'\d{1,2}\.\d{1,2}\.\d{2,4}',
+                r'(январ|феврал|март|апрел|ма|июн|июл|август|сентябр|октябр|ноябр|декабр)[а-я]{0,2}\s+\d{4}',
+                r'Период:\s*\d{2}\.\d{2}\.\d{4}-\d{2}\.\d{2}\.\d{4}'
+            ]
+            for msg in reversed(history_msgs):  # Проверяем от старых к новым
+                if msg['role'] == 'user':
+                    text = msg['content'].lower()
+                    for pattern in date_patterns:
+                        match = re.search(pattern, text, re.IGNORECASE)
+                        if match:
+                            return match.group()
+            return None
+        
+        context_date = extract_date_from_history(history_messages_preview)
+        enriched_query = user_message
+        if context_date and len(user_message.split()) <= 3:  # Обогащаем только короткие запросы
+            enriched_query = f"{user_message} {context_date}"
+            print(f"DEBUG: Enriched query for embedding: '{enriched_query}' (original: '{user_message}')")
+
         try:
             if embedding_provider == 'yandex':
                 import requests
@@ -251,7 +286,7 @@ def handler(event: dict, context) -> dict:
                     },
                     json={
                         'modelUri': f'emb://{yandex_folder_id}/text-search-query/latest',
-                        'text': user_message
+                        'text': enriched_query  # Используем обогащённый запрос вместо user_message
                     }
                 )
                 
@@ -410,6 +445,7 @@ def handler(event: dict, context) -> dict:
         ))
         conn.commit()
         
+        # Используем ранее загруженную историю (history_messages_preview)
         system_prompt = compose_system(system_prompt_template, context_str, context_ok)
 
         if ai_provider == 'yandex':
@@ -422,10 +458,17 @@ def handler(event: dict, context) -> dict:
                 return error
             
             import requests
-            yandex_messages = [
-                {"role": "system", "text": system_prompt},
-                {"role": "user", "text": user_message}
-            ]
+            yandex_messages = [{"role": "system", "text": system_prompt}]
+            
+            # Добавляем историю сообщений
+            for msg in history_messages_preview:
+                yandex_messages.append({
+                    "role": "user" if msg["role"] == "user" else "assistant",
+                    "text": msg["content"]
+                })
+            
+            # Добавляем текущее сообщение
+            yandex_messages.append({"role": "user", "text": user_message})
             
             payload = {
                 "modelUri": f"gpt://{yandex_folder_id}/{chat_api_model}",
@@ -482,12 +525,14 @@ def handler(event: dict, context) -> dict:
                 api_key=openrouter_key,
                 base_url="https://openrouter.ai/api/v1"
             )
+            openrouter_messages = [{"role": "system", "content": system_prompt}]
+            for msg in history_messages_preview:
+                openrouter_messages.append({"role": msg["role"], "content": msg["content"]})
+            openrouter_messages.append({"role": "user", "content": user_message})
+            
             response = chat_client.chat.completions.create(
                 model=working_model,
-                messages=[
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": user_message}
-                ],
+                messages=openrouter_messages,
                 temperature=ai_temperature,
                 top_p=ai_top_p,
                 frequency_penalty=ai_frequency_penalty,
@@ -503,12 +548,14 @@ def handler(event: dict, context) -> dict:
                 api_key=deepseek_key,
                 base_url="https://api.deepseek.com"
             )
+            deepseek_messages = [{"role": "system", "content": system_prompt}]
+            for msg in history_messages_preview:
+                deepseek_messages.append({"role": msg["role"], "content": msg["content"]})
+            deepseek_messages.append({"role": "user", "content": user_message})
+            
             response = chat_client.chat.completions.create(
                 model=chat_api_model,
-                messages=[
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": user_message}
-                ],
+                messages=deepseek_messages,
                 temperature=ai_temperature,
                 top_p=ai_top_p,
                 frequency_penalty=ai_frequency_penalty,
@@ -524,12 +571,14 @@ def handler(event: dict, context) -> dict:
                 api_key=proxyapi_key,
                 base_url="https://api.proxyapi.ru/openai/v1"
             )
+            proxyapi_messages = [{"role": "system", "content": system_prompt}]
+            for msg in history_messages_preview:
+                proxyapi_messages.append({"role": msg["role"], "content": msg["content"]})
+            proxyapi_messages.append({"role": "user", "content": user_message})
+            
             response = chat_client.chat.completions.create(
                 model=chat_api_model,
-                messages=[
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": user_message}
-                ],
+                messages=proxyapi_messages,
                 temperature=ai_temperature,
                 top_p=ai_top_p,
                 frequency_penalty=ai_frequency_penalty,
