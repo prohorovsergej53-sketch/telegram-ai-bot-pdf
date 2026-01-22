@@ -152,14 +152,9 @@ const ChatWidget = () => {
         <CardHeader className="border-b bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
           <div className="flex items-center gap-3">
             <Icon name="Bot" className="w-8 h-8" />
-            <div>
-              <CardTitle className="text-2xl">
-                {pageSettings?.header_title || 'AI Консультант'}
-              </CardTitle>
-              <p className="text-blue-100 text-sm">
-                {pageSettings?.header_subtitle || 'Онлайн 24/7'}
-              </p>
-            </div>
+            <CardTitle className="text-2xl">
+              {pageSettings?.header_title || 'AI Консультант'}
+            </CardTitle>
           </div>
         </CardHeader>
 
