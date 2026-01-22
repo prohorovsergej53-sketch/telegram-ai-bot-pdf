@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import Icon from '@/components/ui/icon';
-import { Loader2, Send } from 'lucide-react';
+import { Send } from 'lucide-react';
 
 interface Message {
   id: string;
@@ -138,7 +138,10 @@ const ChatWidget = () => {
   if (isInitializing) {
     return (
       <div className="h-screen w-full bg-gradient-to-br from-blue-50 to-indigo-50 flex items-center justify-center">
-        <Loader2 className="w-12 h-12 animate-spin text-blue-600" />
+        <div className="flex flex-col items-center gap-3">
+          <Icon name="Bot" className="w-12 h-12 text-blue-600 animate-pulse" />
+          <span className="text-blue-600 font-medium">Загрузка...</span>
+        </div>
       </div>
     );
   }
