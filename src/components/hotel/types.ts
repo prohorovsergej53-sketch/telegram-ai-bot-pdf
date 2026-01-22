@@ -101,9 +101,7 @@ export const AI_MODELS_BY_PROVIDER: Record<string, ModelOption[]> = {
     
     { value: 'gemini-pro-1.5', label: 'Gemini Pro 1.5', apiModel: 'google/gemini-pro-1.5', price: '$1.25 вх / $5.00 вых (1M)', category: 'Топовые' },
     { value: 'gpt-4o', label: 'GPT-4o', apiModel: 'openai/gpt-4o', price: '$2.50 вх / $10.00 вых (1M)', category: 'Топовые' },
-    { value: 'claude-3.5-sonnet', label: 'Claude 3.5 Sonnet', apiModel: 'anthropic/claude-3.5-sonnet', price: '$3.00 вх / $15.00 вых (1M)', category: 'Топовые' },
-    { value: 'gpt-4-turbo', label: 'GPT-4 Turbo', apiModel: 'openai/gpt-4-turbo', price: '$10.00 вх / $30.00 вых (1M)', category: 'Топовые' },
-    { value: 'claude-3-opus', label: 'Claude 3 Opus', apiModel: 'anthropic/claude-3-opus', price: '$15.00 вх / $75.00 вых (1M)', category: 'Топовые' }
+    { value: 'claude-3.5-sonnet', label: 'Claude 3.5 Sonnet', apiModel: 'anthropic/claude-3.5-sonnet', price: '$3.00 вх / $15.00 вых (1M)', category: 'Топовые' }
   ],
   proxyapi: [
     { value: 'gpt-4o-mini', label: 'GPT-4o Mini', apiModel: 'gpt-4o-mini', price: '₽3 вх / ₽3 вых (1M)', category: 'Дешевые' },
@@ -113,9 +111,7 @@ export const AI_MODELS_BY_PROVIDER: Record<string, ModelOption[]> = {
     { value: 'gpt-4o', label: 'GPT-4o', apiModel: 'gpt-4o', price: '₽75 вх / ₽300 вых (1M)', category: 'Топовые' },
     { value: 'o1-mini', label: 'OpenAI o1-mini', apiModel: 'o1-mini', price: '₽90 вх / ₽360 вых (1M)', category: 'Топовые' },
     { value: 'claude-3.5-sonnet', label: 'Claude 3.5 Sonnet', apiModel: 'claude-3-5-sonnet-20241022', price: '₽90 вх / ₽450 вых (1M)', category: 'Топовые' },
-    { value: 'gpt-4-turbo', label: 'GPT-4 Turbo', apiModel: 'gpt-4-turbo', price: '₽300 вх / ₽900 вых (1M)', category: 'Топовые' },
-    { value: 'o1', label: 'OpenAI o1', apiModel: 'o1', price: '₽450 вх / ₽1800 вых (1M)', category: 'Топовые' },
-    { value: 'claude-3-opus', label: 'Claude 3 Opus', apiModel: 'claude-3-opus-20240229', price: '₽450 вх / ₽2250 вых (1M)', category: 'Топовые' }
+    { value: 'gpt-4-turbo', label: 'GPT-4 Turbo', apiModel: 'gpt-4-turbo', price: '₽300 вх / ₽900 вых (1M)', category: 'Топовые' }
   ]
 };
 

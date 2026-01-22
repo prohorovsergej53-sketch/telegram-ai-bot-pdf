@@ -51,20 +51,16 @@ MODEL_API_NAMES = {
     'gpt-3.5-turbo': 'openai/gpt-3.5-turbo',
     'llama-3.1-70b': 'meta-llama/llama-3.1-70b-instruct',
     
-    # OpenRouter топовые платные модели
+    # OpenRouter топовые платные модели (до $5)
     'gemini-pro-1.5': 'google/gemini-pro-1.5',
     'gpt-4o': 'openai/gpt-4o',
     'claude-3.5-sonnet': 'anthropic/claude-3.5-sonnet',
-    'gpt-4-turbo': 'openai/gpt-4-turbo',
-    'claude-3-opus': 'anthropic/claude-3-opus',
     
-    # ProxyAPI модели
+    # ProxyAPI модели (до 500₽)
     'gpt-4o-mini': 'gpt-4o-mini',
     'o1-mini': 'o1-mini',
-    'o1': 'o1',
-    'claude-3-haiku-20240307': 'claude-3-haiku-20240307',
     'claude-3-5-sonnet-20241022': 'claude-3-5-sonnet-20241022',
-    'claude-3-opus-20240229': 'claude-3-opus-20240229'
+    'gpt-4-turbo': 'gpt-4-turbo'
 }
 
 def handler(event: dict, context) -> dict:
