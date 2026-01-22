@@ -8,6 +8,7 @@ import { useToast } from '@/hooks/use-toast';
 import { BACKEND_URLS, PageSettings, QuickQuestion } from './types';
 import { authenticatedFetch, getTenantId, isSuperAdmin } from '@/lib/auth';
 import { HeaderSettingsSection } from './HeaderSettingsSection';
+import { ChatSettingsSection } from './ChatSettingsSection';
 import { ContactsSettingsSection } from './ContactsSettingsSection';
 import { QuickQuestionsSection } from './QuickQuestionsSection';
 
@@ -165,6 +166,11 @@ const PageSettingsCard = ({ currentTenantId, currentTenantName }: PageSettingsCa
           </div>
 
           <HeaderSettingsSection
+            settings={settings}
+            onSettingsChange={setSettings}
+          />
+
+          <ChatSettingsSection
             settings={settings}
             onSettingsChange={setSettings}
           />
