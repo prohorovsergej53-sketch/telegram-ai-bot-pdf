@@ -13,7 +13,7 @@ export const ChatSettingsSection = ({
 }: ChatSettingsSectionProps) => {
   return (
     <div className="border-b pb-4">
-      <h3 className="text-sm font-semibold text-slate-900 mb-3">Заголовки чата</h3>
+      <h3 className="text-sm font-semibold text-slate-900 mb-3">Настройки чата</h3>
       <div className="space-y-3">
         <div>
           <Label htmlFor="page_title">Заголовок чата</Label>
@@ -21,14 +21,6 @@ export const ChatSettingsSection = ({
             id="page_title"
             value={settings.page_title}
             onChange={(e) => onSettingsChange({ ...settings, page_title: e.target.value })}
-          />
-        </div>
-        <div>
-          <Label htmlFor="page_subtitle">Подзаголовок чата</Label>
-          <Input
-            id="page_subtitle"
-            value={settings.page_subtitle}
-            onChange={(e) => onSettingsChange({ ...settings, page_subtitle: e.target.value })}
           />
         </div>
         <div>
