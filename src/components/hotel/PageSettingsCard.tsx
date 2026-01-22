@@ -38,10 +38,10 @@ const PageSettingsCard = ({ currentTenantId, currentTenantName }: PageSettingsCa
   const [botName, setBotName] = useState<string>(currentTenantName || '');
 
   const [quickQuestions, setQuickQuestions] = useState<QuickQuestion[]>([
-    { text: 'Услуги', question: 'Какие услуги вы предоставляете?', icon: 'Sparkles' },
-    { text: 'Цены', question: 'Сколько стоят ваши услуги?', icon: 'DollarSign' },
-    { text: 'Работа', question: 'Какой у вас график работы?', icon: 'Clock' },
-    { text: 'Контакты', question: 'Как с вами связаться?', icon: 'Phone' }
+    { text: 'Номера', question: 'Какие категории номеров доступны?', icon: 'Home' },
+    { text: 'Цены', question: 'Сколько стоит проживание?', icon: 'DollarSign' },
+    { text: 'Бронирование', question: 'Как забронировать номер?', icon: 'Calendar' },
+    { text: 'Расположение', question: 'Где находится отель?', icon: 'MapPin' }
   ]);
 
   const [isLoading, setIsLoading] = useState(false);
