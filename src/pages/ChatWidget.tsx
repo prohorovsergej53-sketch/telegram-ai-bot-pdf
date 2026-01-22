@@ -215,6 +215,7 @@ const ChatWidget = () => {
                         __html: msg.content
                           .replace(/<b>(.*?)<\/b>/gi, '<strong>$1</strong>')
                           .replace(/\n/g, '<br />')
+                          .replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank" rel="noopener noreferrer" style="color: #3b82f6; text-decoration: underline;">$1</a>')
                       }}
                     />
                   </div>
