@@ -47,6 +47,15 @@ def handler(event: dict, context) -> dict:
         conn = psycopg2.connect(os.environ['DATABASE_URL'])
         cur = conn.cursor()
 
+        # Загружаем дефолтный промпт из БД
+        cur.execute("""
+            SELECT setting_value 
+            FROM t_p56134400_telegram_ai_bot_pdf.default_settings 
+            WHERE setting_key = 'default_system_prompt'
+        """)
+        default_prompt_row = cur.fetchone()
+        default_prompt_from_db = default_prompt_row[0] if default_prompt_row else 'Ты — дружелюбный AI-помощник. Отвечай кратко и по делу.\n\n{rag_context_placeholder}'
+
         cur.execute("""
             SELECT ai_settings
             FROM t_p56134400_telegram_ai_bot_pdf.tenant_settings
@@ -72,7 +81,7 @@ def handler(event: dict, context) -> dict:
                 'chat_model': 'yandexgpt',
                 'embedding_provider': 'yandex',
                 'embedding_model': 'text-search-query',
-                'system_prompt': 'Вы - вежливый и профессиональный консультант компании. Отвечайте на вопросы клиентов, используя только информацию из базы знаний.'
+                'system_prompt': default_prompt_from_db
             }
         
         # Обновляем переданные поля
