@@ -25,47 +25,63 @@ from quality_gate import (
     RAG_LOW_OVERLAP_START_TOPK5
 )
 
-MODEL_API_NAMES = {
-    # Yandex модели
-    'yandexgpt': 'yandexgpt',
-    'yandexgpt-lite': 'yandexgpt-lite',
+def get_provider_and_api_model(frontend_model: str, frontend_provider: str) -> tuple:
+    """
+    Возвращает (api_model, реальный_провайдер) на основе модели и провайдера с фронта.
+    Учитывает, что одна и та же модель (например deepseek-chat) может быть в разных провайдерах.
+    Исправлено: убрано дублирование моделей между провайдерами. v2
+    """
+    mappings = {
+        'yandex': {
+            'yandexgpt': 'yandexgpt',
+            'yandexgpt-lite': 'yandexgpt-lite'
+        },
+        'deepseek': {
+            'deepseek-chat': 'deepseek-chat',
+            'deepseek-reasoner': 'deepseek-reasoner'
+        },
+        'openrouter': {
+            # Бесплатные
+            'llama-3.3-70b': 'meta-llama/llama-3.3-70b-instruct:free',
+            'gemini-2.0-flash': 'google/gemini-2.0-flash-exp:free',
+            'deepseek-v3': 'deepseek/deepseek-chat:free',
+            'deepseek-r1': 'deepseek/deepseek-r1:free',
+            'llama-3.1-405b': 'meta-llama/llama-3.1-405b-instruct:free',
+            'qwen-2.5-72b': 'qwen/qwen-2.5-72b-instruct:free',
+            'mistral-small': 'mistralai/mistral-small-3.1-24b-instruct:free',
+            'phi-3-medium': 'microsoft/phi-3-medium-128k-instruct:free',
+            'llama-3.1-8b': 'meta-llama/llama-3.1-8b-instruct:free',
+            'gemma-2-9b': 'google/gemma-2-9b-it:free',
+            'qwen-2.5-7b': 'qwen/qwen-2.5-7b-instruct:free',
+            # Дешевые платные
+            'gemini-flash-1.5': 'google/gemini-flash-1.5',
+            'deepseek-chat': 'deepseek/deepseek-chat',
+            'mixtral-8x7b': 'mistralai/mixtral-8x7b-instruct',
+            'claude-3-haiku': 'anthropic/claude-3-haiku',
+            'gpt-3.5-turbo': 'openai/gpt-3.5-turbo',
+            'llama-3.1-70b': 'meta-llama/llama-3.1-70b-instruct',
+            # Топовые платные
+            'gemini-pro-1.5': 'google/gemini-pro-1.5',
+            'gpt-4o': 'openai/gpt-4o',
+            'claude-3.5-sonnet': 'anthropic/claude-3.5-sonnet'
+        },
+        'proxyapi': {
+            'gpt-4o-mini': 'gpt-4o-mini',
+            'gpt-3.5-turbo': 'gpt-3.5-turbo',
+            'claude-3-haiku': 'claude-3-haiku-20240307',
+            'gpt-4o': 'gpt-4o',
+            'o1-mini': 'o1-mini',
+            'claude-3.5-sonnet': 'claude-3-5-sonnet-20241022',
+            'gpt-4-turbo': 'gpt-4-turbo'
+        }
+    }
     
-    # DeepSeek прямые модели
-    'deepseek-chat': 'deepseek-chat',
-    'deepseek-reasoner': 'deepseek-reasoner',
+    if frontend_provider in mappings:
+        provider_models = mappings[frontend_provider]
+        if frontend_model in provider_models:
+            return provider_models[frontend_model], frontend_provider
     
-    # OpenRouter бесплатные модели
-    'llama-3.3-70b': 'meta-llama/llama-3.3-70b-instruct:free',
-    'gemini-2.0-flash': 'google/gemini-2.0-flash-exp:free',
-    'deepseek-v3': 'deepseek/deepseek-chat:free',
-    'deepseek-r1': 'deepseek/deepseek-r1:free',
-    'llama-3.1-405b': 'meta-llama/llama-3.1-405b-instruct:free',
-    'qwen-2.5-72b': 'qwen/qwen-2.5-72b-instruct:free',
-    'mistral-small': 'mistralai/mistral-small-3.1-24b-instruct:free',
-    'phi-3-medium': 'microsoft/phi-3-medium-128k-instruct:free',
-    'llama-3.1-8b': 'meta-llama/llama-3.1-8b-instruct:free',
-    'gemma-2-9b': 'google/gemma-2-9b-it:free',
-    'qwen-2.5-7b': 'qwen/qwen-2.5-7b-instruct:free',
-    
-    # OpenRouter дешевые платные модели
-    'gemini-flash-1.5': 'google/gemini-flash-1.5',
-    'deepseek-chat': 'deepseek/deepseek-chat',
-    'mixtral-8x7b': 'mistralai/mixtral-8x7b-instruct',
-    'claude-3-haiku': 'anthropic/claude-3-haiku',
-    'gpt-3.5-turbo': 'openai/gpt-3.5-turbo',
-    'llama-3.1-70b': 'meta-llama/llama-3.1-70b-instruct',
-    
-    # OpenRouter топовые платные модели (до $5)
-    'gemini-pro-1.5': 'google/gemini-pro-1.5',
-    'gpt-4o': 'openai/gpt-4o',
-    'claude-3.5-sonnet': 'anthropic/claude-3.5-sonnet',
-    
-    # ProxyAPI модели (до 500₽)
-    'gpt-4o-mini': 'gpt-4o-mini',
-    'o1-mini': 'o1-mini',
-    'claude-3-5-sonnet-20241022': 'claude-3-5-sonnet-20241022',
-    'gpt-4-turbo': 'gpt-4-turbo'
-}
+    raise ValueError(f"Model '{frontend_model}' not supported for provider '{frontend_provider}'")
 
 def handler(event: dict, context) -> dict:
     """AI чат с поиском информации в документах отеля (Moscow UTC+3)"""
@@ -160,33 +176,22 @@ def handler(event: dict, context) -> dict:
         
         if settings_row and settings_row[0]:
             settings = settings_row[0]
-            ai_model = settings.get('chat_model') or settings.get('model', 'yandexgpt')
+            ai_model = settings.get('model', 'yandexgpt')
+            ai_provider = settings.get('provider', 'yandex')
             
-            # Приоритет: chat_provider из настроек (новая схема) или автоопределение по модели (старая схема)
-            explicit_provider = settings.get('chat_provider')
+            print(f"DEBUG: Loaded from DB - model={ai_model}, provider={ai_provider}")
             
-            if explicit_provider:
-                # Новая схема: chat_provider явно указан в настройках
-                # Автоматическая миграция: deepseek → openrouter (для обратной совместимости)
-                if explicit_provider == 'deepseek':
-                    ai_provider = 'openrouter'
-                else:
-                    ai_provider = explicit_provider
-            elif ai_model.startswith('openrouter-'):
-                ai_provider = 'openrouter'
-                ai_model = ai_model.replace('openrouter-', '')
-            elif ai_model in ['yandexgpt', 'yandexgpt-lite']:
-                ai_provider = 'yandex'
-            elif ai_model in ['deepseek-chat', 'deepseek-r1', 'llama-3.3-70b', 'llama-3.1-405b', 'llama-3.2-90b-vision',
-                              'llama-3.1-8b', 'gemma-2-9b', 'qwen-2.5-7b', 'qwen-2.5-72b', 'phi-3-medium', 
-                              'mistral-7b', 'mythomist-7b', 'gpt-4o', 'gpt-4-turbo', 'claude-3.5-sonnet', 
-                              'claude-3-opus', 'gemini-pro-1.5', 'llama-3.1-70b', 'mixtral-8x7b', 'claude-3-haiku', 
-                              'gpt-3.5-turbo', 'gemini-flash-1.5']:
-                ai_provider = 'openrouter'
-            elif ai_model in ['gpt-4o-mini', 'o1-mini', 'o1']:
-                ai_provider = 'proxyapi'
-            else:
-                ai_provider = settings.get('provider', 'yandex')
+            # Получаем реальные значения для API
+            try:
+                chat_api_model, ai_provider = get_provider_and_api_model(ai_model, ai_provider)
+                print(f"DEBUG: Mapped to API - model={chat_api_model}, provider={ai_provider}")
+            except ValueError as e:
+                return {
+                    'statusCode': 400,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': str(e)}),
+                    'isBase64Encoded': False
+                }
             # Безопасное преобразование типов (значения могут быть строками из JSON)
             def safe_float(value, default):
                 if isinstance(value, (int, float)):
@@ -211,7 +216,7 @@ def handler(event: dict, context) -> dict:
             ai_max_tokens = safe_int(settings.get('max_tokens', 600), 600)
             ai_system_priority = settings.get('system_priority', 'strict')
             ai_creative_mode = settings.get('creative_mode', 'off')
-            system_prompt_template = settings.get('system_prompt', '''Ты — дружелюбный AI-помощник.
+            system_prompt_template = settings.get('system_prompt') or '''Ты — дружелюбный AI-помощник.
 
 ИСТОЧНИК ФАКТОВ:
 Единственный источник фактов — блок внутри system prompt, который начинается строкой:
@@ -432,6 +437,7 @@ MINI-SYSTEM: РАСЧЁТ ЦЕН (используй только для зап�
         else:
             ai_provider = 'yandex'
             ai_model = 'yandexgpt'
+            chat_api_model = 'yandexgpt'
             ai_temperature = 0.15
             ai_top_p = 1.0
             ai_frequency_penalty = 0
@@ -439,7 +445,7 @@ MINI-SYSTEM: РАСЧЁТ ЦЕН (используй только для зап�
             ai_max_tokens = 600
             ai_system_priority = 'strict'
             ai_creative_mode = 'off'
-            system_prompt_template = settings.get('system_prompt', '''Ты — дружелюбный AI-помощник.
+            system_prompt_template = '''Ты — дружелюбный AI-помощник.
 
 ИСТОЧНИК ФАКТОВ:
 Единственный источник фактов — блок внутри system prompt, который начинается строкой:
@@ -637,15 +643,7 @@ MINI-SYSTEM: РАСЧЁТ ЦЕН (используй только для зап�
 4. Если не указана категория номера — показать 2–3 типовые категории с вариантами питания (без питания / завтрак / полный пансион) и задать 1 вопрос «Какую категорию номера выбираете?»
 5. Если категория указана, но питание нет — показать все варианты питания для этой категории и задать 1 вопрос «Какой вариант питания вам удобнее?»
 6. Если в документах нет тарифов или не хватает данных — сказать «Пока не вижу точной информации по этому вопросу.» и задать 1 уточняющий вопрос по приоритету: даты → тип номера → взрослые → дети → возраст.''')
-        
-        chat_api_model = MODEL_API_NAMES.get(ai_model)
-        if not chat_api_model:
-            return {
-                'statusCode': 400,
-                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                'body': json.dumps({'error': f'Неизвестная модель: {ai_model}'}),
-                'isBase64Encoded': False
-            }
+
 
         try:
             if embedding_provider == 'yandex':
