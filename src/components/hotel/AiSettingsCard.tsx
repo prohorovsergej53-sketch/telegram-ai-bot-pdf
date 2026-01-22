@@ -122,6 +122,8 @@ const AiSettingsCard = ({ currentTenantId, isSuperAdmin = false }: AiSettingsCar
           const model = loadedSettings.model;
           if (model === 'yandexgpt' || model === 'yandexgpt-lite') {
             loadedSettings.provider = 'yandex';
+          } else if (model === 'deepseek-chat' || model === 'deepseek-reasoner') {
+            loadedSettings.provider = 'deepseek';
           } else if (model.startsWith('openrouter-')) {
             loadedSettings.provider = 'openrouter';
             loadedSettings.model = model.replace('openrouter-', '');
