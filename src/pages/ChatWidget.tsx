@@ -186,8 +186,13 @@ const ChatWidget = () => {
               ))}
               {isLoading && (
                 <div className="flex justify-start">
-                  <div className="bg-gray-100 rounded-2xl px-4 py-3">
-                    <Loader2 className="w-5 h-5 animate-spin text-gray-600" />
+                  <div className="bg-gray-100 rounded-2xl px-4 py-3 flex items-center gap-2">
+                    <span className="text-gray-600">печатает</span>
+                    <span className="flex gap-1">
+                      <span className="w-1.5 h-1.5 bg-gray-600 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
+                      <span className="w-1.5 h-1.5 bg-gray-600 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
+                      <span className="w-1.5 h-1.5 bg-gray-600 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
+                    </span>
                   </div>
                 </div>
               )}
