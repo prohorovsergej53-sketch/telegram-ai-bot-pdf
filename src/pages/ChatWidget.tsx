@@ -184,7 +184,7 @@ const ChatWidget = () => {
   const showConsent = pageSettings?.consent_enabled && !hasUserMessages && !consentGiven;
 
   return (
-    <div className="h-screen w-full bg-gradient-to-br from-blue-50 to-indigo-50 flex flex-col items-center justify-center p-4 gap-4">
+    <div className="min-h-screen w-full bg-gradient-to-br from-blue-50 to-indigo-50 flex flex-col items-center justify-start p-4 gap-4 py-8">
       <Card className="w-full max-w-3xl h-[85vh] flex flex-col shadow-2xl">
         <CardHeader className="border-b bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
           <div className="flex items-center gap-3">
