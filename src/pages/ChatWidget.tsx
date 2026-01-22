@@ -179,8 +179,8 @@ const ChatWidget = () => {
 
         <CardContent className="flex-1 flex flex-col p-0">
           <ScrollArea className="flex-1 p-6">
-            {quickQuestions.length > 0 && messages.length === 1 && (
-              <div className="mb-6 flex flex-wrap gap-2">
+            {quickQuestions.length > 0 && (
+              <div className="mb-6 flex flex-wrap gap-2 sticky top-0 bg-gradient-to-b from-white via-white to-transparent pb-4 z-10">
                 {quickQuestions.map((q, idx) => (
                   <button
                     key={idx}
