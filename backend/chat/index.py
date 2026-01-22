@@ -145,6 +145,15 @@ def handler(event: dict, context) -> dict:
             tenant_id = 1
             print(f"⚠️ DEBUG: No tenant_slug or tenant_id provided, defaulting to tenant_id=1")
 
+        # Загружаем дефолтный промпт из БД
+        cur.execute("""
+            SELECT setting_value 
+            FROM t_p56134400_telegram_ai_bot_pdf.default_settings 
+            WHERE setting_key = 'default_system_prompt'
+        """)
+        default_prompt_row = cur.fetchone()
+        default_prompt_from_db = default_prompt_row[0] if default_prompt_row else DEFAULT_SYSTEM_PROMPT
+        
         cur.execute("""
             SELECT ai_settings, embedding_provider, embedding_query_model, quality_gate_settings
             FROM t_p56134400_telegram_ai_bot_pdf.tenant_settings
@@ -215,7 +224,7 @@ def handler(event: dict, context) -> dict:
             ai_frequency_penalty = safe_float(settings.get('frequency_penalty'), 0.0)
             ai_presence_penalty = safe_float(settings.get('presence_penalty'), 0.0)
             ai_max_tokens = safe_int(settings.get('max_tokens'), 1500)
-            system_prompt_template = settings.get('system_prompt') or DEFAULT_SYSTEM_PROMPT
+            system_prompt_template = settings.get('system_prompt') or default_prompt_from_db
 
         try:
             if embedding_provider == 'yandex':
