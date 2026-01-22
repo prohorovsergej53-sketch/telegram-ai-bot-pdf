@@ -65,8 +65,9 @@ def handler(event: dict, context) -> dict:
         cur.execute("""
             SELECT id, text, question, icon, sort_order
             FROM t_p56134400_telegram_ai_bot_pdf.quick_questions
+            WHERE tenant_id = %s
             ORDER BY sort_order, id
-        """)
+        """, (tenant_id,))
         questions_rows = cur.fetchall()
         quick_questions = [
             {

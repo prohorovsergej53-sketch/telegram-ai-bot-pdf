@@ -61,15 +61,18 @@ def handler(event: dict, context) -> dict:
                 WHERE id = %s
             """, (bot_name, tenant_id))
 
-        # Обновляем quick_questions (пока оставляем в отдельной таблице)
-        cur.execute("DELETE FROM t_p56134400_telegram_ai_bot_pdf.quick_questions")
+        # Обновляем quick_questions для конкретного tenant_id
+        cur.execute("""
+            DELETE FROM t_p56134400_telegram_ai_bot_pdf.quick_questions
+            WHERE tenant_id = %s
+        """, (tenant_id,))
         
         for idx, q in enumerate(quick_questions):
             cur.execute("""
                 INSERT INTO t_p56134400_telegram_ai_bot_pdf.quick_questions 
-                (text, question, icon, sort_order)
-                VALUES (%s, %s, %s, %s)
-            """, (q['text'], q['question'], q.get('icon', 'HelpCircle'), idx))
+                (text, question, icon, sort_order, tenant_id)
+                VALUES (%s, %s, %s, %s, %s)
+            """, (q['text'], q['question'], q.get('icon', 'HelpCircle'), idx, tenant_id))
 
         conn.commit()
         cur.close()
