@@ -32,8 +32,6 @@ const PageSettingsCard = ({ currentTenantId, currentTenantName }: PageSettingsCa
     contact_email_value: 'info@dinasty-hotel.ru',
     contact_address_label: 'Адрес',
     contact_address_value: 'Крым, г. Ялта, набережная Ленина, 10',
-    footer_text: 'Хочу такого бота!',
-    footer_link: 'https://max.ru/u/f9LHodD0cOIrknUlAYx1LxuVyfuHRhIq-OHhkpPMbwJ_WcjW4dhTFpEEez0',
     input_placeholder: 'Спросите о номерах, ценах или бронировании...'
   });
   const [botName, setBotName] = useState<string>(currentTenantName || '');
@@ -189,30 +187,76 @@ const PageSettingsCard = ({ currentTenantId, currentTenantName }: PageSettingsCa
             onUpdateQuestion={handleUpdateQuestion}
           />
 
-          {isSuperAdmin() && (
-            <div className="pt-4">
-              <h3 className="text-sm font-semibold text-slate-900 mb-3">Футер</h3>
-              <div className="space-y-3">
+          <div className="pt-4 border-t">
+            <h3 className="text-sm font-semibold text-slate-900 mb-3">Пользовательские ссылки в чате</h3>
+            <p className="text-sm text-muted-foreground mb-4">
+              Добавьте до 3 ссылок, которые будут отображаться в футере чата (например, бронирование, меню, прайс)
+            </p>
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <Label htmlFor="footer_text">Текст ссылки</Label>
+                  <Label htmlFor="footer_link_1_text">Ссылка 1 - Текст</Label>
                   <Input
-                    id="footer_text"
-                    value={settings.footer_text}
-                    onChange={(e) => setSettings({ ...settings, footer_text: e.target.value })}
+                    id="footer_link_1_text"
+                    value={settings.footer_link_1_text || ''}
+                    onChange={(e) => setSettings({ ...settings, footer_link_1_text: e.target.value })}
+                    placeholder="Забронировать номер"
                   />
                 </div>
                 <div>
-                  <Label htmlFor="footer_link">URL ссылки</Label>
+                  <Label htmlFor="footer_link_1_url">Ссылка 1 - URL</Label>
                   <Input
-                    id="footer_link"
-                    value={settings.footer_link}
-                    onChange={(e) => setSettings({ ...settings, footer_link: e.target.value })}
+                    id="footer_link_1_url"
+                    value={settings.footer_link_1_url || ''}
+                    onChange={(e) => setSettings({ ...settings, footer_link_1_url: e.target.value })}
+                    placeholder="https://..."
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <Label htmlFor="footer_link_2_text">Ссылка 2 - Текст</Label>
+                  <Input
+                    id="footer_link_2_text"
+                    value={settings.footer_link_2_text || ''}
+                    onChange={(e) => setSettings({ ...settings, footer_link_2_text: e.target.value })}
+                    placeholder="Меню ресторана"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="footer_link_2_url">Ссылка 2 - URL</Label>
+                  <Input
+                    id="footer_link_2_url"
+                    value={settings.footer_link_2_url || ''}
+                    onChange={(e) => setSettings({ ...settings, footer_link_2_url: e.target.value })}
+                    placeholder="https://..."
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <Label htmlFor="footer_link_3_text">Ссылка 3 - Текст</Label>
+                  <Input
+                    id="footer_link_3_text"
+                    value={settings.footer_link_3_text || ''}
+                    onChange={(e) => setSettings({ ...settings, footer_link_3_text: e.target.value })}
+                    placeholder="Прайс-лист"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="footer_link_3_url">Ссылка 3 - URL</Label>
+                  <Input
+                    id="footer_link_3_url"
+                    value={settings.footer_link_3_url || ''}
+                    onChange={(e) => setSettings({ ...settings, footer_link_3_url: e.target.value })}
                     placeholder="https://..."
                   />
                 </div>
               </div>
             </div>
-          )}
+          </div>
         </div>
 
         <div className="flex justify-end pt-4 border-t">

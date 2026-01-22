@@ -37,8 +37,14 @@ export interface PageSettings {
   contact_email_value: string;
   contact_address_label: string;
   contact_address_value: string;
-  footer_text: string;
-  footer_link: string;
+  footer_link_1_text?: string;
+  footer_link_1_url?: string;
+  footer_link_2_text?: string;
+  footer_link_2_url?: string;
+  footer_link_3_text?: string;
+  footer_link_3_url?: string;
+  footer_text?: string;
+  footer_link?: string;
   input_placeholder: string;
   public_description?: string;
   consent_enabled?: boolean;

@@ -15,6 +15,21 @@
       },
       "bodyMatcher": "partial",
       "description": "Тест проверяет что чат отвечает дефолтным промптом когда документы не загружены"
+    },
+    {
+      "name": "Test relative date conversion (завтра)",
+      "method": "POST",
+      "body": {
+        "message": "какие номера доступны на завтра",
+        "sessionId": "test-relative-date",
+        "tenantSlug": "dinasty-crimea"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "message": "string"
+      },
+      "bodyMatcher": "partial",
+      "description": "Тест конвертации относительной даты завтра в абсолютную"
     }
   ]
 }

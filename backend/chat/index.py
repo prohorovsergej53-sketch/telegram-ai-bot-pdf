@@ -243,13 +243,13 @@ def handler(event: dict, context) -> dict:
             today = now_moscow().date()
             
             relative_patterns = {
-                r'\bзавтра\b': today + timedelta(days=1),
-                r'\bпослезавтра\b': today + timedelta(days=2),
-                r'\bчерез\s+(\d+)\s+(?:день|дня|дней)\b': lambda m: today + timedelta(days=int(m.group(1))),
-                r'\bчерез\s+неделю\b': today + timedelta(weeks=1),
-                r'\bчерез\s+(\d+)\s+(?:неделю|недели|недель)\b': lambda m: today + timedelta(weeks=int(m.group(1))),
-                r'\bчерез\s+месяц\b': today + timedelta(days=30),
-                r'\bна\s+следующей\s+неделе\b': today + timedelta(weeks=1),
+                r'(?:на\s+)?завтра': today + timedelta(days=1),
+                r'(?:на\s+)?послезавтра': today + timedelta(days=2),
+                r'через\s+(\d+)\s+(?:день|дня|дней)': lambda m: today + timedelta(days=int(m.group(1))),
+                r'через\s+неделю': today + timedelta(weeks=1),
+                r'через\s+(\d+)\s+(?:неделю|недели|недель)': lambda m: today + timedelta(weeks=int(m.group(1))),
+                r'через\s+месяц': today + timedelta(days=30),
+                r'на\s+следующей\s+неделе': today + timedelta(weeks=1),
             }
             
             months_ru = [
@@ -293,9 +293,9 @@ def handler(event: dict, context) -> dict:
             return None
         
         # Конвертируем относительные даты в абсолютные в запросе пользователя
+        print(f"DEBUG: User message BEFORE conversion: '{user_message}'")
         user_message_converted = convert_relative_dates(user_message)
-        if user_message_converted != user_message:
-            print(f"DEBUG: User message after date conversion: '{user_message_converted}'")
+        print(f"DEBUG: User message AFTER conversion: '{user_message_converted}' (changed: {user_message_converted != user_message})")
         
         context_date = extract_date_from_history(history_messages_preview)
         enriched_query = user_message_converted

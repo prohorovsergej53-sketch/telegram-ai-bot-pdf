@@ -21,7 +21,12 @@ interface PageSettings {
   consent_enabled?: boolean;
   consent_text?: string;
   page_title?: string;
-  footer_link?: string;
+  footer_link_1_text?: string;
+  footer_link_1_url?: string;
+  footer_link_2_text?: string;
+  footer_link_2_url?: string;
+  footer_link_3_text?: string;
+  footer_link_3_url?: string;
 }
 
 interface QuickQuestion {
@@ -167,8 +172,8 @@ const ChatWidget = () => {
   const showConsent = pageSettings?.consent_enabled && !hasUserMessages && !consentGiven;
 
   return (
-    <div className="h-screen w-full bg-gradient-to-br from-blue-50 to-indigo-50 flex items-center justify-center p-4">
-      <Card className="w-full max-w-3xl h-[90vh] flex flex-col shadow-2xl">
+    <div className="h-screen w-full bg-gradient-to-br from-blue-50 to-indigo-50 flex flex-col items-center justify-center p-4 gap-4">
+      <Card className="w-full max-w-3xl h-[85vh] flex flex-col shadow-2xl">
         <CardHeader className="border-b bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
           <div className="flex items-center gap-3">
             <Icon name="Bot" className="w-8 h-8" />
@@ -273,21 +278,57 @@ const ChatWidget = () => {
               </Button>
             </div>
 
-            {pageSettings?.footer_link && (
-              <div className="mt-3 pt-3 border-t text-center">
-                <a
-                  href={pageSettings.footer_link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-xs text-gray-500 hover:text-blue-600 transition-colors"
-                >
-                  Забронировать номер
-                </a>
+            {(pageSettings?.footer_link_1_text && pageSettings?.footer_link_1_url) ||
+             (pageSettings?.footer_link_2_text && pageSettings?.footer_link_2_url) ||
+             (pageSettings?.footer_link_3_text && pageSettings?.footer_link_3_url) ? (
+              <div className="mt-3 pt-3 border-t flex flex-wrap justify-center gap-3">
+                {pageSettings?.footer_link_1_text && pageSettings?.footer_link_1_url && (
+                  <a
+                    href={pageSettings.footer_link_1_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs text-gray-600 hover:text-blue-600 transition-colors underline"
+                  >
+                    {pageSettings.footer_link_1_text}
+                  </a>
+                )}
+                {pageSettings?.footer_link_2_text && pageSettings?.footer_link_2_url && (
+                  <a
+                    href={pageSettings.footer_link_2_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs text-gray-600 hover:text-blue-600 transition-colors underline"
+                  >
+                    {pageSettings.footer_link_2_text}
+                  </a>
+                )}
+                {pageSettings?.footer_link_3_text && pageSettings?.footer_link_3_url && (
+                  <a
+                    href={pageSettings.footer_link_3_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs text-gray-600 hover:text-blue-600 transition-colors underline"
+                  >
+                    {pageSettings.footer_link_3_text}
+                  </a>
+                )}
               </div>
-            )}
+            ) : null}
           </div>
         </CardContent>
       </Card>
+
+      <div className="text-center">
+        <a
+          href="https://poehali.dev"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-sm text-gray-600 hover:text-blue-600 transition-colors inline-flex items-center gap-2"
+        >
+          <Icon name="Sparkles" size={16} />
+          Хочу такого бота!
+        </a>
+      </div>
     </div>
   );
 };
