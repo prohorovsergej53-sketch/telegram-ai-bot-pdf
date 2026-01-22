@@ -17,7 +17,7 @@ interface TenantApiKeysCardProps {
 }
 
 interface ApiKey {
-  provider: 'yandex' | 'openrouter' | 'proxyapi';
+  provider: 'yandex' | 'deepseek' | 'openrouter' | 'proxyapi';
   key_name: string;
   key_value: string;
   is_active: boolean;
@@ -31,6 +31,7 @@ const TenantApiKeysCard = ({ tenantId, tenantName, fz152Enabled = false }: Tenan
 
   const [yandexApiKey, setYandexApiKey] = useState('');
   const [yandexFolderId, setYandexFolderId] = useState('');
+  const [deepseekApiKey, setDeepseekApiKey] = useState('');
   const [openrouterApiKey, setOpenrouterApiKey] = useState('');
   const [proxyapiApiKey, setProxyapiApiKey] = useState('');
 
@@ -53,17 +54,20 @@ const TenantApiKeysCard = ({ tenantId, tenantName, fz152Enabled = false }: Tenan
         
         const yandexApi = data.keys.find((k: ApiKey) => k.provider === 'yandex' && k.key_name === 'api_key');
         const yandexFolder = data.keys.find((k: ApiKey) => k.provider === 'yandex' && k.key_name === 'folder_id');
+        const deepseekApi = data.keys.find((k: ApiKey) => k.provider === 'deepseek' && k.key_name === 'api_key');
         const openrouterApi = data.keys.find((k: ApiKey) => k.provider === 'openrouter' && k.key_name === 'api_key');
         const proxyapiApi = data.keys.find((k: ApiKey) => k.provider === 'proxyapi' && k.key_name === 'api_key');
         
         console.log('[TenantApiKeysCard] Found keys:', {
           yandex: !!yandexApi,
+          deepseek: !!deepseekApi,
           openrouter: !!openrouterApi,
           proxyapi: !!proxyapiApi
         });
         
         setYandexApiKey(yandexApi?.key_value || '');
         setYandexFolderId(yandexFolder?.key_value || '');
+        setDeepseekApiKey(deepseekApi?.key_value || '');
         setOpenrouterApiKey(openrouterApi?.key_value || '');
         setProxyapiApiKey(proxyapiApi?.key_value || '');
       } else {
@@ -91,6 +95,9 @@ const TenantApiKeysCard = ({ tenantId, tenantName, fz152Enabled = false }: Tenan
       }
       if (yandexFolderId.trim() && !yandexFolderId.startsWith('***')) {
         keysToSave.push({ provider: 'yandex', key_name: 'folder_id', key_value: yandexFolderId.trim() });
+      }
+      if (deepseekApiKey.trim() && !deepseekApiKey.startsWith('***')) {
+        keysToSave.push({ provider: 'deepseek', key_name: 'api_key', key_value: deepseekApiKey.trim() });
       }
       if (openrouterApiKey.trim() && !openrouterApiKey.startsWith('***')) {
         keysToSave.push({ provider: 'openrouter', key_name: 'api_key', key_value: openrouterApiKey.trim() });
@@ -165,7 +172,7 @@ const TenantApiKeysCard = ({ tenantId, tenantName, fz152Enabled = false }: Tenan
         ) : (
           <>
             <div className="space-y-4">
-              {(yandexApiKey.startsWith('***') || yandexFolderId.startsWith('***') || openrouterApiKey.startsWith('***') || proxyapiApiKey.startsWith('***')) && (
+              {(yandexApiKey.startsWith('***') || yandexFolderId.startsWith('***') || deepseekApiKey.startsWith('***') || openrouterApiKey.startsWith('***') || proxyapiApiKey.startsWith('***')) && (
                 <div className="bg-green-50 border border-green-200 rounded-lg p-4">
                   <div className="flex items-start gap-2">
                     <Icon name="ShieldCheck" size={20} className="text-green-600 mt-0.5 flex-shrink-0" />
@@ -279,6 +286,54 @@ const TenantApiKeysCard = ({ tenantId, tenantName, fz152Enabled = false }: Tenan
 
             {!fz152Enabled && (
             <>
+            <div className="space-y-4">
+              <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
+                <div className="flex items-start gap-2">
+                  <Icon name="Info" size={16} className="text-orange-600 mt-0.5" />
+                  <div className="text-sm text-orange-900">
+                    <p className="font-medium mb-1">DeepSeek API (прямой)</p>
+                    <p className="text-orange-800 mb-2">
+                      <strong>DeepSeek V3:</strong> $0.14 вх / $0.28 вых (1M) — основная модель для чата
+                    </p>
+                    <p className="text-orange-800">
+                      <strong>DeepSeek R1:</strong> $0.55 вх / $2.19 вых (1M) — модель с рассуждениями
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="deepseek_api_key" className="flex items-center gap-2">
+                  DeepSeek API Key
+                  {deepseekApiKey && (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                      <Icon name="CheckCircle2" size={12} />
+                      Настроен
+                    </span>
+                  )}
+                  {!deepseekApiKey && (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-600">
+                      <Icon name="CircleDashed" size={12} />
+                      Не настроен
+                    </span>
+                  )}
+                </Label>
+                <Input
+                  id="deepseek_api_key"
+                  type="password"
+                  value={deepseekApiKey.startsWith('***') ? '' : deepseekApiKey}
+                  onChange={(e) => setDeepseekApiKey(e.target.value)}
+                  placeholder="sk-... (введите новый ключ)"
+                  className="font-mono text-sm"
+                />
+                {deepseekApiKey && !deepseekApiKey.startsWith('***') && (
+                  <p className="text-xs text-muted-foreground">
+                    Текущий: {maskKey(deepseekApiKey)}
+                  </p>
+                )}
+              </div>
+            </div>
+
             <div className="space-y-4">
               <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
                 <div className="flex items-start gap-2">

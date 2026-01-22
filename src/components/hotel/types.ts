@@ -62,6 +62,7 @@ export interface AiModelSettings {
 
 export const AI_PROVIDERS = [
   { value: 'yandex', label: 'Yandex' },
+  { value: 'deepseek', label: 'DeepSeek (прямой)' },
   { value: 'openrouter', label: 'OpenRouter' },
   { value: 'proxyapi', label: 'ProxyAPI (рубли)' }
 ] as const;
@@ -78,6 +79,10 @@ export const AI_MODELS_BY_PROVIDER: Record<string, ModelOption[]> = {
   yandex: [
     { value: 'yandexgpt', label: 'YandexGPT', apiModel: 'yandexgpt', price: '₽1 вход / ₽2 выход (1K токенов)', category: 'Стандартные' },
     { value: 'yandexgpt-lite', label: 'YandexGPT Lite', apiModel: 'yandexgpt-lite', price: '₽0.12 вход / ₽0.24 выход (1K токенов)', category: 'Экономные' }
+  ],
+  deepseek: [
+    { value: 'deepseek-chat', label: 'DeepSeek V3', apiModel: 'deepseek-chat', price: '$0.14 вх / $0.28 вых (1M)', category: 'Основная' },
+    { value: 'deepseek-reasoner', label: 'DeepSeek R1 (рассуждения)', apiModel: 'deepseek-reasoner', price: '$0.55 вх / $2.19 вых (1M)', category: 'Рассуждения' }
   ],
   openrouter: [
     { value: 'llama-3.3-70b', label: 'Llama 3.3 70B', apiModel: 'meta-llama/llama-3.3-70b-instruct:free', price: 'Бесплатно', category: 'Бесплатные' },

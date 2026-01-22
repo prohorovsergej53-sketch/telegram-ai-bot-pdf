@@ -30,6 +30,10 @@ MODEL_API_NAMES = {
     'yandexgpt': 'yandexgpt',
     'yandexgpt-lite': 'yandexgpt-lite',
     
+    # DeepSeek прямые модели
+    'deepseek-chat': 'deepseek-chat',
+    'deepseek-reasoner': 'deepseek-reasoner',
+    
     # OpenRouter бесплатные модели
     'llama-3.3-70b': 'meta-llama/llama-3.3-70b-instruct:free',
     'gemini-2.0-flash': 'google/gemini-2.0-flash-exp:free',
@@ -912,6 +916,27 @@ MINI-SYSTEM: РАСЧЁТ ЦЕН (используй только для зап�
             )
             response = chat_client.chat.completions.create(
                 model=working_model,
+                messages=[
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": user_message}
+                ],
+                temperature=ai_temperature,
+                top_p=ai_top_p,
+                frequency_penalty=ai_frequency_penalty,
+                presence_penalty=ai_presence_penalty,
+                max_tokens=ai_max_tokens
+            )
+            assistant_message = response.choices[0].message.content
+        elif ai_provider == 'deepseek':
+            deepseek_key, error = get_tenant_api_key(tenant_id, 'deepseek', 'api_key')
+            if error:
+                return error
+            chat_client = OpenAI(
+                api_key=deepseek_key,
+                base_url="https://api.deepseek.com"
+            )
+            response = chat_client.chat.completions.create(
+                model=chat_api_model,
                 messages=[
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": user_message}
