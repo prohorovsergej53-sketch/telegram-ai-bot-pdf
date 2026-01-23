@@ -8,12 +8,7 @@ import re
 
 sys.path.append('/function/code')
 from api_keys_helper import get_tenant_api_key
-
-def format_vk(text: str) -> str:
-    """Форматирование для VK с эмодзи"""
-    text = re.sub(r'^- (.+)$', r'• \1', text, flags=re.MULTILINE)
-    text = re.sub(r'^\d+\. (.+)$', r'▪️ \1', text, flags=re.MULTILINE)
-    return text
+from formatting_helper import get_formatting_settings, format_with_settings
 
 def handler(event: dict, context) -> dict:
     """Webhook для VK-бота: принимает сообщения и отвечает через AI-консьержа"""
@@ -100,8 +95,9 @@ def handler(event: dict, context) -> dict:
                 chat_data = chat_response.json()
                 ai_message = chat_data.get('message', 'Извините, не могу ответить')
                 
-                # Форматируем для VK
-                ai_message = format_vk(ai_message)
+                # Форматируем согласно настройкам тенанта
+                settings = get_formatting_settings(tenant_id, 'vk')
+                ai_message = format_with_settings(ai_message, settings, 'vk')
                 
             except requests.exceptions.Timeout:
                 ai_message = 'Извините, сервис временно недоступен. Попробуйте позже.'

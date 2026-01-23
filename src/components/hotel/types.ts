@@ -171,6 +171,7 @@ export const BACKEND_URLS = {
   updateWidgetSettings: 'https://functions.poehali.dev/0cf37b7e-c359-4a9f-8e34-8f0ca8b69efb',
   getQualityGateStats: 'https://functions.poehali.dev/398c246e-01fc-4a9c-9206-995f7881960a',
   messengerSettings: 'https://functions.poehali.dev/0993895c-dede-469e-94f6-18c2829df143',
+  formattingSettings: 'https://functions.poehali.dev/ef7a90b2-b6ff-4ad6-9d57-345407d897dc',
   tariffManagement: 'https://functions.poehali.dev/9aaca202-0192-4234-9f65-591df1552960',
   yandexApiValidation: 'https://functions.poehali.dev/d7cc5843-8cc2-4c50-a819-04b1b43b744d',
   manageApiKeys: 'https://functions.poehali.dev/335a37e0-231e-4ba0-adf3-94f610d1c449',

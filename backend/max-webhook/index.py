@@ -7,34 +7,7 @@ import re
 
 sys.path.append('/function/code')
 from api_keys_helper import get_tenant_api_key
-
-def format_max(text: str) -> str:
-    """Форматирование для MAX: убираем HTML, добавляем эмодзи и визуальное выделение"""
-    # Убираем HTML-теги
-    text = re.sub(r'<b>(.+?)</b>', r'▪️ \1', text, flags=re.IGNORECASE)
-    text = re.sub(r'<i>(.+?)</i>', r'\1', text, flags=re.IGNORECASE)
-    text = re.sub(r'<[^>]+>', '', text)  # Убираем все остальные теги
-    
-    # Форматируем списки
-    text = re.sub(r'^- (.+)$', r'• \1', text, flags=re.MULTILINE)
-    text = re.sub(r'^\d+\. (.+)$', r'▫️ \1', text, flags=re.MULTILINE)
-    
-    # Добавляем эмодзи для ключевых слов отеля
-    emoji_map = {
-        'Стандарт': '🏨',
-        'Комфорт': '✨',
-        'Люкс': '👑',
-        'без питания': '🍽',
-        'завтрак': '🍳',
-        'полный пансион': '🍴',
-        'руб': '💰'
-    }
-    
-    for word, emoji in emoji_map.items():
-        if word in text and emoji not in text[:text.index(word)] if word in text else True:
-            text = text.replace(f'▪️ {word}', f'{emoji} {word}', 1)
-    
-    return text
+from formatting_helper import get_formatting_settings, format_with_settings
 
 def handler(event: dict, context) -> dict:
     """Webhook для MAX-бота: принимает сообщения и отвечает через AI-консьержа"""
@@ -109,8 +82,9 @@ def handler(event: dict, context) -> dict:
             chat_data = chat_response.json()
             ai_message = chat_data.get('message', 'Извините, не могу ответить')
             
-            # Форматируем для MAX
-            ai_message = format_max(ai_message)
+            # Форматируем согласно настройкам тенанта
+            settings = get_formatting_settings(tenant_id, 'max')
+            ai_message = format_with_settings(ai_message, settings, 'max')
             print(f'[max-webhook] AI response received: {ai_message[:100]}...')
             
         except requests.exceptions.Timeout:
