@@ -2,7 +2,7 @@ import jwt
 import json
 import os
 
-SECRET_KEY = os.environ.get('JWT_SECRET_KEY', 'your-secret-key-here')
+SECRET_KEY = os.environ.get('JWT_SECRET', 'your-secret-key-here')
 
 def get_tenant_id_from_request(event: dict):
     """Извлекает tenant_id из JWT токена или query параметра (для суперадмина)"""
