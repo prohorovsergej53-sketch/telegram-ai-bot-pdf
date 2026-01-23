@@ -80,17 +80,14 @@ const TryBot = () => {
             <div className="bg-white rounded-2xl p-8 shadow-xl border-2 border-slate-100 hover:border-purple-500 hover:shadow-2xl hover:-translate-y-1 transition-all">
               <div className="flex items-center gap-6">
                 <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-700 rounded-xl flex items-center justify-center flex-shrink-0">
-                  <svg className="w-8 h-8 text-white" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5zm0 18c-3.87-.96-7-5.38-7-9V8.3l7-3.11 7 3.11V11c0 3.62-3.13 8.04-7 9z"/>
-                    <path d="M11 11h2v6h-2zm0-4h2v2h-2z"/>
-                  </svg>
+                  <Icon name="MessageSquare" size={32} className="text-white" />
                 </div>
                 <div className="flex-1">
                   <h3 className="text-2xl font-bold text-slate-900 mb-2 group-hover:text-purple-500 transition-colors">
                     MAX
                   </h3>
                   <p className="text-slate-600">
-                    Российский защищённый мессенджер
+                    max.ru
                   </p>
                 </div>
                 <Icon name="ArrowRight" size={24} className="text-slate-400 group-hover:text-purple-500 group-hover:translate-x-1 transition-all" />
