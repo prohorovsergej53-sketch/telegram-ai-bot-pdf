@@ -43,28 +43,20 @@ const VKSettingsCard = ({ webhookUrl, chatFunctionUrl }: VKSettingsCardProps) =>
   };
 
   const saveSettings = async (gId: string, gToken: string, sKey: string) => {
-    const promises = [
-      authenticatedFetch(`${BACKEND_URLS.manageApiKeys}?tenant_id=${tenantId}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ provider: 'vk', key_name: 'group_id', key_value: gId })
-      }),
-      authenticatedFetch(`${BACKEND_URLS.manageApiKeys}?tenant_id=${tenantId}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ provider: 'vk', key_name: 'group_token', key_value: gToken })
-      })
+    const keysToSave = [
+      { provider: 'vk', key_name: 'group_id', key_value: gId },
+      { provider: 'vk', key_name: 'group_token', key_value: gToken }
     ];
+    
     if (sKey) {
-      promises.push(
-        authenticatedFetch(`${BACKEND_URLS.manageApiKeys}?tenant_id=${tenantId}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ provider: 'vk', key_name: 'secret_key', key_value: sKey })
-        })
-      );
+      keysToSave.push({ provider: 'vk', key_name: 'secret_key', key_value: sKey });
     }
-    await Promise.all(promises);
+    
+    await authenticatedFetch(`${BACKEND_URLS.manageApiKeys}?tenant_id=${tenantId}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ keys: keysToSave })
+    });
   };
 
   const handleSetupBot = async () => {

@@ -218,7 +218,7 @@ const MAXSettingsCard = ({ webhookUrl, chatFunctionUrl }: MAXSettingsCardProps) 
             {isLoading ? (
               <>
                 <Icon name="Loader2" size={16} className="mr-2 animate-spin" />
-                Подключение...
+                {botToken === '********' ? 'Подключение...' : 'Сохранение и подключение...'}
               </>
             ) : (
               <>

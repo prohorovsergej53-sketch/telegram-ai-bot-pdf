@@ -43,9 +43,11 @@ const TelegramSettingsCard = ({ webhookUrl, chatFunctionUrl }: TelegramSettingsC
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        provider: 'telegram',
-        key_name: 'bot_token',
-        key_value: token
+        keys: [{
+          provider: 'telegram',
+          key_name: 'bot_token',
+          key_value: token
+        }]
       })
     });
   };
