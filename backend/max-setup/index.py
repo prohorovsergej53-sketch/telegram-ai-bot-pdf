@@ -16,16 +16,22 @@ def handler(event: dict, context) -> dict:
             'headers': {
                 'Access-Control-Allow-Origin': '*',
                 'Access-Control-Allow-Methods': 'POST, GET, OPTIONS',
-                'Access-Control-Allow-Headers': 'Content-Type, X-User-Id, X-Auth-Token'
+                'Access-Control-Allow-Headers': 'Content-Type, X-User-Id, X-Auth-Token, X-Authorization, Authorization',
+                'Access-Control-Max-Age': '86400'
             },
             'body': '',
             'isBase64Encoded': False
         }
 
     try:
+        print(f'[max-setup] Received request: method={method}')
+        print(f'[max-setup] Event: {json.dumps(event)}')
+        
         query_params = event.get('queryStringParameters', {}) or {}
         tenant_id = int(query_params.get('tenant_id', 1))
         action = query_params.get('action', 'check')
+        
+        print(f'[max-setup] tenant_id={tenant_id}, action={action}')
         
         if method == 'POST':
             body = json.loads(event.get('body', '{}'))
@@ -33,12 +39,15 @@ def handler(event: dict, context) -> dict:
             webhook_url = body.get('webhook_url', '')
 
             if action == 'verify':
+                print(f'[max-setup] Verifying bot token (masked): {bot_token[:10]}...')
                 try:
                     response = requests.get(
                         f'https://platform-api.max.ru/bot{bot_token}/getMe',
                         timeout=10
                     )
+                    print(f'[max-setup] MAX API response status: {response.status_code}')
                     data = response.json()
+                    print(f'[max-setup] MAX API response: {json.dumps(data)}')
                     
                     if data.get('ok'):
                         return {
@@ -55,6 +64,7 @@ def handler(event: dict, context) -> dict:
                             'isBase64Encoded': False
                         }
                 except Exception as e:
+                    print(f'[max-setup] Verify error: {str(e)}')
                     return {
                         'statusCode': 500,
                         'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
@@ -86,6 +96,7 @@ def handler(event: dict, context) -> dict:
                         'isBase64Encoded': False
                     }
                 except Exception as e:
+                    print(f'[max-setup] Setup webhook error: {str(e)}')
                     return {
                         'statusCode': 500,
                         'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
@@ -118,6 +129,7 @@ def handler(event: dict, context) -> dict:
                         'isBase64Encoded': False
                     }
                 except Exception as e:
+                    print(f'[max-setup] Get webhook info error: {str(e)}')
                     return {
                         'statusCode': 500,
                         'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
@@ -133,6 +145,9 @@ def handler(event: dict, context) -> dict:
         }
 
     except Exception as e:
+        print(f'[max-setup] Handler error: {str(e)}')
+        import traceback
+        traceback.print_exc()
         return {
             'statusCode': 500,
             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
