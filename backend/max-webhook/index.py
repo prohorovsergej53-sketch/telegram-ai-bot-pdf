@@ -9,9 +9,31 @@ sys.path.append('/function/code')
 from api_keys_helper import get_tenant_api_key
 
 def format_max(text: str) -> str:
-    """Форматирование для MAX с эмодзи"""
+    """Форматирование для MAX: убираем HTML, добавляем эмодзи и визуальное выделение"""
+    # Убираем HTML-теги
+    text = re.sub(r'<b>(.+?)</b>', r'▪️ \1', text, flags=re.IGNORECASE)
+    text = re.sub(r'<i>(.+?)</i>', r'\1', text, flags=re.IGNORECASE)
+    text = re.sub(r'<[^>]+>', '', text)  # Убираем все остальные теги
+    
+    # Форматируем списки
     text = re.sub(r'^- (.+)$', r'• \1', text, flags=re.MULTILINE)
     text = re.sub(r'^\d+\. (.+)$', r'▫️ \1', text, flags=re.MULTILINE)
+    
+    # Добавляем эмодзи для ключевых слов отеля
+    emoji_map = {
+        'Стандарт': '🏨',
+        'Комфорт': '✨',
+        'Люкс': '👑',
+        'без питания': '🍽',
+        'завтрак': '🍳',
+        'полный пансион': '🍴',
+        'руб': '💰'
+    }
+    
+    for word, emoji in emoji_map.items():
+        if word in text and emoji not in text[:text.index(word)] if word in text else True:
+            text = text.replace(f'▪️ {word}', f'{emoji} {word}', 1)
+    
     return text
 
 def handler(event: dict, context) -> dict:
