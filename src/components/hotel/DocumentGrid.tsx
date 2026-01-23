@@ -87,14 +87,28 @@ const DocumentGrid = ({ documents, onDeleteDocument }: DocumentGridProps) => {
                   <span>{doc.size}</span>
                 </div>
               </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-8 px-2 text-red-600 hover:text-red-700 hover:bg-red-50 flex-shrink-0"
-                onClick={() => handleDeleteClick(doc)}
-              >
-                <Icon name="Trash2" size={14} />
-              </Button>
+              <div className="flex items-center gap-1 flex-shrink-0">
+                {doc.fileUrl && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-8 px-2 text-primary hover:text-blue-700 hover:bg-blue-50"
+                    onClick={() => window.open(doc.fileUrl, '_blank')}
+                    title="Скачать PDF"
+                  >
+                    <Icon name="Download" size={14} />
+                  </Button>
+                )}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-8 px-2 text-red-600 hover:text-red-700 hover:bg-red-50"
+                  onClick={() => handleDeleteClick(doc)}
+                  title="Удалить документ"
+                >
+                  <Icon name="Trash2" size={14} />
+                </Button>
+              </div>
             </div>
           </div>
         ))}

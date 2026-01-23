@@ -39,7 +39,7 @@ def handler(event: dict, context) -> dict:
         cur = conn.cursor()
         
         cur.execute("""
-            SELECT id, file_name, file_size_bytes, pages, category, status, uploaded_at
+            SELECT id, file_name, file_size_bytes, pages, category, status, uploaded_at, file_key
             FROM t_p56134400_telegram_ai_bot_pdf.tenant_documents
             WHERE tenant_id = %s
             ORDER BY uploaded_at DESC
@@ -48,10 +48,12 @@ def handler(event: dict, context) -> dict:
         rows = cur.fetchall()
         documents = []
         
+        aws_access_key_id = os.environ.get('AWS_ACCESS_KEY_ID', '')
+        
         for row in rows:
             size_bytes = row[2]
             if size_bytes and size_bytes > 0:
-                if size_bytes < 1024 * 1024:  # Меньше 1 МБ
+                if size_bytes < 1024 * 1024:
                     size_kb = size_bytes / 1024
                     size_str = f"{size_kb:.0f} КБ"
                 else:
@@ -60,6 +62,11 @@ def handler(event: dict, context) -> dict:
             else:
                 size_str = "—"
             
+            file_key = row[7]
+            file_url = None
+            if file_key and aws_access_key_id:
+                file_url = f"https://cdn.poehali.dev/projects/{aws_access_key_id}/bucket/{file_key}"
+            
             doc = {
                 'id': row[0],
                 'name': row[1],
@@ -67,7 +74,8 @@ def handler(event: dict, context) -> dict:
                 'pages': row[3] or 0,
                 'category': row[4] or 'Общая',
                 'status': row[5],
-                'uploadedAt': row[6].strftime('%Y-%m-%d') if row[6] else None
+                'uploadedAt': row[6].strftime('%Y-%m-%d') if row[6] else None,
+                'fileUrl': file_url
             }
             documents.append(doc)
 

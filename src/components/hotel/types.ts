@@ -13,6 +13,7 @@ export interface Document {
   category: string;
   status: string;
   uploadedAt: string;
+  fileUrl?: string;
 }
 
 export interface QuickQuestion {
