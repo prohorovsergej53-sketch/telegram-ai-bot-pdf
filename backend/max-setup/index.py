@@ -151,10 +151,12 @@ def handler(event: dict, context) -> dict:
                     
                     if response.status_code == 200:
                         data = response.json() if response.text else {}
+                        subscriptions = data.get('subscriptions', [])
+                        webhook_url = subscriptions[0].get('url', '') if subscriptions else ''
                         return {
                             'statusCode': 200,
                             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                            'body': json.dumps({'ok': True, 'result': data}),
+                            'body': json.dumps({'ok': True, 'result': {'url': webhook_url}}),
                             'isBase64Encoded': False
                         }
                     else:
