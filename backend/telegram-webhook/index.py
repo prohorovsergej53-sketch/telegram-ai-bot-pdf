@@ -34,6 +34,7 @@ def handler(event: dict, context) -> dict:
 
     try:
         body = json.loads(event.get('body', '{}'))
+        print(f'[telegram-webhook] Received body: {json.dumps(body)[:200]}')
         
         if 'message' not in body:
             return {
@@ -46,6 +47,8 @@ def handler(event: dict, context) -> dict:
         message = body['message']
         chat_id = message['chat']['id']
         user_message = message.get('text', '')
+        
+        print(f'[telegram-webhook] chat_id={chat_id}, message={user_message}')
 
         if not user_message:
             return {
@@ -57,6 +60,7 @@ def handler(event: dict, context) -> dict:
 
         session_id = f"telegram-{chat_id}"
         tenant_id = 1
+        print(f'[telegram-webhook] Using tenant_id={tenant_id}')
 
         bot_token, error = get_tenant_api_key(tenant_id, 'telegram', 'bot_token')
         if error:
@@ -80,15 +84,20 @@ def handler(event: dict, context) -> dict:
             ai_message = chat_data.get('message', 'Извините, не могу ответить')
             
             # Форматируем согласно настройкам тенанта
+            print(f'[telegram-webhook] Getting formatting settings for tenant={tenant_id}')
             settings = get_formatting_settings(tenant_id, 'telegram')
+            print(f'[telegram-webhook] Settings: {settings}')
             ai_message = format_with_settings(ai_message, settings, 'telegram')
+            print(f'[telegram-webhook] Formatted message: {ai_message[:100]}...')
             
         except requests.exceptions.Timeout:
+            print(f'[telegram-webhook] Chat function timeout')
             ai_message = 'Извините, сервис временно недоступен. Попробуйте позже.'
         except requests.exceptions.RequestException as e:
-            print(f'Chat function error: {e}')
+            print(f'[telegram-webhook] Chat function error: {e}')
             ai_message = 'Извините, произошла ошибка. Попробуйте позже.'
 
+        print(f'[telegram-webhook] Sending to Telegram API')
         telegram_api_url = f'https://api.telegram.org/bot{bot_token}/sendMessage'
         telegram_response = requests.post(
             telegram_api_url,
@@ -99,8 +108,10 @@ def handler(event: dict, context) -> dict:
             },
             timeout=10
         )
+        print(f'[telegram-webhook] Telegram API response: {telegram_response.status_code}')
 
         if not telegram_response.ok:
+            print(f'[telegram-webhook] Telegram API error: {telegram_response.text}')
             raise Exception(f'Telegram API error: {telegram_response.status_code}')
 
         return {
