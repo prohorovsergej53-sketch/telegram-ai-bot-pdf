@@ -92,11 +92,14 @@ def handler(event: dict, context) -> dict:
 
                 print(f'[max-setup] Setting up webhook: {webhook_url}')
                 try:
+                    # Добавляем bot_token в URL webhook для идентификации
+                    webhook_url_with_token = f"{webhook_url}?bot_token={bot_token}"
+                    
                     response = requests.post(
                         'https://platform-api.max.ru/subscriptions',
                         headers={'Authorization': bot_token},
                         json={
-                            'url': webhook_url,
+                            'url': webhook_url_with_token,
                             'update_types': ['message_created', 'bot_started']
                         },
                         timeout=10

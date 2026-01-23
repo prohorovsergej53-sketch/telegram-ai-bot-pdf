@@ -1,7 +1,7 @@
 {
   "tests": [
     {
-      "name": "Test Telegram webhook",
+      "name": "Test Telegram webhook without token",
       "method": "POST",
       "body": {
         "message": {
@@ -11,9 +11,9 @@
           "text": "Привет"
         }
       },
-      "expectedStatus": 200,
+      "expectedStatus": 400,
       "expectedBody": {
-        "ok": true
+        "error": "Invalid bot token"
       },
       "bodyMatcher": "partial"
     }

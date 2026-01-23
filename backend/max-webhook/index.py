@@ -37,13 +37,18 @@ def handler(event: dict, context) -> dict:
         body = json.loads(event.get('body', '{}'))
         print(f'[max-webhook] Received body: {json.dumps(body)}')
         
-        # Определяем tenant_id по bot_token из заголовка Authorization
-        headers = event.get('headers', {})
-        auth_header = headers.get('X-Authorization', headers.get('authorization', ''))
-        tenant_id = get_tenant_id_by_bot_token(auth_header) if auth_header else None
+        # Определяем tenant_id по bot_token из query параметра или заголовка
+        query_params = event.get('queryStringParameters', {}) or {}
+        bot_token = query_params.get('bot_token', '')
+        
+        if not bot_token:
+            headers = event.get('headers', {})
+            bot_token = headers.get('X-Authorization', headers.get('authorization', ''))
+        
+        tenant_id = get_tenant_id_by_bot_token(bot_token) if bot_token else None
         
         if not tenant_id:
-            print('[max-webhook] Could not determine tenant_id from Authorization header')
+            print(f'[max-webhook] Could not determine tenant_id from bot_token: {bot_token[:20] if bot_token else "empty"}...')
             return {
                 'statusCode': 401,
                 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},

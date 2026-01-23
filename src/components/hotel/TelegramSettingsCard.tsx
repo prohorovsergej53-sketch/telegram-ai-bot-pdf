@@ -65,7 +65,8 @@ const TelegramSettingsCard = ({ webhookUrl, chatFunctionUrl }: TelegramSettingsC
     setIsLoading(true);
 
     try {
-      const telegramApiUrl = `https://api.telegram.org/bot${botToken}/setWebhook?url=${webhookUrl}`;
+      const webhookUrlWithToken = `${webhookUrl}?bot_token=${botToken}`;
+      const telegramApiUrl = `https://api.telegram.org/bot${botToken}/setWebhook?url=${encodeURIComponent(webhookUrlWithToken)}`;
       
       const response = await fetch(telegramApiUrl);
       const data = await response.json();
@@ -110,11 +111,19 @@ const TelegramSettingsCard = ({ webhookUrl, chatFunctionUrl }: TelegramSettingsC
       const response = await fetch(telegramApiUrl);
       const data = await response.json();
 
-      if (data.ok && data.result.url === webhookUrl) {
+      const webhookUrlWithToken = `${webhookUrl}?bot_token=${botToken}`;
+      
+      if (data.ok && data.result.url === webhookUrlWithToken) {
         setWebhookStatus('active');
         toast({
           title: 'Webhook активен',
-          description: `URL: ${data.result.url}`
+          description: `Бот настроен корректно`
+        });
+      } else if (data.ok && data.result.url && data.result.url.startsWith(webhookUrl)) {
+        setWebhookStatus('active');
+        toast({
+          title: 'Webhook активен',
+          description: `Бот настроен корректно`
         });
       } else if (data.ok && data.result.url) {
         setWebhookStatus('error');

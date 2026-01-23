@@ -36,12 +36,18 @@ def handler(event: dict, context) -> dict:
         body = json.loads(event.get('body', '{}'))
         print(f'[telegram-webhook] Received body: {json.dumps(body)[:200]}')
         
-        # Определяем tenant_id по bot_token из URL
-        url_path = event.get('path', '') or event.get('rawPath', '')
-        tenant_id = get_tenant_id_by_bot_token(url_path)
+        # Определяем tenant_id по bot_token из query параметра или пути URL
+        query_params = event.get('queryStringParameters', {}) or {}
+        bot_token = query_params.get('bot_token', '')
+        
+        if not bot_token:
+            url_path = event.get('path', '') or event.get('rawPath', '')
+            bot_token = url_path
+        
+        tenant_id = get_tenant_id_by_bot_token(bot_token) if bot_token else None
         
         if not tenant_id:
-            print(f'[telegram-webhook] Could not determine tenant_id from path: {url_path}')
+            print(f'[telegram-webhook] Could not determine tenant_id from bot_token: {bot_token[:20] if bot_token else "empty"}...')
             return {
                 'statusCode': 400,
                 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
@@ -49,7 +55,7 @@ def handler(event: dict, context) -> dict:
                 'isBase64Encoded': False
             }
         
-        print(f'[telegram-webhook] Determined tenant_id={tenant_id} from URL path')
+        print(f'[telegram-webhook] Determined tenant_id={tenant_id}')
         
         if 'message' not in body:
             return {
