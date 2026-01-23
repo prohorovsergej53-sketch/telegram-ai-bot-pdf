@@ -93,9 +93,9 @@ def handler(event: dict, context) -> dict:
                 print(f'[max-setup] Setting up webhook: {webhook_url}')
                 try:
                     response = requests.post(
-                        'https://platform-api.max.ru/webhooks',
+                        'https://platform-api.max.ru/subscriptions',
                         headers={'Authorization': bot_token},
-                        json={'url': webhook_url},
+                        json={'url': webhook_url, 'version': 'v1'},
                         timeout=10
                     )
                     print(f'[max-setup] Webhook setup response status: {response.status_code}')
@@ -140,7 +140,7 @@ def handler(event: dict, context) -> dict:
                 print(f'[max-setup] Getting webhook info')
                 try:
                     response = requests.get(
-                        'https://platform-api.max.ru/webhooks',
+                        'https://platform-api.max.ru/subscriptions',
                         headers={'Authorization': bot_token},
                         timeout=10
                     )
