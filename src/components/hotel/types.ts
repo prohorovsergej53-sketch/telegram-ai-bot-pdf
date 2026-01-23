@@ -165,6 +165,7 @@ export const BACKEND_URLS = {
   maxWebhook: 'https://functions.poehali.dev/ae0b074b-a749-4714-90d2-2146a6de57de',
   maxSetup: 'https://functions.poehali.dev/eba527a1-dcf9-460b-b74d-0a0ed603f17d',
   getChatStats: 'https://functions.poehali.dev/f818bf6f-d72f-49b5-9436-c59a8e588c61',
+  getTenantTokenStats: 'https://functions.poehali.dev/d58dbde4-5719-461b-87ad-6d97db9fdd51',
   authAdmin: 'https://functions.poehali.dev/20be465d-cf04-4dc0-bbd3-1fc7ffb67ada',
   getPageSettings: 'https://functions.poehali.dev/0534411b-d900-45d2-9082-a9485b33cf20',
   updatePageSettings: 'https://functions.poehali.dev/83326caa-63b4-4bfa-a3f1-b0fee1d4baf9',

@@ -21,6 +21,7 @@ import ConsentSettingsCard from './ConsentSettingsCard';
 import { DocumentStatsCards } from './DocumentStatsCards';
 import { DocumentsPanel } from './DocumentsPanel';
 import ChatStatsCard from './ChatStatsCard';
+import TokenCostCard from './TokenCostCard';
 import EmbeddingsSettings from './EmbeddingsSettings';
 import SupportChat from '@/components/SupportChat';
 import PublicChatLinkCard from './PublicChatLinkCard';
@@ -121,7 +122,10 @@ const AdminView = ({ documents, isLoading, onFileUpload, onDeleteDocument, curre
         </TabsList>
 
         <TabsContent value="documents" className="space-y-6">
-          <ChatStatsCard currentTenantId={currentTenantId} />
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <ChatStatsCard currentTenantId={currentTenantId} />
+            <TokenCostCard currentTenantId={currentTenantId} />
+          </div>
           <DocumentStatsCards documents={documents} />
           <DocumentsPanel
             documents={documents}
