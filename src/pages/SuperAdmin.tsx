@@ -167,6 +167,39 @@ const SuperAdmin = () => {
     }
   };
 
+  const handleDeleteTenant = async (tenant: Tenant) => {
+    if (!confirm(`Вы уверены, что хотите удалить тенанта "${tenant.name}"?\n\nБудут удалены:\n- Все документы и базы знаний\n- Все сообщения чатов\n- Все настройки\n- Все API ключи\n\nЭто действие необратимо!`)) {
+      return;
+    }
+
+    try {
+      const response = await authenticatedFetch(BACKEND_URLS.tenants, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          tenant_id: tenant.id
+        })
+      });
+
+      if (response.ok) {
+        toast({
+          title: 'Успешно',
+          description: `Тенант ${tenant.name} удалён`,
+        });
+        loadTenants();
+      } else {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to delete tenant');
+      }
+    } catch (error: any) {
+      toast({
+        title: 'Ошибка',
+        description: error.message || 'Не удалось удалить тенанта',
+        variant: 'destructive'
+      });
+    }
+  };
+
   const saveTariffChanges = async () => {
     if (!editingTariff) return;
 
@@ -292,6 +325,7 @@ const SuperAdmin = () => {
               onManageTenant={handleManageTenant}
               onCreateTenant={() => setIsCreatingTenant(true)}
               onToggleFz152={handleToggleFz152}
+              onDeleteTenant={handleDeleteTenant}
             />
           </TabsContent>
 

@@ -25,33 +25,19 @@ def get_authenticated_user(event: dict) -> dict | None:
             return None
         
         payload = jwt.decode(token, jwt_secret, algorithms=['HS256'])
-        user_id = payload.get('userId')
+        user_id = payload.get('user_id')  # Исправлено с userId на user_id
+        role = payload.get('role')
+        tenant_id = payload.get('tenant_id')
         
         if not user_id:
             return None
         
-        # Получаем данные пользователя из БД
-        conn = psycopg2.connect(os.environ['DATABASE_URL'])
-        cur = conn.cursor()
-        
-        cur.execute("""
-            SELECT id, email, is_super_admin, tenant_id
-            FROM t_p56134400_telegram_ai_bot_pdf.users
-            WHERE id = %s
-        """, (user_id,))
-        
-        row = cur.fetchone()
-        cur.close()
-        conn.close()
-        
-        if not row:
-            return None
-        
+        # Возвращаем данные из JWT (не делаем лишний запрос в БД)
         return {
-            'id': row[0],
-            'email': row[1],
-            'is_super_admin': row[2],
-            'tenant_id': row[3]
+            'id': user_id,
+            'role': role,
+            'is_super_admin': role == 'super_admin',
+            'tenant_id': tenant_id
         }
         
     except jwt.ExpiredSignatureError:

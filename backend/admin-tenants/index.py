@@ -296,6 +296,77 @@ def handler(event: dict, context) -> dict:
                 'isBase64Encoded': False
             }
 
+        elif method == 'DELETE':
+            # Удалить тенанта со всеми связанными данными
+            body = json.loads(event.get('body', '{}'))
+            tenant_id = body.get('tenant_id')
+            
+            if not tenant_id:
+                return {
+                    'statusCode': 400,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'tenant_id required'}),
+                    'isBase64Encoded': False
+                }
+            
+            # Защита от удаления важных тенантов
+            if tenant_id in [1, 2]:
+                return {
+                    'statusCode': 403,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'Cannot delete system tenants (1, 2)'}),
+                    'isBase64Encoded': False
+                }
+            
+            # Удаление всех связанных данных в правильном порядке
+            try:
+                # 1. Удаляем чанки
+                cur.execute(f"DELETE FROM {schema}.tenant_chunks WHERE tenant_id = %s", (tenant_id,))
+                
+                # 2. Удаляем документы
+                cur.execute(f"DELETE FROM {schema}.tenant_documents WHERE tenant_id = %s", (tenant_id,))
+                
+                # 3. Удаляем API ключи
+                cur.execute(f"DELETE FROM {schema}.tenant_api_keys WHERE tenant_id = %s", (tenant_id,))
+                
+                # 4. Удаляем настройки
+                cur.execute(f"DELETE FROM {schema}.tenant_settings WHERE tenant_id = %s", (tenant_id,))
+                
+                # 5. Удаляем сообщения чатов
+                cur.execute(f"DELETE FROM {schema}.chat_messages WHERE tenant_id = %s", (tenant_id,))
+                
+                # 6. Удаляем использование токенов
+                cur.execute(f"DELETE FROM {schema}.token_usage WHERE tenant_id = %s", (tenant_id,))
+                
+                # 7. Удаляем настройки форматирования
+                cur.execute(f"DELETE FROM {schema}.messenger_formatting_settings WHERE tenant_id = %s", (tenant_id,))
+                
+                # 8. Удаляем настройки виджета
+                cur.execute(f"DELETE FROM {schema}.widget_settings WHERE tenant_id = %s", (tenant_id,))
+                
+                # 9. Удаляем логи качества
+                cur.execute(f"DELETE FROM {schema}.tenant_quality_gate_logs WHERE tenant_id = %s", (tenant_id,))
+                
+                # 10. Удаляем админов тенанта (кроме суперадминов)
+                cur.execute(f"DELETE FROM {schema}.admin_users WHERE tenant_id = %s AND role != 'super_admin'", (tenant_id,))
+                
+                # 11. Наконец, удаляем сам тенант
+                cur.execute(f"DELETE FROM {schema}.tenants WHERE id = %s", (tenant_id,))
+                
+                conn.commit()
+                cur.close()
+                conn.close()
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'success': True, 'message': 'Tenant deleted successfully'}),
+                    'isBase64Encoded': False
+                }
+            except Exception as delete_error:
+                conn.rollback()
+                raise delete_error
+
         else:
             return {
                 'statusCode': 405,

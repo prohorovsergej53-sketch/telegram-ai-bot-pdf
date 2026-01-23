@@ -10,9 +10,10 @@ interface TenantsTabProps {
   onManageTenant: (tenant: Tenant) => void;
   onCreateTenant: () => void;
   onToggleFz152: (tenant: Tenant) => void;
+  onDeleteTenant: (tenant: Tenant) => void;
 }
 
-export const TenantsTab = ({ tenants, onEnterTenant, onManageTenant, onCreateTenant, onToggleFz152 }: TenantsTabProps) => {
+export const TenantsTab = ({ tenants, onEnterTenant, onManageTenant, onCreateTenant, onToggleFz152, onDeleteTenant }: TenantsTabProps) => {
   const clientTenants = tenants.filter(tenant => tenant.id !== 1);
   
   return (
@@ -83,6 +84,16 @@ export const TenantsTab = ({ tenants, onEnterTenant, onManageTenant, onCreateTen
                   <Icon name="Settings" size={16} className="mr-2" />
                   Настройки
                 </Button>
+                {tenant.id !== 1 && tenant.id !== 2 && (
+                  <Button 
+                    variant="destructive" 
+                    size="sm"
+                    onClick={() => onDeleteTenant(tenant)}
+                  >
+                    <Icon name="Trash2" size={16} className="mr-2" />
+                    Удалить
+                  </Button>
+                )}
               </div>
             </div>
           ))}
