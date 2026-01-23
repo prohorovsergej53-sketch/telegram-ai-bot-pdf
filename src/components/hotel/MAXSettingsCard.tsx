@@ -43,9 +43,11 @@ const MAXSettingsCard = ({ webhookUrl, chatFunctionUrl }: MAXSettingsCardProps) 
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        provider: 'max',
-        key_name: 'bot_token',
-        key_value: token
+        keys: [{
+          provider: 'max',
+          key_name: 'bot_token',
+          key_value: token
+        }]
       })
     });
   };
