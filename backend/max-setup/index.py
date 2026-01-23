@@ -95,7 +95,10 @@ def handler(event: dict, context) -> dict:
                     response = requests.post(
                         'https://platform-api.max.ru/subscriptions',
                         headers={'Authorization': bot_token},
-                        json={'url': webhook_url, 'version': 'v1'},
+                        json={
+                            'url': webhook_url,
+                            'update_types': ['message_created', 'bot_started']
+                        },
                         timeout=10
                     )
                     print(f'[max-setup] Webhook setup response status: {response.status_code}')
