@@ -135,8 +135,11 @@ def keyword_overlap_ratio(user_text: str, context: str, lang: str) -> Tuple[floa
 def get_tenant_topk(tenant_overrides: Dict = None) -> Tuple[int, int]:
     """Получить top_k настройки из tenant-specific конфига или дефолтные"""
     if tenant_overrides:
-        default_topk = tenant_overrides.get('rag_topk_default', RAG_TOPK_DEFAULT)
-        fallback_topk = tenant_overrides.get('rag_topk_fallback', RAG_TOPK_FALLBACK)
+        # Безопасная конвертация значений из dict, которые могут быть строками
+        default_val = tenant_overrides.get('rag_topk_default', RAG_TOPK_DEFAULT)
+        fallback_val = tenant_overrides.get('rag_topk_fallback', RAG_TOPK_FALLBACK)
+        default_topk = int(default_val) if default_val is not None else RAG_TOPK_DEFAULT
+        fallback_topk = int(fallback_val) if fallback_val is not None else RAG_TOPK_FALLBACK
         return default_topk, fallback_topk
     return RAG_TOPK_DEFAULT, RAG_TOPK_FALLBACK
 
@@ -149,10 +152,18 @@ def quality_gate(user_text: str, context: str, sims: List[float], tenant_overrid
     # Сначала берём дефолтные пороги
     th = GATE_THRESHOLDS.get(q_type, GATE_THRESHOLDS["default"]).copy()
     
-    # Если есть tenant-специфичные настройки - применяем их
+    # Если есть tenant-специфичные настройки - применяем их с конвертацией типов
     if tenant_overrides:
         tenant_th = tenant_overrides.get(q_type, tenant_overrides.get("default", {}))
         if tenant_th:
+            # Конвертируем строковые значения в числа
+            for key, value in tenant_th.items():
+                if isinstance(value, str):
+                    try:
+                        # Пытаемся сначала int, потом float
+                        tenant_th[key] = int(value) if '.' not in str(value) else float(value)
+                    except (ValueError, TypeError):
+                        pass  # Оставляем как есть, если не число
             th.update(tenant_th)
 
     debug_info = {

@@ -150,7 +150,7 @@ export function TokenStatsTab({ tenants }: TokenStatsTabProps) {
                       <Card key={tenant.tenantId}>
                         <CardHeader className="pb-3">
                           <CardTitle className="text-base">{tenant.name}</CardTitle>
-                          <CardDescription className="text-xs">{tenant.slug}</CardDescription>
+                          <CardDescription className="text-xs">{tenant.slug} (ID: {tenant.tenantId})</CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-2">
                           <div className="flex justify-between text-sm">

@@ -117,6 +117,12 @@ def handler(event: dict, context) -> dict:
         session_id = body.get('sessionId', 'default')
         tenant_id = body.get('tenantId')
         tenant_slug = body.get('tenantSlug')
+        
+        # Конвертируем tenant_id в int если он передан
+        if tenant_id is not None:
+            tenant_id = int(tenant_id)
+        
+        print(f"DEBUG START: tenant_id={tenant_id} (type={type(tenant_id)}), user_message='{user_message[:50]}')")
 
         if not user_message:
             return {
@@ -145,6 +151,9 @@ def handler(event: dict, context) -> dict:
         elif not tenant_id:
             tenant_id = 1
             print(f"⚠️ DEBUG: No tenant_slug or tenant_id provided, defaulting to tenant_id=1")
+        
+        # Обеспечиваем, что tenant_id - это integer
+        tenant_id = int(tenant_id)
 
         # Загружаем дефолтный промпт из БД
         cur.execute("""
@@ -540,6 +549,19 @@ def handler(event: dict, context) -> dict:
             
             yandex_data = yandex_response.json()
             assistant_message = yandex_data['result']['alternatives'][0]['message']['text']
+            
+            # Логируем использование токенов
+            usage_data = yandex_data.get('result', {}).get('usage', {})
+            total_tokens = usage_data.get('totalTokens', 0)
+            if total_tokens > 0:
+                log_token_usage(
+                    tenant_id=tenant_id,
+                    operation_type='gpt_response',
+                    model=chat_api_model,
+                    tokens_used=total_tokens,
+                    request_id=session_id,
+                    metadata={'provider': 'yandex'}
+                )
         elif ai_provider == 'openrouter':
             openrouter_key, error = get_tenant_api_key(tenant_id, 'openrouter', 'api_key')
             if error:
@@ -582,6 +604,17 @@ def handler(event: dict, context) -> dict:
                 max_tokens=ai_max_tokens
             )
             assistant_message = response.choices[0].message.content
+            
+            # Логируем использование токенов
+            if hasattr(response, 'usage') and response.usage:
+                log_token_usage(
+                    tenant_id=tenant_id,
+                    operation_type='gpt_response',
+                    model=working_model,
+                    tokens_used=response.usage.total_tokens,
+                    request_id=session_id,
+                    metadata={'provider': 'openrouter'}
+                )
         elif ai_provider == 'deepseek':
             deepseek_key, error = get_tenant_api_key(tenant_id, 'deepseek', 'api_key')
             if error:
@@ -605,6 +638,17 @@ def handler(event: dict, context) -> dict:
                 max_tokens=ai_max_tokens
             )
             assistant_message = response.choices[0].message.content
+            
+            # Логируем использование токенов
+            if hasattr(response, 'usage') and response.usage:
+                log_token_usage(
+                    tenant_id=tenant_id,
+                    operation_type='gpt_response',
+                    model=chat_api_model,
+                    tokens_used=response.usage.total_tokens,
+                    request_id=session_id,
+                    metadata={'provider': 'deepseek'}
+                )
         elif ai_provider == 'proxyapi':
             proxyapi_key, error = get_tenant_api_key(tenant_id, 'proxyapi', 'api_key')
             if error:
@@ -628,6 +672,17 @@ def handler(event: dict, context) -> dict:
                 max_tokens=ai_max_tokens
             )
             assistant_message = response.choices[0].message.content
+            
+            # Логируем использование токенов
+            if hasattr(response, 'usage') and response.usage:
+                log_token_usage(
+                    tenant_id=tenant_id,
+                    operation_type='gpt_response',
+                    model=chat_api_model,
+                    tokens_used=response.usage.total_tokens,
+                    request_id=session_id,
+                    metadata={'provider': 'proxyapi'}
+                )
         else:
             return {
                 'statusCode': 400,
