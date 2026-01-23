@@ -46,11 +46,12 @@ def handler(event: dict, context) -> dict:
         message = body['message']
         print(f'[max-webhook] Message structure: {json.dumps(message)}')
         
-        # MAX API structure: message.sender.user_id (for reply) and message.body.text
+        # MAX API structure: recipient.chat_id (для ответа) и body.text (текст сообщения)
+        chat_id = message.get('recipient', {}).get('chat_id')
         sender_user_id = message.get('sender', {}).get('user_id')
         user_message = message.get('body', {}).get('text', '')
         
-        if not sender_user_id or not user_message:
+        if not chat_id or not user_message:
             return {
                 'statusCode': 200,
                 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
@@ -58,11 +59,11 @@ def handler(event: dict, context) -> dict:
                 'isBase64Encoded': False
             }
 
-        session_id = f"max-{sender_user_id}"
+        session_id = f"max-{chat_id}"
         tenant_id = 2
         chat_function_url = 'https://functions.poehali.dev/7b58f4fb-5db0-4f85-bb3b-55bafa4cbf73'
 
-        print(f'[max-webhook] Calling chat function for session={session_id}, tenant={tenant_id}, user_id={sender_user_id}')
+        print(f'[max-webhook] Calling chat function for session={session_id}, tenant={tenant_id}, chat_id={chat_id}')
         try:
             chat_response = requests.post(
                 chat_function_url,
@@ -91,12 +92,15 @@ def handler(event: dict, context) -> dict:
         if error:
             return error
 
-        print(f'[max-webhook] Sending response to user_id={sender_user_id}: {ai_message[:50]}...')
+        print(f'[max-webhook] Sending response to chat_id={chat_id}: {ai_message[:50]}...')
         max_response = requests.post(
             'https://platform-api.max.ru/messages',
-            headers={'Authorization': bot_token},
+            headers={
+                'Authorization': bot_token,
+                'Content-Type': 'application/json'
+            },
             json={
-                'user_id': sender_user_id,
+                'chat_id': chat_id,
                 'text': ai_message
             },
             timeout=10
