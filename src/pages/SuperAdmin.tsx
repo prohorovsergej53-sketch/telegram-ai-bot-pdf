@@ -225,58 +225,57 @@ const SuperAdmin = () => {
         </div>
 
         <Tabs defaultValue="tenants" className="space-y-6">
-          <TabsList className="bg-white shadow-sm">
-            <TabsTrigger value="dashboard">
-              <Icon name="LayoutDashboard" size={16} className="mr-2" />
+          <TabsList className="bg-white shadow-sm flex-wrap h-auto gap-1 p-2">
+            <TabsTrigger value="dashboard" className="text-xs sm:text-sm whitespace-nowrap">
+              <Icon name="LayoutDashboard" size={14} className="mr-1.5" />
               Дашборд
             </TabsTrigger>
-            <TabsTrigger value="tenants">
-              <Icon name="Building2" size={16} className="mr-2" />
+            <TabsTrigger value="tenants" className="text-xs sm:text-sm whitespace-nowrap">
+              <Icon name="Building2" size={14} className="mr-1.5" />
               Клиенты
             </TabsTrigger>
-            <TabsTrigger value="tariffs">
-              <Icon name="DollarSign" size={16} className="mr-2" />
+            <TabsTrigger value="tariffs" className="text-xs sm:text-sm whitespace-nowrap">
+              <Icon name="DollarSign" size={14} className="mr-1.5" />
               Тарифы
             </TabsTrigger>
-            <TabsTrigger value="access">
-              <Icon name="Table" size={16} className="mr-2" />
+            <TabsTrigger value="access" className="text-xs sm:text-sm whitespace-nowrap">
+              <Icon name="Table" size={14} className="mr-1.5" />
               Доступ
             </TabsTrigger>
-            <TabsTrigger value="template">
-              <Icon name="Package" size={16} className="mr-2" />
+            <TabsTrigger value="template" className="text-xs sm:text-sm whitespace-nowrap">
+              <Icon name="Package" size={14} className="mr-1.5" />
               Шаблон ботов
             </TabsTrigger>
-            <TabsTrigger value="logic">
-              <Icon name="Workflow" size={16} className="mr-2" />
+            <TabsTrigger value="logic" className="text-xs sm:text-sm whitespace-nowrap">
+              <Icon name="Workflow" size={14} className="mr-1.5" />
               Логика
             </TabsTrigger>
-            <TabsTrigger value="emails">
-              <Icon name="Mail" size={16} className="mr-2" />
+            <TabsTrigger value="emails" className="text-xs sm:text-sm whitespace-nowrap">
+              <Icon name="Mail" size={14} className="mr-1.5" />
               Email-шаблоны
             </TabsTrigger>
-
-            <TabsTrigger value="monitoring">
-              <Icon name="Activity" size={16} className="mr-2" />
+            <TabsTrigger value="monitoring" className="text-xs sm:text-sm whitespace-nowrap">
+              <Icon name="Activity" size={14} className="mr-1.5" />
               Мониторинг
             </TabsTrigger>
-            <TabsTrigger value="consents">
-              <Icon name="ShieldCheck" size={16} className="mr-2" />
+            <TabsTrigger value="consents" className="text-xs sm:text-sm whitespace-nowrap">
+              <Icon name="ShieldCheck" size={14} className="mr-1.5" />
               Согласия
             </TabsTrigger>
-            <TabsTrigger value="seo">
-              <Icon name="Search" size={16} className="mr-2" />
+            <TabsTrigger value="seo" className="text-xs sm:text-sm whitespace-nowrap">
+              <Icon name="Search" size={14} className="mr-1.5" />
               SEO
             </TabsTrigger>
-            <TabsTrigger value="support">
-              <Icon name="Headphones" size={16} className="mr-2" />
+            <TabsTrigger value="support" className="text-xs sm:text-sm whitespace-nowrap">
+              <Icon name="Headphones" size={14} className="mr-1.5" />
               Поддержка
             </TabsTrigger>
-            <TabsTrigger value="tokens">
-              <Icon name="BarChart3" size={16} className="mr-2" />
+            <TabsTrigger value="tokens" className="text-xs sm:text-sm whitespace-nowrap">
+              <Icon name="BarChart3" size={14} className="mr-1.5" />
               Токены
             </TabsTrigger>
-            <TabsTrigger value="formatting">
-              <Icon name="Palette" size={16} className="mr-2" />
+            <TabsTrigger value="formatting" className="text-xs sm:text-sm whitespace-nowrap">
+              <Icon name="Palette" size={14} className="mr-1.5" />
               Форматирование
             </TabsTrigger>
           </TabsList>
