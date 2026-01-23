@@ -45,10 +45,12 @@ def handler(event: dict, context) -> dict:
 
         message = body['message']
         print(f'[max-webhook] Message structure: {json.dumps(message)}')
-        chat_id = message.get('chat', {}).get('id') or message.get('chat_id')
-        user_message = message.get('text', '')
-
-        if not user_message:
+        
+        # MAX API structure: message.recipient.chat_id and message.body.text
+        chat_id = message.get('recipient', {}).get('chat_id')
+        user_message = message.get('body', {}).get('text', '')
+        
+        if not chat_id or not user_message:
             return {
                 'statusCode': 200,
                 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
@@ -85,6 +87,7 @@ def handler(event: dict, context) -> dict:
         if error:
             return error
 
+        print(f'[max-webhook] Sending response to chat_id={chat_id}: {ai_message[:50]}...')
         max_response = requests.post(
             'https://platform-api.max.ru/messages',
             headers={'Authorization': bot_token},
@@ -94,9 +97,12 @@ def handler(event: dict, context) -> dict:
             },
             timeout=10
         )
+        print(f'[max-webhook] MAX API send response status: {max_response.status_code}')
 
         if not max_response.ok:
-            raise Exception(f'MAX API error: {max_response.status_code}')
+            error_text = max_response.text
+            print(f'[max-webhook] MAX API error response: {error_text}')
+            raise Exception(f'MAX API error: {max_response.status_code} - {error_text}')
 
         return {
             'statusCode': 200,
