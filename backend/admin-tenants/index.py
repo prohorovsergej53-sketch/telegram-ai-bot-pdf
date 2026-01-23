@@ -301,6 +301,8 @@ def handler(event: dict, context) -> dict:
             body = json.loads(event.get('body', '{}'))
             tenant_id = body.get('tenant_id')
             
+            print(f"DELETE request: tenant_id={tenant_id}, type={type(tenant_id)}")
+            
             if not tenant_id:
                 return {
                     'statusCode': 400,
@@ -308,6 +310,10 @@ def handler(event: dict, context) -> dict:
                     'body': json.dumps({'error': 'tenant_id required'}),
                     'isBase64Encoded': False
                 }
+            
+            # Преобразуем в int для сравнения
+            tenant_id = int(tenant_id)
+            print(f"Converted tenant_id={tenant_id}")
             
             # Защита от удаления важных тенантов
             if tenant_id in [1, 2]:
@@ -320,40 +326,54 @@ def handler(event: dict, context) -> dict:
             
             # Удаление всех связанных данных в правильном порядке
             try:
+                print(f"Starting cascade delete for tenant {tenant_id}")
+                
                 # 1. Удаляем чанки
                 cur.execute(f"DELETE FROM {schema}.tenant_chunks WHERE tenant_id = %s", (tenant_id,))
+                print(f"Deleted {cur.rowcount} chunks")
                 
                 # 2. Удаляем документы
                 cur.execute(f"DELETE FROM {schema}.tenant_documents WHERE tenant_id = %s", (tenant_id,))
+                print(f"Deleted {cur.rowcount} documents")
                 
                 # 3. Удаляем API ключи
                 cur.execute(f"DELETE FROM {schema}.tenant_api_keys WHERE tenant_id = %s", (tenant_id,))
+                print(f"Deleted {cur.rowcount} API keys")
                 
                 # 4. Удаляем настройки
                 cur.execute(f"DELETE FROM {schema}.tenant_settings WHERE tenant_id = %s", (tenant_id,))
+                print(f"Deleted {cur.rowcount} settings")
                 
                 # 5. Удаляем сообщения чатов
                 cur.execute(f"DELETE FROM {schema}.chat_messages WHERE tenant_id = %s", (tenant_id,))
+                print(f"Deleted {cur.rowcount} messages")
                 
                 # 6. Удаляем использование токенов
                 cur.execute(f"DELETE FROM {schema}.token_usage WHERE tenant_id = %s", (tenant_id,))
+                print(f"Deleted {cur.rowcount} token usage records")
                 
                 # 7. Удаляем настройки форматирования
                 cur.execute(f"DELETE FROM {schema}.messenger_formatting_settings WHERE tenant_id = %s", (tenant_id,))
+                print(f"Deleted {cur.rowcount} formatting settings")
                 
                 # 8. Удаляем настройки виджета
                 cur.execute(f"DELETE FROM {schema}.widget_settings WHERE tenant_id = %s", (tenant_id,))
+                print(f"Deleted {cur.rowcount} widget settings")
                 
                 # 9. Удаляем логи качества
                 cur.execute(f"DELETE FROM {schema}.tenant_quality_gate_logs WHERE tenant_id = %s", (tenant_id,))
+                print(f"Deleted {cur.rowcount} quality gate logs")
                 
                 # 10. Удаляем админов тенанта (кроме суперадминов)
                 cur.execute(f"DELETE FROM {schema}.admin_users WHERE tenant_id = %s AND role != 'super_admin'", (tenant_id,))
+                print(f"Deleted {cur.rowcount} admin users")
                 
                 # 11. Наконец, удаляем сам тенант
                 cur.execute(f"DELETE FROM {schema}.tenants WHERE id = %s", (tenant_id,))
+                print(f"Deleted tenant: {cur.rowcount} row(s)")
                 
                 conn.commit()
+                print(f"Successfully deleted tenant {tenant_id}")
                 cur.close()
                 conn.close()
                 
@@ -364,8 +384,19 @@ def handler(event: dict, context) -> dict:
                     'isBase64Encoded': False
                 }
             except Exception as delete_error:
+                print(f"ERROR deleting tenant: {str(delete_error)}")
+                print(f"Error type: {type(delete_error).__name__}")
+                import traceback
+                print(f"Traceback: {traceback.format_exc()}")
                 conn.rollback()
-                raise delete_error
+                cur.close()
+                conn.close()
+                return {
+                    'statusCode': 500,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': f'Failed to delete tenant: {str(delete_error)}'}),
+                    'isBase64Encoded': False
+                }
 
         else:
             return {
