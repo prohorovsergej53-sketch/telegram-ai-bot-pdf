@@ -37,14 +37,29 @@ def handler(event: dict, context) -> dict:
     try:
         body = json.loads(event.get('body', '{}'))
         
-        # Определяем tenant_id по secret из VK
+        # Определяем tenant_id по secret из VK или query параметра
         received_secret = body.get('secret', '')
-        tenant_id = get_tenant_id_by_secret(received_secret) if received_secret else None
+        query_params = event.get('queryStringParameters', {}) or {}
+        tenant_id_param = query_params.get('tenant_id', '')
+        
+        if received_secret:
+            tenant_id = get_tenant_id_by_secret(received_secret)
+        elif tenant_id_param:
+            try:
+                tenant_id = int(tenant_id_param)
+            except ValueError:
+                tenant_id = None
+        else:
+            tenant_id = None
         
         if not tenant_id:
-            # Если не удалось определить по secret, пробуем найти первый активный VK tenant
-            print('[vk-webhook] Could not determine tenant_id from secret, using default')
-            tenant_id = 1
+            print(f'[vk-webhook] Could not determine tenant_id from secret or query param')
+            return {
+                'statusCode': 400,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({'error': 'Invalid tenant_id'}),
+                'isBase64Encoded': False
+            }
         
         print(f'[vk-webhook] Using tenant_id={tenant_id}')
 

@@ -234,8 +234,11 @@ const VKSettingsCard = ({ webhookUrl, chatFunctionUrl }: VKSettingsCardProps) =>
         <div className="border-t pt-4 space-y-2">
           <div className="bg-slate-50 p-3 rounded-lg">
             <p className="text-xs font-medium text-slate-700 mb-1">Callback API URL:</p>
-            <code className="text-xs text-slate-600 break-all">{webhookUrl}</code>
+            <code className="text-xs text-slate-600 break-all">{webhookUrl}?tenant_id={tenantId}</code>
           </div>
+          <p className="text-xs text-slate-500">
+            Используйте этот URL в настройках Callback API вашей группы VK
+          </p>
         </div>
 
         <div className="bg-purple-50 p-4 rounded-lg text-sm space-y-3">
