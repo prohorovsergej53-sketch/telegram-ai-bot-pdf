@@ -95,7 +95,7 @@ def handler(event: dict, context) -> dict:
                     'tenantId': tenant_id
                 },
                 headers={'Content-Type': 'application/json'},
-                timeout=15
+                timeout=60
             )
             print(f'[max-webhook] Chat function response status: {chat_response.status_code}')
             chat_response.raise_for_status()

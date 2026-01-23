@@ -103,7 +103,7 @@ def handler(event: dict, context) -> dict:
                         'tenantId': tenant_id
                     },
                     headers={'Content-Type': 'application/json'},
-                    timeout=30
+                    timeout=60
                 )
                 chat_response.raise_for_status()
                 chat_data = chat_response.json()
