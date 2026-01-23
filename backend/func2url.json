@@ -1,4 +1,5 @@
 {
+  "max-setup": "https://functions.poehali.dev/eba527a1-dcf9-460b-b74d-0a0ed603f17d",
   "export-tenant-backup": "https://functions.poehali.dev/23da4062-a69b-4817-8fd5-a1edb58d06bf",
   "import-tenant-backup": "https://functions.poehali.dev/f486c3ef-91ae-4620-995f-a62175bd4118",
   "update-quality-gate-settings": "https://functions.poehali.dev/7d26fcc4-42c6-467f-9788-1da19509460f",

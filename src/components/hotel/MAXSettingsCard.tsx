@@ -63,18 +63,43 @@ const MAXSettingsCard = ({ webhookUrl, chatFunctionUrl }: MAXSettingsCardProps) 
     setIsLoading(true);
 
     try {
-      const response = await fetch(`https://platform-api.max.ru/bot${botToken}/getMe`);
+      const response = await authenticatedFetch(
+        `${BACKEND_URLS.maxSetup}?action=verify&tenant_id=${tenantId}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ bot_token: botToken })
+        }
+      );
       const data = await response.json();
 
       if (data.ok) {
         await saveSettings(botToken);
-        setWebhookStatus('active');
-        toast({
-          title: 'Успешно!',
-          description: 'MAX-бот подключен и готов к работе'
-        });
+        
+        const webhookResponse = await authenticatedFetch(
+          `${BACKEND_URLS.maxSetup}?action=setup_webhook&tenant_id=${tenantId}`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+              bot_token: botToken,
+              webhook_url: webhookUrl
+            })
+          }
+        );
+        const webhookData = await webhookResponse.json();
+
+        if (webhookData.ok) {
+          setWebhookStatus('active');
+          toast({
+            title: 'Успешно!',
+            description: 'MAX-бот подключен и готов к работе'
+          });
+        } else {
+          throw new Error(webhookData.description || 'Ошибка настройки webhook');
+        }
       } else {
-        throw new Error(data.description || 'Ошибка проверки токена');
+        throw new Error(data.error || 'Ошибка проверки токена');
       }
     } catch (error: any) {
       setWebhookStatus('error');
@@ -89,19 +114,12 @@ const MAXSettingsCard = ({ webhookUrl, chatFunctionUrl }: MAXSettingsCardProps) 
   };
 
   const handleCheckWebhook = async () => {
-    if (!botToken.trim()) {
-      toast({
-        title: 'Ошибка',
-        description: 'Введите токен бота',
-        variant: 'destructive'
-      });
-      return;
-    }
-
     setIsLoading(true);
 
     try {
-      const response = await fetch(`https://platform-api.max.ru/bot${botToken}/getWebhookInfo`);
+      const response = await authenticatedFetch(
+        `${BACKEND_URLS.maxSetup}?action=webhook_info&tenant_id=${tenantId}`
+      );
       const data = await response.json();
 
       if (data.ok && data.result.url === webhookUrl) {
@@ -210,7 +228,7 @@ const MAXSettingsCard = ({ webhookUrl, chatFunctionUrl }: MAXSettingsCardProps) 
 
           <Button
             onClick={handleCheckWebhook}
-            disabled={isLoading || !botToken.trim()}
+            disabled={isLoading}
             variant="outline"
             className="w-full"
           >
