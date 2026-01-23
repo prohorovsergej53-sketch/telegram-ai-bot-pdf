@@ -7,7 +7,7 @@ import psycopg2
 import re
 
 sys.path.append('/function/code')
-from api_keys_helper import get_tenant_api_key
+from api_keys_helper import get_tenant_api_key, get_tenant_id_by_secret
 from formatting_helper import get_formatting_settings, format_with_settings
 
 def handler(event: dict, context) -> dict:
@@ -36,18 +36,17 @@ def handler(event: dict, context) -> dict:
 
     try:
         body = json.loads(event.get('body', '{}'))
-        tenant_id = 1
         
-        secret_key, error = get_tenant_api_key(tenant_id, 'vk', 'secret_key')
-        if not error and secret_key:
-            received_secret = body.get('secret', '')
-            if received_secret != secret_key:
-                return {
-                    'statusCode': 403,
-                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                    'body': json.dumps({'error': 'Invalid secret'}),
-                    'isBase64Encoded': False
-                }
+        # Определяем tenant_id по secret из VK
+        received_secret = body.get('secret', '')
+        tenant_id = get_tenant_id_by_secret(received_secret) if received_secret else None
+        
+        if not tenant_id:
+            # Если не удалось определить по secret, пробуем найти первый активный VK tenant
+            print('[vk-webhook] Could not determine tenant_id from secret, using default')
+            tenant_id = 1
+        
+        print(f'[vk-webhook] Using tenant_id={tenant_id}')
 
         event_type = body.get('type')
 

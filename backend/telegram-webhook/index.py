@@ -5,7 +5,7 @@ import requests
 import re
 
 sys.path.append('/function/code')
-from api_keys_helper import get_tenant_api_key
+from api_keys_helper import get_tenant_api_key, get_tenant_id_by_bot_token
 from formatting_helper import get_formatting_settings, format_with_settings
 
 def handler(event: dict, context) -> dict:
@@ -36,6 +36,21 @@ def handler(event: dict, context) -> dict:
         body = json.loads(event.get('body', '{}'))
         print(f'[telegram-webhook] Received body: {json.dumps(body)[:200]}')
         
+        # Определяем tenant_id по bot_token из URL
+        url_path = event.get('path', '') or event.get('rawPath', '')
+        tenant_id = get_tenant_id_by_bot_token(url_path)
+        
+        if not tenant_id:
+            print(f'[telegram-webhook] Could not determine tenant_id from path: {url_path}')
+            return {
+                'statusCode': 400,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({'error': 'Invalid bot token'}),
+                'isBase64Encoded': False
+            }
+        
+        print(f'[telegram-webhook] Determined tenant_id={tenant_id} from URL path')
+        
         if 'message' not in body:
             return {
                 'statusCode': 200,
@@ -59,8 +74,6 @@ def handler(event: dict, context) -> dict:
             }
 
         session_id = f"telegram-{chat_id}"
-        tenant_id = 1
-        print(f'[telegram-webhook] Using tenant_id={tenant_id}')
 
         bot_token, error = get_tenant_api_key(tenant_id, 'telegram', 'bot_token')
         if error:

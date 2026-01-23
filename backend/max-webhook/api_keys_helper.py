@@ -3,6 +3,36 @@ import os
 import json
 import psycopg2
 
+def get_tenant_id_by_bot_token(bot_token: str) -> int | None:
+    """
+    Определяет tenant_id по MAX bot_token из заголовка Authorization.
+    """
+    try:
+        # Убираем префикс 'Bearer ' если есть
+        token = bot_token.replace('Bearer ', '').replace('bearer ', '').strip()
+        
+        conn = psycopg2.connect(os.environ['DATABASE_URL'])
+        cur = conn.cursor()
+        
+        cur.execute("""
+            SELECT tenant_id
+            FROM t_p56134400_telegram_ai_bot_pdf.tenant_api_keys
+            WHERE provider = 'max' 
+              AND key_name = 'bot_token' 
+              AND key_value = %s
+              AND is_active = true
+        """, (token,))
+        
+        row = cur.fetchone()
+        cur.close()
+        conn.close()
+        
+        return row[0] if row else None
+        
+    except Exception as e:
+        print(f'Error determining tenant_id: {e}')
+        return None
+
 def get_tenant_api_key(tenant_id: int, provider: str, key_name: str) -> tuple[str | None, dict | None]:
     """
     Получить API ключ клиента из tenant_api_keys.

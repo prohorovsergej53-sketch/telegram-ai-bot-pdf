@@ -3,6 +3,33 @@ import os
 import json
 import psycopg2
 
+def get_tenant_id_by_secret(secret: str) -> int | None:
+    """
+    Определяет tenant_id по VK secret_key.
+    """
+    try:
+        conn = psycopg2.connect(os.environ['DATABASE_URL'])
+        cur = conn.cursor()
+        
+        cur.execute("""
+            SELECT tenant_id
+            FROM t_p56134400_telegram_ai_bot_pdf.tenant_api_keys
+            WHERE provider = 'vk' 
+              AND key_name = 'secret_key' 
+              AND key_value = %s
+              AND is_active = true
+        """, (secret,))
+        
+        row = cur.fetchone()
+        cur.close()
+        conn.close()
+        
+        return row[0] if row else None
+        
+    except Exception as e:
+        print(f'Error determining tenant_id: {e}')
+        return None
+
 def get_tenant_api_key(tenant_id: int, provider: str, key_name: str) -> tuple[str | None, dict | None]:
     """
     Получить API ключ клиента из tenant_api_keys.

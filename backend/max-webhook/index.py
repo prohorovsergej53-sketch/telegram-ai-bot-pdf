@@ -6,7 +6,7 @@ import psycopg2
 import re
 
 sys.path.append('/function/code')
-from api_keys_helper import get_tenant_api_key
+from api_keys_helper import get_tenant_api_key, get_tenant_id_by_bot_token
 from formatting_helper import get_formatting_settings, format_with_settings
 
 def handler(event: dict, context) -> dict:
@@ -37,6 +37,22 @@ def handler(event: dict, context) -> dict:
         body = json.loads(event.get('body', '{}'))
         print(f'[max-webhook] Received body: {json.dumps(body)}')
         
+        # Определяем tenant_id по bot_token из заголовка Authorization
+        headers = event.get('headers', {})
+        auth_header = headers.get('X-Authorization', headers.get('authorization', ''))
+        tenant_id = get_tenant_id_by_bot_token(auth_header) if auth_header else None
+        
+        if not tenant_id:
+            print('[max-webhook] Could not determine tenant_id from Authorization header')
+            return {
+                'statusCode': 401,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({'error': 'Unauthorized'}),
+                'isBase64Encoded': False
+            }
+        
+        print(f'[max-webhook] Determined tenant_id={tenant_id}')
+        
         if 'message' not in body:
             return {
                 'statusCode': 200,
@@ -62,7 +78,6 @@ def handler(event: dict, context) -> dict:
             }
 
         session_id = f"max-{chat_id}"
-        tenant_id = 2
         chat_function_url = 'https://functions.poehali.dev/7b58f4fb-5db0-4f85-bb3b-55bafa4cbf73'
 
         print(f'[max-webhook] Calling chat function for session={session_id}, tenant={tenant_id}, chat_id={chat_id}')

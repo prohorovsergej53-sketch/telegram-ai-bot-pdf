@@ -3,6 +3,45 @@ import os
 import json
 import psycopg2
 
+def get_tenant_id_by_bot_token(bot_url_path: str) -> int | None:
+    """
+    Определяет tenant_id по пути webhook URL (содержит bot_token).
+    
+    Args:
+        bot_url_path: Путь из URL вебхука, например '/bot123456:ABC...'
+    
+    Returns:
+        tenant_id или None если не найдено
+    """
+    try:
+        # Извлекаем токен из пути (формат: /bot<TOKEN>)
+        if not bot_url_path or not bot_url_path.startswith('/bot'):
+            return None
+        
+        bot_token = bot_url_path[4:]  # Убираем '/bot'
+        
+        conn = psycopg2.connect(os.environ['DATABASE_URL'])
+        cur = conn.cursor()
+        
+        cur.execute("""
+            SELECT tenant_id
+            FROM t_p56134400_telegram_ai_bot_pdf.tenant_api_keys
+            WHERE provider = 'telegram' 
+              AND key_name = 'bot_token' 
+              AND key_value = %s
+              AND is_active = true
+        """, (bot_token,))
+        
+        row = cur.fetchone()
+        cur.close()
+        conn.close()
+        
+        return row[0] if row else None
+        
+    except Exception as e:
+        print(f'Error determining tenant_id: {e}')
+        return None
+
 def get_tenant_api_key(tenant_id: int, provider: str, key_name: str) -> tuple[str | None, dict | None]:
     """
     Получить API ключ клиента из tenant_api_keys.
