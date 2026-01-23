@@ -62,6 +62,7 @@ def handler(event: dict, context) -> dict:
         tenant_id = 2
         chat_function_url = 'https://functions.poehali.dev/7b58f4fb-5db0-4f85-bb3b-55bafa4cbf73'
 
+        print(f'[max-webhook] Calling chat function for session={session_id}, tenant={tenant_id}')
         try:
             chat_response = requests.post(
                 chat_function_url,
@@ -71,16 +72,19 @@ def handler(event: dict, context) -> dict:
                     'tenantId': tenant_id
                 },
                 headers={'Content-Type': 'application/json'},
-                timeout=30
+                timeout=15
             )
+            print(f'[max-webhook] Chat function response status: {chat_response.status_code}')
             chat_response.raise_for_status()
             chat_data = chat_response.json()
             ai_message = chat_data.get('message', 'Извините, не могу ответить')
+            print(f'[max-webhook] AI response received: {ai_message[:100]}...')
             
         except requests.exceptions.Timeout:
+            print(f'[max-webhook] Chat function timeout')
             ai_message = 'Извините, сервис временно недоступен. Попробуйте позже.'
         except requests.exceptions.RequestException as e:
-            print(f'Chat function error: {e}')
+            print(f'[max-webhook] Chat function error: {e}')
             ai_message = 'Извините, произошла ошибка. Попробуйте позже.'
 
         bot_token, error = get_tenant_api_key(tenant_id, 'max', 'bot_token')
