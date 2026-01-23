@@ -238,19 +238,19 @@ const SuperAdmin = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50 p-6">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50 p-3 sm:p-6">
       <div className="max-w-7xl mx-auto">
-        <div className="mb-8">
-          <div className="flex items-center justify-between">
+        <div className="mb-6">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
-              <h1 className="text-3xl font-bold text-slate-900 mb-2">
+              <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-1 sm:mb-2">
                 Мастер-панель управления
               </h1>
-              <p className="text-slate-600">
+              <p className="text-sm sm:text-base text-slate-600">
                 Полный контроль над платформой, клиентами и настройками
               </p>
             </div>
-            <Button variant="outline" onClick={() => navigate('/admin')}>
+            <Button variant="outline" onClick={() => navigate('/admin')} className="w-full sm:w-auto">
               <Icon name="ArrowLeft" size={16} className="mr-2" />
               К своему боту
             </Button>
@@ -258,58 +258,58 @@ const SuperAdmin = () => {
         </div>
 
         <Tabs defaultValue="tenants" className="space-y-6">
-          <TabsList className="bg-white shadow-sm flex-wrap h-auto gap-1 p-2">
-            <TabsTrigger value="dashboard" className="text-xs sm:text-sm whitespace-nowrap">
-              <Icon name="LayoutDashboard" size={14} className="mr-1.5" />
-              Дашборд
+          <TabsList className="bg-white shadow-sm flex-wrap h-auto gap-1 p-2 justify-start">
+            <TabsTrigger value="dashboard" className="text-xs sm:text-sm whitespace-nowrap px-2 sm:px-3">
+              <Icon name="LayoutDashboard" size={14} className="sm:mr-1.5" />
+              <span className="hidden sm:inline">Дашборд</span>
             </TabsTrigger>
-            <TabsTrigger value="tenants" className="text-xs sm:text-sm whitespace-nowrap">
-              <Icon name="Building2" size={14} className="mr-1.5" />
-              Клиенты
+            <TabsTrigger value="tenants" className="text-xs sm:text-sm whitespace-nowrap px-2 sm:px-3">
+              <Icon name="Building2" size={14} className="sm:mr-1.5" />
+              <span className="hidden sm:inline">Клиенты</span>
             </TabsTrigger>
-            <TabsTrigger value="tariffs" className="text-xs sm:text-sm whitespace-nowrap">
-              <Icon name="DollarSign" size={14} className="mr-1.5" />
-              Тарифы
+            <TabsTrigger value="tariffs" className="text-xs sm:text-sm whitespace-nowrap px-2 sm:px-3">
+              <Icon name="DollarSign" size={14} className="sm:mr-1.5" />
+              <span className="hidden sm:inline">Тарифы</span>
             </TabsTrigger>
-            <TabsTrigger value="access" className="text-xs sm:text-sm whitespace-nowrap">
-              <Icon name="Table" size={14} className="mr-1.5" />
-              Доступ
+            <TabsTrigger value="access" className="text-xs sm:text-sm whitespace-nowrap px-2 sm:px-3">
+              <Icon name="Table" size={14} className="sm:mr-1.5" />
+              <span className="hidden sm:inline">Доступ</span>
             </TabsTrigger>
-            <TabsTrigger value="template" className="text-xs sm:text-sm whitespace-nowrap">
-              <Icon name="Package" size={14} className="mr-1.5" />
-              Шаблон ботов
+            <TabsTrigger value="template" className="text-xs sm:text-sm whitespace-nowrap px-2 sm:px-3">
+              <Icon name="Package" size={14} className="sm:mr-1.5" />
+              <span className="hidden sm:inline">Шаблон</span>
             </TabsTrigger>
-            <TabsTrigger value="logic" className="text-xs sm:text-sm whitespace-nowrap">
-              <Icon name="Workflow" size={14} className="mr-1.5" />
-              Логика
+            <TabsTrigger value="logic" className="text-xs sm:text-sm whitespace-nowrap px-2 sm:px-3">
+              <Icon name="Workflow" size={14} className="sm:mr-1.5" />
+              <span className="hidden sm:inline">Логика</span>
             </TabsTrigger>
-            <TabsTrigger value="emails" className="text-xs sm:text-sm whitespace-nowrap">
-              <Icon name="Mail" size={14} className="mr-1.5" />
-              Email-шаблоны
+            <TabsTrigger value="emails" className="text-xs sm:text-sm whitespace-nowrap px-2 sm:px-3">
+              <Icon name="Mail" size={14} className="sm:mr-1.5" />
+              <span className="hidden sm:inline">Email</span>
             </TabsTrigger>
-            <TabsTrigger value="monitoring" className="text-xs sm:text-sm whitespace-nowrap">
-              <Icon name="Activity" size={14} className="mr-1.5" />
-              Мониторинг
+            <TabsTrigger value="monitoring" className="text-xs sm:text-sm whitespace-nowrap px-2 sm:px-3">
+              <Icon name="Activity" size={14} className="sm:mr-1.5" />
+              <span className="hidden sm:inline">Монитор</span>
             </TabsTrigger>
-            <TabsTrigger value="consents" className="text-xs sm:text-sm whitespace-nowrap">
-              <Icon name="ShieldCheck" size={14} className="mr-1.5" />
-              Согласия
+            <TabsTrigger value="consents" className="text-xs sm:text-sm whitespace-nowrap px-2 sm:px-3">
+              <Icon name="ShieldCheck" size={14} className="sm:mr-1.5" />
+              <span className="hidden sm:inline">Согласия</span>
             </TabsTrigger>
-            <TabsTrigger value="seo" className="text-xs sm:text-sm whitespace-nowrap">
-              <Icon name="Search" size={14} className="mr-1.5" />
-              SEO
+            <TabsTrigger value="seo" className="text-xs sm:text-sm whitespace-nowrap px-2 sm:px-3">
+              <Icon name="Search" size={14} className="sm:mr-1.5" />
+              <span className="hidden sm:inline">SEO</span>
             </TabsTrigger>
-            <TabsTrigger value="support" className="text-xs sm:text-sm whitespace-nowrap">
-              <Icon name="Headphones" size={14} className="mr-1.5" />
-              Поддержка
+            <TabsTrigger value="support" className="text-xs sm:text-sm whitespace-nowrap px-2 sm:px-3">
+              <Icon name="Headphones" size={14} className="sm:mr-1.5" />
+              <span className="hidden sm:inline">Поддержка</span>
             </TabsTrigger>
-            <TabsTrigger value="tokens" className="text-xs sm:text-sm whitespace-nowrap">
-              <Icon name="BarChart3" size={14} className="mr-1.5" />
-              Токены эмбеддинг
+            <TabsTrigger value="tokens" className="text-xs sm:text-sm whitespace-nowrap px-2 sm:px-3">
+              <Icon name="BarChart3" size={14} className="sm:mr-1.5" />
+              <span className="hidden sm:inline">Токены эмб</span>
             </TabsTrigger>
-            <TabsTrigger value="chat-stats" className="text-xs sm:text-sm whitespace-nowrap">
-              <Icon name="MessageSquare" size={14} className="mr-1.5" />
-              Токены чат
+            <TabsTrigger value="chat-stats" className="text-xs sm:text-sm whitespace-nowrap px-2 sm:px-3">
+              <Icon name="MessageSquare" size={14} className="sm:mr-1.5" />
+              <span className="hidden sm:inline">Токены чат</span>
             </TabsTrigger>
 
           </TabsList>

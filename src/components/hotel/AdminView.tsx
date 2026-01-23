@@ -124,7 +124,7 @@ const AdminView = ({ documents, isLoading, onFileUpload, onDeleteDocument, curre
         <TabsContent value="documents" className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <ChatStatsCard currentTenantId={currentTenantId} />
-            <TokenCostCard currentTenantId={currentTenantId} />
+            {fz152Enabled && <TokenCostCard currentTenantId={currentTenantId} />}
           </div>
           <DocumentStatsCards documents={documents} />
           <DocumentsPanel
