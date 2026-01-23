@@ -33,6 +33,7 @@ def handler(event: dict, context) -> dict:
 
     try:
         body = json.loads(event.get('body', '{}'))
+        print(f'[max-webhook] Received body: {json.dumps(body)}')
         
         if 'message' not in body:
             return {
@@ -43,7 +44,8 @@ def handler(event: dict, context) -> dict:
             }
 
         message = body['message']
-        chat_id = message['chat']['id']
+        print(f'[max-webhook] Message structure: {json.dumps(message)}')
+        chat_id = message.get('chat', {}).get('id') or message.get('chat_id')
         user_message = message.get('text', '')
 
         if not user_message:
