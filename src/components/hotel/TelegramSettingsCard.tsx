@@ -108,6 +108,15 @@ const TelegramSettingsCard = ({ webhookUrl, chatFunctionUrl }: TelegramSettingsC
       return;
     }
 
+    if (botToken === '********') {
+      toast({
+        title: 'Информация',
+        description: 'Токен сохранен. Для проверки webhook введите токен заново или попробуйте отправить сообщение боту',
+        variant: 'default'
+      });
+      return;
+    }
+
     setIsLoading(true);
 
     try {
