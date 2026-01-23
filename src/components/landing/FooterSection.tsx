@@ -49,7 +49,7 @@ export const FooterSection = () => {
         <div className="border-t border-slate-800 pt-8">
           <div className="mb-6">
             <h3 className="text-center text-lg font-semibold mb-4">Остались вопросы?</h3>
-            <p className="text-center text-slate-400 mb-4">Напишите в MAX.ru или чат-боту — обычно отвечаем в течение 10 минут</p>
+            <p className="text-center text-slate-400 mb-4">Напишите нам в MAX — российский защищённый мессенджер. Отвечаем в течение 10 минут</p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-w-md mx-auto">
               <a 
                 href="https://max.ru/u/f9LHodD0cOIrknUlAYx1LxuVyfuHRhIq-OHhkpPMbwJ_WcjW4dhTFpEEez0" 
@@ -57,9 +57,14 @@ export const FooterSection = () => {
                 rel="noopener noreferrer"
                 className="flex items-center gap-2 p-3 border border-slate-700 rounded-lg hover:bg-slate-800 transition-colors"
               >
-                <Icon name="MessageCircle" size={20} className="text-blue-400" />
+                <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-purple-700 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5zm0 18c-3.87-.96-7-5.38-7-9V8.3l7-3.11 7 3.11V11c0 3.62-3.13 8.04-7 9z"/>
+                    <path d="M11 11h2v6h-2zm0-4h2v2h-2z"/>
+                  </svg>
+                </div>
                 <div>
-                  <p className="font-medium text-sm text-white">MAX-чат</p>
+                  <p className="font-medium text-sm text-white">Написать в MAX</p>
                   <p className="text-xs text-slate-400">Быстрая поддержка</p>
                 </div>
               </a>

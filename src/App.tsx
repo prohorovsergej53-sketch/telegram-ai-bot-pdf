@@ -13,6 +13,7 @@ import SuperAdmin from "./pages/SuperAdmin";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
 import ChatWidget from "./pages/ChatWidget";
+import TryBot from "./pages/TryBot";
 import { CookieConsent } from "./components/CookieConsent";
 import { useSEONotify } from "./hooks/use-seo-notify";
 
@@ -40,6 +41,7 @@ const App = () => (
         <CookieConsent />
         <Routes>
           <Route path="/" element={<LandingPage />} />
+          <Route path="/try-bot" element={<TryBot />} />
           <Route path="/admin" element={<Index />} />
           <Route path="/payment" element={<PaymentPage />} />
           <Route path="/payment/success" element={<PaymentSuccess />} />

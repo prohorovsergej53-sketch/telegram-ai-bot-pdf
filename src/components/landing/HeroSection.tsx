@@ -38,7 +38,7 @@ export const HeroSection = ({ }: HeroSectionProps) => {
               Запустить за 1 день
             </Button>
             <Button size="lg" variant="outline" className="text-xl px-12 py-8 border-2 hover:bg-blue-50" asChild>
-              <a href="https://ai-ru.ru/2" target="_blank" rel="noopener">
+              <a href="/try-bot">
                 <Icon name="MessageCircle" className="mr-3" size={24} />
                 Попробовать чат-бота
               </a>
