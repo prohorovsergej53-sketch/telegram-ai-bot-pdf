@@ -51,18 +51,24 @@ export function TokenStatsTab({ tenants }: TokenStatsTabProps) {
         ? `${BACKEND_URLS.tokenStats}?period=${period}`
         : `${BACKEND_URLS.tokenStats}?tenantId=${selectedTenant}&period=${period}`;
       
+      console.log('Loading token stats from:', url);
       const response = await authenticatedFetch(url);
+      console.log('Token stats response status:', response.status);
+      
       if (response.ok) {
         const data = await response.json();
+        console.log('Token stats data:', data);
         setStats(data);
       } else {
-        throw new Error('Failed to load token stats');
+        const errorText = await response.text();
+        console.error('Token stats error response:', errorText);
+        throw new Error(`HTTP ${response.status}: ${errorText}`);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error loading token stats:', error);
       toast({
-        title: 'Ошибка',
-        description: 'Не удалось загрузить статистику токенов',
+        title: 'Ошибка загрузки статистики',
+        description: error.message || 'Не удалось загрузить статистику токенов',
         variant: 'destructive'
       });
     } finally {
