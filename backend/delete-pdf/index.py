@@ -96,14 +96,6 @@ def handler(event: dict, context) -> dict:
                 DELETE FROM t_p56134400_telegram_ai_bot_pdf.tenant_documents 
                 WHERE id = %s AND tenant_id = %s
             """, (document_id, tenant_id))
-            
-            # Очищаем историю чата для тенанта, чтобы бот не использовал старую информацию
-            cur.execute("""
-                DELETE FROM t_p56134400_telegram_ai_bot_pdf.chat_messages
-                WHERE tenant_id = %s
-            """, (tenant_id,))
-            deleted_messages = cur.rowcount
-            print(f"Deleted {deleted_messages} chat messages for tenant {tenant_id}")
 
             conn.commit()
         except Exception as db_error:

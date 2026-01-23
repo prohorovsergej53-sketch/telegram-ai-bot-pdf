@@ -498,6 +498,13 @@ def handler(event: dict, context) -> dict:
         
         # Используем ранее загруженную историю (history_messages_preview)
         system_prompt = compose_system(system_prompt_template, context_str, context_ok)
+        
+        # Если quality gate не прошёл - НЕ используем историю чата
+        # Это предотвращает использование информации из удалённых документов
+        history_to_use = history_messages_preview if context_ok else []
+        
+        if not context_ok:
+            print(f"⚠️ Quality gate failed ({gate_reason}), history disabled for this request")
 
         if ai_provider == 'yandex':
             yandex_api_key, error = get_tenant_api_key(tenant_id, 'yandex', 'api_key')
@@ -511,8 +518,8 @@ def handler(event: dict, context) -> dict:
             import requests
             yandex_messages = [{"role": "system", "text": system_prompt}]
             
-            # Добавляем историю сообщений
-            for msg in history_messages_preview:
+            # Добавляем историю сообщений (только если context_ok=True)
+            for msg in history_to_use:
                 yandex_messages.append({
                     "role": "user" if msg["role"] == "user" else "assistant",
                     "text": msg["content"]
@@ -590,7 +597,7 @@ def handler(event: dict, context) -> dict:
                 base_url="https://openrouter.ai/api/v1"
             )
             openrouter_messages = [{"role": "system", "content": system_prompt}]
-            for msg in history_messages_preview:
+            for msg in history_to_use:
                 openrouter_messages.append({"role": msg["role"], "content": msg["content"]})
             openrouter_messages.append({"role": "user", "content": user_message_converted})
             
@@ -624,7 +631,7 @@ def handler(event: dict, context) -> dict:
                 base_url="https://api.deepseek.com"
             )
             deepseek_messages = [{"role": "system", "content": system_prompt}]
-            for msg in history_messages_preview:
+            for msg in history_to_use:
                 deepseek_messages.append({"role": msg["role"], "content": msg["content"]})
             deepseek_messages.append({"role": "user", "content": user_message_converted})
             
@@ -658,7 +665,7 @@ def handler(event: dict, context) -> dict:
                 base_url="https://api.proxyapi.ru/openai/v1"
             )
             proxyapi_messages = [{"role": "system", "content": system_prompt}]
-            for msg in history_messages_preview:
+            for msg in history_to_use:
                 proxyapi_messages.append({"role": msg["role"], "content": msg["content"]})
             proxyapi_messages.append({"role": "user", "content": user_message_converted})
             
