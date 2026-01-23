@@ -1,4 +1,5 @@
 {
+  "init-tenant-settings": "https://functions.poehali.dev/696f9f2e-71e7-444d-84bd-46e69fd00150",
   "init-formatting-settings": "https://functions.poehali.dev/840d70e6-44cc-478c-a460-a261c8059381",
   "manage-formatting-settings": "https://functions.poehali.dev/ef7a90b2-b6ff-4ad6-9d57-345407d897dc",
   "max-setup": "https://functions.poehali.dev/eba527a1-dcf9-460b-b74d-0a0ed603f17d",

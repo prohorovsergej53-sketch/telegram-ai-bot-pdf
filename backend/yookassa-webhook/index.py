@@ -229,6 +229,19 @@ def handler(event: dict, context) -> dict:
                     """, (tenant_id, payment_id))
                     
                     conn.commit()
+                    
+                    # Инициализируем все настройки для нового тенанта
+                    print(f'Initializing settings for tenant {tenant_id}')
+                    init_response = requests.post(
+                        'https://functions.poehali.dev/696f9f2e-71e7-444d-84bd-46e69fd00150',
+                        json={'tenant_id': tenant_id},
+                        timeout=10
+                    )
+                    if init_response.ok:
+                        print(f'Settings initialized: {init_response.json()}')
+                    else:
+                        print(f'Warning: Failed to initialize settings: {init_response.text}')
+                    
                 except Exception as tenant_error:
                     conn.rollback()
                     print(f"Error creating tenant: {tenant_error}")

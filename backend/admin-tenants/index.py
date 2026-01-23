@@ -206,6 +206,22 @@ def handler(event: dict, context) -> dict:
             cur.close()
             conn.close()
             
+            # Инициализируем все настройки для нового тенанта
+            import requests
+            try:
+                print(f'Initializing settings for tenant {tenant_id}')
+                init_response = requests.post(
+                    'https://functions.poehali.dev/696f9f2e-71e7-444d-84bd-46e69fd00150',
+                    json={'tenant_id': tenant_id},
+                    timeout=10
+                )
+                if init_response.ok:
+                    print(f'Settings initialized: {init_response.json()}')
+                else:
+                    print(f'Warning: Failed to initialize settings: {init_response.text}')
+            except Exception as init_error:
+                print(f'Warning: Could not initialize settings: {init_error}')
+            
             return {
                 'statusCode': 200,
                 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
