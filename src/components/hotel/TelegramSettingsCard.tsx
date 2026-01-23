@@ -31,6 +31,8 @@ const TelegramSettingsCard = ({ webhookUrl, chatFunctionUrl }: TelegramSettingsC
         const token = data.keys.find((k: any) => k.provider === 'telegram' && k.key_name === 'bot_token');
         if (token?.has_value) {
           setBotToken('********');
+          // Если токен есть, показываем статус как "настроено"
+          setWebhookStatus('active');
         }
       }
     } catch (error) {

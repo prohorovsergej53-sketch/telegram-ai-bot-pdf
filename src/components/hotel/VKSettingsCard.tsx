@@ -36,6 +36,11 @@ const VKSettingsCard = ({ webhookUrl, chatFunctionUrl }: VKSettingsCardProps) =>
         if (gId?.has_value) setGroupId('********');
         if (gToken?.has_value) setGroupToken('********');
         if (sKey?.has_value) setSecretKey('********');
+        
+        // Если все ключи заполнены, показываем как настроено
+        if (gId?.has_value && gToken?.has_value && sKey?.has_value) {
+          setWebhookStatus('active');
+        }
       }
     } catch (error) {
       console.error('Error loading VK settings:', error);

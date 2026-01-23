@@ -31,6 +31,7 @@ const MAXSettingsCard = ({ webhookUrl, chatFunctionUrl }: MAXSettingsCardProps) 
         const token = data.keys.find((k: any) => k.provider === 'max' && k.key_name === 'bot_token');
         if (token?.has_value) {
           setBotToken('********');
+          setWebhookStatus('active');
         }
       }
     } catch (error) {
