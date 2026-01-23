@@ -129,28 +129,36 @@ const MAXSettingsCard = ({ webhookUrl, chatFunctionUrl }: MAXSettingsCardProps) 
 
     try {
       const response = await authenticatedFetch(
-        `${BACKEND_URLS.maxSetup}?action=webhook_info&tenant_id=${tenantId}`
+        `${BACKEND_URLS.checkMessengerWebhook}?tenant_id=${tenantId}&messenger=max&webhook_url=${encodeURIComponent(webhookUrl)}`
       );
       const data = await response.json();
 
-      if (data.ok && data.result.url === webhookUrl) {
+      if (data.status === 'active') {
         setWebhookStatus('active');
         toast({
-          title: 'Webhook активен',
-          description: `URL: ${data.result.url}`
+          title: '✓ MAX бот настроен',
+          description: data.message || 'Токен сохранен и активен'
         });
-      } else if (data.ok && data.result.url) {
+      } else if (data.status === 'error') {
         setWebhookStatus('error');
         toast({
-          title: 'Некорректный webhook',
-          description: `Текущий URL: ${data.result.url}`,
+          title: 'Ошибка настройки',
+          description: data.message || 'Проверьте токен',
+          variant: 'destructive'
+        });
+      } else if (data.status === 'not_configured') {
+        setWebhookStatus('not_set');
+        toast({
+          title: 'Токен не найден',
+          description: 'Введите токен и нажмите "Подключить бота"',
           variant: 'destructive'
         });
       } else {
         setWebhookStatus('not_set');
         toast({
-          title: 'Webhook не настроен',
-          description: 'Нажмите "Подключить бота" для настройки'
+          title: 'Не настроено',
+          description: 'Нажмите "Подключить бота" для настройки',
+          variant: 'destructive'
         });
       }
     } catch (error: any) {

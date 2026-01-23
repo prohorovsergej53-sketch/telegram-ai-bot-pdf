@@ -1,4 +1,5 @@
 {
+  "check-messenger-webhook": "https://functions.poehali.dev/e22e5e92-1534-49eb-b066-5d7ca2b64589",
   "migrate-webhooks": "https://functions.poehali.dev/0682c802-0d3e-4a2f-90ed-5510d5fed909",
   "init-tenant-settings": "https://functions.poehali.dev/696f9f2e-71e7-444d-84bd-46e69fd00150",
   "init-formatting-settings": "https://functions.poehali.dev/840d70e6-44cc-478c-a460-a261c8059381",

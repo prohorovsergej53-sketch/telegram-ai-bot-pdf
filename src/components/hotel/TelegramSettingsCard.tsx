@@ -99,58 +99,40 @@ const TelegramSettingsCard = ({ webhookUrl, chatFunctionUrl }: TelegramSettingsC
   };
 
   const handleCheckWebhook = async () => {
-    if (!botToken.trim()) {
-      toast({
-        title: 'Ошибка',
-        description: 'Введите токен бота',
-        variant: 'destructive'
-      });
-      return;
-    }
-
-    if (botToken === '********') {
-      toast({
-        title: 'Информация',
-        description: 'Токен сохранен. Для проверки webhook введите токен заново или попробуйте отправить сообщение боту',
-        variant: 'default'
-      });
-      return;
-    }
-
     setIsLoading(true);
 
     try {
-      const telegramApiUrl = `https://api.telegram.org/bot${botToken}/getWebhookInfo`;
-      
-      const response = await fetch(telegramApiUrl);
+      const response = await authenticatedFetch(
+        `${BACKEND_URLS.checkMessengerWebhook}?tenant_id=${tenantId}&messenger=telegram&webhook_url=${encodeURIComponent(webhookUrl)}`
+      );
       const data = await response.json();
-
-      const webhookUrlWithToken = `${webhookUrl}?bot_token=${botToken}`;
       
-      if (data.ok && data.result.url === webhookUrlWithToken) {
+      if (data.status === 'active') {
         setWebhookStatus('active');
         toast({
-          title: 'Webhook активен',
-          description: `Бот настроен корректно`
+          title: '✓ Webhook активен',
+          description: data.message || 'Бот настроен корректно'
         });
-      } else if (data.ok && data.result.url && data.result.url.startsWith(webhookUrl)) {
-        setWebhookStatus('active');
-        toast({
-          title: 'Webhook активен',
-          description: `Бот настроен корректно`
-        });
-      } else if (data.ok && data.result.url) {
+      } else if (data.status === 'error') {
         setWebhookStatus('error');
         toast({
           title: 'Некорректный webhook',
-          description: `Текущий URL: ${data.result.url}`,
+          description: data.message || `URL: ${data.webhook_url}`,
           variant: 'destructive'
         });
-      } else {
+      } else if (data.status === 'not_set') {
         setWebhookStatus('not_set');
         toast({
           title: 'Webhook не настроен',
-          description: 'Нажмите "Подключить бота" для настройки'
+          description: data.message || 'Нажмите "Подключить бота" для настройки',
+          variant: 'destructive'
+        });
+      } else if (data.status === 'not_configured') {
+        setWebhookStatus('not_set');
+        toast({
+          title: 'Токен не найден',
+          description: 'Введите токен бота и нажмите "Подключить бота"',
+          variant: 'destructive'
         });
       }
     } catch (error: any) {

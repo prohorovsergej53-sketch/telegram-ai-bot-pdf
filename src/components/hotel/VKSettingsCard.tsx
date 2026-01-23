@@ -105,6 +105,54 @@ const VKSettingsCard = ({ webhookUrl, chatFunctionUrl }: VKSettingsCardProps) =>
     }
   };
 
+  const handleCheckWebhook = async () => {
+    setIsLoading(true);
+
+    try {
+      const response = await authenticatedFetch(
+        `${BACKEND_URLS.checkMessengerWebhook}?tenant_id=${tenantId}&messenger=vk&webhook_url=${encodeURIComponent(webhookUrl)}`
+      );
+      const data = await response.json();
+
+      if (data.status === 'active') {
+        setWebhookStatus('active');
+        toast({
+          title: '✓ VK бот настроен',
+          description: data.message || 'Все ключи сохранены и активны'
+        });
+      } else if (data.status === 'error') {
+        setWebhookStatus('error');
+        toast({
+          title: 'Ошибка настройки',
+          description: data.message || 'Проверьте ключи',
+          variant: 'destructive'
+        });
+      } else if (data.status === 'not_configured') {
+        setWebhookStatus('not_set');
+        toast({
+          title: 'Ключи не найдены',
+          description: 'Введите все ключи и нажмите "Подключить бота"',
+          variant: 'destructive'
+        });
+      } else {
+        setWebhookStatus('not_set');
+        toast({
+          title: 'Не настроено',
+          description: 'Нажмите "Подключить бота" для настройки',
+          variant: 'destructive'
+        });
+      }
+    } catch (error: any) {
+      toast({
+        title: 'Ошибка',
+        description: error.message || 'Не удалось проверить webhook',
+        variant: 'destructive'
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const getStatusBadge = () => {
     if (webhookStatus === 'active') {
       return (
@@ -191,23 +239,35 @@ const VKSettingsCard = ({ webhookUrl, chatFunctionUrl }: VKSettingsCardProps) =>
           </p>
         </div>
 
-        <Button
-          onClick={handleSetupBot}
-          disabled={isLoading || !groupToken.trim() || !groupId.trim()}
-          className="w-full"
-        >
-          {isLoading ? (
-            <>
-              <Icon name="Loader2" size={16} className="mr-2 animate-spin" />
-              Подключение...
-            </>
-          ) : (
-            <>
-              <Icon name="Link" size={16} className="mr-2" />
-              Подключить бота
-            </>
-          )}
-        </Button>
+        <div className="space-y-2">
+          <Button
+            onClick={handleSetupBot}
+            disabled={isLoading || !groupToken.trim() || !groupId.trim()}
+            className="w-full"
+          >
+            {isLoading ? (
+              <>
+                <Icon name="Loader2" size={16} className="mr-2 animate-spin" />
+                Подключение...
+              </>
+            ) : (
+              <>
+                <Icon name="Link" size={16} className="mr-2" />
+                Подключить бота
+              </>
+            )}
+          </Button>
+
+          <Button
+            onClick={handleCheckWebhook}
+            disabled={isLoading}
+            variant="outline"
+            className="w-full"
+          >
+            <Icon name="Info" size={16} className="mr-2" />
+            Проверить статус
+          </Button>
+        </div>
 
         {webhookStatus !== 'not_set' && (
           <div className={`p-4 rounded-lg ${
