@@ -30,5 +30,6 @@ export const BACKEND_URLS = {
   sendEmail: 'https://functions.poehali.dev/5c84ca37-0a0b-4a3f-99ec-880d3a33bcdc',
   systemMonitoring: 'https://functions.poehali.dev/f15b151c-8058-4206-aec0-26d1e438b1f5',
   consentSettings: 'https://functions.poehali.dev/2f7a79a2-87ef-4692-b9a6-1e23f408edaa',
-  automationSettings: 'https://functions.poehali.dev/a56d419e-8694-4b5f-836e-3e7351155c7f'
+  automationSettings: 'https://functions.poehali.dev/a56d419e-8694-4b5f-836e-3e7351155c7f',
+  tokenStats: 'https://functions.poehali.dev/c88cb0c9-4dd7-47a7-b4dc-0d381a8207e1'
 };

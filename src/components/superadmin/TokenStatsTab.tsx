@@ -5,7 +5,7 @@ import { useToast } from '@/hooks/use-toast';
 import Icon from '@/components/ui/icon';
 import { authenticatedFetch } from '@/lib/auth';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Tenant } from './types';
+import { Tenant, BACKEND_URLS } from './types';
 
 interface TokenStats {
   tenantId?: number;
@@ -48,8 +48,8 @@ export function TokenStatsTab({ tenants }: TokenStatsTabProps) {
     setIsLoading(true);
     try {
       const url = selectedTenant === 'all'
-        ? `https://functions.poehali.dev/c88cb0c9-4dd7-47a7-b4dc-0d381a8207e1?period=${period}`
-        : `https://functions.poehali.dev/c88cb0c9-4dd7-47a7-b4dc-0d381a8207e1?tenantId=${selectedTenant}&period=${period}`;
+        ? `${BACKEND_URLS.tokenStats}?period=${period}`
+        : `${BACKEND_URLS.tokenStats}?tenantId=${selectedTenant}&period=${period}`;
       
       const response = await authenticatedFetch(url);
       if (response.ok) {
