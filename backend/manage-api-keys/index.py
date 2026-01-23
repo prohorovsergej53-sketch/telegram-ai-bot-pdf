@@ -43,12 +43,11 @@ def handler(event: dict, context) -> dict:
             rows = cur.fetchall()
             keys = []
             for row in rows:
-                # КРИТИЧНО: маскируем секретные ключи, показываем только последние 4 символа
-                masked_value = '***' + row[2][-4:] if row[2] and len(row[2]) > 4 else '***'
+                # КРИТИЧНО: возвращаем has_value (bool) вместо замаскированного значения
                 keys.append({
                     'provider': row[0],
                     'key_name': row[1],
-                    'key_value': masked_value,
+                    'has_value': bool(row[2] and len(row[2]) > 0),
                     'is_active': row[3]
                 })
             
