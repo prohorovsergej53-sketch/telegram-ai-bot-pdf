@@ -2,7 +2,6 @@ import { useState } from 'react';
 import TelegramSettingsCard from './TelegramSettingsCard';
 import VKSettingsCard from './VKSettingsCard';
 import MAXSettingsCard from './MAXSettingsCard';
-import ChatStatsCard from './ChatStatsCard';
 import PageSettingsCard from './PageSettingsCard';
 import WidgetSettingsCard from './WidgetSettingsCard';
 import AiSettingsCard from './AiSettingsCard';
