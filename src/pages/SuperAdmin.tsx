@@ -272,11 +272,11 @@ const SuperAdmin = () => {
             </TabsTrigger>
             <TabsTrigger value="tokens" className="text-xs sm:text-sm whitespace-nowrap">
               <Icon name="BarChart3" size={14} className="mr-1.5" />
-              Токены
+              Токены эмбеддинг
             </TabsTrigger>
             <TabsTrigger value="chat-stats" className="text-xs sm:text-sm whitespace-nowrap">
               <Icon name="MessageSquare" size={14} className="mr-1.5" />
-              Чаты
+              Токены чат
             </TabsTrigger>
 
           </TabsList>

@@ -25,7 +25,7 @@ def handler(event: dict, context) -> dict:
     if not authorized:
         return error_response
 
-    if not user_payload.get('is_superadmin'):
+    if user_payload.get('role') != 'super_admin':
         return {
             'statusCode': 403,
             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
