@@ -97,6 +97,11 @@ const MAXSettingsCard = ({ webhookUrl, chatFunctionUrl }: MAXSettingsCardProps) 
             title: 'Успешно!',
             description: 'MAX-бот подключен и готов к работе'
           });
+          
+          // Автоматически проверяем статус через 2 секунды
+          setTimeout(() => {
+            handleCheckWebhook();
+          }, 2000);
         } else {
           throw new Error(webhookData.description || 'Ошибка настройки webhook');
         }

@@ -6,10 +6,12 @@
       "path": "/",
       "body": {
         "message": {
-          "chat": {
-            "id": 123456
+          "sender": {
+            "user_id": 123456
           },
-          "text": "Привет"
+          "body": {
+            "text": "Привет"
+          }
         }
       },
       "expectedStatus": 200,
@@ -22,7 +24,12 @@
       "name": "Handle empty message",
       "method": "POST",
       "path": "/",
-      "body": {},
+      "body": {
+        "message": {
+          "sender": {},
+          "body": {}
+        }
+      },
       "expectedStatus": 200,
       "expectedBody": {
         "ok": true
