@@ -356,7 +356,7 @@ def handler(event: dict, context) -> dict:
                 cur.execute(f"DELETE FROM {schema}.messenger_formatting_settings WHERE tenant_id = %s", (tenant_id,))
                 print(f"Deleted {cur.rowcount} formatting settings")
                 
-                # 8. Удаляем настройки виджета
+                # 8. Удаляем настройки виджета (может не быть записей)
                 cur.execute(f"DELETE FROM {schema}.widget_settings WHERE tenant_id = %s", (tenant_id,))
                 print(f"Deleted {cur.rowcount} widget settings")
                 
@@ -364,11 +364,23 @@ def handler(event: dict, context) -> dict:
                 cur.execute(f"DELETE FROM {schema}.tenant_quality_gate_logs WHERE tenant_id = %s", (tenant_id,))
                 print(f"Deleted {cur.rowcount} quality gate logs")
                 
-                # 10. Удаляем админов тенанта (кроме суперадминов)
+                # 10. Удаляем AI настройки
+                cur.execute(f"DELETE FROM {schema}.ai_settings WHERE tenant_id = %s", (tenant_id,))
+                print(f"Deleted {cur.rowcount} AI settings")
+                
+                # 11. Удаляем быстрые вопросы
+                cur.execute(f"DELETE FROM {schema}.quick_questions WHERE tenant_id = %s", (tenant_id,))
+                print(f"Deleted {cur.rowcount} quick questions")
+                
+                # 12. Удаляем платежи по подписке
+                cur.execute(f"DELETE FROM {schema}.subscription_payments WHERE tenant_id = %s", (tenant_id,))
+                print(f"Deleted {cur.rowcount} subscription payments")
+                
+                # 13. Удаляем админов тенанта (кроме суперадминов)
                 cur.execute(f"DELETE FROM {schema}.admin_users WHERE tenant_id = %s AND role != 'super_admin'", (tenant_id,))
                 print(f"Deleted {cur.rowcount} admin users")
                 
-                # 11. Наконец, удаляем сам тенант
+                # 14. Наконец, удаляем сам тенант
                 cur.execute(f"DELETE FROM {schema}.tenants WHERE id = %s", (tenant_id,))
                 print(f"Deleted tenant: {cur.rowcount} row(s)")
                 
