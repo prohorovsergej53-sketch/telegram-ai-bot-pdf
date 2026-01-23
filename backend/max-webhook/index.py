@@ -55,7 +55,7 @@ def handler(event: dict, context) -> dict:
             }
 
         session_id = f"max-{chat_id}"
-        tenant_id = 1
+        tenant_id = 2
         chat_function_url = 'https://functions.poehali.dev/7b58f4fb-5db0-4f85-bb3b-55bafa4cbf73'
 
         try:
@@ -83,9 +83,9 @@ def handler(event: dict, context) -> dict:
         if error:
             return error
 
-        max_api_url = f'https://platform-api.max.ru/bot{bot_token}/sendMessage'
         max_response = requests.post(
-            max_api_url,
+            'https://platform-api.max.ru/messages',
+            headers={'Authorization': bot_token},
             json={
                 'chat_id': chat_id,
                 'text': ai_message

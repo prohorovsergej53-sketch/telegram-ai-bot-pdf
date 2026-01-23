@@ -25,7 +25,6 @@ def handler(event: dict, context) -> dict:
 
     try:
         print(f'[max-setup] Received request: method={method}')
-        print(f'[max-setup] Event: {json.dumps(event)}')
         
         query_params = event.get('queryStringParameters', {}) or {}
         tenant_id = int(query_params.get('tenant_id', 1))
@@ -42,25 +41,35 @@ def handler(event: dict, context) -> dict:
                 print(f'[max-setup] Verifying bot token (masked): {bot_token[:10]}...')
                 try:
                     response = requests.get(
-                        f'https://platform-api.max.ru/bot{bot_token}/getMe',
+                        'https://platform-api.max.ru/me',
+                        headers={'Authorization': bot_token},
                         timeout=10
                     )
                     print(f'[max-setup] MAX API response status: {response.status_code}')
-                    data = response.json()
-                    print(f'[max-setup] MAX API response: {json.dumps(data)}')
                     
-                    if data.get('ok'):
+                    if response.status_code == 200:
+                        data = response.json()
+                        print(f'[max-setup] MAX API response: {json.dumps(data)}')
                         return {
                             'statusCode': 200,
                             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                            'body': json.dumps({'ok': True, 'bot_info': data.get('result')}),
+                            'body': json.dumps({'ok': True, 'bot_info': data}),
                             'isBase64Encoded': False
                         }
-                    else:
+                    elif response.status_code == 401:
                         return {
                             'statusCode': 400,
                             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                            'body': json.dumps({'ok': False, 'error': data.get('description', 'Invalid token')}),
+                            'body': json.dumps({'ok': False, 'error': 'Неверный токен'}),
+                            'isBase64Encoded': False
+                        }
+                    else:
+                        error_data = response.json() if response.text else {}
+                        print(f'[max-setup] MAX API error: {json.dumps(error_data)}')
+                        return {
+                            'statusCode': 400,
+                            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                            'body': json.dumps({'ok': False, 'error': error_data.get('message', 'Ошибка проверки токена')}),
                             'isBase64Encoded': False
                         }
                 except Exception as e:
@@ -81,20 +90,33 @@ def handler(event: dict, context) -> dict:
                         'isBase64Encoded': False
                     }
 
+                print(f'[max-setup] Setting up webhook: {webhook_url}')
                 try:
                     response = requests.post(
-                        f'https://platform-api.max.ru/bot{bot_token}/setWebhook',
+                        'https://platform-api.max.ru/webhooks',
+                        headers={'Authorization': bot_token},
                         json={'url': webhook_url},
                         timeout=10
                     )
-                    data = response.json()
+                    print(f'[max-setup] Webhook setup response status: {response.status_code}')
                     
-                    return {
-                        'statusCode': 200 if data.get('ok') else 400,
-                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                        'body': json.dumps(data),
-                        'isBase64Encoded': False
-                    }
+                    if response.status_code in [200, 201]:
+                        data = response.json() if response.text else {}
+                        return {
+                            'statusCode': 200,
+                            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                            'body': json.dumps({'ok': True, 'result': data}),
+                            'isBase64Encoded': False
+                        }
+                    else:
+                        error_data = response.json() if response.text else {}
+                        print(f'[max-setup] Webhook setup error: {json.dumps(error_data)}')
+                        return {
+                            'statusCode': 400,
+                            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                            'body': json.dumps({'ok': False, 'error': error_data.get('message', 'Ошибка настройки webhook')}),
+                            'isBase64Encoded': False
+                        }
                 except Exception as e:
                     print(f'[max-setup] Setup webhook error: {str(e)}')
                     return {
@@ -115,19 +137,30 @@ def handler(event: dict, context) -> dict:
                 }
 
             if action == 'webhook_info':
+                print(f'[max-setup] Getting webhook info')
                 try:
                     response = requests.get(
-                        f'https://platform-api.max.ru/bot{bot_token}/getWebhookInfo',
+                        'https://platform-api.max.ru/webhooks',
+                        headers={'Authorization': bot_token},
                         timeout=10
                     )
-                    data = response.json()
+                    print(f'[max-setup] Webhook info response status: {response.status_code}')
                     
-                    return {
-                        'statusCode': 200,
-                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                        'body': json.dumps(data),
-                        'isBase64Encoded': False
-                    }
+                    if response.status_code == 200:
+                        data = response.json() if response.text else {}
+                        return {
+                            'statusCode': 200,
+                            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                            'body': json.dumps({'ok': True, 'result': data}),
+                            'isBase64Encoded': False
+                        }
+                    else:
+                        return {
+                            'statusCode': 200,
+                            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                            'body': json.dumps({'ok': True, 'result': {'url': ''}}),
+                            'isBase64Encoded': False
+                        }
                 except Exception as e:
                     print(f'[max-setup] Get webhook info error: {str(e)}')
                     return {
