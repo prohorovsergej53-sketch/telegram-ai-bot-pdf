@@ -15,7 +15,6 @@ import { SystemMonitoringTab } from '@/components/superadmin/SystemMonitoringTab
 import { ConsentLogsTab } from '@/components/superadmin/ConsentLogsTab';
 import { SupportTab } from '@/components/superadmin/SupportTab';
 import { TokenStatsTab } from '@/components/superadmin/TokenStatsTab';
-import FormattingTab from '@/components/superadmin/FormattingTab';
 
 import { TenantEditDialog } from '@/components/superadmin/TenantEditDialog';
 import { TariffEditDialog } from '@/components/superadmin/TariffEditDialog';
@@ -274,10 +273,7 @@ const SuperAdmin = () => {
               <Icon name="BarChart3" size={14} className="mr-1.5" />
               Токены
             </TabsTrigger>
-            <TabsTrigger value="formatting" className="text-xs sm:text-sm whitespace-nowrap">
-              <Icon name="Palette" size={14} className="mr-1.5" />
-              Форматирование
-            </TabsTrigger>
+
           </TabsList>
 
           <TabsContent value="dashboard" className="space-y-6">
@@ -339,9 +335,7 @@ const SuperAdmin = () => {
             <TokenStatsTab tenants={tenants} />
           </TabsContent>
 
-          <TabsContent value="formatting" className="space-y-6">
-            <FormattingTab />
-          </TabsContent>
+
         </Tabs>
       </div>
 
