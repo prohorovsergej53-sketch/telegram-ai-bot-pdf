@@ -114,12 +114,8 @@ export const authenticatedFetch = async (url: string, options: RequestInit = {})
       console.error(`HTTP ${response.status} from ${url}`);
     }
     
-    if (response.status === 401) {
-      logout();
-      if (window.location.pathname !== '/admin') {
-        window.location.href = '/admin';
-      }
-    }
+    // НЕ делаем автологаут на 401 - может быть просто нет прав доступа
+    // Вызывающий код сам решит, что делать с ошибкой
     
     return response;
   } catch (error) {

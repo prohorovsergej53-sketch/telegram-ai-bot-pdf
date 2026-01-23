@@ -43,11 +43,42 @@ def handler(event: dict, context) -> dict:
         
         query_params = event.get('queryStringParameters', {}) or {}
         tenant_id = query_params.get('tenant_id')
+        action = query_params.get('action')
         
         conn = psycopg2.connect(os.environ['DATABASE_URL'])
         cur = conn.cursor()
         
-        if method == 'GET':
+        if method == 'GET' and action == 'get_emoji_map':
+            # Получить карту эмодзи для тенанта (объединенную со всех мессенджеров)
+            if not tenant_id:
+                return {
+                    'statusCode': 400,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'tenant_id обязателен'}),
+                    'isBase64Encoded': False
+                }
+            
+            cur.execute("""
+                SELECT custom_emoji_map
+                FROM t_p56134400_telegram_ai_bot_pdf.messenger_formatting_settings
+                WHERE tenant_id = %s
+                LIMIT 1
+            """, (tenant_id,))
+            
+            row = cur.fetchone()
+            emoji_map = row[0] if row and row[0] else {}
+            
+            cur.close()
+            conn.close()
+            
+            return {
+                'statusCode': 200,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({'emoji_map': emoji_map}),
+                'isBase64Encoded': False
+            }
+        
+        elif method == 'GET':
             # Получение настроек форматирования
             if tenant_id:
                 cur.execute("""
@@ -110,6 +141,39 @@ def handler(event: dict, context) -> dict:
         elif method in ['POST', 'PUT']:
             # Обновление настроек
             body = json.loads(event.get('body', '{}'))
+            action_body = body.get('action')
+            
+            # Обновление карты эмодзи для всех мессенджеров тенанта
+            if action_body == 'update_emoji_map':
+                if not tenant_id:
+                    return {
+                        'statusCode': 400,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'tenant_id обязателен'}),
+                        'isBase64Encoded': False
+                    }
+                
+                emoji_map = body.get('emoji_map', {})
+                
+                # Обновляем карту для всех мессенджеров
+                cur.execute("""
+                    UPDATE t_p56134400_telegram_ai_bot_pdf.messenger_formatting_settings
+                    SET custom_emoji_map = %s, updated_at = NOW()
+                    WHERE tenant_id = %s
+                """, (json.dumps(emoji_map), tenant_id))
+                
+                conn.commit()
+                cur.close()
+                conn.close()
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'success': True}),
+                    'isBase64Encoded': False
+                }
+            
+            # Обновление настроек конкретного мессенджера
             messenger = body.get('messenger')
             use_emoji = body.get('use_emoji', True)
             use_markdown = body.get('use_markdown', False)

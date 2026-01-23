@@ -11,6 +11,7 @@ import BackupManagementCard from './BackupManagementCard';
 import SubscriptionWidget from './SubscriptionWidget';
 import MessengerAutoMessages from './MessengerAutoMessages';
 import FormattingSettingsCard from './FormattingSettingsCard';
+import EmojiMappingCard from './EmojiMappingCard';
 import AdminHeader from './AdminHeader';
 import UpgradeCard from './UpgradeCard';
 import TenantUrlEditor from './TenantUrlEditor';
@@ -164,6 +165,8 @@ const AdminView = ({ documents, isLoading, onFileUpload, onDeleteDocument, curre
           <MessengerAutoMessages isSuperAdmin={superAdmin} />
           
           {superAdmin && <FormattingSettingsCard />}
+          
+          {superAdmin && <EmojiMappingCard />}
           
           {!superAdmin && !hasFeatureAccess('hasTelegram', tariffId) && !hasFeatureAccess('hasVK', tariffId) && !hasFeatureAccess('hasMAX', tariffId) && (
             <Card className="shadow-xl border-2 border-orange-200">
