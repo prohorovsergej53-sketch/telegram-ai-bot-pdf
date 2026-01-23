@@ -20,7 +20,7 @@ const TryBot = () => {
         <div className="space-y-4">
           {/* Web Chat */}
           <a 
-            href="https://ai-ru.ru/2" 
+            href="https://ai-ru.ru/2/chat" 
             target="_blank" 
             rel="noopener noreferrer"
             className="block group"
