@@ -43,12 +43,15 @@ const VKSettingsCard = ({ webhookUrl, chatFunctionUrl }: VKSettingsCardProps) =>
   };
 
   const saveSettings = async (gId: string, gToken: string, sKey: string) => {
+    if (gId === '********' || gToken === '********') {
+      return;
+    }
     const keysToSave = [
       { provider: 'vk', key_name: 'group_id', key_value: gId },
       { provider: 'vk', key_name: 'group_token', key_value: gToken }
     ];
     
-    if (sKey) {
+    if (sKey && sKey !== '********') {
       keysToSave.push({ provider: 'vk', key_name: 'secret_key', key_value: sKey });
     }
     
@@ -60,10 +63,10 @@ const VKSettingsCard = ({ webhookUrl, chatFunctionUrl }: VKSettingsCardProps) =>
   };
 
   const handleSetupBot = async () => {
-    if (!groupToken.trim() || !groupId.trim()) {
+    if (!groupToken.trim() || !groupId.trim() || groupToken === '********' || groupId === '********') {
       toast({
         title: 'Ошибка',
-        description: 'Заполните токен и ID группы',
+        description: 'Введите новые значения',
         variant: 'destructive'
       });
       return;

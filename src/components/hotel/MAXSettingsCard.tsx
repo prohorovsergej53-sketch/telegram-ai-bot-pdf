@@ -39,6 +39,9 @@ const MAXSettingsCard = ({ webhookUrl, chatFunctionUrl }: MAXSettingsCardProps) 
   };
 
   const saveSettings = async (token: string) => {
+    if (token === '********') {
+      return;
+    }
     await authenticatedFetch(`${BACKEND_URLS.manageApiKeys}?tenant_id=${tenantId}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -53,10 +56,10 @@ const MAXSettingsCard = ({ webhookUrl, chatFunctionUrl }: MAXSettingsCardProps) 
   };
 
   const handleSetupBot = async () => {
-    if (!botToken.trim()) {
+    if (!botToken.trim() || botToken === '********') {
       toast({
         title: 'Ошибка',
-        description: 'Введите токен бота',
+        description: 'Введите новый токен бота',
         variant: 'destructive'
       });
       return;
