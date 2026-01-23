@@ -92,15 +92,16 @@ def handler(event: dict, context) -> dict:
         if error:
             return error
 
-        print(f'[max-webhook] Sending response to chat_id={chat_id}: {ai_message[:50]}...')
+        # По документации MAX API: user_id передаётся в query, а не в body!
+        # Используем sender.user_id для отправки личного сообщения пользователю
+        print(f'[max-webhook] Sending response to sender_user_id={sender_user_id}: {ai_message[:50]}...')
         max_response = requests.post(
-            'https://platform-api.max.ru/messages',
+            f'https://platform-api.max.ru/messages?user_id={sender_user_id}',
             headers={
                 'Authorization': bot_token,
                 'Content-Type': 'application/json'
             },
             json={
-                'chat_id': chat_id,
                 'text': ai_message
             },
             timeout=10
