@@ -20,6 +20,7 @@ import ChatTestCard from './ChatTestCard';
 import ConsentSettingsCard from './ConsentSettingsCard';
 import { DocumentStatsCards } from './DocumentStatsCards';
 import { DocumentsPanel } from './DocumentsPanel';
+import ChatStatsCard from './ChatStatsCard';
 import EmbeddingsSettings from './EmbeddingsSettings';
 import SupportChat from '@/components/SupportChat';
 import PublicChatLinkCard from './PublicChatLinkCard';
@@ -120,6 +121,7 @@ const AdminView = ({ documents, isLoading, onFileUpload, onDeleteDocument, curre
         </TabsList>
 
         <TabsContent value="documents" className="space-y-6">
+          <ChatStatsCard currentTenantId={currentTenantId} />
           <DocumentStatsCards documents={documents} />
           <DocumentsPanel
             documents={documents}

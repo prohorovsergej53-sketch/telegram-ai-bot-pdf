@@ -1,9 +1,18 @@
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
+import { Helmet } from 'react-helmet-async';
 
 const TryBot = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-50 flex items-center justify-center p-4">
+    <>
+      <Helmet>
+        <title>Попробуйте AI-консультанта | AI-консьержа отеля в Крыму</title>
+        <meta name="description" content="Протестируйте AI-консультанта на примере AI-консьержи крымского отеля. Доступен в веб-чате, Telegram и MAX мессенджере." />
+        <meta property="og:title" content="Попробуйте AI-консультанта | AI-консьержа отеля в Крыму" />
+        <meta property="og:description" content="Протестируйте AI-консультанта на примере AI-консьержи крымского отеля. Доступен в веб-чате, Telegram и MAX мессенджере." />
+        <meta property="og:type" content="website" />
+      </Helmet>
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-50 flex items-center justify-center p-4">
       <div className="max-w-2xl w-full">
         <div className="text-center mb-12">
           <div className="inline-block mb-4 p-4 bg-gradient-to-br from-primary to-blue-600 rounded-2xl shadow-xl">
@@ -13,14 +22,14 @@ const TryBot = () => {
             Попробуйте AI-консультанта
           </h1>
           <p className="text-xl text-slate-600">
-            Выберите удобный мессенджер для общения с ботом
+            на примере AI-консьержи крымского отеля
           </p>
         </div>
 
         <div className="space-y-4">
           {/* Web Chat */}
           <a 
-            href="https://ai-ru.ru/2/chat" 
+            href="https://ai-ru.ru/dinasty-crimea/chat" 
             target="_blank" 
             rel="noopener noreferrer"
             className="block group"
@@ -110,6 +119,7 @@ const TryBot = () => {
         </div>
       </div>
     </div>
+    </>
   );
 };
 
