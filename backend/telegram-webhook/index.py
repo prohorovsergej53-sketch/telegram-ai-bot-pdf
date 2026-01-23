@@ -131,6 +131,30 @@ def handler(event: dict, context) -> dict:
 
         if not telegram_response.ok:
             print(f'[telegram-webhook] Telegram API error: {telegram_response.text}')
+            
+            # Если ошибка парсинга markdown - отправляем без форматирования
+            if telegram_response.status_code == 400 and 'parse entities' in telegram_response.text:
+                print(f'[telegram-webhook] Retrying without markdown')
+                plain_text = re.sub(r'[*_`\[\]]', '', ai_message)
+                
+                retry_response = requests.post(
+                    telegram_api_url,
+                    json={
+                        'chat_id': chat_id,
+                        'text': plain_text
+                    },
+                    timeout=10
+                )
+                
+                if retry_response.ok:
+                    print(f'[telegram-webhook] Sent successfully without markdown')
+                    return {
+                        'statusCode': 200,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'ok': True}),
+                        'isBase64Encoded': False
+                    }
+            
             raise Exception(f'Telegram API error: {telegram_response.status_code}')
 
         return {
