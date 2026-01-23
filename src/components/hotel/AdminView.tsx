@@ -122,17 +122,17 @@ const AdminView = ({ documents, isLoading, onFileUpload, onDeleteDocument, curre
         </TabsList>
 
         <TabsContent value="documents" className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <ChatStatsCard currentTenantId={currentTenantId} />
-            {fz152Enabled && <TokenCostCard currentTenantId={currentTenantId} />}
-          </div>
-          <DocumentStatsCards documents={documents} />
           <DocumentsPanel
             documents={documents}
             isLoading={isLoading}
             onFileUpload={onFileUpload}
             onDeleteDocument={onDeleteDocument}
           />
+          <DocumentStatsCards documents={documents} />
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <ChatStatsCard currentTenantId={currentTenantId} />
+            {fz152Enabled && <TokenCostCard currentTenantId={currentTenantId} />}
+          </div>
         </TabsContent>
 
         <TabsContent value="messengers" className="space-y-6">
