@@ -3,22 +3,23 @@ import os
 import json
 import psycopg2
 
-def get_tenant_id_by_bot_token(bot_url_path: str) -> int | None:
+def get_tenant_id_by_bot_token(bot_token: str) -> int | None:
     """
-    Определяет tenant_id по пути webhook URL (содержит bot_token).
+    Определяет tenant_id по bot_token из query параметра или пути URL.
     
     Args:
-        bot_url_path: Путь из URL вебхука, например '/bot123456:ABC...'
+        bot_token: Bot token (чистый токен или путь /bot<TOKEN>)
     
     Returns:
         tenant_id или None если не найдено
     """
     try:
-        # Извлекаем токен из пути (формат: /bot<TOKEN>)
-        if not bot_url_path or not bot_url_path.startswith('/bot'):
+        if not bot_token:
             return None
         
-        bot_token = bot_url_path[4:]  # Убираем '/bot'
+        # Если токен в формате /bot<TOKEN>, извлекаем его
+        if bot_token.startswith('/bot'):
+            bot_token = bot_token[4:]
         
         conn = psycopg2.connect(os.environ['DATABASE_URL'])
         cur = conn.cursor()

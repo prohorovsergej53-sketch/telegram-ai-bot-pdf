@@ -10,6 +10,7 @@ import QualityGateSettingsCard from './QualityGateSettingsCard';
 import BackupManagementCard from './BackupManagementCard';
 import SubscriptionWidget from './SubscriptionWidget';
 import MessengerAutoMessages from './MessengerAutoMessages';
+import FormattingSettingsCard from './FormattingSettingsCard';
 import AdminHeader from './AdminHeader';
 import UpgradeCard from './UpgradeCard';
 import TenantUrlEditor from './TenantUrlEditor';
@@ -168,6 +169,8 @@ const AdminView = ({ documents, isLoading, onFileUpload, onDeleteDocument, curre
           </div>
 
           <MessengerAutoMessages isSuperAdmin={superAdmin} />
+          
+          {superAdmin && <FormattingSettingsCard />}
           
           {!superAdmin && !hasFeatureAccess('hasTelegram', tariffId) && !hasFeatureAccess('hasVK', tariffId) && !hasFeatureAccess('hasMAX', tariffId) && (
             <Card className="shadow-xl border-2 border-orange-200">
