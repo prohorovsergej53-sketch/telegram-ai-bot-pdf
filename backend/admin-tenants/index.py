@@ -316,11 +316,11 @@ def handler(event: dict, context) -> dict:
             print(f"Converted tenant_id={tenant_id}")
             
             # Защита от удаления важных тенантов
-            if tenant_id in [1, 2]:
+            if tenant_id in [1, 2, 777]:
                 return {
                     'statusCode': 403,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                    'body': json.dumps({'error': 'Cannot delete system tenants (1, 2)'}),
+                    'body': json.dumps({'error': 'Cannot delete protected tenants (1, 2, 777)'}),
                     'isBase64Encoded': False
                 }
             

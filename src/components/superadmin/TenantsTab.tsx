@@ -84,7 +84,7 @@ export const TenantsTab = ({ tenants, onEnterTenant, onManageTenant, onCreateTen
                   <Icon name="Settings" size={16} className="mr-2" />
                   Настройки
                 </Button>
-                {tenant.id !== 1 && tenant.id !== 2 && (
+                {tenant.id !== 1 && tenant.id !== 2 && tenant.id !== 777 && (
                   <Button 
                     variant="destructive" 
                     size="sm"
