@@ -2,9 +2,31 @@ import json
 import os
 import sys
 import requests
+import re
 
 sys.path.append('/function/code')
 from api_keys_helper import get_tenant_api_key
+
+def format_telegram(text: str) -> str:
+    """Форматирование для Telegram с Markdown и эмодзи"""
+    text = re.sub(r'^- (.+)$', r'• \1', text, flags=re.MULTILINE)
+    text = re.sub(r'^\d+\. (.+)$', r'▫️ \1', text, flags=re.MULTILINE)
+    text = re.sub(r'^([А-ЯЁA-Z][^:]+):$', r'*\1:*', text, flags=re.MULTILINE)
+    
+    emoji_map = {
+        'бассейн': '🏊', 'сауна': '🧖', 'номер': '🏨',
+        'завтрак': '🍳', 'обед': '🍽', 'ужин': '🍴',
+        'трансфер': '🚗', 'пляж': '🏖', 'анимация': '🎭',
+        'стоимость': '💰', 'цена': '💰', 'время': '🕐',
+        'телефон': '📞', 'адрес': '📍'
+    }
+    
+    for word, emoji in emoji_map.items():
+        pattern = rf'^(.*\b{word}\b.*)$'
+        if re.search(pattern, text, flags=re.IGNORECASE | re.MULTILINE):
+            text = re.sub(pattern, rf'{emoji} \1', text, flags=re.IGNORECASE | re.MULTILINE, count=1)
+    
+    return text
 
 def handler(event: dict, context) -> dict:
     """Webhook для Telegram-бота: принимает сообщения и отвечает через AI-консьержа"""
@@ -76,6 +98,9 @@ def handler(event: dict, context) -> dict:
             chat_response.raise_for_status()
             chat_data = chat_response.json()
             ai_message = chat_data.get('message', 'Извините, не могу ответить')
+            
+            # Форматируем для Telegram
+            ai_message = format_telegram(ai_message)
             
         except requests.exceptions.Timeout:
             ai_message = 'Извините, сервис временно недоступен. Попробуйте позже.'

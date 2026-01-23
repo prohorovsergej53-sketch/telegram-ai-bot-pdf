@@ -4,9 +4,16 @@ import sys
 import requests
 import hashlib
 import psycopg2
+import re
 
 sys.path.append('/function/code')
 from api_keys_helper import get_tenant_api_key
+
+def format_vk(text: str) -> str:
+    """Форматирование для VK с эмодзи"""
+    text = re.sub(r'^- (.+)$', r'• \1', text, flags=re.MULTILINE)
+    text = re.sub(r'^\d+\. (.+)$', r'▪️ \1', text, flags=re.MULTILINE)
+    return text
 
 def handler(event: dict, context) -> dict:
     """Webhook для VK-бота: принимает сообщения и отвечает через AI-консьержа"""
@@ -92,6 +99,9 @@ def handler(event: dict, context) -> dict:
                 chat_response.raise_for_status()
                 chat_data = chat_response.json()
                 ai_message = chat_data.get('message', 'Извините, не могу ответить')
+                
+                # Форматируем для VK
+                ai_message = format_vk(ai_message)
                 
             except requests.exceptions.Timeout:
                 ai_message = 'Извините, сервис временно недоступен. Попробуйте позже.'

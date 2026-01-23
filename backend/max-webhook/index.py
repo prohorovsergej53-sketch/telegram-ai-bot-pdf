@@ -3,9 +3,16 @@ import os
 import sys
 import requests
 import psycopg2
+import re
 
 sys.path.append('/function/code')
 from api_keys_helper import get_tenant_api_key
+
+def format_max(text: str) -> str:
+    """Форматирование для MAX с эмодзи"""
+    text = re.sub(r'^- (.+)$', r'• \1', text, flags=re.MULTILINE)
+    text = re.sub(r'^\d+\. (.+)$', r'▫️ \1', text, flags=re.MULTILINE)
+    return text
 
 def handler(event: dict, context) -> dict:
     """Webhook для MAX-бота: принимает сообщения и отвечает через AI-консьержа"""
@@ -79,6 +86,9 @@ def handler(event: dict, context) -> dict:
             chat_response.raise_for_status()
             chat_data = chat_response.json()
             ai_message = chat_data.get('message', 'Извините, не могу ответить')
+            
+            # Форматируем для MAX
+            ai_message = format_max(ai_message)
             print(f'[max-webhook] AI response received: {ai_message[:100]}...')
             
         except requests.exceptions.Timeout:
