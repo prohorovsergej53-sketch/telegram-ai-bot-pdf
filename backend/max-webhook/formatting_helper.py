@@ -54,36 +54,40 @@ def get_formatting_settings(tenant_id: int, messenger: str) -> dict:
 def format_with_settings(text: str, settings: dict, messenger: str) -> str:
     """Форматирование текста согласно настройкам"""
     
-    # Убираем HTML-теги для мессенджеров, не поддерживающих HTML
-    if messenger in ['max', 'vk']:
-        text = re.sub(r'<b>(.+?)</b>', r'\1', text, flags=re.IGNORECASE)
-        text = re.sub(r'<i>(.+?)</i>', r'\1', text, flags=re.IGNORECASE)
+    # Убираем HTML-теги и конвертируем в Markdown для Telegram
+    if messenger == 'telegram':
+        text = re.sub(r'<b>(.+?)</b>', r'**\1**', text, flags=re.IGNORECASE | re.DOTALL)
+        text = re.sub(r'<i>(.+?)</i>', r'*\1*', text, flags=re.IGNORECASE | re.DOTALL)
+        text = re.sub(r'<[^>]+>', '', text)
+    elif messenger in ['max', 'vk']:
+        # Просто удаляем HTML-теги
+        text = re.sub(r'<b>(.+?)</b>', r'\1', text, flags=re.IGNORECASE | re.DOTALL)
+        text = re.sub(r'<i>(.+?)</i>', r'\1', text, flags=re.IGNORECASE | re.DOTALL)
         text = re.sub(r'<[^>]+>', '', text)
     
-    # Форматируем списки
-    if settings.get('use_lists_formatting'):
-        bullet = settings.get('list_bullet_char', '•')
-        numbered = settings.get('numbered_list_char', '▫️')
-        text = re.sub(r'^- (.+)$', rf'{bullet} \1', text, flags=re.MULTILINE)
-        text = re.sub(r'^\d+\. (.+)$', rf'{numbered} \1', text, flags=re.MULTILINE)
-    
-    # Markdown для Telegram
-    if messenger == 'telegram' and settings.get('use_markdown'):
-        text = re.sub(r'^([А-ЯЁA-Z][^:]+):$', r'*\1:*', text, flags=re.MULTILINE)
-    
-    # Добавляем эмодзи
+    # Добавляем эмодзи к каждой строке содержащей ключевое слово
     if settings.get('use_emoji'):
-        emoji_map = settings.get('custom_emoji_map', {})
-        for word, emoji in emoji_map.items():
-            pattern = rf'\b{re.escape(word)}\b'
-            if re.search(pattern, text, flags=re.IGNORECASE):
-                # Добавляем эмодзи перед первым вхождением слова
-                text = re.sub(
-                    rf'^(.*?\b{re.escape(word)}\b.*)$',
-                    rf'{emoji} \1',
-                    text,
-                    flags=re.IGNORECASE | re.MULTILINE,
-                    count=1
-                )
+        lines = text.split('\n')
+        emoji_mapping = {
+            'завтрак': '🍳',
+            'без питания': '🍽',
+            'полный пансион': '🍴',
+            'стандарт': '🏨',
+            'комфорт': '✨',
+            'люкс': '👑',
+            'руб': '💰'
+        }
+        
+        for i, line in enumerate(lines):
+            line_lower = line.lower()
+            # Проверяем наличие ключевых слов и добавляем эмодзи, если его еще нет
+            for keyword, emoji in emoji_mapping.items():
+                if keyword in line_lower and emoji not in line:
+                    # Добавляем эмодзи в начало строки после пробелов
+                    indent = len(line) - len(line.lstrip())
+                    lines[i] = line[:indent] + emoji + ' ' + line[indent:]
+                    break
+        
+        text = '\n'.join(lines)
     
     return text

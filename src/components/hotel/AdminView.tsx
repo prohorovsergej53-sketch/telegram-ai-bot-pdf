@@ -57,8 +57,7 @@ const AdminView = ({ documents, isLoading, onFileUpload, onDeleteDocument, curre
     4 + // Документы, Мессенджеры, Страница, Виджет (всегда)
     ((superAdmin || fz152Enabled) ? 1 : 0) + // AI
     (fz152Enabled ? 1 : 0) + // 152-ФЗ
-    (superAdmin ? 1 : 0) + // Эмбеддинги
-    ((superAdmin || hasFeatureAccess('hasStats', tariffId)) ? 1 : 0); // Статистика
+    (superAdmin ? 1 : 0); // Эмбеддинги
 
   const handleExitTenantView = () => {
     exitTenantView();
@@ -116,12 +115,6 @@ const AdminView = ({ documents, isLoading, onFileUpload, onDeleteDocument, curre
             <TabsTrigger value="embeddings" className="data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=inactive]:text-white py-3 px-4 text-base font-semibold">
               <Icon name="BrainCircuit" size={20} className="mr-2" />
               <span>Эмбеддинги</span>
-            </TabsTrigger>
-          )}
-          {(superAdmin || hasFeatureAccess('hasStats', tariffId)) && (
-            <TabsTrigger value="stats" className="data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=inactive]:text-white py-3 px-4 text-base font-semibold">
-              <Icon name="BarChart" size={20} className="mr-2" />
-              <span>Статистика</span>
             </TabsTrigger>
           )}
         </TabsList>
@@ -272,12 +265,6 @@ const AdminView = ({ documents, isLoading, onFileUpload, onDeleteDocument, curre
               tenantName={tenantName}
               fz152Enabled={fz152Enabled}
             />
-          </TabsContent>
-        )}
-
-        {(superAdmin || hasFeatureAccess('hasStats', tariffId)) && (
-          <TabsContent value="stats" className="space-y-6">
-            <ChatStatsCard currentTenantId={currentTenantId} />
           </TabsContent>
         )}
       </Tabs>
