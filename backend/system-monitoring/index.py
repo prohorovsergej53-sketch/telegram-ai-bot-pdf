@@ -5,6 +5,7 @@ from datetime import datetime
 import sys
 sys.path.append('/function/code')
 from timezone_helper import moscow_naive
+from auth_middleware import require_auth
 
 def handler(event: dict, context) -> dict:
     '''Мониторинг нагрузки системы: активные тенанты, статистика БД, активность пользователей'''
@@ -16,7 +17,7 @@ def handler(event: dict, context) -> dict:
             'headers': {
                 'Access-Control-Allow-Origin': '*',
                 'Access-Control-Allow-Methods': 'GET, OPTIONS',
-                'Access-Control-Allow-Headers': 'Content-Type, Authorization'
+                'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Authorization'
             },
             'body': '',
             'isBase64Encoded': False
@@ -27,6 +28,20 @@ def handler(event: dict, context) -> dict:
             'statusCode': 405,
             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
             'body': json.dumps({'error': 'Method not allowed'}),
+            'isBase64Encoded': False
+        }
+    
+    # Проверка авторизации (только super_admin)
+    authorized, payload, error_response = require_auth(event)
+    if not authorized:
+        return error_response
+    
+    user_role = payload.get('role')
+    if user_role != 'super_admin':
+        return {
+            'statusCode': 403,
+            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+            'body': json.dumps({'error': 'Super admin access required'}),
             'isBase64Encoded': False
         }
     

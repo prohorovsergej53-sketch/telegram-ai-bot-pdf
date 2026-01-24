@@ -3,6 +3,7 @@ import os
 import psycopg2
 import requests
 from typing import Optional
+from auth_middleware import require_auth
 
 def handler(event: dict, context) -> dict:
     """Управление настройками автоматизации и cron-заданиями"""
@@ -22,6 +23,20 @@ def handler(event: dict, context) -> dict:
         }
 
     try:
+        # Проверка авторизации (только super_admin)
+        authorized, payload, error_response = require_auth(event)
+        if not authorized:
+            return error_response
+        
+        user_role = payload.get('role')
+        if user_role != 'super_admin':
+            return {
+                'statusCode': 403,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({'error': 'Super admin access required'}),
+                'isBase64Encoded': False
+            }
+        
         conn = psycopg2.connect(os.environ['DATABASE_URL'])
         cur = conn.cursor()
 

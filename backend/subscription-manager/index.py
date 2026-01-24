@@ -129,6 +129,32 @@ def handler(event: dict, context) -> dict:
             }
     
     # GET: Получение информации о подписке
+    # Проверка авторизации для GET
+    import jwt
+    headers = event.get('headers', {})
+    auth_header = headers.get('X-Authorization') or headers.get('Authorization') or headers.get('authorization') or ''
+    
+    if not auth_header or not auth_header.startswith('Bearer '):
+        return {
+            'statusCode': 401,
+            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+            'body': json.dumps({'error': 'Authorization required'})
+        }
+    
+    token = auth_header.replace('Bearer ', '')
+    jwt_secret = os.environ.get('JWT_SECRET', 'default-jwt-secret-change-in-production')
+    
+    try:
+        payload = jwt.decode(token, jwt_secret, algorithms=['HS256'])
+        user_role = payload.get('role')
+        user_tenant_id = payload.get('tenant_id')
+    except jwt.InvalidTokenError:
+        return {
+            'statusCode': 401,
+            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+            'body': json.dumps({'error': 'Invalid token'})
+        }
+    
     query_params = event.get('queryStringParameters') or {}
     tenant_id = query_params.get('tenant_id')
     
@@ -137,6 +163,14 @@ def handler(event: dict, context) -> dict:
             'statusCode': 400,
             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
             'body': json.dumps({'error': 'tenant_id обязателен'})
+        }
+    
+    # Проверка доступа: tenant_admin видит только свой tenant_id
+    if user_role == 'tenant_admin' and str(user_tenant_id) != tenant_id:
+        return {
+            'statusCode': 403,
+            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+            'body': json.dumps({'error': 'Access denied: you can only view your own subscription'})
         }
     
     try:

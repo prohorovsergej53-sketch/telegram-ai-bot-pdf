@@ -2,6 +2,7 @@ import json
 import os
 import psycopg2
 import requests
+from auth_middleware import get_tenant_id_from_request
 
 def handler(event: dict, context) -> dict:
     """Проверка статуса webhook для мессенджеров (Telegram, MAX, VK)"""
@@ -28,16 +29,20 @@ def handler(event: dict, context) -> dict:
         }
 
     try:
+        # Проверка авторизации
+        tenant_id, auth_error = get_tenant_id_from_request(event)
+        if auth_error:
+            return auth_error
+        
         query_params = event.get('queryStringParameters', {}) or {}
-        tenant_id = query_params.get('tenant_id')
         messenger = query_params.get('messenger')  # telegram, max, vk
         expected_webhook_url = query_params.get('webhook_url', '')
 
-        if not tenant_id or not messenger:
+        if not messenger:
             return {
                 'statusCode': 400,
                 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                'body': json.dumps({'error': 'tenant_id and messenger are required'}),
+                'body': json.dumps({'error': 'messenger is required'}),
                 'isBase64Encoded': False
             }
 
