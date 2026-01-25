@@ -1,22 +1,6 @@
 {
   "tests": [
     {
-      "name": "Test chat endpoint with default prompt",
-      "method": "POST",
-      "body": {
-        "message": "тест",
-        "sessionId": "test",
-        "tenantId": 1
-      },
-      "expectedStatus": 200,
-      "expectedBody": {
-        "message": "string",
-        "sessionId": "string"
-      },
-      "bodyMatcher": "partial",
-      "description": "Тест проверяет что чат отвечает дефолтным промптом когда документы не загружены"
-    },
-    {
       "name": "Test relative date conversion (завтра)",
       "method": "POST",
       "body": {

@@ -174,8 +174,6 @@ def handler(event: dict, context) -> dict:
         embedding_provider = 'yandex'
         embedding_model = 'text-search-query'
         quality_gate_settings = {}
-        tenant_rag_topk_default = RAG_TOPK_DEFAULT
-        tenant_rag_topk_fallback = RAG_TOPK_FALLBACK
         
         if settings_row:
             if settings_row[1]:
@@ -184,21 +182,16 @@ def handler(event: dict, context) -> dict:
                 embedding_model = settings_row[2]
             if settings_row[3]:
                 quality_gate_settings = settings_row[3]
-            
-            # Читаем tenant-specific RAG top_k настройки из ai_settings
-            if settings_row[0]:
-                ai_settings_json = settings_row[0]
-                if 'rag_topk_default' in ai_settings_json:
-                    try:
-                        tenant_rag_topk_default = int(ai_settings_json['rag_topk_default'])
-                    except (ValueError, TypeError):
-                        tenant_rag_topk_default = RAG_TOPK_DEFAULT
-                if 'rag_topk_fallback' in ai_settings_json:
-                    try:
-                        tenant_rag_topk_fallback = int(ai_settings_json['rag_topk_fallback'])
-                    except (ValueError, TypeError):
-                        tenant_rag_topk_fallback = RAG_TOPK_FALLBACK
-                print(f"DEBUG: Tenant {tenant_id} RAG settings: top_k_default={tenant_rag_topk_default}, top_k_fallback={tenant_rag_topk_fallback}")
+        
+        # Получаем tenant-specific RAG top_k из ai_settings, используя get_tenant_topk
+        tenant_overrides = settings_row[0] if (settings_row and settings_row[0]) else {}
+        print(f"DEBUG: tenant_overrides type={type(tenant_overrides)}, value={tenant_overrides}")
+        tenant_rag_topk_default, tenant_rag_topk_fallback = get_tenant_topk(tenant_overrides)
+        print(f"DEBUG: After get_tenant_topk: default={tenant_rag_topk_default} (type={type(tenant_rag_topk_default)}), fallback={tenant_rag_topk_fallback} (type={type(tenant_rag_topk_fallback)})")
+        # Принудительная конвертация в int (на случай если где-то осталась строка)
+        tenant_rag_topk_default = int(tenant_rag_topk_default)
+        tenant_rag_topk_fallback = int(tenant_rag_topk_fallback)
+        print(f"DEBUG: Tenant {tenant_id} RAG settings: top_k_default={tenant_rag_topk_default}, top_k_fallback={tenant_rag_topk_fallback}")
         
         if settings_row and settings_row[0]:
             settings = settings_row[0]
@@ -457,9 +450,11 @@ def handler(event: dict, context) -> dict:
                 
                 update_low_overlap_stats('low_overlap' in gate_reason)
             else:
+                # Если нет chunks - разрешаем работу только на system_prompt
+                # Это важно для ботов-продажников и ботов без документов
                 context_str = ""
-                context_ok = False
-                gate_reason = "no_chunks"
+                context_ok = True  # Изменено с False на True
+                gate_reason = "no_chunks_pure_prompt"
                 sims = []
                 gate_debug = {}
         except Exception as emb_error:

@@ -148,8 +148,17 @@ def get_tenant_topk(tenant_overrides: Dict = None) -> Tuple[int, int]:
         # Безопасная конвертация значений из dict, которые могут быть строками
         default_val = tenant_overrides.get('rag_topk_default', RAG_TOPK_DEFAULT)
         fallback_val = tenant_overrides.get('rag_topk_fallback', RAG_TOPK_FALLBACK)
-        default_topk = int(default_val) if default_val is not None else RAG_TOPK_DEFAULT
-        fallback_topk = int(fallback_val) if fallback_val is not None else RAG_TOPK_FALLBACK
+        
+        try:
+            default_topk = int(default_val) if default_val is not None else RAG_TOPK_DEFAULT
+        except (ValueError, TypeError):
+            default_topk = RAG_TOPK_DEFAULT
+            
+        try:
+            fallback_topk = int(fallback_val) if fallback_val is not None else RAG_TOPK_FALLBACK
+        except (ValueError, TypeError):
+            fallback_topk = RAG_TOPK_FALLBACK
+            
         return default_topk, fallback_topk
     return RAG_TOPK_DEFAULT, RAG_TOPK_FALLBACK
 
