@@ -23,7 +23,7 @@ const PremiumTariffNotice = () => {
             </li>
             <li className="flex items-start gap-2">
               <Icon name="Check" size={18} className="text-green-600 mt-0.5 flex-shrink-0" />
-              <span><strong>Шаг 3:</strong> В течение 24 часов наш специалист свяжется с вами по WhatsApp</span>
+              <span><strong>Шаг 3:</strong> В течение 24 часов наш специалист свяжется с вами для настройки</span>
             </li>
             <li className="flex items-start gap-2">
               <Icon name="Check" size={18} className="text-green-600 mt-0.5 flex-shrink-0" />

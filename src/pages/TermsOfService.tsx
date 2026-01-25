@@ -101,7 +101,7 @@ const TermsOfService = () => {
                   <h3 className="font-semibold mb-2">Премиум — 35 990 ₽/месяц</h3>
                   <ul className="list-disc pl-6 text-sm space-y-1">
                     <li>Всё из тарифа Бизнес</li>
-                    <li>WhatsApp, VK, MAX.ru интеграции</li>
+                    <li>VK, MAX.ru интеграции</li>
                     <li>До 100 PDF документов</li>
                     <li>Персональный менеджер</li>
                     <li>Кастомизация под бренд</li>
