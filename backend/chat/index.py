@@ -189,9 +189,15 @@ def handler(event: dict, context) -> dict:
             if settings_row[0]:
                 ai_settings_json = settings_row[0]
                 if 'rag_topk_default' in ai_settings_json:
-                    tenant_rag_topk_default = int(ai_settings_json['rag_topk_default'])
+                    try:
+                        tenant_rag_topk_default = int(ai_settings_json['rag_topk_default'])
+                    except (ValueError, TypeError):
+                        tenant_rag_topk_default = RAG_TOPK_DEFAULT
                 if 'rag_topk_fallback' in ai_settings_json:
-                    tenant_rag_topk_fallback = int(ai_settings_json['rag_topk_fallback'])
+                    try:
+                        tenant_rag_topk_fallback = int(ai_settings_json['rag_topk_fallback'])
+                    except (ValueError, TypeError):
+                        tenant_rag_topk_fallback = RAG_TOPK_FALLBACK
                 print(f"DEBUG: Tenant {tenant_id} RAG settings: top_k_default={tenant_rag_topk_default}, top_k_fallback={tenant_rag_topk_fallback}")
         
         if settings_row and settings_row[0]:
