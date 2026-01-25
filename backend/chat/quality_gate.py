@@ -20,7 +20,7 @@ STOPWORDS_EN = {
 }
 
 GATE_THRESHOLDS = {
-    "tariffs": {"min_len": 300, "min_sim": 0.35, "min_overlap_ru": 0.08, "min_overlap_en": 0.08},
+    "tariffs": {"min_len": 300, "min_sim": 0.22, "min_overlap_ru": 0.08, "min_overlap_en": 0.08},
     "rules":   {"min_len": 650, "min_sim": 0.34, "min_overlap_ru": 0.18, "min_overlap_en": 0.14},
     "services":{"min_len": 550, "min_sim": 0.32, "min_overlap_ru": 0.18, "min_overlap_en": 0.14},
     "default": {"min_len": 650, "min_sim": 0.34, "min_overlap_ru": 0.18, "min_overlap_en": 0.14},
@@ -88,6 +88,16 @@ def sanitize_chunk(text: str) -> str:
 
 def classify_query_type(user_text: str) -> str:
     t = user_text.lower()
+    
+    # Проверка на "голые даты" — день + месяц/год без других слов
+    # Примеры: "22 мая", "12 февраля", "15.03", "2025-05-22"
+    date_patterns = [
+        r'^\s*\d{1,2}\s+(янв|фев|мар|апр|мая|июн|июл|авг|сен|окт|ноя|дек)',  # "22 мая"
+        r'^\s*\d{1,2}[./\-]\d{1,2}',  # "22.05" или "22/05"
+        r'^\s*\d{4}[./\-]\d{1,2}[./\-]\d{1,2}',  # "2025-05-22"
+    ]
+    if any(re.match(p, t, re.IGNORECASE) for p in date_patterns):
+        return "tariffs"
 
     if any(k in t for k in ["цена", "цену", "стоимость", "сколько стоит", "тариф", "прайс", "заезд", "выезд", "ноч", "прожив", "сколько", "рубл", "стоит", "оплат", "платеж", "стандарт", "комфорт", "люкс", "видовой", "категор"]):
         return "tariffs"
