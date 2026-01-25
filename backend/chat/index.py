@@ -323,143 +323,143 @@ def handler(event: dict, context) -> dict:
         else:
             # Обычный режим: поиск по эмбеддингам и RAG
             try:
-            if embedding_provider == 'yandex':
-                import requests
-                # ВСЕГДА используем PROJECT секреты для эмбеддингов (не tenant ключи!)
-                yandex_api_key = os.environ.get('YANDEXGPT_API_KEY')
-                yandex_folder_id = os.environ.get('YANDEXGPT_FOLDER_ID')
-                
-                if not yandex_api_key or not yandex_folder_id:
+                if embedding_provider == 'yandex':
+                    import requests
+                    # ВСЕГДА используем PROJECT секреты для эмбеддингов (не tenant ключи!)
+                    yandex_api_key = os.environ.get('YANDEXGPT_API_KEY')
+                    yandex_folder_id = os.environ.get('YANDEXGPT_FOLDER_ID')
+                    
+                    if not yandex_api_key or not yandex_folder_id:
+                        return {
+                            'statusCode': 500,
+                            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                            'body': json.dumps({'error': 'PROJECT Yandex API keys not configured'}),
+                            'isBase64Encoded': False
+                        }
+                    
+                    print(f"🚀 SENDING TO YANDEX (PROJECT keys): api_key={yandex_api_key[:10]}..., folder_id={yandex_folder_id}")
+                    
+                    emb_response = requests.post(
+                        'https://llm.api.cloud.yandex.net/foundationModels/v1/textEmbedding',
+                        headers={
+                            'Authorization': f'Api-Key {yandex_api_key}',
+                            'Content-Type': 'application/json'
+                        },
+                        json={
+                            'modelUri': f'emb://{yandex_folder_id}/text-search-query/latest',
+                            'text': enriched_query  # Используем обогащённый запрос вместо user_message
+                        }
+                    )
+                    
+                    if emb_response.status_code != 200:
+                        print(f"Yandex Embedding API error: {emb_response.status_code}, {emb_response.text}")
+                        raise Exception(f"Yandex API returned {emb_response.status_code}: {emb_response.text}")
+                    
+                    emb_data = emb_response.json()
+                    print(f"DEBUG: Yandex embedding response keys: {emb_data.keys()}")
+                    
+                    if 'embedding' not in emb_data:
+                        print(f"ERROR: No 'embedding' in response: {emb_data}")
+                        raise Exception(f"Yandex API response missing 'embedding': {emb_data}")
+                    
+                    query_embedding = emb_data['embedding']
+                    
+                    # Логируем использование токенов для запроса (примерно по количеству символов)
+                    tokens_estimate = min(len(user_message) // 4, 256)
+                    log_token_usage(
+                        tenant_id=tenant_id,
+                        operation_type='embedding_query',
+                        model='text-search-query',
+                        tokens_used=tokens_estimate,
+                        request_id=session_id
+                    )
+                else:
                     return {
-                        'statusCode': 500,
+                        'statusCode': 400,
                         'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                        'body': json.dumps({'error': 'PROJECT Yandex API keys not configured'}),
+                        'body': json.dumps({'error': f'Неизвестный провайдер эмбеддингов: {embedding_provider}'}),
                         'isBase64Encoded': False
                     }
                 
-                print(f"🚀 SENDING TO YANDEX (PROJECT keys): api_key={yandex_api_key[:10]}..., folder_id={yandex_folder_id}")
-                
-                emb_response = requests.post(
-                    'https://llm.api.cloud.yandex.net/foundationModels/v1/textEmbedding',
-                    headers={
-                        'Authorization': f'Api-Key {yandex_api_key}',
-                        'Content-Type': 'application/json'
-                    },
-                    json={
-                        'modelUri': f'emb://{yandex_folder_id}/text-search-query/latest',
-                        'text': enriched_query  # Используем обогащённый запрос вместо user_message
-                    }
-                )
-                
-                if emb_response.status_code != 200:
-                    print(f"Yandex Embedding API error: {emb_response.status_code}, {emb_response.text}")
-                    raise Exception(f"Yandex API returned {emb_response.status_code}: {emb_response.text}")
-                
-                emb_data = emb_response.json()
-                print(f"DEBUG: Yandex embedding response keys: {emb_data.keys()}")
-                
-                if 'embedding' not in emb_data:
-                    print(f"ERROR: No 'embedding' in response: {emb_data}")
-                    raise Exception(f"Yandex API response missing 'embedding': {emb_data}")
-                
-                query_embedding = emb_data['embedding']
-                
-                # Логируем использование токенов для запроса (примерно по количеству символов)
-                tokens_estimate = min(len(user_message) // 4, 256)
-                log_token_usage(
-                    tenant_id=tenant_id,
-                    operation_type='embedding_query',
-                    model='text-search-query',
-                    tokens_used=tokens_estimate,
-                    request_id=session_id
-                )
-            else:
-                return {
-                    'statusCode': 400,
-                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                    'body': json.dumps({'error': f'Неизвестный провайдер эмбеддингов: {embedding_provider}'}),
-                    'isBase64Encoded': False
-                }
-            
-            query_embedding_json = json.dumps(query_embedding)
+                query_embedding_json = json.dumps(query_embedding)
 
-            cur.execute("""
-                SELECT chunk_text, embedding_text FROM t_p56134400_telegram_ai_bot_pdf.tenant_chunks 
-                WHERE tenant_id = %s AND embedding_text IS NOT NULL
-            """, (tenant_id,))
-            all_chunks = cur.fetchall()
+                cur.execute("""
+                    SELECT chunk_text, embedding_text FROM t_p56134400_telegram_ai_bot_pdf.tenant_chunks 
+                    WHERE tenant_id = %s AND embedding_text IS NOT NULL
+                """, (tenant_id,))
+                all_chunks = cur.fetchall()
 
-            if all_chunks:
-                def cosine_similarity(vec1, vec2):
-                    import math
-                    dot_product = sum(a * b for a, b in zip(vec1, vec2))
-                    magnitude1 = math.sqrt(sum(a * a for a in vec1))
-                    magnitude2 = math.sqrt(sum(b * b for b in vec2))
-                    if magnitude1 == 0 or magnitude2 == 0:
-                        return 0
-                    return dot_product / (magnitude1 * magnitude2)
+                if all_chunks:
+                    def cosine_similarity(vec1, vec2):
+                        import math
+                        dot_product = sum(a * b for a, b in zip(vec1, vec2))
+                        magnitude1 = math.sqrt(sum(a * a for a in vec1))
+                        magnitude2 = math.sqrt(sum(b * b for b in vec2))
+                        if magnitude1 == 0 or magnitude2 == 0:
+                            return 0
+                        return dot_product / (magnitude1 * magnitude2)
 
-                scored_chunks = []
-                for chunk_text, embedding_text in all_chunks:
-                    chunk_embedding = json.loads(embedding_text)
-                    similarity = cosine_similarity(query_embedding, chunk_embedding)
-                    scored_chunks.append((chunk_text, similarity))
-                
-                scored_chunks.sort(key=lambda x: x[1], reverse=True)
-                print(f"DEBUG: Top {tenant_rag_topk_default} chunks for query '{user_message}':")
-                for i, (chunk, sim) in enumerate(scored_chunks[:tenant_rag_topk_default]):
-                    print(f"  {i+1}. Similarity: {sim:.4f}, Text: {chunk[:200]}...")
-
-                request_id = context.request_id if hasattr(context, 'request_id') else 'unknown'
-                query_hash = hashlib.sha256(user_message.encode()).hexdigest()[:12]
-                
-                overlap_rate = low_overlap_rate()
-                start_top_k = tenant_rag_topk_fallback if (RAG_LOW_OVERLAP_START_TOPK5 and overlap_rate >= RAG_LOW_OVERLAP_THRESHOLD) else tenant_rag_topk_default
-                
-                context_str, sims = build_context_with_scores(scored_chunks, top_k=start_top_k)
-                context_ok, gate_reason, gate_debug = quality_gate(user_message, context_str, sims, quality_gate_settings)
-                
-                gate_debug['top_k_used'] = start_top_k
-                gate_debug['overlap_rate'] = overlap_rate
-                
-                rag_debug_log({
-                    'event': 'rag_gate',
-                    'request_id': request_id,
-                    'query_hash': query_hash,
-                    'timestamp': now_moscow().isoformat(),
-                    'attempt': 1,
-                    'top_k': start_top_k,
-                    'ok': context_ok,
-                    'reason': gate_reason,
-                    'metrics': gate_debug
-                })
-                
-                if 'low_overlap' in gate_reason and start_top_k < tenant_rag_topk_fallback:
-                    context2, sims2 = build_context_with_scores(scored_chunks, top_k=tenant_rag_topk_fallback)
-                    context_ok2, gate_reason2, gate_debug2 = quality_gate(user_message, context2, sims2, quality_gate_settings)
+                    scored_chunks = []
+                    for chunk_text, embedding_text in all_chunks:
+                        chunk_embedding = json.loads(embedding_text)
+                        similarity = cosine_similarity(query_embedding, chunk_embedding)
+                        scored_chunks.append((chunk_text, similarity))
                     
-                    gate_debug2['top_k_used'] = tenant_rag_topk_fallback
-                    gate_debug2['overlap_rate'] = overlap_rate
+                    scored_chunks.sort(key=lambda x: x[1], reverse=True)
+                    print(f"DEBUG: Top {tenant_rag_topk_default} chunks for query '{user_message}':")
+                    for i, (chunk, sim) in enumerate(scored_chunks[:tenant_rag_topk_default]):
+                        print(f"  {i+1}. Similarity: {sim:.4f}, Text: {chunk[:200]}...")
+
+                    request_id = context.request_id if hasattr(context, 'request_id') else 'unknown'
+                    query_hash = hashlib.sha256(user_message.encode()).hexdigest()[:12]
+                    
+                    overlap_rate = low_overlap_rate()
+                    start_top_k = tenant_rag_topk_fallback if (RAG_LOW_OVERLAP_START_TOPK5 and overlap_rate >= RAG_LOW_OVERLAP_THRESHOLD) else tenant_rag_topk_default
+                    
+                    context_str, sims = build_context_with_scores(scored_chunks, top_k=start_top_k)
+                    context_ok, gate_reason, gate_debug = quality_gate(user_message, context_str, sims, quality_gate_settings)
+                    
+                    gate_debug['top_k_used'] = start_top_k
+                    gate_debug['overlap_rate'] = overlap_rate
                     
                     rag_debug_log({
-                        'event': 'rag_gate_fallback',
+                        'event': 'rag_gate',
                         'request_id': request_id,
                         'query_hash': query_hash,
                         'timestamp': now_moscow().isoformat(),
-                        'attempt': 2,
-                        'top_k': RAG_TOPK_FALLBACK,
-                        'ok': context_ok2,
-                        'reason': gate_reason2,
-                        'metrics': gate_debug2
+                        'attempt': 1,
+                        'top_k': start_top_k,
+                        'ok': context_ok,
+                        'reason': gate_reason,
+                        'metrics': gate_debug
                     })
                     
-                    context_str = context2
-                    sims = sims2
-                    context_ok = context_ok2
-                    gate_reason = gate_reason2
-                    gate_debug = gate_debug2
-                
-                update_low_overlap_stats('low_overlap' in gate_reason)
+                    if 'low_overlap' in gate_reason and start_top_k < tenant_rag_topk_fallback:
+                        context2, sims2 = build_context_with_scores(scored_chunks, top_k=tenant_rag_topk_fallback)
+                        context_ok2, gate_reason2, gate_debug2 = quality_gate(user_message, context2, sims2, quality_gate_settings)
+                        
+                        gate_debug2['top_k_used'] = tenant_rag_topk_fallback
+                        gate_debug2['overlap_rate'] = overlap_rate
+                        
+                        rag_debug_log({
+                            'event': 'rag_gate_fallback',
+                            'request_id': request_id,
+                            'query_hash': query_hash,
+                            'timestamp': now_moscow().isoformat(),
+                            'attempt': 2,
+                            'top_k': RAG_TOPK_FALLBACK,
+                            'ok': context_ok2,
+                            'reason': gate_reason2,
+                            'metrics': gate_debug2
+                        })
+                        
+                        context_str = context2
+                        sims = sims2
+                        context_ok = context_ok2
+                        gate_reason = gate_reason2
+                        gate_debug = gate_debug2
+                    
+                    update_low_overlap_stats('low_overlap' in gate_reason)
                 else:
                     # Если нет chunks - проверяем режим pure_prompt
                     context_str = ""
