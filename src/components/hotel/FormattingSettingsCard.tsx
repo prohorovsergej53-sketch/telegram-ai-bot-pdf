@@ -14,12 +14,16 @@ interface FormattingSettings {
   use_emoji: boolean;
   use_markdown: boolean;
   use_lists_formatting: boolean;
+  custom_emoji_map?: Record<string, string>;
+  list_bullet_char?: string;
+  numbered_list_char?: string;
 }
 
 const MESSENGERS = [
-  { id: 'telegram', label: 'Telegram', icon: 'Send' },
-  { id: 'vk', label: 'VK', icon: 'Users' },
-  { id: 'max', label: 'MAX', icon: 'Mail' }
+  { id: 'telegram', label: 'Telegram', icon: 'Send', description: 'Markdown форматирование' },
+  { id: 'widget', label: 'Виджет', icon: 'Code', description: 'HTML форматирование' },
+  { id: 'vk', label: 'VK', icon: 'Users', description: 'Чистый текст' },
+  { id: 'max', label: 'MAX', icon: 'Mail', description: 'Чистый текст' }
 ];
 
 const FormattingSettingsCard = () => {
@@ -103,12 +107,61 @@ const FormattingSettingsCard = () => {
     const config = settings[messenger] || {
       messenger,
       use_emoji: true,
-      use_markdown: true,
+      use_markdown: messenger === 'telegram',
       use_lists_formatting: true
     };
 
+    const messengerInfo = MESSENGERS.find(m => m.id === messenger);
+
     return (
       <div className="space-y-6">
+        {/* Инфо-блок про канал */}
+        <div className={`border-l-4 p-4 rounded ${
+          messenger === 'telegram' ? 'bg-blue-50 border-blue-500' :
+          messenger === 'widget' ? 'bg-cyan-50 border-cyan-500' :
+          messenger === 'vk' ? 'bg-indigo-50 border-indigo-500' :
+          'bg-purple-50 border-purple-500'
+        }`}>
+          <div className="flex items-start gap-3">
+            <Icon name="Info" size={20} className={`mt-0.5 ${
+              messenger === 'telegram' ? 'text-blue-600' :
+              messenger === 'widget' ? 'text-cyan-600' :
+              messenger === 'vk' ? 'text-indigo-600' :
+              'text-purple-600'
+            }`} />
+            <div className="flex-1">
+              <p className={`font-semibold mb-1 ${
+                messenger === 'telegram' ? 'text-blue-900' :
+                messenger === 'widget' ? 'text-cyan-900' :
+                messenger === 'vk' ? 'text-indigo-900' :
+                'text-purple-900'
+              }`}>{messengerInfo?.description}</p>
+              <p className={`text-sm ${
+                messenger === 'telegram' ? 'text-blue-800' :
+                messenger === 'widget' ? 'text-cyan-800' :
+                messenger === 'vk' ? 'text-indigo-800' :
+                'text-purple-800'
+              }`}>
+                {messenger === 'telegram' && '✅ Markdown: **жирный**, *курсив* • Ссылки с превью'}
+                {messenger === 'widget' && '✅ HTML: <b>жирный</b>, <i>курсив</i>, <a>ссылки</a> • Рендеринг в браузере'}
+                {messenger === 'vk' && '❌ HTML теги удаляются • VK автоматически делает ссылки кликабельными'}
+                {messenger === 'max' && '❌ HTML теги удаляются • MAX автоматически делает ссылки кликабельными'}
+              </p>
+              <p className={`text-xs mt-2 ${
+                messenger === 'telegram' ? 'text-blue-700' :
+                messenger === 'widget' ? 'text-cyan-700' :
+                messenger === 'vk' ? 'text-indigo-700' :
+                'text-purple-700'
+              }`}>
+                <Icon name="Lightbulb" size={14} className="inline mr-1" />
+                {messenger === 'telegram' && 'AI будет конвертировать HTML в Markdown автоматически'}
+                {messenger === 'widget' && 'HTML теги из AI отобразятся корректно в виджете'}
+                {messenger === 'vk' && 'AI отправит чистый текст, VK сам обработает URL'}
+                {messenger === 'max' && 'AI отправит чистый текст, MAX сам обработает URL'}
+              </p>
+            </div>
+          </div>
+        </div>
         <div className="flex items-center justify-between p-4 border rounded-lg">
           <div className="space-y-1">
             <Label htmlFor={`${messenger}-emoji`} className="text-base font-medium">
@@ -127,17 +180,23 @@ const FormattingSettingsCard = () => {
 
         <div className="flex items-center justify-between p-4 border rounded-lg">
           <div className="space-y-1">
-            <Label htmlFor={`${messenger}-markdown`} className="text-base font-medium">
+            <Label htmlFor={`${messenger}-markdown`} className="text-base font-medium flex items-center gap-2">
               Использовать Markdown
+              {messenger !== 'telegram' && (
+                <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded">Только Telegram</span>
+              )}
             </Label>
             <p className="text-sm text-slate-500">
-              Жирный текст, курсив, подчеркивание для выделения
+              {messenger === 'telegram' 
+                ? 'Markdown: **жирный**, *курсив* — поддерживается нативно'
+                : 'Markdown не поддерживается этим каналом'}
             </p>
           </div>
           <Switch
             id={`${messenger}-markdown`}
             checked={config.use_markdown}
             onCheckedChange={() => handleToggle(messenger, 'use_markdown')}
+            disabled={messenger !== 'telegram'}
           />
         </div>
 
@@ -179,19 +238,19 @@ const FormattingSettingsCard = () => {
   };
 
   return (
-    <Card className="shadow-xl">
-      <CardHeader className="border-b bg-gradient-to-r from-slate-50 to-purple-50">
+    <Card className="shadow-xl border-2 border-purple-200">
+      <CardHeader className="border-b bg-gradient-to-r from-purple-50 via-blue-50 to-cyan-50">
         <CardTitle className="flex items-center gap-2">
-          <Icon name="Settings" size={20} />
+          <Icon name="Palette" size={20} className="text-purple-600" />
           Форматирование сообщений
         </CardTitle>
         <CardDescription>
-          Настройте стиль ответов AI для каждого мессенджера
+          Настройте стиль ответов AI для каждого канала. Форматирование применяется автоматически — AI получает текст, система адаптирует его под канал.
         </CardDescription>
       </CardHeader>
       <CardContent className="pt-6">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             {MESSENGERS.map((messenger) => (
               <TabsTrigger key={messenger.id} value={messenger.id}>
                 <Icon name={messenger.icon as any} size={16} className="mr-2" />
@@ -206,6 +265,25 @@ const FormattingSettingsCard = () => {
             </TabsContent>
           ))}
         </Tabs>
+        
+        <div className="mt-6 bg-gradient-to-r from-green-50 to-emerald-50 border-l-4 border-green-500 p-4 rounded">
+          <div className="flex items-start gap-3">
+            <Icon name="CheckCircle" size={20} className="text-green-600 mt-0.5" />
+            <div className="text-sm text-green-900">
+              <p className="font-semibold mb-2">Как работает форматирование:</p>
+              <ol className="space-y-1 list-decimal list-inside">
+                <li>Пользователь отправляет сообщение в канал (Telegram/VK/MAX/Виджет)</li>
+                <li>AI генерирует ответ в универсальном формате</li>
+                <li>Система автоматически применяет форматирование под канал</li>
+                <li>Пользователь получает оптимально оформленный ответ</li>
+              </ol>
+              <p className="mt-3 text-xs text-green-800">
+                <Icon name="Info" size={14} className="inline mr-1" />
+                Настройки применяются моментально ко всем новым сообщениям. История не изменяется.
+              </p>
+            </div>
+          </div>
+        </div>
       </CardContent>
     </Card>
   );

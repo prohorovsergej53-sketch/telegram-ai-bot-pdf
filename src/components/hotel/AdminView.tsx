@@ -169,7 +169,10 @@ const AdminView = ({ documents, isLoading, onFileUpload, onDeleteDocument, curre
 
           <MessengerAutoMessages isSuperAdmin={superAdmin} />
           
-          {superAdmin && <FormattingSettingsCard />}
+          {/* Форматирование доступно всем, у кого есть мессенджеры */}
+          {(superAdmin || hasFeatureAccess('hasTelegram', tariffId) || hasFeatureAccess('hasVK', tariffId) || hasFeatureAccess('hasMAX', tariffId)) && (
+            <FormattingSettingsCard />
+          )}
           
           {superAdmin && <EmojiMappingCard />}
           
