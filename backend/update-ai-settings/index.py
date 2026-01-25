@@ -35,14 +35,10 @@ def handler(event: dict, context) -> dict:
         
         body = json.loads(event.get('body', '{}'))
         settings = body.get('settings', {})
-
-        if not settings:
-            return {
-                'statusCode': 400,
-                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                'body': json.dumps({'error': 'settings required'}),
-                'isBase64Encoded': False
-            }
+        
+        # Поддержка прямых параметров (для enable_pure_prompt_mode)
+        if not settings and body:
+            settings = body
 
         conn = psycopg2.connect(os.environ['DATABASE_URL'])
         cur = conn.cursor()
@@ -88,7 +84,7 @@ def handler(event: dict, context) -> dict:
         for key, value in settings.items():
             if key in ['temperature', 'top_p', 'frequency_penalty', 'presence_penalty']:
                 ai_settings[key] = str(value)
-            elif key in ['provider', 'chat_provider', 'chat_model', 'embedding_provider', 'embedding_model', 'system_prompt', 'max_tokens', 'system_priority', 'creative_mode', 'model']:
+            elif key in ['provider', 'chat_provider', 'chat_model', 'embedding_provider', 'embedding_model', 'system_prompt', 'max_tokens', 'system_priority', 'creative_mode', 'model', 'enable_pure_prompt_mode', 'rag_topk_default', 'rag_topk_fallback']:
                 ai_settings[key] = value
         
         # Синхронизация новой и старой схемы (обратная совместимость)

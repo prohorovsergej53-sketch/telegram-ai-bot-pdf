@@ -81,20 +81,38 @@ def get_tenant_chat_stats(cursor, tenant_id: int, period_days: int) -> dict:
         SELECT 
             COUNT(DISTINCT cm.session_id) as unique_chats,
             COUNT(cm.id) as total_messages,
-            COALESCE(SUM(tu.tokens_used), 0) as total_tokens,
-            COALESCE(SUM(tu.cost_rubles), 0) as total_cost,
+            COALESCE(
+                (SELECT SUM(tokens_used) 
+                 FROM t_p56134400_telegram_ai_bot_pdf.token_usage 
+                 WHERE tenant_id = %s 
+                   AND operation_type = 'gpt_response'
+                   AND created_at >= NOW() - INTERVAL '%s days'), 
+                0
+            ) as total_tokens,
+            COALESCE(
+                (SELECT SUM(cost_rubles) 
+                 FROM t_p56134400_telegram_ai_bot_pdf.token_usage 
+                 WHERE tenant_id = %s 
+                   AND operation_type = 'gpt_response'
+                   AND created_at >= NOW() - INTERVAL '%s days'), 
+                0
+            ) as total_cost,
             CASE 
-                WHEN COUNT(cm.id) > 0 THEN COALESCE(SUM(tu.tokens_used), 0)::float / COUNT(cm.id)
+                WHEN COUNT(cm.id) > 0 THEN 
+                    COALESCE(
+                        (SELECT SUM(tokens_used) 
+                         FROM t_p56134400_telegram_ai_bot_pdf.token_usage 
+                         WHERE tenant_id = %s 
+                           AND operation_type = 'gpt_response'
+                           AND created_at >= NOW() - INTERVAL '%s days'), 
+                        0
+                    )::float / COUNT(cm.id)
                 ELSE 0
             END as avg_tokens_per_message
         FROM t_p56134400_telegram_ai_bot_pdf.chat_messages cm
-        LEFT JOIN t_p56134400_telegram_ai_bot_pdf.token_usage tu 
-            ON tu.tenant_id = cm.tenant_id 
-            AND tu.operation_type = 'gpt_response'
-            AND tu.created_at >= NOW() - INTERVAL '%s days'
         WHERE cm.tenant_id = %s
             AND cm.created_at >= NOW() - INTERVAL '%s days'
-    ''' % (period_days, tenant_id, period_days)
+    ''' % (tenant_id, period_days, tenant_id, period_days, tenant_id, period_days, tenant_id, period_days)
     
     cursor.execute(query)
     row = cursor.fetchone()
@@ -104,19 +122,31 @@ def get_tenant_chat_stats(cursor, tenant_id: int, period_days: int) -> dict:
             cm.session_id as chat_id,
             COALESCE(MAX(cm.content), 'Unknown') as user_name,
             COUNT(cm.id) as message_count,
-            COALESCE(SUM(tu.tokens_used), 0) as total_tokens,
-            COALESCE(SUM(tu.cost_rubles), 0) as total_cost
+            COALESCE(
+                (SELECT SUM(tokens_used) 
+                 FROM t_p56134400_telegram_ai_bot_pdf.token_usage 
+                 WHERE tenant_id = %s 
+                   AND operation_type = 'gpt_response'
+                   AND request_id = cm.session_id
+                   AND created_at >= NOW() - INTERVAL '%s days'), 
+                0
+            ) as total_tokens,
+            COALESCE(
+                (SELECT SUM(cost_rubles) 
+                 FROM t_p56134400_telegram_ai_bot_pdf.token_usage 
+                 WHERE tenant_id = %s 
+                   AND operation_type = 'gpt_response'
+                   AND request_id = cm.session_id
+                   AND created_at >= NOW() - INTERVAL '%s days'), 
+                0
+            ) as total_cost
         FROM t_p56134400_telegram_ai_bot_pdf.chat_messages cm
-        LEFT JOIN t_p56134400_telegram_ai_bot_pdf.token_usage tu 
-            ON tu.tenant_id = cm.tenant_id 
-            AND tu.operation_type = 'gpt_response'
-            AND tu.created_at >= NOW() - INTERVAL '%s days'
         WHERE cm.tenant_id = %s
             AND cm.created_at >= NOW() - INTERVAL '%s days'
         GROUP BY cm.session_id
         ORDER BY total_cost DESC
         LIMIT 10
-    ''' % (period_days, tenant_id, period_days)
+    ''' % (tenant_id, period_days, tenant_id, period_days, tenant_id, period_days)
     
     cursor.execute(top_chats_query)
     top_chats = cursor.fetchall()
@@ -149,21 +179,31 @@ def get_all_tenants_chat_stats(cursor, period_days: int) -> dict:
             t.id as tenant_id,
             t.slug,
             t.name,
-            COUNT(cm.id) as total_messages,
-            COALESCE(SUM(tu.tokens_used), 0) as total_tokens,
-            COALESCE(SUM(tu.cost_rubles), 0) as total_cost
+            COUNT(DISTINCT cm.id) as total_messages,
+            COALESCE(
+                (SELECT SUM(tokens_used) 
+                 FROM t_p56134400_telegram_ai_bot_pdf.token_usage 
+                 WHERE tenant_id = t.id 
+                   AND operation_type = 'gpt_response'
+                   AND created_at >= NOW() - INTERVAL '%s days'), 
+                0
+            ) as total_tokens,
+            COALESCE(
+                (SELECT SUM(cost_rubles) 
+                 FROM t_p56134400_telegram_ai_bot_pdf.token_usage 
+                 WHERE tenant_id = t.id 
+                   AND operation_type = 'gpt_response'
+                   AND created_at >= NOW() - INTERVAL '%s days'), 
+                0
+            ) as total_cost
         FROM t_p56134400_telegram_ai_bot_pdf.tenants t
         LEFT JOIN t_p56134400_telegram_ai_bot_pdf.chat_messages cm 
             ON cm.tenant_id = t.id
             AND cm.created_at >= NOW() - INTERVAL '%s days'
-        LEFT JOIN t_p56134400_telegram_ai_bot_pdf.token_usage tu 
-            ON tu.tenant_id = t.id 
-            AND tu.operation_type = 'gpt_response'
-            AND tu.created_at >= NOW() - INTERVAL '%s days'
         GROUP BY t.id, t.slug, t.name
-        HAVING COUNT(cm.id) > 0
+        HAVING COUNT(DISTINCT cm.id) > 0
         ORDER BY total_cost DESC
-    ''' % (period_days, period_days)
+    ''' % (period_days, period_days, period_days)
     
     cursor.execute(query)
     tenants = cursor.fetchall()
