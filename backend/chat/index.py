@@ -461,11 +461,18 @@ def handler(event: dict, context) -> dict:
                 
                 update_low_overlap_stats('low_overlap' in gate_reason)
                 else:
-                    # Если нет chunks - без RAG бот не может отвечать
+                    # Если нет chunks - проверяем режим pure_prompt
                     context_str = ""
-                    context_ok = False
-                    gate_reason = "no_chunks"
-                    print(f"⚠️ No chunks found for tenant {tenant_id}")
+                    if enable_pure_prompt_mode:
+                        # Режим работы без RAG: разрешаем использовать историю и system_prompt
+                        context_ok = True
+                        gate_reason = "no_chunks_pure_prompt_enabled"
+                        print(f"✅ Pure prompt mode enabled for tenant {tenant_id} (no chunks)")
+                    else:
+                        # Обычный режим: без документов бот не может отвечать
+                        context_ok = False
+                        gate_reason = "no_chunks"
+                        print(f"⚠️ No chunks found for tenant {tenant_id}, pure_prompt_mode disabled")
                     sims = []
                     gate_debug = {}
             except Exception as emb_error:
