@@ -48,6 +48,7 @@ const ChatWidget = () => {
   const [quickQuestions, setQuickQuestions] = useState<QuickQuestion[]>([]);
   const [isInitializing, setIsInitializing] = useState(true);
   const [consentGiven, setConsentGiven] = useState(false);
+  const [tenantNotFound, setTenantNotFound] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
 
@@ -68,6 +69,11 @@ const ChatWidget = () => {
             if (data.settings?.page_title) {
               welcomeMessage = data.settings.page_title;
             }
+          } else if (response.status === 404) {
+            // Тенант не найден
+            setTenantNotFound(true);
+            setIsInitializing(false);
+            return;
           }
         }
 
@@ -176,6 +182,35 @@ const ChatWidget = () => {
           <Icon name="Bot" className="w-12 h-12 text-blue-600 animate-pulse" />
           <span className="text-blue-600 font-medium">Загрузка...</span>
         </div>
+      </div>
+    );
+  }
+
+  if (tenantNotFound) {
+    return (
+      <div className="h-screen w-full bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-4">
+        <Card className="max-w-md w-full shadow-xl">
+          <CardHeader className="text-center border-b">
+            <div className="flex justify-center mb-4">
+              <Icon name="AlertCircle" className="w-16 h-16 text-red-500" />
+            </div>
+            <CardTitle className="text-2xl text-gray-900">Страница не найдена</CardTitle>
+          </CardHeader>
+          <CardContent className="pt-6">
+            <p className="text-gray-600 text-center mb-4">
+              AI-консультант с адресом <span className="font-mono bg-gray-100 px-2 py-1 rounded">{tenantSlug}</span> не существует или был удалён.
+            </p>
+            <div className="flex justify-center">
+              <Button
+                onClick={() => window.location.href = '/'}
+                className="bg-blue-600 hover:bg-blue-700"
+              >
+                <Icon name="Home" size={16} className="mr-2" />
+                На главную
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     );
   }
