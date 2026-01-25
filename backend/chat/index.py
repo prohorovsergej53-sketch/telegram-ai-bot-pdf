@@ -86,7 +86,7 @@ def get_provider_and_api_model(frontend_model: str, frontend_provider: str) -> t
     raise ValueError(f"Model '{frontend_model}' not supported for provider '{frontend_provider}'")
 
 def handler(event: dict, context) -> dict:
-    """AI чат с поиском информации в документах отеля (Moscow UTC+3)"""
+    """AI чат с поиском в документах или в режиме чистого промпта (Moscow UTC+3)"""
     method = event.get('httpMethod', 'POST')
 
     if method == 'OPTIONS':
@@ -312,7 +312,17 @@ def handler(event: dict, context) -> dict:
             enriched_query = f"{user_message_converted} {context_date}"
             print(f"DEBUG: Enriched query for embedding: '{enriched_query}' (original: '{user_message_converted}'")
 
-        try:
+        # Если включен режим Pure Prompt Mode - ПОЛНОСТЬЮ пропускаем RAG
+        if enable_pure_prompt_mode:
+            print(f"✅ Pure Prompt Mode enabled for tenant {tenant_id}, skipping RAG entirely")
+            context_str = ""
+            context_ok = True
+            gate_reason = "pure_prompt_mode_enabled"
+            sims = []
+            gate_debug = {'mode': 'pure_prompt'}
+        else:
+            # Обычный режим: поиск по эмбеддингам и RAG
+            try:
             if embedding_provider == 'yandex':
                 import requests
                 # ВСЕГДА используем PROJECT секреты для эмбеддингов (не tenant ключи!)
@@ -450,35 +460,28 @@ def handler(event: dict, context) -> dict:
                     gate_debug = gate_debug2
                 
                 update_low_overlap_stats('low_overlap' in gate_reason)
-            else:
-                # Если нет chunks - проверяем режим pure_prompt
-                context_str = ""
-                if enable_pure_prompt_mode:
-                    # Режим работы без RAG: разрешаем использовать историю и system_prompt
-                    context_ok = True
-                    gate_reason = "no_chunks_pure_prompt_enabled"
-                    print(f"✅ Pure prompt mode enabled for tenant {tenant_id}")
                 else:
-                    # Обычный режим: без документов бот не может отвечать
+                    # Если нет chunks - без RAG бот не может отвечать
+                    context_str = ""
                     context_ok = False
                     gate_reason = "no_chunks"
-                    print(f"⚠️ No chunks found for tenant {tenant_id}, pure_prompt_mode disabled")
+                    print(f"⚠️ No chunks found for tenant {tenant_id}")
+                    sims = []
+                    gate_debug = {}
+            except Exception as emb_error:
+                print(f"Embedding search error: {emb_error}")
+                cur.execute("""
+                    SELECT chunk_text FROM t_p56134400_telegram_ai_bot_pdf.tenant_chunks 
+                    WHERE tenant_id = %s
+                    ORDER BY id DESC 
+                    LIMIT 3
+                """, (tenant_id,))
+                chunks = cur.fetchall()
+                context_str = "\n\n".join([chunk[0] for chunk in chunks]) if chunks else ""
+                context_ok = False
+                gate_reason = "embedding_error"
                 sims = []
-                gate_debug = {}
-        except Exception as emb_error:
-            print(f"Embedding search error: {emb_error}")
-            cur.execute("""
-                SELECT chunk_text FROM t_p56134400_telegram_ai_bot_pdf.tenant_chunks 
-                WHERE tenant_id = %s
-                ORDER BY id DESC 
-                LIMIT 3
-            """, (tenant_id,))
-            chunks = cur.fetchall()
-            context_str = "\n\n".join([chunk[0] for chunk in chunks]) if chunks else ""
-            context_ok = False
-            gate_reason = "embedding_error"
-            sims = []
-            gate_debug = {"error": str(emb_error)}
+                gate_debug = {"error": str(emb_error)}
 
         cur.execute("""
             INSERT INTO t_p56134400_telegram_ai_bot_pdf.chat_messages (session_id, role, content, tenant_id)
