@@ -14,6 +14,19 @@ interface Message {
   created_at: string;
 }
 
+// Функция для рендеринга сообщения с HTML и кликабельными ссылками
+const renderMessage = (text: string) => {
+  const urlRegex = /(https?:\/\/[^\s<]+)/g;
+  const processedText = text.replace(urlRegex, (url) => {
+    if (text.indexOf(`<a`) !== -1 && text.indexOf(url) > text.lastIndexOf(`<a`, text.indexOf(url))) {
+      return url;
+    }
+    return `<a href="${url}" target="_blank" rel="noopener noreferrer" class="underline hover:opacity-80 font-medium">${url}</a>`;
+  });
+  
+  return <span dangerouslySetInnerHTML={{ __html: processedText }} />;
+};
+
 interface SupportChatProps {
   userName?: string;
   userEmail?: string;
@@ -194,7 +207,7 @@ export const SupportChat = ({ userName, userEmail, userPhone }: SupportChatProps
                       : 'bg-white border border-slate-200 text-slate-900'
                   }`}
                 >
-                  <p className="text-sm whitespace-pre-wrap break-words">{msg.message_text}</p>
+                  <div className="text-sm whitespace-pre-wrap break-words">{renderMessage(msg.message_text)}</div>
                   <p
                     className={`text-xs mt-1 ${
                       msg.sender_type === 'user' ? 'text-blue-200' : 'text-slate-400'

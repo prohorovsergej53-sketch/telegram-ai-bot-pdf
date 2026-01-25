@@ -3,6 +3,7 @@ import Icon from '@/components/ui/icon';
 import FlowStepInitial from './flow/FlowStepInitial';
 import FlowStepAdmin from './flow/FlowStepAdmin';
 import FlowStepCompliance from './flow/FlowStepCompliance';
+import FlowStepFormatting from './flow/FlowStepFormatting';
 
 const FlowStepDetails = () => {
   return (
@@ -18,6 +19,7 @@ const FlowStepDetails = () => {
           <FlowStepInitial />
           <FlowStepAdmin />
           <FlowStepCompliance />
+          <FlowStepFormatting />
         </div>
       </CardContent>
     </Card>

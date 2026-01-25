@@ -87,33 +87,47 @@ const DataFlowDiagram = () => {
               <Icon name="Cloud" size={20} />
               Backend → Внешние API
             </h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="bg-orange-50 p-4 rounded border border-orange-200">
                 <p className="font-semibold text-orange-800 mb-2">🤖 AI Провайдеры</p>
                 <ul className="text-sm text-slate-700 space-y-1">
-                  <li>• YandexGPT (yandexgpt, yandexgpt-lite)</li>
-                  <li>• OpenAI (gpt-4, gpt-3.5-turbo)</li>
-                  <li>• Anthropic (claude-3-sonnet)</li>
-                  <li>• API Keys из tenant_settings</li>
-                  <li>• Запрос/ответ через /chat</li>
+                  <li>• <strong>YandexGPT:</strong> yandexgpt, yandexgpt-lite (прямой API)</li>
+                  <li>• <strong>DeepSeek:</strong> deepseek-chat, deepseek-reasoner (прямой API)</li>
+                  <li>• <strong>OpenRouter:</strong> 15+ бесплатных моделей (llama-3.3-70b, gemini-2.0-flash, deepseek-v3/r1)</li>
+                  <li>• <strong>ProxyAPI:</strong> OpenAI (gpt-4o, o1), Anthropic (claude-3.5-sonnet)</li>
+                  <li>• Ключи из <code>tenant_api_keys</code> (provider + api_key)</li>
+                  <li>• Fallback: OpenRouter free модели при ошибках</li>
                 </ul>
               </div>
+              
               <div className="bg-teal-50 p-4 rounded border border-teal-200">
-                <p className="font-semibold text-teal-800 mb-2">🔗 OpenAI</p>
+                <p className="font-semibold text-teal-800 mb-2">🔗 Embeddings (RAG)</p>
                 <ul className="text-sm text-slate-700 space-y-1">
-                  <li>• Embeddings API</li>
-                  <li>• Model: text-embedding-3-small</li>
-                  <li>• Векторизация документов</li>
-                  <li>• RAG-поиск</li>
+                  <li>• <strong>Yandex:</strong> text-search-query (PROJECT ключи)</li>
+                  <li>• <strong>OpenAI:</strong> text-embedding-3-small (tenant ключи)</li>
+                  <li>• Векторизация документов (tenant_chunks)</li>
+                  <li>• Cosine similarity поиск (pgvector)</li>
+                  <li>• Quality Gate (фильтр по релевантности)</li>
                 </ul>
               </div>
+              
               <div className="bg-green-50 p-4 rounded border border-green-200">
                 <p className="font-semibold text-green-800 mb-2">💳 ЮKassa</p>
                 <ul className="text-sm text-slate-700 space-y-1">
-                  <li>• Создание платежей</li>
+                  <li>• Создание платежей (тарифы)</li>
                   <li>• Webhook: payment.succeeded</li>
-                  <li>• Metadata → tenant_id</li>
-                  <li>• Confirmation URL</li>
+                  <li>• Metadata → tenant_id, tariff_id</li>
+                  <li>• Автопродление подписок</li>
+                </ul>
+              </div>
+              
+              <div className="bg-purple-50 p-4 rounded border border-purple-200">
+                <p className="font-semibold text-purple-800 mb-2">📬 Мессенджеры API</p>
+                <ul className="text-sm text-slate-700 space-y-1">
+                  <li>• <strong>Telegram Bot API:</strong> sendMessage (Markdown)</li>
+                  <li>• <strong>VK API:</strong> messages.send (текст)</li>
+                  <li>• <strong>MAX Platform API:</strong> POST /messages (текст)</li>
+                  <li>• Webhook → /chat → ответ в канал</li>
                 </ul>
               </div>
             </div>
@@ -125,33 +139,102 @@ const DataFlowDiagram = () => {
               <Icon name="Webhook" size={20} />
               Внешние сервисы → Backend (Webhooks)
             </h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="bg-indigo-50 p-4 rounded border border-indigo-200">
                 <p className="font-semibold text-indigo-800 mb-2">📱 Telegram</p>
                 <ul className="text-sm text-slate-700 space-y-1">
-                  <li>• /telegram-webhook</li>
-                  <li>• update.message.text</li>
-                  <li>• Определение tenant по bot_token</li>
-                  <li>• Ответ через Telegram Bot API</li>
+                  <li>• <code>/telegram-webhook</code></li>
+                  <li>• <code>update.message.text</code> → парсинг сообщения</li>
+                  <li>• Определение <code>tenant_id</code> по <code>bot_token</code></li>
+                  <li>• Вызов <code>/chat</code> с <code>channel='telegram'</code></li>
+                  <li>• Ответ через Telegram Bot API (<code>parse_mode='Markdown'</code>)</li>
                 </ul>
               </div>
               <div className="bg-blue-50 p-4 rounded border border-blue-200">
                 <p className="font-semibold text-blue-800 mb-2">👥 VK</p>
                 <ul className="text-sm text-slate-700 space-y-1">
-                  <li>• /vk-webhook</li>
-                  <li>• callback.message.text</li>
-                  <li>• Определение tenant по group_id</li>
-                  <li>• Ответ через VK API</li>
+                  <li>• <code>/vk-webhook</code></li>
+                  <li>• <code>callback.message.text</code></li>
+                  <li>• Confirmation code для VK API</li>
+                  <li>• Вызов <code>/chat</code> с <code>channel='vk'</code></li>
+                  <li>• Ответ через VK API (чистый текст)</li>
                 </ul>
               </div>
               <div className="bg-purple-50 p-4 rounded border border-purple-200">
                 <p className="font-semibold text-purple-800 mb-2">💬 MAX</p>
                 <ul className="text-sm text-slate-700 space-y-1">
-                  <li>• /max-webhook</li>
-                  <li>• event.message</li>
-                  <li>• Определение tenant по channel_id</li>
-                  <li>• Ответ через MAX API</li>
+                  <li>• <code>/max-webhook</code></li>
+                  <li>• <code>event.message.body.text</code></li>
+                  <li>• Определение <code>tenant_id</code> по <code>bot_token</code></li>
+                  <li>• Вызов <code>/chat</code> с <code>channel='max'</code></li>
+                  <li>• Ответ через MAX Platform API (чистый текст)</li>
                 </ul>
+              </div>
+              <div className="bg-cyan-50 p-4 rounded border border-cyan-200">
+                <p className="font-semibold text-cyan-800 mb-2">🌐 Widget (сайт)</p>
+                <ul className="text-sm text-slate-700 space-y-1">
+                  <li>• Frontend → прямой вызов <code>/chat</code></li>
+                  <li>• <code>channel='widget'</code></li>
+                  <li>• Ответ в HTML формате (<code>&lt;b&gt;</code>, <code>&lt;a&gt;</code>)</li>
+                  <li>• Рендеринг через <code>dangerouslySetInnerHTML</code></li>
+                </ul>
+              </div>
+            </div>
+            
+            <div className="mt-4 p-4 bg-gradient-to-r from-blue-50 to-purple-50 border-2 border-blue-300 rounded-lg">
+              <h4 className="font-bold text-blue-900 mb-3 flex items-center gap-2">
+                <Icon name="Palette" size={18} />
+                Централизованное форматирование сообщений
+              </h4>
+              <div className="text-sm text-slate-700 space-y-2">
+                <p className="mb-2">
+                  <strong>Архитектура:</strong> Единая функция <code>/chat</code> применяет форматирование 
+                  под каждый канал на основе настроек из <code>messenger_formatting_settings</code>
+                </p>
+                
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-3">
+                  <div className="bg-white p-2 rounded border text-xs">
+                    <p className="font-bold text-blue-900">Telegram</p>
+                    <p className="text-slate-600">Markdown</p>
+                    <p className="text-green-600">✅ use_markdown</p>
+                  </div>
+                  <div className="bg-white p-2 rounded border text-xs">
+                    <p className="font-bold text-cyan-900">Widget</p>
+                    <p className="text-slate-600">HTML</p>
+                    <p className="text-red-600">❌ use_markdown</p>
+                  </div>
+                  <div className="bg-white p-2 rounded border text-xs">
+                    <p className="font-bold text-indigo-900">VK</p>
+                    <p className="text-slate-600">Plain text</p>
+                    <p className="text-red-600">❌ use_markdown</p>
+                  </div>
+                  <div className="bg-white p-2 rounded border text-xs">
+                    <p className="font-bold text-purple-900">MAX</p>
+                    <p className="text-slate-600">Plain text</p>
+                    <p className="text-red-600">❌ use_markdown</p>
+                  </div>
+                </div>
+                
+                <div className="mt-3 bg-yellow-50 border border-yellow-300 p-3 rounded text-xs">
+                  <p className="font-semibold text-yellow-900 mb-1">⚙️ Общие настройки (применяются ко всем каналам):</p>
+                  <ul className="text-yellow-800 space-y-1 ml-3">
+                    <li>• <code>use_emoji</code> — добавление эмодзи по ключевым словам</li>
+                    <li>• <code>custom_emoji_map</code> — JSON: {`{"завтрак": "🍳", "руб": "💰"}`}</li>
+                    <li>• <code>use_lists_formatting</code> — форматирование списков</li>
+                    <li>• <code>list_bullet_char</code> — символ маркера (•)</li>
+                  </ul>
+                </div>
+                
+                <div className="mt-3 bg-green-50 border border-green-300 p-3 rounded text-xs">
+                  <p className="font-semibold text-green-900 mb-1">🔄 Поток форматирования:</p>
+                  <ol className="text-green-800 space-y-1 ml-3">
+                    <li>1. Webhook получает сообщение → передаёт <code>channel='telegram'</code></li>
+                    <li>2. <code>/chat</code> → получает сырой ответ от AI провайдера</li>
+                    <li>3. <code>/chat</code> → загружает настройки из <code>messenger_formatting_settings</code></li>
+                    <li>4. <code>/chat</code> → применяет форматирование (<code>format_with_settings()</code>)</li>
+                    <li>5. Webhook получает готовый ответ → отправляет в канал</li>
+                  </ol>
+                </div>
               </div>
             </div>
           </div>
