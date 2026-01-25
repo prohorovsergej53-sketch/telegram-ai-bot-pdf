@@ -22,8 +22,6 @@ const queryClient = new QueryClient();
 
 const AppContent = () => {
   useSEONotify();
-  // Log current route for debugging
-  console.log('[App] Current pathname:', window.location.pathname);
   return null;
 };
 

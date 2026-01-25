@@ -21,21 +21,15 @@ const LandingPage = () => {
   const [selectedTariff, setSelectedTariff] = useState<string>('basic');
 
   useEffect(() => {
-    console.log('[LandingPage] Location changed:', location.pathname, location.search, location.hash);
-    
     // Обработка query параметра ?tariff=
     const params = new URLSearchParams(location.search);
     const tariffParam = params.get('tariff');
     
-    console.log('[LandingPage] Tariff param:', tariffParam);
-    
     if (tariffParam) {
-      console.log('[LandingPage] Setting tariff to:', tariffParam);
       setSelectedTariff(tariffParam);
       // Скролл к форме заказа с задержкой для загрузки DOM
       setTimeout(() => {
         const formElement = document.getElementById('order-form');
-        console.log('[LandingPage] Form element found:', !!formElement);
         if (formElement) {
           formElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
