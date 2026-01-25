@@ -291,13 +291,24 @@ const TenantApiKeysCard = ({ tenantId, tenantName, fz152Enabled = false }: Tenan
                 <div className="flex items-start gap-2">
                   <Icon name="Info" size={16} className="text-orange-600 mt-0.5" />
                   <div className="text-sm text-orange-900">
-                    <p className="font-medium mb-1">DeepSeek API (прямой)</p>
+                    <p className="font-medium mb-2">DeepSeek API (прямой доступ)</p>
                     <p className="text-orange-800 mb-2">
                       <strong>DeepSeek V3:</strong> $0.14 вх / $0.28 вых (1M) — основная модель для чата
                     </p>
-                    <p className="text-orange-800">
+                    <p className="text-orange-800 mb-3">
                       <strong>DeepSeek R1:</strong> $0.55 вх / $2.19 вых (1M) — модель с рассуждениями
                     </p>
+                    <div className="border-t border-orange-300 pt-3 mt-3">
+                      <p className="font-medium mb-2">Как получить ключ DeepSeek:</p>
+                      <ol className="list-decimal pl-4 space-y-1 text-orange-800">
+                        <li>Перейдите на <a href="https://platform.deepseek.com" target="_blank" rel="noopener noreferrer" className="underline hover:text-orange-600">platform.deepseek.com</a></li>
+                        <li>Зарегистрируйтесь или войдите в аккаунт</li>
+                        <li>Пополните баланс минимум на $5</li>
+                        <li>Перейдите в раздел API Keys</li>
+                        <li>Создайте новый ключ → скопируйте (начинается с sk-...)</li>
+                        <li>Вставьте ключ в поле ниже</li>
+                      </ol>
+                    </div>
                   </div>
                 </div>
               </div>
