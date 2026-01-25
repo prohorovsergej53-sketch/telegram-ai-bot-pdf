@@ -1,6 +1,8 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -43,6 +45,8 @@ export const DocumentsPanel = ({
   const limits = getTariffLimits(tariffId);
   const canUpload = canUploadMoreDocuments(documents.length, tariffId);
   const superAdmin = isSuperAdmin();
+  const [purePromptMode, setPurePromptMode] = useState<boolean>(false);
+  const [isLoadingSettings, setIsLoadingSettings] = useState<boolean>(true);
 
   const filteredDocuments = useMemo(() => {
     const filtered = documents.filter(doc => {
@@ -108,6 +112,63 @@ export const DocumentsPanel = ({
       });
     } finally {
       setIsReindexing(false);
+    }
+  };
+
+  // Загрузка настройки pure_prompt_mode
+  useEffect(() => {
+    const loadPurePromptSetting = async () => {
+      const tenantId = getTenantId();
+      if (!tenantId) return;
+
+      try {
+        const response = await authenticatedFetch(`${BACKEND_URLS.getAiSettings}?tenant_id=${tenantId}`);
+        if (response.ok) {
+          const data = await response.json();
+          setPurePromptMode(data.enable_pure_prompt_mode || false);
+        }
+      } catch (error) {
+        console.error('Failed to load pure_prompt_mode setting:', error);
+      } finally {
+        setIsLoadingSettings(false);
+      }
+    };
+
+    loadPurePromptSetting();
+  }, []);
+
+  const handleTogglePurePromptMode = async (enabled: boolean) => {
+    const tenantId = getTenantId();
+    if (!tenantId) return;
+
+    try {
+      const response = await authenticatedFetch(BACKEND_URLS.updateAiSettings, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          tenant_id: tenantId,
+          enable_pure_prompt_mode: enabled
+        })
+      });
+
+      if (response.ok) {
+        setPurePromptMode(enabled);
+        toast({
+          title: enabled ? '✓ Режим без RAG включён' : '✓ Режим без RAG выключен',
+          description: enabled 
+            ? 'Бот работает только на system_prompt с историей диалога'
+            : 'Бот использует RAG поиск по документам',
+          duration: 3000
+        });
+      } else {
+        throw new Error('Failed to update setting');
+      }
+    } catch (error: any) {
+      toast({
+        title: 'Ошибка обновления настройки',
+        description: error.message,
+        variant: 'destructive'
+      });
     }
   };
 
@@ -208,6 +269,26 @@ export const DocumentsPanel = ({
                 )}
               </div>
             </div>
+            {superAdmin && !isLoadingSettings && (
+              <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex flex-col gap-1">
+                    <Label htmlFor="pure-prompt-mode" className="text-sm font-medium text-amber-900">
+                      Режим без RAG (только system_prompt)
+                    </Label>
+                    <p className="text-xs text-amber-700">
+                      Бот работает только на основе system_prompt с историей диалога, без поиска по документам. 
+                      Подходит для ботов-продажников и консультантов без базы знаний.
+                    </p>
+                  </div>
+                  <Switch
+                    id="pure-prompt-mode"
+                    checked={purePromptMode}
+                    onCheckedChange={handleTogglePurePromptMode}
+                  />
+                </div>
+              </div>
+            )}
             {isDeletingAll && (
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
                 <div className="flex items-center justify-between text-sm mb-2">

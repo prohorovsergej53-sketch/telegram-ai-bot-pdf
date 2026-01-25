@@ -185,13 +185,14 @@ def handler(event: dict, context) -> dict:
         
         # Получаем tenant-specific RAG top_k из ai_settings, используя get_tenant_topk
         tenant_overrides = settings_row[0] if (settings_row and settings_row[0]) else {}
-        print(f"DEBUG: tenant_overrides type={type(tenant_overrides)}, value={tenant_overrides}")
         tenant_rag_topk_default, tenant_rag_topk_fallback = get_tenant_topk(tenant_overrides)
-        print(f"DEBUG: After get_tenant_topk: default={tenant_rag_topk_default} (type={type(tenant_rag_topk_default)}), fallback={tenant_rag_topk_fallback} (type={type(tenant_rag_topk_fallback)})")
         # Принудительная конвертация в int (на случай если где-то осталась строка)
         tenant_rag_topk_default = int(tenant_rag_topk_default)
         tenant_rag_topk_fallback = int(tenant_rag_topk_fallback)
-        print(f"DEBUG: Tenant {tenant_id} RAG settings: top_k_default={tenant_rag_topk_default}, top_k_fallback={tenant_rag_topk_fallback}")
+        
+        # Режим работы без RAG (только на system_prompt с историей)
+        enable_pure_prompt_mode = tenant_overrides.get('enable_pure_prompt_mode', False)
+        print(f"DEBUG: Tenant {tenant_id} RAG settings: top_k_default={tenant_rag_topk_default}, top_k_fallback={tenant_rag_topk_fallback}, pure_prompt_mode={enable_pure_prompt_mode}")
         
         if settings_row and settings_row[0]:
             settings = settings_row[0]
@@ -450,11 +451,18 @@ def handler(event: dict, context) -> dict:
                 
                 update_low_overlap_stats('low_overlap' in gate_reason)
             else:
-                # Если нет chunks - разрешаем работу только на system_prompt
-                # Это важно для ботов-продажников и ботов без документов
+                # Если нет chunks - проверяем режим pure_prompt
                 context_str = ""
-                context_ok = True  # Изменено с False на True
-                gate_reason = "no_chunks_pure_prompt"
+                if enable_pure_prompt_mode:
+                    # Режим работы без RAG: разрешаем использовать историю и system_prompt
+                    context_ok = True
+                    gate_reason = "no_chunks_pure_prompt_enabled"
+                    print(f"✅ Pure prompt mode enabled for tenant {tenant_id}")
+                else:
+                    # Обычный режим: без документов бот не может отвечать
+                    context_ok = False
+                    gate_reason = "no_chunks"
+                    print(f"⚠️ No chunks found for tenant {tenant_id}, pure_prompt_mode disabled")
                 sims = []
                 gate_debug = {}
         except Exception as emb_error:
