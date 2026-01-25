@@ -123,7 +123,8 @@ def handler(event: dict, context) -> dict:
             json={
                 'chat_id': chat_id,
                 'text': ai_message,
-                'parse_mode': 'Markdown'
+                'parse_mode': 'Markdown',
+                'disable_web_page_preview': False
             },
             timeout=10
         )
@@ -141,7 +142,8 @@ def handler(event: dict, context) -> dict:
                     telegram_api_url,
                     json={
                         'chat_id': chat_id,
-                        'text': plain_text
+                        'text': plain_text,
+                        'disable_web_page_preview': False
                     },
                     timeout=10
                 )
