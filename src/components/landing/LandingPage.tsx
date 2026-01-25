@@ -15,7 +15,7 @@ import { FAQSection } from './FAQSection';
 
 import { OrderFormSection } from './OrderFormSection';
 import { FooterSection } from './FooterSection';
-import SupportChat from '@/components/SupportChat';
+import SalesChat from '@/components/SalesChat';
 import { APP_CONFIG } from '@/config/app';
 
 const LandingPage = () => {
@@ -75,7 +75,7 @@ const LandingPage = () => {
         <FAQSection />
         <OrderFormSection selectedTariff={selectedTariff} />
         <FooterSection />
-        <SupportChat />
+        <SalesChat />
       </div>
     </>
   );
