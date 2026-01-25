@@ -93,7 +93,8 @@ def handler(event: dict, context) -> dict:
                 json={
                     'message': user_message,
                     'sessionId': session_id,
-                    'tenantId': tenant_id
+                    'tenantId': tenant_id,
+                    'channel': 'telegram'
                 },
                 headers={'Content-Type': 'application/json'},
                 timeout=60

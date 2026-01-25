@@ -138,7 +138,8 @@ export const useIndexActions = (params: UseIndexActionsParams): IndexActions => 
         body: JSON.stringify({ 
           message: inputMessage,
           sessionId,
-          tenantId: currentTenantId || getTenantId() || 1
+          tenantId: currentTenantId || getTenantId() || 1,
+          channel: 'widget'
         })
       });
 

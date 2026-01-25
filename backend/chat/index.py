@@ -12,6 +12,7 @@ from api_keys_helper import get_tenant_api_key
 from openrouter_models import get_working_free_model
 from token_logger import log_token_usage
 from system_prompt import DEFAULT_SYSTEM_PROMPT
+from formatting_helper import get_formatting_settings, format_with_settings
 
 from quality_gate import (
     build_context_with_scores, 
@@ -117,6 +118,7 @@ def handler(event: dict, context) -> dict:
         session_id = body.get('sessionId', 'default')
         tenant_id = body.get('tenantId')
         tenant_slug = body.get('tenantSlug')
+        channel = body.get('channel', 'widget')  # widget, telegram, vk, max
         
         # Конвертируем tenant_id в int если он передан
         if tenant_id is not None:
@@ -726,11 +728,18 @@ def handler(event: dict, context) -> dict:
         cur.close()
         conn.close()
 
+        # Форматируем ответ под конкретный канал
+        print(f'[chat] Formatting for channel={channel}, tenant_id={tenant_id}')
+        settings = get_formatting_settings(tenant_id, channel)
+        formatted_message = format_with_settings(assistant_message, settings, channel)
+        print(f'[chat] Original: {assistant_message[:100]}...')
+        print(f'[chat] Formatted: {formatted_message[:100]}...')
+
         return {
             'statusCode': 200,
             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
             'body': json.dumps({
-                'message': assistant_message,
+                'message': formatted_message,
                 'sessionId': session_id,
                 'debug': {
                     'context_ok': context_ok,

@@ -6,72 +6,56 @@ interface ChatMessageProps {
 }
 
 const cleanMessageContent = (content: string): string => {
+  // Оставляем только безопасные HTML теги: <b>, <i>, <strong>, <em>, <a>
+  // Удаляем tel: и mailto: ссылки, но сохраняем обычные http(s) ссылки
   return content
     .replace(/<a\s+href="tel:[^"]*">([^<]+)<\/a>/gi, '$1')
     .replace(/<a\s+href="mailto:[^"]*">([^<]+)<\/a>/gi, '$1')
-    .replace(/<a\s+[^>]*>([^<]+)<\/a>/gi, '$1')
+    // Сохраняем http(s) ссылки как есть
+    .replace(/<a\s+href="(https?:\/\/[^"]+)"[^>]*>([^<]+)<\/a>/gi, '<a href="$1" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:text-blue-800 underline">$2</a>')
+    // Конвертируем <b> в <strong>, <i> в <em>
     .replace(/<b>(.*?)<\/b>/gi, '<strong>$1</strong>')
-    .replace(/<[^>]+>/g, '');
+    .replace(/<i>(.*?)<\/i>/gi, '<em>$1</em>')
+    // Удаляем остальные неподдерживаемые теги
+    .replace(/<(?!\/?(?:strong|em|a)\b)[^>]+>/g, '');
 };
 
-const formatMessageContent = (content: string): JSX.Element[] => {
+const formatMessageContent = (content: string): JSX.Element => {
   const cleanedContent = cleanMessageContent(content);
-  const parts: JSX.Element[] = [];
   
+  // Добавляем автоматическое распознавание телефонов (если они не в HTML тегах)
   const phoneRegex = /(\+7\s?\(?\d{3}\)?\s?\d{3}[-\s]?\d{2}[-\s]?\d{2}|\+7\d{10}|8\s?\(?\d{3}\)?\s?\d{3}[-\s]?\d{2}[-\s]?\d{2})/g;
-  const urlRegex = /(https?:\/\/[^\s]+)/g;
   
-  let lastIndex = 0;
-  const matches: Array<{index: number; length: number; type: 'phone' | 'url'; value: string}> = [];
-  
-  let match;
-  while ((match = phoneRegex.exec(cleanedContent)) !== null) {
-    matches.push({index: match.index, length: match[0].length, type: 'phone', value: match[0]});
-  }
-  while ((match = urlRegex.exec(cleanedContent)) !== null) {
-    matches.push({index: match.index, length: match[0].length, type: 'url', value: match[0]});
-  }
-  
-  matches.sort((a, b) => a.index - b.index);
-  
-  matches.forEach((m, idx) => {
-    if (m.index > lastIndex) {
-      parts.push(<span key={`text-${idx}`}>{cleanedContent.slice(lastIndex, m.index)}</span>);
+  const withPhoneLinks = cleanedContent.replace(phoneRegex, (phone) => {
+    // Проверяем, не находится ли телефон уже внутри <a> тега
+    if (cleanedContent.indexOf('<a') !== -1) {
+      const phoneIndex = cleanedContent.indexOf(phone);
+      const lastLinkStart = cleanedContent.lastIndexOf('<a', phoneIndex);
+      const lastLinkEnd = cleanedContent.lastIndexOf('</a>', phoneIndex);
+      if (lastLinkStart !== -1 && (lastLinkEnd === -1 || lastLinkStart > lastLinkEnd)) {
+        return phone; // Уже внутри ссылки
+      }
     }
-    
-    if (m.type === 'phone') {
-      const cleanPhone = m.value.replace(/\D/g, '');
-      parts.push(
-        <a
-          key={`phone-${idx}`}
-          href={`tel:+${cleanPhone}`}
-          className="text-blue-600 hover:text-blue-800 underline"
-        >
-          {m.value}
-        </a>
-      );
-    } else if (m.type === 'url') {
-      parts.push(
-        <a
-          key={`url-${idx}`}
-          href={m.value}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-blue-600 hover:text-blue-800 underline"
-        >
-          {m.value}
-        </a>
-      );
-    }
-    
-    lastIndex = m.index + m.length;
+    const cleanPhone = phone.replace(/\D/g, '');
+    return `<a href="tel:+${cleanPhone}" class="text-blue-600 hover:text-blue-800 underline">${phone}</a>`;
   });
   
-  if (lastIndex < cleanedContent.length) {
-    parts.push(<span key="text-last">{cleanedContent.slice(lastIndex)}</span>);
-  }
+  // Добавляем автоматическое распознавание URL (если они не в HTML тегах)
+  const urlRegex = /(https?:\/\/[^\s<]+)/g;
+  const finalContent = withPhoneLinks.replace(urlRegex, (url) => {
+    // Проверяем, не находится ли URL уже внутри <a> тега
+    if (withPhoneLinks.indexOf('<a') !== -1) {
+      const urlIndex = withPhoneLinks.indexOf(url);
+      const lastLinkStart = withPhoneLinks.lastIndexOf('<a', urlIndex);
+      const lastLinkEnd = withPhoneLinks.lastIndexOf('</a>', urlIndex);
+      if (lastLinkStart !== -1 && (lastLinkEnd === -1 || lastLinkStart > lastLinkEnd)) {
+        return url; // Уже внутри ссылки
+      }
+    }
+    return `<a href="${url}" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:text-blue-800 underline">${url}</a>`;
+  });
   
-  return parts.length > 0 ? parts : [<span key="default">{cleanedContent}</span>];
+  return <span dangerouslySetInnerHTML={{ __html: finalContent }} />;
 };
 
 const ChatMessage = ({ message }: ChatMessageProps) => {

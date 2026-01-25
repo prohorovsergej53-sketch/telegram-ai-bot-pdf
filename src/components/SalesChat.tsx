@@ -14,27 +14,20 @@ interface Message {
   timestamp: Date;
 }
 
-// Функция для преобразования текста с URL в JSX с кликабельными ссылками
-const renderMessageWithLinks = (text: string) => {
-  const urlRegex = /(https?:\/\/[^\s]+)/g;
-  const parts = text.split(urlRegex);
-  
-  return parts.map((part, index) => {
-    if (part.match(urlRegex)) {
-      return (
-        <a
-          key={index}
-          href={part}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="underline hover:opacity-80 font-medium"
-        >
-          {part}
-        </a>
-      );
+// Функция для рендеринга сообщения с HTML и кликабельными ссылками
+const renderMessage = (text: string) => {
+  // Сначала обрабатываем URL в тексте (вне HTML тегов)
+  const urlRegex = /(https?:\/\/[^\s<]+)/g;
+  const processedText = text.replace(urlRegex, (url) => {
+    // Если URL уже внутри <a> тега, не трогаем
+    if (text.indexOf(`<a`) !== -1 && text.indexOf(url) > text.lastIndexOf(`<a`, text.indexOf(url))) {
+      return url;
     }
-    return part;
+    return `<a href="${url}" target="_blank" rel="noopener noreferrer" class="underline hover:opacity-80 font-medium">${url}</a>`;
   });
+  
+  // Рендерим как HTML (поддерживает <b>, <i>, <a> теги)
+  return <span dangerouslySetInnerHTML={{ __html: processedText }} />;
 };
 
 export const SalesChat = () => {
@@ -93,7 +86,8 @@ export const SalesChat = () => {
         body: JSON.stringify({
           tenantSlug: TENANT_SLUG,
           message: userMessage.content,
-          sessionId: sessionId
+          sessionId: sessionId,
+          channel: 'widget'
         })
       });
 
@@ -185,7 +179,7 @@ export const SalesChat = () => {
                       : 'bg-white border border-slate-200 text-slate-900'
                   }`}
                 >
-                  <p className="text-sm whitespace-pre-wrap break-words leading-relaxed">{renderMessageWithLinks(msg.content)}</p>
+                  <div className="text-sm whitespace-pre-wrap break-words leading-relaxed">{renderMessage(msg.content)}</div>
                   <p
                     className={`text-xs mt-1.5 ${
                       msg.role === 'user' ? 'text-blue-200' : 'text-slate-400'
