@@ -43,11 +43,19 @@ def handler(event: dict, context) -> dict:
             rows = cur.fetchall()
             keys = []
             for row in rows:
-                # КРИТИЧНО: возвращаем has_value (bool) вместо замаскированного значения
+                key_value = row[2]
+                masked_value = ''
+                if key_value and len(key_value) > 0:
+                    if len(key_value) >= 8:
+                        masked_value = key_value[:4] + '***' + key_value[-4:]
+                    else:
+                        masked_value = '***'
+                
                 keys.append({
                     'provider': row[0],
                     'key_name': row[1],
-                    'has_value': bool(row[2] and len(row[2]) > 0),
+                    'key_value': masked_value,
+                    'has_value': bool(key_value and len(key_value) > 0),
                     'is_active': row[3]
                 })
             

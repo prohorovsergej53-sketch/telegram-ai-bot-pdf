@@ -23,6 +23,7 @@ const AiSettingsCard = ({ currentTenantId, isSuperAdmin = false }: AiSettingsCar
   const [isLoading, setIsLoading] = useState(false);
   const [configStatus, setConfigStatus] = useState<'not_set' | 'active' | 'error'>('not_set');
   const [hasYandexKeys, setHasYandexKeys] = useState(false);
+  const [hasDeepseekKeys, setHasDeepseekKeys] = useState(false);
   const [hasOpenRouterKeys, setHasOpenRouterKeys] = useState(false);
   const [hasProxyApiKeys, setHasProxyApiKeys] = useState(false);
   const [checkingKeys, setCheckingKeys] = useState(true);
@@ -87,10 +88,12 @@ const AiSettingsCard = ({ currentTenantId, isSuperAdmin = false }: AiSettingsCar
       if (response.ok && data.keys) {
         const yandexApi = data.keys.find((k: any) => k.provider === 'yandex' && k.key_name === 'api_key' && k.key_value && k.key_value.trim() !== '');
         const yandexFolder = data.keys.find((k: any) => k.provider === 'yandex' && k.key_name === 'folder_id' && k.key_value && k.key_value.trim() !== '');
+        const deepseekApi = data.keys.find((k: any) => k.provider === 'deepseek' && k.key_name === 'api_key' && k.key_value && k.key_value.trim() !== '');
         const openrouterApi = data.keys.find((k: any) => k.provider === 'openrouter' && k.key_name === 'api_key' && k.key_value && k.key_value.trim() !== '');
         const proxyapiApi = data.keys.find((k: any) => k.provider === 'proxyapi' && k.key_name === 'api_key' && k.key_value && k.key_value.trim() !== '');
         
         setHasYandexKeys(!!(yandexApi && yandexFolder));
+        setHasDeepseekKeys(!!deepseekApi);
         setHasOpenRouterKeys(!!openrouterApi);
         setHasProxyApiKeys(!!proxyapiApi);
       }
@@ -226,6 +229,7 @@ const AiSettingsCard = ({ currentTenantId, isSuperAdmin = false }: AiSettingsCar
   const currentModels = AI_MODELS_BY_PROVIDER[settings.provider] || [];
   const missingKeys = !checkingKeys && (
     (settings.provider === 'yandex' && !hasYandexKeys) ||
+    (settings.provider === 'deepseek' && !hasDeepseekKeys) ||
     (settings.provider === 'openrouter' && !hasOpenRouterKeys) ||
     (settings.provider === 'proxyapi' && !hasProxyApiKeys)
   );
