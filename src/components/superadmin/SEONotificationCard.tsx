@@ -15,13 +15,18 @@ const SEONotificationCard = () => {
     setLastResult(null);
 
     try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 секунд таймаут
+
       const response = await fetch('https://functions.poehali.dev/9f68c535-c71e-4e3d-a71e-dd0f905ae0c4', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
-        }
+        },
+        signal: controller.signal
       });
 
+      clearTimeout(timeoutId);
       const data = await response.json();
       setLastResult(data);
 
@@ -38,9 +43,13 @@ const SEONotificationCard = () => {
         });
       }
     } catch (error) {
+      const errorMessage = error instanceof Error && error.name === 'AbortError'
+        ? 'Запрос превысил таймаут (30 сек). Попробуйте еще раз.'
+        : 'Не удалось выполнить запрос. Проверьте подключение к интернету.';
+      
       toast({
         title: 'Ошибка',
-        description: 'Не удалось выполнить запрос',
+        description: errorMessage,
         variant: 'destructive'
       });
     } finally {
@@ -69,7 +78,8 @@ const SEONotificationCard = () => {
         <Alert>
           <Icon name="Info" size={16} />
           <AlertDescription>
-            При нажатии на кнопку будут уведомлены: IndexNow API, Bing, Yandex, Google Ping, Bing Ping и Ping-O-Matic (охватывает десятки сервисов)
+            При нажатии на кнопку будут уведомлены: IndexNow API, Bing, Yandex, Google Ping, Bing Ping и Ping-O-Matic (охватывает десятки сервисов). 
+            Процесс займёт 1-2 секунды.
           </AlertDescription>
         </Alert>
 
