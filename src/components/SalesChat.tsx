@@ -61,19 +61,19 @@ export const SalesChat = () => {
           'X-Session-Id': sessionId
         },
         body: JSON.stringify({
-          tenant_slug: TENANT_SLUG,
+          tenantSlug: TENANT_SLUG,
           message: userMessage.content,
-          session_id: sessionId
+          sessionId: sessionId
         })
       });
 
       const data = await response.json();
 
-      if (response.ok && data.answer) {
+      if (response.ok && data.message) {
         const assistantMessage: Message = {
           id: `assistant-${Date.now()}`,
           role: 'assistant',
-          content: data.answer,
+          content: data.message,
           timestamp: new Date()
         };
         setMessages(prev => [...prev, assistantMessage]);
