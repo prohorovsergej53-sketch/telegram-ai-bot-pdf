@@ -21,6 +21,18 @@ const LandingPage = () => {
   const [selectedTariff, setSelectedTariff] = useState<string>('basic');
 
   useEffect(() => {
+    // Обработка query параметра ?tariff=
+    const params = new URLSearchParams(location.search);
+    const tariffParam = params.get('tariff');
+    if (tariffParam) {
+      setSelectedTariff(tariffParam);
+      // Скролл к форме заказа
+      setTimeout(() => {
+        document.getElementById('order-form')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
+    }
+
+    // Обработка hash (#pricing, #faq и т.д.)
     if (location.hash) {
       const elementId = location.hash.substring(1);
       setTimeout(() => {
