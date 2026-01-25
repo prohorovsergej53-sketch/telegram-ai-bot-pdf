@@ -80,8 +80,9 @@ def handler(event: dict, context) -> dict:
             VALUES
                 (%s, 'telegram', true, true, true, %s, '•', '▫️'),
                 (%s, 'vk', true, false, true, '{}', '•', '▫️'),
-                (%s, 'max', true, false, true, %s, '•', '▫️')
-        """, (tenant_id, json.dumps(default_telegram_emoji), tenant_id, tenant_id, json.dumps(default_max_emoji)))
+                (%s, 'max', true, false, true, %s, '•', '▫️'),
+                (%s, 'widget', true, false, true, '{}', '•', '▫️')
+        """, (tenant_id, json.dumps(default_telegram_emoji), tenant_id, tenant_id, json.dumps(default_max_emoji), tenant_id))
         
         conn.commit()
         cur.close()

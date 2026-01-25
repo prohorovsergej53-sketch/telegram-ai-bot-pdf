@@ -92,7 +92,8 @@ def handler(event: dict, context) -> dict:
                 json={
                     'message': user_message,
                     'sessionId': session_id,
-                    'tenantId': tenant_id
+                    'tenantId': tenant_id,
+                    'channel': 'max'
                 },
                 headers={'Content-Type': 'application/json'},
                 timeout=60
@@ -102,9 +103,7 @@ def handler(event: dict, context) -> dict:
             chat_data = chat_response.json()
             ai_message = chat_data.get('message', 'Извините, не могу ответить')
             
-            # Форматируем согласно настройкам тенанта
-            settings = get_formatting_settings(tenant_id, 'max')
-            ai_message = format_with_settings(ai_message, settings, 'max')
+            # Форматирование уже применено в /chat через channel='max'
             print(f'[max-webhook] AI response received: {ai_message[:100]}...')
             
         except requests.exceptions.Timeout:

@@ -100,7 +100,8 @@ def handler(event: dict, context) -> dict:
                     json={
                         'message': user_message,
                         'sessionId': session_id,
-                        'tenantId': tenant_id
+                        'tenantId': tenant_id,
+                        'channel': 'vk'
                     },
                     headers={'Content-Type': 'application/json'},
                     timeout=60
@@ -109,9 +110,8 @@ def handler(event: dict, context) -> dict:
                 chat_data = chat_response.json()
                 ai_message = chat_data.get('message', 'Извините, не могу ответить')
                 
-                # Форматируем согласно настройкам тенанта
-                settings = get_formatting_settings(tenant_id, 'vk')
-                ai_message = format_with_settings(ai_message, settings, 'vk')
+                # Форматирование уже применено в /chat через channel='vk'
+                # Дополнительное форматирование не нужно
                 
             except requests.exceptions.Timeout:
                 ai_message = 'Извините, сервис временно недоступен. Попробуйте позже.'
