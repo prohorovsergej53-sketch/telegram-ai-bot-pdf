@@ -70,7 +70,7 @@ def handler(event: dict, context) -> dict:
             'top_p': float(settings_raw.get('top_p', 1.0)),
             'frequency_penalty': float(settings_raw.get('frequency_penalty', 0)),
             'presence_penalty': float(settings_raw.get('presence_penalty', 0)),
-            'max_tokens': int(settings_raw.get('max_tokens', 600)),
+            'max_tokens': int(settings_raw.get('max_tokens', 2000)),
             'system_priority': settings_raw.get('system_priority', 'strict'),
             'creative_mode': settings_raw.get('creative_mode', 'off'),
             'chat_provider': chat_provider,      # Новая схема

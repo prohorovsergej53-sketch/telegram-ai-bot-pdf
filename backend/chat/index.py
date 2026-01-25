@@ -233,7 +233,7 @@ def handler(event: dict, context) -> dict:
             ai_top_p = safe_float(settings.get('top_p'), 0.95)
             ai_frequency_penalty = safe_float(settings.get('frequency_penalty'), 0.0)
             ai_presence_penalty = safe_float(settings.get('presence_penalty'), 0.0)
-            ai_max_tokens = safe_int(settings.get('max_tokens'), 1500)
+            ai_max_tokens = safe_int(settings.get('max_tokens'), 2000)
             system_prompt_template = settings.get('system_prompt') or default_prompt_from_db
 
         # Загружаем историю ДО эмбеддингов для обогащения запроса

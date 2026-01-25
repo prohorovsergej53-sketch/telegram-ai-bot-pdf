@@ -69,7 +69,7 @@ def handler(event: dict, context) -> dict:
                 'top_p': '1.0',
                 'frequency_penalty': '0',
                 'presence_penalty': '0',
-                'max_tokens': 600,
+                'max_tokens': 2000,
                 'system_priority': 'strict',
                 'creative_mode': 'off',
                 'provider': 'yandex',
