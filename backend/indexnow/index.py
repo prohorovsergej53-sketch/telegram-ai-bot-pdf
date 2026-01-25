@@ -1,10 +1,18 @@
 import json
 import urllib.request
 import urllib.error
-from urllib.parse import urlencode, quote
+from urllib.parse import quote
+import os
+import time
+
+# Кэш для rate limiting (хранится между вызовами функции)
+_last_notification_time = 0
+RATE_LIMIT_SECONDS = 900  # 15 минут между уведомлениями
 
 def handler(event: dict, context) -> dict:
-    '''Уведомляет поисковики через IndexNow API и XML-RPC ping сервисы о новых или обновлённых страницах'''
+    '''Уведомляет поисковики через IndexNow API и Ping-O-Matic о новых или обновлённых страницах'''
+    
+    global _last_notification_time
     
     method = event.get('httpMethod', 'GET')
     
@@ -25,6 +33,22 @@ def handler(event: dict, context) -> dict:
             'statusCode': 405,
             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
             'body': json.dumps({'error': 'Method not allowed'})
+        }
+    
+    # Rate limiting: не чаще 1 раза в 15 минут
+    current_time = time.time()
+    time_since_last = current_time - _last_notification_time
+    
+    if _last_notification_time > 0 and time_since_last < RATE_LIMIT_SECONDS:
+        remaining = int(RATE_LIMIT_SECONDS - time_since_last)
+        return {
+            'statusCode': 429,
+            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+            'body': json.dumps({
+                'success': False,
+                'message': f'Rate limit: можно уведомлять не чаще 1 раза в 15 минут. Подождите {remaining // 60} мин {remaining % 60} сек',
+                'retry_after': remaining
+            }, ensure_ascii=False)
         }
     
     # Параметры для IndexNow
@@ -90,26 +114,15 @@ def handler(event: dict, context) -> dict:
                 'error': str(e)
             })
     
-    # XML-RPC Ping сервисы (Ping-O-Matic и другие)
+    # XML-RPC Ping сервис (только Ping-O-Matic, остальные устарели)
     site_url = f"https://{host}"
     site_name = "AI-консультант на векторной базе данных"
-    sitemap_url = f"https://{host}/sitemap.xml"
     
     ping_services = [
         {
             'name': 'Ping-O-Matic',
             'url': 'http://rpc.pingomatic.com/',
             'type': 'xmlrpc'
-        },
-        {
-            'name': 'Google Ping',
-            'url': f'https://www.google.com/ping?sitemap={quote(sitemap_url)}',
-            'type': 'get'
-        },
-        {
-            'name': 'Bing Ping',
-            'url': f'https://www.bing.com/ping?sitemap={quote(sitemap_url)}',
-            'type': 'get'
         }
     ]
     
@@ -143,17 +156,6 @@ def handler(event: dict, context) -> dict:
                         'success': success
                     })
                     
-            elif service['type'] == 'get':
-                # GET запрос для Google/Bing ping
-                req = urllib.request.Request(service['url'])
-                with urllib.request.urlopen(req, timeout=10) as response:
-                    status = response.getcode()
-                    results.append({
-                        'endpoint': service['name'],
-                        'status': status,
-                        'success': status == 200
-                    })
-                    
         except urllib.error.HTTPError as e:
             results.append({
                 'endpoint': service['name'],
@@ -172,6 +174,10 @@ def handler(event: dict, context) -> dict:
     # Проверяем, был ли хоть один успешный ответ
     any_success = any(r['success'] for r in results)
     success_count = sum(1 for r in results if r['success'])
+    
+    # Обновляем время последнего уведомления только при успехе
+    if any_success:
+        _last_notification_time = current_time
     
     return {
         'statusCode': 200 if any_success else 500,

@@ -30,7 +30,13 @@ const SEONotificationCard = () => {
       const data = await response.json();
       setLastResult(data);
 
-      if (data.success) {
+      if (response.status === 429) {
+        toast({
+          title: 'Слишком частые запросы',
+          description: data.message || 'Можно уведомлять не чаще 1 раза в 15 минут',
+          variant: 'destructive'
+        });
+      } else if (data.success) {
         toast({
           title: 'Поисковики уведомлены!',
           description: data.message,
@@ -78,8 +84,8 @@ const SEONotificationCard = () => {
         <Alert>
           <Icon name="Info" size={16} />
           <AlertDescription>
-            При нажатии на кнопку будут уведомлены: IndexNow API, Bing, Yandex, Google Ping, Bing Ping и Ping-O-Matic (охватывает десятки сервисов). 
-            Процесс займёт 1-2 секунды.
+            При нажатии на кнопку будут уведомлены: IndexNow API (Google, Bing), Yandex IndexNow и Ping-O-Matic (охватывает десятки сервисов). 
+            Процесс займёт 1-2 секунды. Можно уведомлять не чаще 1 раза в 15 минут.
           </AlertDescription>
         </Alert>
 
