@@ -54,6 +54,13 @@ export const SalesChat = () => {
     setIsLoading(true);
 
     try {
+      console.log('[SalesChat] Sending request:', {
+        url: CHAT_API,
+        tenantSlug: TENANT_SLUG,
+        sessionId: sessionId,
+        message: userMessage.content
+      });
+
       const response = await fetch(CHAT_API, {
         method: 'POST',
         headers: { 
@@ -67,7 +74,9 @@ export const SalesChat = () => {
         })
       });
 
+      console.log('[SalesChat] Response status:', response.status);
       const data = await response.json();
+      console.log('[SalesChat] Response data:', data);
 
       if (response.ok && data.message) {
         const assistantMessage: Message = {
@@ -81,6 +90,7 @@ export const SalesChat = () => {
         throw new Error(data.error || 'Ошибка получения ответа');
       }
     } catch (error) {
+      console.error('[SalesChat] Error sending message:', error);
       const errorMessage: Message = {
         id: `error-${Date.now()}`,
         role: 'assistant',
