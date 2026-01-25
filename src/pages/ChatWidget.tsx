@@ -49,8 +49,20 @@ const ChatWidget = () => {
   const [isInitializing, setIsInitializing] = useState(true);
   const [consentGiven, setConsentGiven] = useState(false);
   const [tenantNotFound, setTenantNotFound] = useState(false);
+  const [redirectCountdown, setRedirectCountdown] = useState(5);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (tenantNotFound && redirectCountdown > 0) {
+      const timer = setTimeout(() => {
+        setRedirectCountdown(prev => prev - 1);
+      }, 1000);
+      return () => clearTimeout(timer);
+    } else if (tenantNotFound && redirectCountdown === 0) {
+      window.location.href = '/';
+    }
+  }, [tenantNotFound, redirectCountdown]);
 
   useEffect(() => {
     const initialize = async () => {
@@ -200,13 +212,18 @@ const ChatWidget = () => {
             <p className="text-gray-600 text-center mb-4">
               AI-консультант с адресом <span className="font-mono bg-gray-100 px-2 py-1 rounded">{tenantSlug}</span> не существует или был удалён.
             </p>
+            <div className="text-center mb-4">
+              <p className="text-sm text-gray-500">
+                Перенаправление на главную через <span className="font-bold text-blue-600">{redirectCountdown}</span> сек...
+              </p>
+            </div>
             <div className="flex justify-center">
               <Button
                 onClick={() => window.location.href = '/'}
                 className="bg-blue-600 hover:bg-blue-700"
               >
                 <Icon name="Home" size={16} className="mr-2" />
-                На главную
+                Перейти сейчас
               </Button>
             </div>
           </CardContent>
