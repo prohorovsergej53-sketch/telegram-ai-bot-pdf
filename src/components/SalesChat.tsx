@@ -14,6 +14,29 @@ interface Message {
   timestamp: Date;
 }
 
+// Функция для преобразования текста с URL в JSX с кликабельными ссылками
+const renderMessageWithLinks = (text: string) => {
+  const urlRegex = /(https?:\/\/[^\s]+)/g;
+  const parts = text.split(urlRegex);
+  
+  return parts.map((part, index) => {
+    if (part.match(urlRegex)) {
+      return (
+        <a
+          key={index}
+          href={part}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="underline hover:opacity-80 font-medium"
+        >
+          {part}
+        </a>
+      );
+    }
+    return part;
+  });
+};
+
 export const SalesChat = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -162,7 +185,7 @@ export const SalesChat = () => {
                       : 'bg-white border border-slate-200 text-slate-900'
                   }`}
                 >
-                  <p className="text-sm whitespace-pre-wrap break-words leading-relaxed">{msg.content}</p>
+                  <p className="text-sm whitespace-pre-wrap break-words leading-relaxed">{renderMessageWithLinks(msg.content)}</p>
                   <p
                     className={`text-xs mt-1.5 ${
                       msg.role === 'user' ? 'text-blue-200' : 'text-slate-400'
