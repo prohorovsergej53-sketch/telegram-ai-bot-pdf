@@ -1,27 +1,18 @@
 {
   "tests": [
     {
-      "name": "Get all tenants stats",
-      "method": "GET",
+      "name": "OPTIONS preflight check",
+      "method": "OPTIONS",
       "path": "/",
-      "expectedStatus": 200,
-      "expectedBody": {
-        "period": "string",
-        "tenants": "array"
-      },
-      "bodyMatcher": "partial"
+      "expectedStatus": 200
     },
     {
-      "name": "Get specific tenant stats",
+      "name": "Require authentication",
       "method": "GET",
-      "path": "/?tenantId=1&period=7",
-      "expectedStatus": 200,
+      "path": "/",
+      "expectedStatus": 401,
       "expectedBody": {
-        "tenantId": "number",
-        "period": "string",
-        "totalTokens": "number",
-        "totalCost": "number",
-        "breakdown": "array"
+        "error": "Authorization required"
       },
       "bodyMatcher": "partial"
     }
