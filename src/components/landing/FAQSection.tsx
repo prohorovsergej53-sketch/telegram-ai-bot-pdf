@@ -110,7 +110,7 @@ export const FAQSection = () => {
                     Открыть MAX.ru
                   </a>
                   <a
-                    href="https://chat.ai-ru.ru"
+                    href="/sales/chat"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-2 px-6 py-3 bg-white text-primary rounded-lg font-semibold hover:bg-blue-50 transition-colors"

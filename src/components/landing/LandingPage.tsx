@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import { HeroSection } from './HeroSection';
 import { FeaturesSection } from './FeaturesSection';
 import { WeDoEverythingSection } from './WeDoEverythingSection';
@@ -15,6 +16,7 @@ import { FAQSection } from './FAQSection';
 import { OrderFormSection } from './OrderFormSection';
 import { FooterSection } from './FooterSection';
 import SupportChat from '@/components/SupportChat';
+import { APP_CONFIG } from '@/config/app';
 
 const LandingPage = () => {
   const location = useLocation();
@@ -54,22 +56,28 @@ const LandingPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
-      <HeroSection onOrderClick={() => scrollToForm('basic')} />
-      <FeaturesSection />
-      <WeDoEverythingSection />
-      <HowItWorksSection />
-      <CalculatorSection />
-      <CasesSection />
-      <TestimonialsSection />
-      <VectorTechSection />
-      <SecuritySection />
-      <PricingSection onPlanSelect={scrollToForm} />
-      <FAQSection />
-      <OrderFormSection selectedTariff={selectedTariff} />
-      <FooterSection />
-      <SupportChat />
-    </div>
+    <>
+      <Helmet>
+        <link rel="canonical" href={APP_CONFIG.baseUrl} />
+        <meta property="og:url" content={APP_CONFIG.baseUrl} />
+      </Helmet>
+      <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
+        <HeroSection onOrderClick={() => scrollToForm('basic')} />
+        <FeaturesSection />
+        <WeDoEverythingSection />
+        <HowItWorksSection />
+        <CalculatorSection />
+        <CasesSection />
+        <TestimonialsSection />
+        <VectorTechSection />
+        <SecuritySection />
+        <PricingSection onPlanSelect={scrollToForm} />
+        <FAQSection />
+        <OrderFormSection selectedTariff={selectedTariff} />
+        <FooterSection />
+        <SupportChat />
+      </div>
+    </>
   );
 };
 

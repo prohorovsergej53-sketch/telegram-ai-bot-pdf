@@ -5,7 +5,7 @@ const FlowStepInitial = () => {
     <>
       {/* Этап 1: Заход клиента */}
       <FlowStepCard stepNumber={1} color="blue" icon="Globe" title="Клиент заходит на landing">
-        <p className="text-slate-700"><strong>URL:</strong> <code className="bg-white px-2 py-1 rounded">https://ai-ru.ru/</code></p>
+        <p className="text-slate-700"><strong>URL:</strong> <code className="bg-white px-2 py-1 rounded">/</code> (главная страница на текущем домене)</p>
         <p className="text-slate-700"><strong>Компоненты:</strong> PricingSection, FeaturesSection, HowItWorksSection, FAQSection</p>
         <p className="text-slate-700"><strong>Видит:</strong> 3 тарифа с возможностью подключения за 1 час</p>
         <div className="bg-white p-3 rounded mt-2 border border-blue-300">
@@ -75,7 +75,7 @@ const FlowStepInitial = () => {
             <li><code className="text-amber-600">sales_consent_logs</code>: session_id, email, tenant_name, tariff_id, consent_text, ip_address, user_agent, <strong>requires_fz152</strong></li>
           </ul>
           <p className="text-xs text-slate-600 mt-2">
-            <strong>Важно:</strong> Роутинг через slug в URL: <code>https://ai-ru.ru/{'{'}tenant_slug{'}'}/admin</code>
+            <strong>Важно:</strong> Роутинг через slug в URL: <code>/{'{'}tenant_slug{'}'}/admin</code> (работает на всех доменах)
           </p>
         </div>
       </FlowStepCard>
@@ -88,7 +88,7 @@ const FlowStepInitial = () => {
           <p className="font-semibold text-purple-800">📧 Содержимое письма:</p>
           <ul className="list-disc list-inside text-slate-700 space-y-1">
             <li><strong>Тема:</strong> "Ваш чат-бот готов к настройке!"</li>
-            <li><strong>URL админки:</strong> https://ai-ru.ru/{'{'}slug{'}'}/admin</li>
+            <li><strong>URL админки:</strong> {'{'}domain{'}'}/{'{'}slug{'}'}/admin (domain зависит от настроек)</li>
             <li><strong>Логин:</strong> {'{'}slug{'}'}_admin</li>
             <li><strong>Пароль:</strong> случайный (сгенерирован в webhook)</li>
             <li>Инструкция по первичной настройке</li>

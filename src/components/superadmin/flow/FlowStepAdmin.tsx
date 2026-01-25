@@ -65,7 +65,7 @@ const FlowStepAdmin = () => {
         <div className="bg-white p-3 rounded border border-pink-300">
           <p className="font-semibold text-pink-800">🌐 Публичная страница:</p>
           <ul className="list-disc list-inside text-slate-700 space-y-1">
-            <li><strong>URL:</strong> https://ai-ru.ru/{'{'}tenant_slug{'}'}</li>
+            <li><strong>URL:</strong> /{'{'}tenant_slug{'}'} (работает на ai-ru.ru и других доменах)</li>
             <li><strong>Компонент:</strong> GuestView (чат для конечных пользователей)</li>
             <li><strong>Функционал:</strong> отправка вопросов → ответы от AI + база знаний (RAG)</li>
           </ul>
@@ -73,7 +73,7 @@ const FlowStepAdmin = () => {
         <div className="bg-white p-3 rounded mt-2 border border-pink-300">
           <p className="font-semibold text-pink-800">🔌 Виджет на сайте клиента:</p>
           <ul className="list-disc list-inside text-slate-700 space-y-1">
-            <li><strong>Код:</strong> <code>&lt;script src="https://ai-ru.ru/widget.js"&gt;</code></li>
+            <li><strong>Код:</strong> <code>&lt;script src="/widget.js"&gt;</code></li>
             <li><strong>Инициализация:</strong> <code>AIWidget.init({'{'}tenantSlug: "{'{'}slug{'}'}"{'}'})</code></li>
             <li><strong>Внешний вид:</strong> настраивается в вкладке "Виджет"</li>
           </ul>

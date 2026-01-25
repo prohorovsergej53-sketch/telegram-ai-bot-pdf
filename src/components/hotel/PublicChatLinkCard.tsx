@@ -4,6 +4,7 @@ import { Input } from '@/components/ui/input';
 import Icon from '@/components/ui/icon';
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
+import { getAppUrl } from '@/config/app';
 
 interface PublicChatLinkCardProps {
   tenantSlug?: string;
@@ -14,8 +15,8 @@ const PublicChatLinkCard = ({ tenantSlug }: PublicChatLinkCardProps) => {
   const [copied, setCopied] = useState(false);
   
   const publicChatUrl = tenantSlug 
-    ? `https://ai-ru.ru/${tenantSlug}/chat`
-    : 'https://ai-ru.ru/your-slug/chat';
+    ? getAppUrl(`/${tenantSlug}/chat`)
+    : getAppUrl('/your-slug/chat');
 
   const handleCopy = () => {
     navigator.clipboard.writeText(publicChatUrl);
