@@ -94,7 +94,7 @@ export const SalesChat = () => {
       const errorMessage: Message = {
         id: `error-${Date.now()}`,
         role: 'assistant',
-        content: '😔 Извините, произошла ошибка. Попробуйте еще раз или напишите нам в MAX: https://max.ru/spa/ai-ru',
+        content: '😔 Извините, произошла ошибка. Попробуйте еще раз или напишите нам в MAX: https://max.ru/u/f9LHodD0cOIrknUlAYx1LxuVyfuHRhIq-OHhkpPMbwJ_WcjW4dhTFpEEEz0',
         timestamp: new Date()
       };
       setMessages(prev => [...prev, errorMessage]);
