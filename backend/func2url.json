@@ -1,5 +1,5 @@
 {
-  "fix-max-tokens": "https://functions.poehali.dev/381cf927-5a9d-4162-abf1-f64a358ee4a3",
+  "fix-all-max-tokens": "https://functions.poehali.dev/72bfe448-1cb0-4b53-96ef-080783be419b",
   "get-tenant-token-stats": "https://functions.poehali.dev/d58dbde4-5719-461b-87ad-6d97db9fdd51",
   "get-superadmin-chat-stats": "https://functions.poehali.dev/61fc762a-0e98-41b4-b1b4-406c5e73f78a",
   "check-messenger-webhook": "https://functions.poehali.dev/e22e5e92-1534-49eb-b066-5d7ca2b64589",
