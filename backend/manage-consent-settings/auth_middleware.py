@@ -118,7 +118,7 @@ def require_tenant_access(event: dict, tenant_id: int) -> Tuple[bool, Optional[D
 
 def get_tenant_id_from_request(event: dict) -> Tuple[Optional[int], Optional[Dict]]:
     """
-    Извлекает tenant_id из JWT токена или query параметров
+    Извлекает tenant_id из JWT токена, query параметров или body
     Возвращает (tenant_id, error_response)
     """
     authorized, payload, error_response = require_auth(event)
@@ -129,8 +129,21 @@ def get_tenant_id_from_request(event: dict) -> Tuple[Optional[int], Optional[Dic
     user_role = payload.get('role')
     user_tenant_id = payload.get('tenant_id')
     
+    # Для tenant_admin всегда используем их tenant_id
+    if user_role == 'tenant_admin':
+        return user_tenant_id, None
+    
+    # Для super_admin пытаемся найти tenant_id в query params
     query_params = event.get('queryStringParameters') or {}
     requested_tenant_id = query_params.get('tenant_id')
+    
+    # Если нет в query, пытаемся найти в body (для POST/PUT запросов)
+    if not requested_tenant_id:
+        try:
+            body = json.loads(event.get('body', '{}'))
+            requested_tenant_id = body.get('tenantId') or body.get('tenant_id')
+        except:
+            pass
     
     if requested_tenant_id:
         try:
@@ -143,20 +156,9 @@ def get_tenant_id_from_request(event: dict) -> Tuple[Optional[int], Optional[Dic
                 'isBase64Encoded': False
             }
         
-        has_access, access_error = check_tenant_access(user_role, user_tenant_id, requested_tenant_id)
-        if not has_access:
-            return None, {
-                'statusCode': 403,
-                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                'body': json.dumps({'error': access_error}),
-                'isBase64Encoded': False
-            }
-        
         return requested_tenant_id, None
     
-    if user_role == 'tenant_admin':
-        return user_tenant_id, None
-    
+    # Если super_admin не указал tenant_id - ошибка
     return None, {
         'statusCode': 400,
         'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
