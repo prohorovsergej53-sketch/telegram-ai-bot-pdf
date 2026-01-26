@@ -51,15 +51,17 @@ const ChatArea = ({
   };
 
   return (
-    <Card className={isWidget ? "h-full rounded-none border-0 shadow-none" : "shadow-xl animate-scale-in h-[calc(100vh-200px)]"}>
-      <CardHeader className="border-b bg-gradient-to-r from-slate-50 to-blue-50">
-        <CardTitle className="flex items-center gap-2">
-          <Icon name="MessageCircle" size={20} />
-          {pageSettings?.page_title || 'AI-консультант'}
-        </CardTitle>
-        <CardDescription>{pageSettings?.page_subtitle || 'Задайте любой вопрос о наших услугах'}</CardDescription>
-      </CardHeader>
-      <CardContent className={isWidget ? "p-0 flex flex-col h-[calc(100%-80px)]" : "p-0 flex flex-col h-[calc(100%-100px)]"}>
+    <Card className={isWidget ? "h-full rounded-none border-0 shadow-none flex flex-col" : "shadow-xl animate-scale-in h-[calc(100vh-200px)]"}>
+      {!isWidget && (
+        <CardHeader className="border-b bg-gradient-to-r from-slate-50 to-blue-50">
+          <CardTitle className="flex items-center gap-2">
+            <Icon name="MessageCircle" size={20} />
+            {pageSettings?.page_title || 'AI-консультант'}
+          </CardTitle>
+          <CardDescription>{pageSettings?.page_subtitle || 'Задайте любой вопрос о наших услугах'}</CardDescription>
+        </CardHeader>
+      )}
+      <CardContent className={isWidget ? "p-0 flex flex-col flex-1" : "p-0 flex flex-col h-[calc(100%-100px)]"}>
         <ScrollArea className="flex-1 p-6">
           <div className="space-y-4">
             {messages.map((msg) => (

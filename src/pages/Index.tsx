@@ -1,6 +1,7 @@
 import GuestView from '@/components/hotel/GuestView';
 import AdminView from '@/components/hotel/AdminView';
 import AdminLoginForm from '@/components/hotel/AdminLoginForm';
+import ChatArea from '@/components/hotel/ChatArea';
 import { useToast } from '@/hooks/use-toast';
 import { useIndexState } from './hooks/useIndexState';
 import { useIndexActions } from './hooks/useIndexActions';
@@ -10,6 +11,10 @@ import { IndexHeader } from './components/IndexHeader';
 const Index = () => {
   const { toast } = useToast();
   const state = useIndexState();
+  
+  // Определяем режим виджета
+  const searchParams = new URLSearchParams(window.location.search);
+  const isWidget = searchParams.get('widget') === '1';
   
   const actions = useIndexActions({
     messages: state.messages,
@@ -46,6 +51,25 @@ const Index = () => {
 
   if (state.view === 'admin' && !state.isAdminAuthenticated) {
     return <AdminLoginForm onLoginSuccess={actions.handleAdminLoginSuccess} />;
+  }
+
+  // Режим виджета - только чат без брендинга
+  if (isWidget) {
+    return (
+      <div className="h-screen w-full">
+        <ChatArea
+          messages={state.messages}
+          inputMessage={state.inputMessage}
+          isLoading={state.isLoading}
+          onInputChange={state.setInputMessage}
+          onSendMessage={actions.handleSendMessage}
+          pageSettings={state.pageSettings}
+          consentEnabled={state.consentEnabled}
+          consentText={state.consentText}
+          isWidget={true}
+        />
+      </div>
+    );
   }
 
   return (

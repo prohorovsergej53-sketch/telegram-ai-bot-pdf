@@ -160,6 +160,7 @@
         (function() {
             // Configuration - ЗАМЕНИТЕ НА ВАШ URL
             const CHAT_URL = 'https://p56134400.poehali.dev';
+            const TENANT_ID = null; // ID тенанта (если нужно)
             
             const button = document.getElementById('ai-bot-button');
             const chat = document.getElementById('ai-bot-chat');
@@ -232,7 +233,12 @@
                     chat.classList.add('open');
                     // Load iframe only when opened for the first time
                     if (!iframe.src) {
-                        iframe.src = CHAT_URL;
+                        const url = new URL(CHAT_URL);
+                        url.searchParams.set('widget', '1');
+                        if (TENANT_ID) {
+                            url.searchParams.set('tenant_id', TENANT_ID);
+                        }
+                        iframe.src = url.toString();
                         // Загружаем настройки при первом открытии
                         loadAutoMessageSettings().then(() => {
                             resetAutoMessageTimer();
