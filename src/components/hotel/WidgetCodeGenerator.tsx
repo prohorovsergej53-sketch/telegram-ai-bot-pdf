@@ -16,19 +16,8 @@ export const generateWidgetCode = (settings: WidgetSettings, tenantSlug?: string
   let chatUrl = settings.chat_url;
   
   if (!chatUrl && tenantSlug) {
-    // Определяем базовый URL текущего домена
-    const currentDomain = window.location.hostname;
-    let baseUrl;
-    
-    // Если мы на admin поддомене - убираем префикс admin.
-    if (currentDomain.startsWith('admin.')) {
-      baseUrl = `${window.location.protocol}//${currentDomain.replace('admin.', '')}`;
-    } else {
-      baseUrl = window.location.origin;
-    }
-    
-    // Формируем URL чата на основе текущего домена
-    chatUrl = `${baseUrl}/${tenantSlug}/chat`;
+    // Используем фиксированный домен ai-ru.ru с префиксом /chat/
+    chatUrl = `https://ai-ru.ru/chat/${tenantSlug}`;
   }
   
   if (chatUrl) {
