@@ -28,11 +28,9 @@ export const generateWidgetCode = (settings: WidgetSettings, tenantSlug?: string
       baseUrl = window.location.origin;
     }
     
-    chatUrl = `${baseUrl}/${slug}/chat`;
+    chatUrl = `${baseUrl}/${slug}`;
   } else {
-    if (!chatUrl.endsWith('/chat')) {
-      chatUrl = `${chatUrl.replace(/\/$/, '')}/chat`;
-    }
+    chatUrl = chatUrl.replace(/\/$/, '');
   }
   
   return `<!-- AI Bot Widget - Вставьте этот код перед закрывающим тегом </body> -->
