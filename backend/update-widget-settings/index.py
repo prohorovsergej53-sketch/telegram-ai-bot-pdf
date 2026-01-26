@@ -27,11 +27,17 @@ def handler(event: dict, context) -> dict:
         }
     
     try:
+        body_raw = event.get('body', '{}')
+        print(f"[UPDATE WIDGET] RAW BODY: {body_raw[:500]}")
+        
         tenant_id, auth_error = get_tenant_id_from_request(event)
+        print(f"[UPDATE WIDGET] tenant_id from auth: {tenant_id}, error: {auth_error}")
+        
         if auth_error:
+            print(f"[UPDATE WIDGET] Returning auth error: {auth_error}")
             return auth_error
 
-        data = json.loads(event.get('body', '{}'))
+        data = json.loads(body_raw)
         print(f"[UPDATE WIDGET] tenant_id={tenant_id}, data keys={list(data.keys())}")
         
         dsn = os.environ.get('DATABASE_URL')
