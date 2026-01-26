@@ -15,16 +15,23 @@ interface WidgetCodeGeneratorProps {
 export const generateWidgetCode = (settings: WidgetSettings, tenantSlug?: string): string => {
   let chatUrl = settings.chat_url;
   
-  if (!chatUrl) {
-    // Если tenantSlug передан явно - используем его, иначе берём из URL
-    const pathParts = window.location.pathname.split('/').filter(p => p && p !== 'admin');
-    const slug = tenantSlug || pathParts[0] || 'demo';
+  if (!chatUrl && tenantSlug) {
+    // Определяем базовый URL текущего домена
+    const currentDomain = window.location.hostname;
+    let baseUrl;
     
-    // Используем ai-ru.ru с префиксом /chat/
-    const baseUrl = 'https://ai-ru.ru';
+    // Если мы на admin поддомене - убираем префикс admin.
+    if (currentDomain.startsWith('admin.')) {
+      baseUrl = `${window.location.protocol}//${currentDomain.replace('admin.', '')}`;
+    } else {
+      baseUrl = window.location.origin;
+    }
     
-    chatUrl = `${baseUrl}/chat/${slug}`;
-  } else {
+    // Формируем URL чата на основе текущего домена
+    chatUrl = `${baseUrl}/${tenantSlug}/chat`;
+  }
+  
+  if (chatUrl) {
     chatUrl = chatUrl.replace(/\/$/, '');
   }
   
