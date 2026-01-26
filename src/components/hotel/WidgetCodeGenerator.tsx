@@ -126,36 +126,42 @@ export const generateWidgetCode = (settings: WidgetSettings, tenantSlug?: string
 const WidgetCodeGenerator = ({ settings, showCode, onToggleCode, tenantSlug }: WidgetCodeGeneratorProps) => {
   const { toast } = useToast();
   
-  const handleCopyCode = async () => {
+  const handleCopyCode = () => {
     try {
       const code = generateWidgetCode(settings, tenantSlug);
       
-      // Попытка использовать Clipboard API
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        await navigator.clipboard.writeText(code);
-      } else {
-        // Фоллбэк для старых браузеров или заблокированного API
-        const textArea = document.createElement('textarea');
-        textArea.value = code;
-        textArea.style.position = 'fixed';
-        textArea.style.left = '-999999px';
-        textArea.style.top = '-999999px';
-        document.body.appendChild(textArea);
-        textArea.focus();
-        textArea.select();
-        document.execCommand('copy');
-        document.body.removeChild(textArea);
+      // Универсальный метод копирования через textarea
+      const textArea = document.createElement('textarea');
+      textArea.value = code;
+      textArea.style.position = 'fixed';
+      textArea.style.left = '-999999px';
+      textArea.style.top = '-999999px';
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+      
+      let success = false;
+      try {
+        success = document.execCommand('copy');
+      } catch (err) {
+        console.error('execCommand error:', err);
       }
       
-      toast({
-        title: '✓ Скопировано!',
-        description: 'Код виджета скопирован в буфер обмена'
-      });
+      document.body.removeChild(textArea);
+      
+      if (success) {
+        toast({
+          title: '✓ Скопировано!',
+          description: 'Код виджета скопирован в буфер обмена'
+        });
+      } else {
+        throw new Error('Copy failed');
+      }
     } catch (error) {
       console.error('Copy error:', error);
       toast({
-        title: 'Ошибка',
-        description: 'Не удалось скопировать код. Выделите текст вручную.',
+        title: 'Выделите код вручную',
+        description: 'Нажмите Ctrl+C или Cmd+C для копирования',
         variant: 'destructive'
       });
     }
