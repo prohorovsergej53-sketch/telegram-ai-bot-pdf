@@ -48,6 +48,11 @@ const ChatWidget = () => {
   const [quickQuestions, setQuickQuestions] = useState<QuickQuestion[]>([]);
   const [isInitializing, setIsInitializing] = useState(true);
   const [consentGiven, setConsentGiven] = useState(false);
+  
+  // Получаем цвета из URL параметров (для виджета)
+  const searchParams = new URLSearchParams(window.location.search);
+  const headerColor = searchParams.get('header_color') || '#3b82f6';
+  const headerColorEnd = searchParams.get('header_color_end') || '#4f46e5';
   const [tenantNotFound, setTenantNotFound] = useState(false);
   const [redirectCountdown, setRedirectCountdown] = useState(5);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -238,7 +243,10 @@ const ChatWidget = () => {
   return (
     <div className="min-h-screen w-full bg-gradient-to-br from-blue-50 to-indigo-50 flex flex-col items-center justify-start p-4 gap-4 py-8">
       <Card className="w-full max-w-3xl h-[85vh] flex flex-col shadow-2xl">
-        <CardHeader className="border-b bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
+        <CardHeader 
+          className="border-b text-white"
+          style={{ background: `linear-gradient(135deg, ${headerColor} 0%, ${headerColorEnd} 100%)` }}
+        >
           <div className="flex items-center gap-3">
             <Icon name="Bot" className="w-8 h-8" />
             <CardTitle className="text-2xl">

@@ -23,6 +23,15 @@ export const generateWidgetCode = (settings: WidgetSettings, tenantSlug?: string
     chatUrl = chatUrl.replace(/\/$/, '');
   }
   
+  // Добавляем цветовые параметры к URL
+  const urlParams = new URLSearchParams({
+    widget: '1',
+    header_color: settings.header_color,
+    header_color_end: settings.header_color_end
+  });
+  
+  const fullChatUrl = `${chatUrl}?${urlParams.toString()}`;
+  
   return `<!-- AI Bot Widget - Вставьте этот код перед закрывающим тегом </body> -->
 <script>
 (function() {
@@ -75,7 +84,7 @@ export const generateWidgetCode = (settings: WidgetSettings, tenantSlug?: string
 
     var iframe = document.createElement('iframe');
     iframe.id = 'ai-bot-iframe';
-    iframe.src = '${chatUrl}?widget=1';
+    iframe.src = '${fullChatUrl}';
     iframeContainer.appendChild(iframe);
 
     var isOpen = false;
