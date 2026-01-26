@@ -87,7 +87,7 @@ export const generateWidgetCode = (settings: WidgetSettings, tenantSlug?: string
 
     var iframe = document.createElement('iframe');
     iframe.id = 'ai-bot-iframe';
-    iframe.src = '${chatUrl}';
+    iframe.src = '${chatUrl}?widget=1';
     iframeContainer.appendChild(iframe);
 
     var isOpen = false;
