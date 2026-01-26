@@ -91,6 +91,8 @@ const WidgetSettingsCard = () => {
     setIsLoading(true);
     try {
       const tenantId = getTenantId();
+      console.log('[WidgetSettings] tenantId from getTenantId():', tenantId);
+      console.log('[WidgetSettings] sessionStorage tenant_id:', sessionStorage.getItem('superadmin_viewing_tenant_id'));
       
       // Автоматически формируем chat_url с правильным slug
       let chatUrl = settings.chat_url;
@@ -107,10 +109,13 @@ const WidgetSettingsCard = () => {
         chatUrl = `${baseUrl}/${tenantSlug}/chat`;
       }
       
+      const bodyToSend = { ...settings, chat_url: chatUrl, tenant_id: tenantId };
+      console.log('[WidgetSettings] Sending body with tenant_id:', bodyToSend.tenant_id);
+      
       const response = await authenticatedFetch(BACKEND_URLS.updateWidgetSettings, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...settings, chat_url: chatUrl, tenant_id: tenantId })
+        body: JSON.stringify(bodyToSend)
       });
 
       if (response.ok) {
