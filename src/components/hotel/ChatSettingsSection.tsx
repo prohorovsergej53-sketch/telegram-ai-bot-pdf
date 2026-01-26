@@ -24,15 +24,6 @@ export const ChatSettingsSection = ({
           />
         </div>
         <div>
-          <Label htmlFor="welcome_message">Приветственное сообщение бота</Label>
-          <Input
-            id="welcome_message"
-            value={settings.welcome_message || 'Здравствуйте! Я ваш виртуальный помощник. Чем могу помочь?'}
-            onChange={(e) => onSettingsChange({ ...settings, welcome_message: e.target.value })}
-            placeholder="Здравствуйте! Я ваш виртуальный помощник. Чем могу помочь?"
-          />
-        </div>
-        <div>
           <Label htmlFor="input_placeholder">Текст в поле ввода</Label>
           <Input
             id="input_placeholder"

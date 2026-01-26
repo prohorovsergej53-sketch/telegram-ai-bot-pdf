@@ -19,22 +19,22 @@ const WidgetSettingsCard = () => {
   const { toast } = useToast();
   const { tenantSlug } = useParams<{ tenantSlug: string }>();
   const [settings, setSettings] = useState<WidgetSettings>({
-    button_color: '#a855f7',
-    button_color_end: '#7c3aed',
+    button_color: '#3b82f6',
+    button_color_end: '#1d4ed8',
     button_size: 60,
     button_position: 'bottom-right',
     button_icon: 'MessageCircle',
     window_width: 380,
     window_height: 600,
     header_title: 'AI Ассистент',
-    header_color: '#a855f7',
-    header_color_end: '#7c3aed',
+    header_color: '#3b82f6',
+    header_color_end: '#1d4ed8',
     border_radius: 16,
     show_branding: true,
     custom_css: null,
     chat_url: null
   });
-  const [selectedScheme, setSelectedScheme] = useState<string>('purple');
+  const [selectedScheme, setSelectedScheme] = useState<string>('blue');
   const [isLoading, setIsLoading] = useState(false);
   const [showCode, setShowCode] = useState(false);
 

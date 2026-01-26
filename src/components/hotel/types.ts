@@ -48,7 +48,6 @@ export interface PageSettings {
   footer_link?: string;
   show_bot_promo?: boolean;
   input_placeholder: string;
-  welcome_message?: string;
   public_description?: string;
   consent_enabled?: boolean;
   consent_text?: string;
