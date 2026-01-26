@@ -32,6 +32,7 @@ def handler(event: dict, context) -> dict:
             return auth_error
 
         data = json.loads(event.get('body', '{}'))
+        print(f"[UPDATE WIDGET] tenant_id={tenant_id}, data keys={list(data.keys())}")
         
         dsn = os.environ.get('DATABASE_URL')
         conn = psycopg2.connect(dsn)
