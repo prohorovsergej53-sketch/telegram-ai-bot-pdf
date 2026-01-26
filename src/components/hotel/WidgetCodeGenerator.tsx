@@ -20,7 +20,7 @@ export const generateWidgetCode = (settings: WidgetSettings, tenantSlug?: string
     const pathParts = window.location.pathname.split('/').filter(p => p && p !== 'admin');
     const slug = tenantSlug || pathParts[0] || 'demo';
     
-    // Используем продакшн домен проекта
+    // Используем домен проекта p56134400 (мультитенантный чат)
     const baseUrl = 'https://p56134400.poehali.dev';
     
     chatUrl = `${baseUrl}/${slug}`;
