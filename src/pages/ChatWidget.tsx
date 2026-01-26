@@ -36,8 +36,8 @@ interface QuickQuestion {
   icon: string;
 }
 
-const CHAT_API = 'https://functions.poehali.dev/7b58f4fb-5db0-4f85-bb3b-55bafa4cbf73';
-const SETTINGS_API = 'https://functions.poehali.dev/0534411b-d900-45d2-9082-a9485b33cf20';
+const CHAT_API = import.meta.env.VITE_CHAT_API_URL || 'https://functions.poehali.dev/7b58f4fb-5db0-4f85-bb3b-55bafa4cbf73';
+const SETTINGS_API = import.meta.env.VITE_SETTINGS_API_URL || 'https://functions.poehali.dev/0534411b-d900-45d2-9082-a9485b33cf20';
 
 const ChatWidget = () => {
   const { tenantSlug } = useParams();
