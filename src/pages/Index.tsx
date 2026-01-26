@@ -67,6 +67,8 @@ const Index = () => {
           consentEnabled={state.consentEnabled}
           consentText={state.consentText}
           isWidget={true}
+          quickQuestions={state.quickQuestions}
+          onQuickQuestion={actions.handleQuickQuestion}
         />
       </div>
     );

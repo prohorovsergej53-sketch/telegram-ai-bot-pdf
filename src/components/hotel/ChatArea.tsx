@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import Icon from '@/components/ui/icon';
 import ChatMessage from './ChatMessage';
-import { Message, PageSettings } from './types';
+import { Message, PageSettings, QuickQuestion } from './types';
 
 interface ChatAreaProps {
   messages: Message[];
@@ -17,6 +17,8 @@ interface ChatAreaProps {
   consentEnabled?: boolean;
   consentText?: string;
   isWidget?: boolean;
+  quickQuestions?: QuickQuestion[];
+  onQuickQuestion?: (question: string) => void;
 }
 
 const ChatArea = ({
@@ -28,7 +30,9 @@ const ChatArea = ({
   pageSettings,
   consentEnabled = false,
   consentText = 'Я согласен на обработку персональных данных',
-  isWidget = false
+  isWidget = false,
+  quickQuestions = [],
+  onQuickQuestion
 }: ChatAreaProps) => {
   const [consentGiven, setConsentGiven] = useState(false);
   const [showConsentWarning, setShowConsentWarning] = useState(false);
@@ -74,6 +78,22 @@ const ChatArea = ({
                 </div>
                 <div className="bg-slate-100 px-4 py-3 rounded-2xl">
                   <p className="text-sm text-slate-600">Думаю...</p>
+                </div>
+              </div>
+            )}
+            {!isLoading && messages.length === 0 && quickQuestions && quickQuestions.length > 0 && (
+              <div className="space-y-2">
+                <p className="text-sm text-slate-600 font-medium">Популярные вопросы:</p>
+                <div className="grid gap-2">
+                  {quickQuestions.map((q) => (
+                    <button
+                      key={q.id}
+                      onClick={() => onQuickQuestion?.(q.question)}
+                      className="text-left p-3 rounded-lg border border-slate-200 hover:border-primary hover:bg-primary/5 transition-colors text-sm"
+                    >
+                      {q.question}
+                    </button>
+                  ))}
                 </div>
               </div>
             )}

@@ -20,8 +20,8 @@ export const generateWidgetCode = (settings: WidgetSettings, tenantSlug?: string
     const pathParts = window.location.pathname.split('/').filter(p => p && p !== 'admin');
     const slug = tenantSlug || pathParts[0] || 'demo';
     
-    // Используем основной домен ai-ru.ru
-    const baseUrl = 'https://ai-ru.ru';
+    // Используем продакшн домен проекта
+    const baseUrl = 'https://p56134400.poehali.dev';
     
     chatUrl = `${baseUrl}/${slug}`;
   } else {
