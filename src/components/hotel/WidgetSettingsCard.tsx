@@ -70,19 +70,10 @@ const WidgetSettingsCard = () => {
       console.log('[WidgetSettings] tenantId from getTenantId():', tenantId);
       console.log('[WidgetSettings] sessionStorage tenant_id:', sessionStorage.getItem('superadmin_viewing_tenant_id'));
       
-      // Автоматически формируем chat_url с правильным slug
+      // Автоматически формируем chat_url с продакшен доменом ai-ru.ru
       let chatUrl = settings.chat_url;
       if (!chatUrl && tenantSlug) {
-        const currentDomain = window.location.hostname;
-        let baseUrl;
-        
-        if (currentDomain.startsWith('admin.')) {
-          baseUrl = `${window.location.protocol}//${currentDomain.replace('admin.', '')}`;
-        } else {
-          baseUrl = window.location.origin;
-        }
-        
-        chatUrl = `${baseUrl}/${tenantSlug}/chat`;
+        chatUrl = `https://ai-ru.ru/chat/${tenantSlug}`;
       }
       
       const bodyToSend = { ...settings, chat_url: chatUrl, tenant_id: tenantId };
