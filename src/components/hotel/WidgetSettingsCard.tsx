@@ -19,16 +19,16 @@ const WidgetSettingsCard = () => {
   const { toast } = useToast();
   const { tenantSlug } = useParams<{ tenantSlug: string }>();
   const [settings, setSettings] = useState<WidgetSettings>({
-    button_color: '#8b5cf6',
-    button_color_end: '#6366f1',
+    button_color: '#a855f7',
+    button_color_end: '#7c3aed',
     button_size: 60,
     button_position: 'bottom-right',
     button_icon: 'MessageCircle',
     window_width: 380,
     window_height: 600,
     header_title: 'AI Ассистент',
-    header_color: '#8b5cf6',
-    header_color_end: '#6366f1',
+    header_color: '#a855f7',
+    header_color_end: '#7c3aed',
     border_radius: 16,
     show_branding: true,
     custom_css: null,
