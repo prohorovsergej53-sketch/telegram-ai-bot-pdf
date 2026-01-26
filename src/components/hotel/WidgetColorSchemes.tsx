@@ -1,45 +1,52 @@
 export const COLOR_SCHEMES = {
-  blue: {
-    name: 'Синяя',
-    button_color: '#3b82f6',
-    button_color_end: '#1d4ed8',
-    header_color: '#3b82f6',
-    header_color_end: '#1d4ed8'
-  },
   purple: {
-    name: 'Фиолетовая',
-    button_color: '#667eea',
-    button_color_end: '#764ba2',
-    header_color: '#667eea',
-    header_color_end: '#764ba2'
+    name: 'Фиолетовый',
+    button_color: '#a855f7',
+    button_color_end: '#7c3aed',
+    header_color: '#a855f7',
+    header_color_end: '#7c3aed'
   },
-  green: {
-    name: 'Зелёная',
+  ocean: {
+    name: 'Океан',
+    button_color: '#06b6d4',
+    button_color_end: '#0891b2',
+    header_color: '#06b6d4',
+    header_color_end: '#0891b2'
+  },
+  sunset: {
+    name: 'Закат',
+    button_color: '#f59e0b',
+    button_color_end: '#f97316',
+    header_color: '#f59e0b',
+    header_color_end: '#f97316'
+  },
+  emerald: {
+    name: 'Изумруд',
     button_color: '#10b981',
     button_color_end: '#059669',
     header_color: '#10b981',
     header_color_end: '#059669'
   },
-  orange: {
-    name: 'Оранжевая',
-    button_color: '#f97316',
-    button_color_end: '#ea580c',
-    header_color: '#f97316',
-    header_color_end: '#ea580c'
+  rose: {
+    name: 'Роза',
+    button_color: '#f43f5e',
+    button_color_end: '#e11d48',
+    header_color: '#f43f5e',
+    header_color_end: '#e11d48'
   },
-  pink: {
-    name: 'Розовая',
-    button_color: '#ec4899',
-    button_color_end: '#db2777',
-    header_color: '#ec4899',
-    header_color_end: '#db2777'
+  night: {
+    name: 'Ночь',
+    button_color: '#4f46e5',
+    button_color_end: '#4338ca',
+    header_color: '#4f46e5',
+    header_color_end: '#4338ca'
   },
-  dark: {
-    name: 'Тёмная',
-    button_color: '#1f2937',
-    button_color_end: '#111827',
-    header_color: '#1f2937',
-    header_color_end: '#111827'
+  slate: {
+    name: 'Графит',
+    button_color: '#475569',
+    button_color_end: '#334155',
+    header_color: '#475569',
+    header_color_end: '#334155'
   }
 };
 
