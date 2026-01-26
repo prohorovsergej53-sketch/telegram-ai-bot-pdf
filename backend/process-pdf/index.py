@@ -3,8 +3,9 @@ import os
 import boto3
 import psycopg2
 from io import BytesIO
-from auth_middleware import get_tenant_id_from_request
 import sys
+sys.path.insert(0, '/function/code/shared')
+from auth_middleware import get_tenant_id_from_request
 sys.path.append('/function/code')
 from api_keys_helper import get_tenant_api_key
 from token_logger import log_token_usage

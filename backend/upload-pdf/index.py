@@ -4,8 +4,9 @@ import base64
 import boto3
 import psycopg2
 from datetime import datetime
-from auth_middleware import get_tenant_id_from_request
 import sys
+sys.path.insert(0, '/function/code/shared')
+from auth_middleware import get_tenant_id_from_request
 sys.path.append('/function/code')
 from timezone_helper import moscow_naive
 
