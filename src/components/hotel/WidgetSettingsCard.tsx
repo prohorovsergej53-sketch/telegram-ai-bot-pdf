@@ -239,14 +239,7 @@ const WidgetSettingsCard = () => {
             />
           </div>
 
-          <div className="flex items-center justify-between">
-            <Label htmlFor="show-branding">Показывать брендинг</Label>
-            <Switch
-              id="show-branding"
-              checked={settings.show_branding}
-              onCheckedChange={(checked) => setSettings({ ...settings, show_branding: checked })}
-            />
-          </div>
+
         </div>
 
         <div className="pt-4 border-t space-y-4">

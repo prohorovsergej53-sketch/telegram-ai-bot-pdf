@@ -81,7 +81,7 @@ const ChatArea = ({
                 </div>
               </div>
             )}
-            {!isLoading && messages.length === 0 && quickQuestions && quickQuestions.length > 0 && (
+            {!isLoading && messages.length === 0 && !isWidget && quickQuestions && quickQuestions.length > 0 && (
               <div className="space-y-2">
                 <p className="text-sm text-slate-600 font-medium">Популярные вопросы:</p>
                 <div className="grid gap-2">
