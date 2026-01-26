@@ -52,30 +52,6 @@ const WidgetSettingsCard = () => {
         data.button_icon = 'MessageCircle';
       }
       setSettings(data);
-      
-      // Автоматически обновляем chat_url, если он не задан или неправильный
-      if ((!data.chat_url || !data.chat_url.includes('/chat')) && tenantSlug) {
-        const currentDomain = window.location.hostname;
-        let baseUrl;
-        
-        if (currentDomain.startsWith('admin.')) {
-          baseUrl = `${window.location.protocol}//${currentDomain.replace('admin.', '')}`;
-        } else {
-          baseUrl = window.location.origin;
-        }
-        
-        const correctChatUrl = `${baseUrl}/${tenantSlug}/chat`;
-        
-        // Сохраняем правильный URL в фоне
-        await authenticatedFetch(BACKEND_URLS.updateWidgetSettings, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ ...data, chat_url: correctChatUrl, tenant_id: tenantId })
-        });
-        
-        // Обновляем локальное состояние
-        setSettings({ ...data, chat_url: correctChatUrl });
-      }
     } catch (error) {
       console.error('Error loading widget settings:', error);
     }
