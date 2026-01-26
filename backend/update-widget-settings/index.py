@@ -1,8 +1,6 @@
 import json
 import os
 import psycopg2
-import sys
-sys.path.insert(0, '/function/code/shared')
 from auth_middleware import get_tenant_id_from_request
 
 def handler(event: dict, context) -> dict:
