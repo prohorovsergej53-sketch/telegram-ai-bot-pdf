@@ -20,10 +20,10 @@ export const generateWidgetCode = (settings: WidgetSettings, tenantSlug?: string
     const pathParts = window.location.pathname.split('/').filter(p => p && p !== 'admin');
     const slug = tenantSlug || pathParts[0] || 'demo';
     
-    // Используем ai-ru.ru с префиксом /chat/
-    const baseUrl = 'https://ai-ru.ru';
+    // Используем домен текущего проекта
+    const baseUrl = 'https://p56134400.poehali.dev';
     
-    chatUrl = `${baseUrl}/chat/${slug}`;
+    chatUrl = `${baseUrl}/${slug}`;
   } else {
     chatUrl = chatUrl.replace(/\/$/, '');
   }
