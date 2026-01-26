@@ -1,5 +1,5 @@
 import { Message, BACKEND_URLS } from '@/components/hotel/types';
-import { authenticatedFetch, getTenantId } from '@/lib/auth';
+import { authenticatedFetch, getTenantId, isSuperAdmin } from '@/lib/auth';
 import { UseIndexActionsParams, IndexActions, PublicContentResponse } from '../types/index.types';
 
 export const useIndexActions = (params: UseIndexActionsParams): IndexActions => {
@@ -52,11 +52,11 @@ export const useIndexActions = (params: UseIndexActionsParams): IndexActions => 
         setCurrentTenantId(tenantInfo.tenant_id);
         setCurrentTenantName(tenantInfo.name || '');
         
-        const isSuperAdmin = localStorage.getItem('user_role') === 'super_admin';
-        if (isSuperAdmin) {
+        if (isSuperAdmin()) {
           sessionStorage.setItem('superadmin_viewing_tenant', 'true');
           sessionStorage.setItem('superadmin_viewing_tenant_id', tenantInfo.tenant_id.toString());
           sessionStorage.setItem('superadmin_viewing_tariff_id', tenantInfo.tariff_id);
+          console.log('[Index] Super admin viewing tenant:', tenantInfo.tenant_id);
         }
       }
     } catch (error) {
