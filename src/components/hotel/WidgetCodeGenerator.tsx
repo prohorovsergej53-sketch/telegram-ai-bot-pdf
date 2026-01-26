@@ -15,12 +15,11 @@ interface WidgetCodeGeneratorProps {
 export const generateWidgetCode = (settings: WidgetSettings, tenantSlug?: string): string => {
   let chatUrl = settings.chat_url;
   
-  if (!chatUrl && tenantSlug) {
-    // Используем фиксированный домен ai-ru.ru с префиксом /chat/
+  // Если есть tenantSlug, всегда генерируем правильный URL для ai-ru.ru
+  if (tenantSlug) {
     chatUrl = `https://ai-ru.ru/chat/${tenantSlug}`;
-  }
-  
-  if (chatUrl) {
+  } else if (chatUrl) {
+    // Если нет tenantSlug, используем сохранённый chat_url
     chatUrl = chatUrl.replace(/\/$/, '');
   }
   
