@@ -73,6 +73,15 @@ export const useIndexActions = (params: UseIndexActionsParams): IndexActions => 
       const data = await response.json();
       if (data.settings) {
         setPageSettings(data.settings);
+        
+        // Обновляем приветственное сообщение из настроек
+        const welcomeMessage = data.settings.welcome_message || 'Здравствуйте! Я ваш виртуальный помощник. Чем могу помочь?';
+        setMessages([{
+          id: '1',
+          role: 'assistant',
+          content: welcomeMessage,
+          timestamp: new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })
+        }]);
       }
       if (data.quickQuestions) {
         setQuickQuestions(data.quickQuestions);

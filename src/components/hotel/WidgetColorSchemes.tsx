@@ -1,17 +1,24 @@
 export const COLOR_SCHEMES = {
+  purple: {
+    name: 'Фиолетовая',
+    button_color: '#8b5cf6',
+    button_color_end: '#6366f1',
+    header_color: '#8b5cf6',
+    header_color_end: '#6366f1'
+  },
   blue: {
     name: 'Синяя',
     button_color: '#3b82f6',
-    button_color_end: '#1d4ed8',
+    button_color_end: '#2563eb',
     header_color: '#3b82f6',
-    header_color_end: '#1d4ed8'
+    header_color_end: '#2563eb'
   },
-  purple: {
-    name: 'Фиолетовая',
-    button_color: '#667eea',
-    button_color_end: '#764ba2',
-    header_color: '#667eea',
-    header_color_end: '#764ba2'
+  indigo: {
+    name: 'Индиго',
+    button_color: '#6366f1',
+    button_color_end: '#4f46e5',
+    header_color: '#6366f1',
+    header_color_end: '#4f46e5'
   },
   green: {
     name: 'Зелёная',

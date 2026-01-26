@@ -75,7 +75,7 @@ const Index = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50/30 via-white to-indigo-50/30">
       <div className="container mx-auto p-4 lg:p-8 max-w-6xl">
         <IndexHeader
           pageSettings={state.pageSettings}

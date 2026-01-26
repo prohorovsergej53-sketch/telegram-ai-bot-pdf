@@ -57,7 +57,7 @@ const ChatArea = ({
   return (
     <Card className={isWidget ? "h-full rounded-none border-0 shadow-none flex flex-col" : "shadow-xl animate-scale-in h-[calc(100vh-200px)]"}>
       {!isWidget && (
-        <CardHeader className="border-b bg-gradient-to-r from-slate-50 to-blue-50">
+        <CardHeader className="border-b bg-gradient-to-br from-purple-50 via-white to-indigo-50">
           <CardTitle className="flex items-center gap-2">
             <Icon name="MessageCircle" size={20} />
             {pageSettings?.page_title || 'AI-консультант'}
