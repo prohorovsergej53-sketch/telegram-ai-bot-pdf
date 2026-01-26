@@ -46,6 +46,7 @@ const App = () => (
           <Route path="/payment" element={<PaymentPage />} />
           <Route path="/payment/success" element={<PaymentSuccess />} />
           <Route path="/super-admin" element={<SuperAdmin />} />
+          <Route path="/chat/:tenantSlug" element={<Index />} />
           <Route path="/:tenantSlug/chat" element={<ChatWidget />} />
           <Route path="/:tenantSlug" element={<Index />} />
           <Route path="/:tenantSlug/admin" element={<Index />} />
