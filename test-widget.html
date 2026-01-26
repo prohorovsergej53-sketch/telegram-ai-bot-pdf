@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тест виджета - Отель Династия</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        h1 {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+        p {
+            font-size: 20px;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏨 Отель Династия</h1>
+        <p>Добро пожаловать на тестовую страницу отеля!</p>
+        <p>Виджет чата должен появиться в правом нижнем углу.</p>
+        <p>Откройте его и убедитесь, что:</p>
+        <ul>
+            <li>✅ Нет шапки с брендингом внутри окна чата</li>
+            <li>✅ Верстка не съезжает</li>
+            <li>✅ Чат занимает всю высоту окна виджета</li>
+        </ul>
+    </div>
+
+    <!-- AI Bot Widget - КОД ВИДЖЕТА -->
+    <script>
+    (function() {
+        var widget = document.createElement('div');
+        widget.id = 'ai-bot-widget-container';
+        document.body.appendChild(widget);
+
+        var style = document.createElement('style');
+        style.textContent = `
+            #ai-bot-widget-container { position: fixed; bottom: 20px; right: 20px; z-index: 999999; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+            #ai-bot-button { width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); border: none; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: flex; align-items: center; justify-content: center; transition: transform 0.2s, box-shadow 0.2s; }
+            #ai-bot-button:hover { transform: scale(1.05); box-shadow: 0 6px 16px rgba(0,0,0,0.2); }
+            #ai-bot-button svg { width: 30px; height: 30px; }
+            #ai-bot-iframe-container { position: fixed; bottom: 90px; right: 20px; width: 380px; height: 600px; border-radius: 16px; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,0.15); display: none; z-index: 999998; background: white; }
+            #ai-bot-iframe { width: 100%; height: 100%; border: none; border-radius: 16px; }
+            
+            @media (max-width: 768px) {
+                #ai-bot-widget-container { bottom: 10px; right: 10px; left: auto; }
+                #ai-bot-button { width: 50px; height: 50px; }
+                #ai-bot-button svg { width: 25px; height: 25px; }
+                #ai-bot-iframe-container { 
+                    bottom: 0 !important; 
+                    left: 0 !important; 
+                    right: 0 !important; 
+                    top: 0 !important;
+                    width: 100vw !important; 
+                    height: 100vh !important; 
+                    border-radius: 0 !important;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+
+        var button = document.createElement('button');
+        button.id = 'ai-bot-button';
+        button.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>';
+        widget.appendChild(button);
+
+        var iframeContainer = document.createElement('div');
+        iframeContainer.id = 'ai-bot-iframe-container';
+        widget.appendChild(iframeContainer);
+
+        var closeButton = document.createElement('button');
+        closeButton.id = 'ai-bot-close-button';
+        closeButton.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>';
+        closeButton.style.cssText = 'display: none; position: absolute; top: 10px; right: 10px; width: 40px; height: 40px; border-radius: 50%; background: rgba(0,0,0,0.5); border: none; cursor: pointer; z-index: 1000000; align-items: center; justify-content: center;';
+        iframeContainer.appendChild(closeButton);
+
+        var iframe = document.createElement('iframe');
+        iframe.id = 'ai-bot-iframe';
+        iframe.src = 'https://preview--telegram-ai-bot-pdf.poehali.dev/dinasty-crimea?widget=1';
+        iframeContainer.appendChild(iframe);
+
+        var isOpen = false;
+        var isMobile = window.innerWidth <= 768;
+        
+        function updateCloseButton() {
+            isMobile = window.innerWidth <= 768;
+            closeButton.style.display = (isOpen && isMobile) ? 'flex' : 'none';
+        }
+        
+        button.addEventListener('click', function() {
+            isOpen = !isOpen;
+            iframeContainer.style.display = isOpen ? 'block' : 'none';
+            updateCloseButton();
+        });
+        
+        closeButton.addEventListener('click', function() {
+            isOpen = false;
+            iframeContainer.style.display = 'none';
+            updateCloseButton();
+        });
+
+        document.addEventListener('click', function(e) {
+            if (isOpen && !isMobile && !widget.contains(e.target)) {
+                isOpen = false;
+                iframeContainer.style.display = 'none';
+                updateCloseButton();
+            }
+        });
+        
+        window.addEventListener('resize', updateCloseButton);
+    })();
+    </script>
+</body>
+</html>
