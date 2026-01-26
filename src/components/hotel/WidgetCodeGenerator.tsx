@@ -16,22 +16,13 @@ export const generateWidgetCode = (settings: WidgetSettings, tenantSlug?: string
   let chatUrl = settings.chat_url;
   
   if (!chatUrl) {
-    const pathParts = window.location.pathname.split('/').filter(p => p);
+    // Если tenantSlug передан явно - используем его, иначе берём из URL
+    const pathParts = window.location.pathname.split('/').filter(p => p && p !== 'admin');
     const slug = tenantSlug || pathParts[0] || 'demo';
     
-    const currentDomain = window.location.hostname;
-    let baseUrl;
-    
-    // Заменяем preview/admin домены на продакшн
-    if (currentDomain.includes('preview--')) {
-      // preview--telegram-ai-bot-pdf.poehali.dev -> p56134400.poehali.dev
-      const projectId = 'p56134400'; // ID проекта
-      baseUrl = `${window.location.protocol}//${projectId}.poehali.dev`;
-    } else if (currentDomain.startsWith('admin.')) {
-      baseUrl = `${window.location.protocol}//${currentDomain.replace('admin.', '')}`;
-    } else {
-      baseUrl = window.location.origin;
-    }
+    // ВСЕГДА используем продакшн домен p56134400.poehali.dev
+    const projectId = 'p56134400';
+    const baseUrl = `https://${projectId}.poehali.dev`;
     
     chatUrl = `${baseUrl}/${slug}`;
   } else {
