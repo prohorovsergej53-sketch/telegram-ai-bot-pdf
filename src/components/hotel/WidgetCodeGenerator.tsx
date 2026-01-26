@@ -22,7 +22,12 @@ export const generateWidgetCode = (settings: WidgetSettings, tenantSlug?: string
     const currentDomain = window.location.hostname;
     let baseUrl;
     
-    if (currentDomain.startsWith('admin.')) {
+    // Заменяем preview/admin домены на продакшн
+    if (currentDomain.includes('preview--')) {
+      // preview--telegram-ai-bot-pdf.poehali.dev -> p56134400.poehali.dev
+      const projectId = 'p56134400'; // ID проекта
+      baseUrl = `${window.location.protocol}//${projectId}.poehali.dev`;
+    } else if (currentDomain.startsWith('admin.')) {
       baseUrl = `${window.location.protocol}//${currentDomain.replace('admin.', '')}`;
     } else {
       baseUrl = window.location.origin;
