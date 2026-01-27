@@ -10,9 +10,18 @@ interface WidgetCodeGeneratorProps {
   showCode: boolean;
   onToggleCode: () => void;
   tenantSlug?: string;
+  needsUpdate?: boolean;
+  onCodeCopied?: () => void;
 }
 
 export const generateWidgetCode = (settings: WidgetSettings, tenantSlug?: string): string => {
+  console.log('[WidgetCodeGenerator] Generating code with colors:', {
+    button_color: settings.button_color,
+    button_color_end: settings.button_color_end,
+    header_color: settings.header_color,
+    header_color_end: settings.header_color_end
+  });
+  
   let chatUrl = settings.chat_url;
   
   // Если есть tenantSlug, всегда генерируем правильный URL для ai-ru.ru
@@ -120,7 +129,7 @@ export const generateWidgetCode = (settings: WidgetSettings, tenantSlug?: string
 </script>`;
 };
 
-const WidgetCodeGenerator = ({ settings, showCode, onToggleCode, tenantSlug }: WidgetCodeGeneratorProps) => {
+const WidgetCodeGenerator = ({ settings, showCode, onToggleCode, tenantSlug, needsUpdate = false, onCodeCopied }: WidgetCodeGeneratorProps) => {
   const { toast } = useToast();
   
   const handleCopyCode = () => {
@@ -151,6 +160,7 @@ const WidgetCodeGenerator = ({ settings, showCode, onToggleCode, tenantSlug }: W
           title: '✓ Скопировано!',
           description: 'Код виджета скопирован в буфер обмена'
         });
+        onCodeCopied?.();
       } else {
         throw new Error('Copy failed');
       }
@@ -169,11 +179,11 @@ const WidgetCodeGenerator = ({ settings, showCode, onToggleCode, tenantSlug }: W
       <div className="flex gap-2">
         <Button
           onClick={onToggleCode}
-          variant="outline"
-          className="flex-1"
+          variant={needsUpdate ? 'default' : 'outline'}
+          className={`flex-1 ${needsUpdate ? 'bg-amber-600 hover:bg-amber-700 animate-pulse' : ''}`}
         >
           <Icon name={showCode ? 'EyeOff' : 'Code'} size={16} className="mr-2" />
-          {showCode ? 'Скрыть код' : 'Показать код встройки'}
+          {showCode ? 'Скрыть код' : needsUpdate ? 'Скопировать новый код встройки' : 'Показать код встройки'}
         </Button>
         {showCode && (
           <Button onClick={handleCopyCode} variant="outline">

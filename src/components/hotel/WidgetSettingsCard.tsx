@@ -37,6 +37,7 @@ const WidgetSettingsCard = () => {
   const [selectedScheme, setSelectedScheme] = useState<string>('purple');
   const [isLoading, setIsLoading] = useState(false);
   const [showCode, setShowCode] = useState(false);
+  const [needsCodeUpdate, setNeedsCodeUpdate] = useState(false);
 
   useEffect(() => {
     loadSettings();
@@ -65,6 +66,7 @@ const WidgetSettingsCard = () => {
     const newSettings = applyColorScheme(scheme, settings);
     setSettings(newSettings);
     setSelectedScheme(scheme);
+    setNeedsCodeUpdate(true);
   };
 
   const handleSave = async () => {
@@ -104,10 +106,18 @@ const WidgetSettingsCard = () => {
           verifyData.button_size === settings.button_size;
         
         if (savedCorrectly) {
+          // Обновляем settings из базы данных
+          setSettings(verifyData);
+          
           toast({
             title: '✓ Сохранено!',
-            description: 'Настройки виджета успешно обновлены и проверены в базе данных'
+            description: needsCodeUpdate 
+              ? '⚠️ ВАЖНО: Скопируйте новый код виджета и обновите его на вашем сайте!'
+              : 'Настройки виджета успешно обновлены'
           });
+          if (needsCodeUpdate) {
+            setShowCode(true);
+          }
         } else {
           toast({
             title: '⚠️ Частично сохранено',
@@ -242,6 +252,27 @@ const WidgetSettingsCard = () => {
             {isLoading ? 'Сохранение...' : 'Сохранить настройки'}
           </Button>
 
+          {needsCodeUpdate && (
+            <div className="p-4 bg-amber-50 border-2 border-amber-300 rounded-lg">
+              <div className="flex items-start gap-3">
+                <Icon name="AlertTriangle" className="text-amber-600 flex-shrink-0 mt-0.5" size={20} />
+                <div className="space-y-2">
+                  <div className="text-sm font-semibold text-amber-900">
+                    Требуется обновление кода на сайте!
+                  </div>
+                  <div className="text-xs text-amber-800">
+                    Вы изменили настройки виджета. Чтобы изменения вступили в силу:
+                  </div>
+                  <ol className="text-xs text-amber-800 space-y-1 list-decimal list-inside">
+                    <li>Нажмите "Сохранить настройки" выше</li>
+                    <li>Скопируйте новый код встройки ниже</li>
+                    <li>Замените старый код виджета на вашем сайте</li>
+                  </ol>
+                </div>
+              </div>
+            </div>
+          )}
+
           {settings.chat_url && (
             <div className="p-3 bg-muted rounded-lg">
               <div className="text-sm font-medium mb-1">URL страницы чата:</div>
@@ -254,6 +285,8 @@ const WidgetSettingsCard = () => {
             showCode={showCode}
             onToggleCode={() => setShowCode(!showCode)}
             tenantSlug={tenantSlug}
+            needsUpdate={needsCodeUpdate}
+            onCodeCopied={() => setNeedsCodeUpdate(false)}
           />
         </div>
       </CardContent>
