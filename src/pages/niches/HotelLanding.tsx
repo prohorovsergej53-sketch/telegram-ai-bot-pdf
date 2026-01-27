@@ -443,13 +443,13 @@ const HotelLanding = () => {
         </section>
 
         {/* Pricing */}
-        <section className="py-20 bg-gradient-to-br from-slate-900 via-blue-900 to-purple-900 text-white">
+        <section className="py-20 bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
-              <h2 className="text-3xl md:text-5xl font-bold mb-4">
+              <h2 className="text-3xl md:text-5xl font-bold mb-4 text-slate-900">
                 Прозрачные цены
               </h2>
-              <p className="text-xl text-blue-200">
+              <p className="text-xl text-slate-600">
                 Дешевле, чем один администратор на полставки
               </p>
             </div>
@@ -468,7 +468,9 @@ const HotelLanding = () => {
                     'Запуск за 24 часа',
                     'Базовая поддержка'
                   ],
-                  color: 'from-slate-600 to-slate-700',
+                  bgColor: 'bg-white',
+                  borderColor: 'border-slate-200',
+                  accentColor: 'from-slate-600 to-slate-700',
                   popular: false
                 },
                 {
@@ -483,7 +485,9 @@ const HotelLanding = () => {
                     'Оптимизация под вашу нишу',
                     'Приоритетная поддержка'
                   ],
-                  color: 'from-blue-600 to-purple-600',
+                  bgColor: 'bg-gradient-to-br from-teal-500 to-emerald-600',
+                  borderColor: 'border-teal-400',
+                  accentColor: 'from-teal-600 to-emerald-600',
                   popular: true
                 },
                 {
@@ -499,38 +503,40 @@ const HotelLanding = () => {
                     'Личный менеджер 24/7',
                     'Кастомизация под нишу'
                   ],
-                  color: 'from-purple-600 to-pink-600',
+                  bgColor: 'bg-white',
+                  borderColor: 'border-cyan-200',
+                  accentColor: 'from-cyan-600 to-blue-600',
                   popular: false
                 }
               ].map((plan, idx) => (
-                <Card key={idx} className={`relative border-2 ${plan.popular ? 'border-yellow-400 shadow-2xl scale-105' : 'border-slate-700'} bg-white/5 backdrop-blur-sm hover:scale-110 transition-transform`}>
+                <Card key={idx} className={`relative border-2 ${plan.borderColor} ${plan.bgColor} ${plan.popular ? 'shadow-2xl scale-105 ring-4 ring-teal-200' : ''} hover:scale-110 hover:shadow-xl transition-all`}>
                   {plan.popular && (
-                    <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                      <div className="bg-gradient-to-r from-yellow-400 to-orange-500 text-slate-900 px-4 py-1 rounded-full text-sm font-bold shadow-lg">
-                        Популярный
+                    <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 z-10">
+                      <div className="bg-gradient-to-r from-amber-400 to-orange-500 text-white px-6 py-1.5 rounded-full text-sm font-bold shadow-lg">
+                        ⭐ Популярный
                       </div>
                     </div>
                   )}
-                  <CardContent className="p-8">
+                  <CardContent className={`p-8 ${plan.popular ? 'text-white' : 'text-slate-900'}`}>
                     <h3 className="text-2xl font-bold mb-2">{plan.name}</h3>
                     <div className="mb-6">
                       <div>
                         <span className="text-5xl font-bold">{plan.price}</span>
-                        <span className="text-xl text-blue-200">₽</span>
+                        <span className="text-xl">₽</span>
                       </div>
-                      <div className="text-sm text-blue-200 mt-1">{plan.period}</div>
-                      <div className="text-xs text-blue-300 mt-2">{plan.renewal}</div>
+                      <div className={`text-sm mt-1 ${plan.popular ? 'text-teal-50' : 'text-slate-600'}`}>{plan.period}</div>
+                      <div className={`text-xs mt-2 ${plan.popular ? 'text-teal-100' : 'text-slate-500'}`}>{plan.renewal}</div>
                     </div>
                     <ul className="space-y-3 mb-8">
                       {plan.features.map((feature, fIdx) => (
                         <li key={fIdx} className="flex items-start gap-2">
-                          <Icon name="Check" size={20} className="text-green-400 flex-shrink-0 mt-0.5" />
+                          <Icon name="Check" size={20} className={`flex-shrink-0 mt-0.5 ${plan.popular ? 'text-white' : 'text-emerald-600'}`} />
                           <span className="text-sm">{feature}</span>
                         </li>
                       ))}
                     </ul>
                     <Button 
-                      className={`w-full ${plan.popular ? 'bg-gradient-to-r from-yellow-400 to-orange-500 text-slate-900 hover:from-yellow-500 hover:to-orange-600' : 'bg-white/10 hover:bg-white/20'}`}
+                      className={`w-full ${plan.popular ? 'bg-white text-teal-600 hover:bg-teal-50 font-bold' : 'bg-gradient-to-r from-teal-500 to-emerald-600 text-white hover:from-teal-600 hover:to-emerald-700'}`}
                       size="lg"
                       onClick={() => window.open('https://max.ru/u/f9LHodD0cOIrknUlAYx1LxuVyfuHRhIq-OHhkpPMbwJ_WcjW4dhTFpEEez0', '_blank')}
                     >
@@ -542,8 +548,8 @@ const HotelLanding = () => {
             </div>
 
             <div className="text-center mt-12">
-              <p className="text-blue-200 mb-2">Первый месяц — полная настройка под ключ</p>
-              <p className="text-sm text-blue-300">Дальше платите только за поддержку и работу бота</p>
+              <p className="text-slate-700 mb-2 font-medium">Первый месяц — полная настройка под ключ</p>
+              <p className="text-sm text-slate-600">Дальше платите только за поддержку и работу бота</p>
             </div>
           </div>
         </section>
