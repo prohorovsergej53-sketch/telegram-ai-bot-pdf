@@ -19,14 +19,14 @@ const HotelLanding = () => {
     },
     {
       icon: 'Users',
-      title: 'Обработка 1000+ диалогов',
-      description: 'Одновременная работа с неограниченным количеством гостей без потери качества',
+      title: 'Неограниченная работа',
+      description: 'Одновременная работа с любым количеством гостей без потери качества',
       color: 'from-green-500 to-green-600'
     },
     {
       icon: 'TrendingUp',
       title: 'Рост конверсии в бронирования',
-      description: 'Быстрые ответы = довольные гости = больше броней. Проверено практикой',
+      description: 'Быстрые ответы = довольные гости = больше броней',
       color: 'from-orange-500 to-orange-600'
     },
     {
@@ -47,7 +47,7 @@ const HotelLanding = () => {
     {
       icon: 'Phone',
       problem: 'Администратор не успевает отвечать на звонки',
-      solution: 'AI-консьерж разгрузит персонал, отвечая на 80% типовых вопросов'
+      solution: 'AI-консьерж разгрузит персонал, отвечая на типовые вопросы автоматически'
     },
     {
       icon: 'Moon',
@@ -57,7 +57,7 @@ const HotelLanding = () => {
     {
       icon: 'DollarSign',
       problem: 'Нанимать дополнительный персонал дорого',
-      solution: 'Один AI-консьерж заменяет 2-3 администраторов'
+      solution: 'AI-консьерж работает без выходных и больничных'
     },
     {
       icon: 'MessageSquare',
@@ -104,7 +104,7 @@ const HotelLanding = () => {
       name: 'Telegram',
       icon: 'Send',
       color: 'bg-[#0088cc]',
-      description: '80% гостей уже используют'
+      description: 'Самый популярный мессенджер'
     },
     {
       name: 'MAX',
@@ -116,7 +116,7 @@ const HotelLanding = () => {
       name: 'VK',
       icon: 'MessageCircle',
       color: 'bg-blue-600',
-      description: '90+ млн пользователей'
+      description: 'Крупнейшая соцсеть России'
     },
     {
       name: 'Веб-чат',
@@ -356,7 +356,7 @@ const HotelLanding = () => {
                 На какие вопросы отвечает бот
               </h2>
               <p className="text-xl text-slate-600">
-                80% типовых вопросов гостей — автоматически
+                Типовые вопросы гостей — автоматически
               </p>
             </div>
 
