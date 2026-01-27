@@ -1,15 +1,21 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import Icon from '@/components/ui/icon';
 
 const COOKIE_CONSENT_KEY = 'cookie_consent_accepted';
 
 export const CookieConsent = () => {
   const [showBanner, setShowBanner] = useState(false);
+  const location = useLocation();
 
   useEffect(() => {
+    // Не показываем баннер на страницах виджета
+    if (location.pathname.includes('/chat')) {
+      return;
+    }
+
     const consent = localStorage.getItem(COOKIE_CONSENT_KEY);
     if (!consent) {
       // Показываем баннер через 1 секунду после загрузки страницы
@@ -18,7 +24,7 @@ export const CookieConsent = () => {
       }, 1000);
       return () => clearTimeout(timer);
     }
-  }, []);
+  }, [location.pathname]);
 
   const handleAccept = () => {
     localStorage.setItem(COOKIE_CONSENT_KEY, 'true');
