@@ -136,20 +136,27 @@ export const HotelUseCasesSection = () => {
                     </div>
                   </div>
 
-                  <div className="flex gap-3">
+                  <div className="flex flex-col sm:flex-row gap-3">
                     <button 
                       className="flex-1 bg-[#0088cc] hover:bg-[#0077b3] text-white py-4 px-6 rounded-xl font-semibold transition-colors flex items-center justify-center gap-2 group"
-                      onClick={() => window.open('https://t.me/dynastyhotel_ai_bot', '_blank')}
+                      onClick={() => window.open('https://t.me/dynastiya_bot', '_blank')}
                     >
                       <Icon name="Send" size={20} className="group-hover:translate-x-1 transition-transform" />
                       Открыть в Telegram
                     </button>
                     <button 
                       className="flex-1 bg-purple-600 hover:bg-purple-700 text-white py-4 px-6 rounded-xl font-semibold transition-colors flex items-center justify-center gap-2 group"
-                      onClick={() => window.open('https://max.ru/u/f9LHodD0cOIrknUlAYx1LxuVyfuHRhIq-OHhkpPMbwJ_WcjW4dhTFpEEez0', '_blank')}
+                      onClick={() => window.open('https://max.ru/id9108121649_bot', '_blank')}
                     >
                       <Icon name="Shield" size={20} className="group-hover:scale-110 transition-transform" />
                       Открыть в MAX
+                    </button>
+                    <button 
+                      className="flex-1 bg-green-600 hover:bg-green-700 text-white py-4 px-6 rounded-xl font-semibold transition-colors flex items-center justify-center gap-2 group"
+                      onClick={() => window.open('https://ai-ru.ru/dinasty-crimea/chat', '_blank')}
+                    >
+                      <Icon name="Globe" size={20} className="group-hover:scale-110 transition-transform" />
+                      Веб-чат
                     </button>
                   </div>
                 </div>
