@@ -151,9 +151,19 @@ export const ConsentSettingsCard = ({ tenantId }: ConsentSettingsCardProps) => {
             rows={4}
             placeholder="Текст согласия на обработку персональных данных..."
           />
-          <p className="text-xs text-slate-500">
-            Поддерживается HTML. Ссылка относительная: &lt;a href="/privacy-policy" target="_blank"&gt;Политика конфиденциальности&lt;/a&gt; (автоматически привяжется к вашему боту)
-          </p>
+          <div className="space-y-2">
+            <p className="text-xs text-slate-500">
+              Поддерживается HTML. Используйте абсолютные ссылки:
+            </p>
+            <div className="bg-slate-50 border border-slate-200 rounded p-2 space-y-1">
+              <p className="text-xs font-mono text-slate-700">
+                Я согласен на обработку данных согласно &lt;a href="<span className="text-blue-600">https://ваш-сайт.ru/privacy</span>" target="_blank"&gt;Политике конфиденциальности&lt;/a&gt;
+              </p>
+              <p className="text-xs text-amber-700 font-semibold mt-2">
+                ⚠️ Для виджетов на сторонних сайтах: указывайте полный URL политики вашего клиента!
+              </p>
+            </div>
+          </div>
         </div>
 
         <div className="space-y-2">
