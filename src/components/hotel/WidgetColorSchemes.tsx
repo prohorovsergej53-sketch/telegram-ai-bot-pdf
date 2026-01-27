@@ -83,3 +83,15 @@ export const applyColorScheme = (
   }
   return currentSettings;
 };
+
+export const detectColorScheme = (settings: WidgetSettings): string => {
+  for (const [key, scheme] of Object.entries(COLOR_SCHEMES)) {
+    if (
+      scheme.button_color.toLowerCase() === settings.button_color?.toLowerCase() &&
+      scheme.button_color_end.toLowerCase() === settings.button_color_end?.toLowerCase()
+    ) {
+      return key;
+    }
+  }
+  return 'purple';
+};

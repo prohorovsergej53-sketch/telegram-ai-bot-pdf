@@ -10,7 +10,7 @@ import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useParams } from 'react-router-dom';
 import { BACKEND_URLS } from './types';
-import { COLOR_SCHEMES, WidgetSettings, applyColorScheme } from './WidgetColorSchemes';
+import { COLOR_SCHEMES, WidgetSettings, applyColorScheme, detectColorScheme } from './WidgetColorSchemes';
 import WidgetPreview from './WidgetPreview';
 import WidgetCodeGenerator from './WidgetCodeGenerator';
 import { authenticatedFetch, getTenantId } from '@/lib/auth';
@@ -52,6 +52,10 @@ const WidgetSettingsCard = () => {
         data.button_icon = 'MessageCircle';
       }
       setSettings(data);
+      
+      // Автоматически определяем какая цветовая схема используется
+      const detectedScheme = detectColorScheme(data);
+      setSelectedScheme(detectedScheme);
     } catch (error) {
       console.error('Error loading widget settings:', error);
     }
