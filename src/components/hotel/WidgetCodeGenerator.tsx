@@ -41,17 +41,25 @@ export const generateWidgetCode = (settings: WidgetSettings, tenantSlug?: string
   
   const fullChatUrl = `${chatUrl}?${urlParams.toString()}`;
   
-  return `<!-- AI Bot Widget - Вставьте этот код перед закрывающим тегом </body> -->
+  return `<!-- AI Bot Widget v2.0 - Вставьте этот код перед закрывающим тегом </body> -->
 <script>
 (function() {
+    // Удаляем старый виджет если он есть
+    var oldWidget = document.getElementById('ai-bot-widget-container');
+    if (oldWidget) oldWidget.remove();
+    
+    var oldStyle = document.getElementById('ai-bot-widget-style');
+    if (oldStyle) oldStyle.remove();
+    
     var widget = document.createElement('div');
     widget.id = 'ai-bot-widget-container';
     document.body.appendChild(widget);
 
     var style = document.createElement('style');
+    style.id = 'ai-bot-widget-style';
     style.textContent = \`
         #ai-bot-widget-container { position: fixed; ${settings.button_position === 'bottom-right' ? 'bottom: 20px; right: 20px;' : settings.button_position === 'bottom-left' ? 'bottom: 20px; left: 20px;' : 'bottom: 20px; right: 20px;'} z-index: 999999; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
-        #ai-bot-button { width: ${settings.button_size}px; height: ${settings.button_size}px; border-radius: 50%; background: linear-gradient(135deg, ${settings.button_color} 0%, ${settings.button_color_end} 100%); border: none; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: flex; align-items: center; justify-content: center; transition: transform 0.2s, box-shadow 0.2s; }
+        #ai-bot-button { width: ${settings.button_size}px; height: ${settings.button_size}px; border-radius: 50%; background: linear-gradient(135deg, ${settings.button_color} 0%, ${settings.button_color_end} 100%) !important; border: none; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: flex; align-items: center; justify-content: center; transition: transform 0.2s, box-shadow 0.2s; }
         #ai-bot-button:hover { transform: scale(1.05); box-shadow: 0 6px 16px rgba(0,0,0,0.2); }
         #ai-bot-button svg { width: ${settings.button_size * 0.5}px; height: ${settings.button_size * 0.5}px; }
         #ai-bot-iframe-container { position: fixed; ${settings.button_position === 'bottom-right' ? 'bottom: 90px; right: 20px;' : settings.button_position === 'bottom-left' ? 'bottom: 90px; left: 20px;' : 'bottom: 90px; right: 20px;'} width: ${settings.window_width}px; height: ${settings.window_height}px; border-radius: ${settings.border_radius}px; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,0.15); display: none; z-index: 999998; background: white; }
