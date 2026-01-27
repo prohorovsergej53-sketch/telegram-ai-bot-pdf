@@ -15,8 +15,8 @@ const PublicChatLinkCard = ({ tenantSlug }: PublicChatLinkCardProps) => {
   const [copied, setCopied] = useState(false);
   
   const publicChatUrl = tenantSlug 
-    ? getAppUrl(`/${tenantSlug}/chat`)
-    : getAppUrl('/your-slug/chat');
+    ? `https://ai-ru.ru/${tenantSlug}/chat`
+    : 'https://ai-ru.ru/your-slug/chat';
 
   const handleCopy = () => {
     navigator.clipboard.writeText(publicChatUrl);
