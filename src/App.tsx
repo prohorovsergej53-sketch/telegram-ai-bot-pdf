@@ -15,6 +15,7 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
 import ChatWidget from "./pages/ChatWidget";
 import TryBot from "./pages/TryBot";
+import HotelLanding from "./pages/niches/HotelLanding";
 import { CookieConsent } from "./components/CookieConsent";
 import { useSEONotify } from "./hooks/use-seo-notify";
 
@@ -42,6 +43,7 @@ const App = () => (
           <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/try-bot" element={<TryBot />} />
+          <Route path="/niches/hotels" element={<HotelLanding />} />
           <Route path="/admin" element={<Index />} />
           <Route path="/payment" element={<PaymentPage />} />
           <Route path="/payment/success" element={<PaymentSuccess />} />
