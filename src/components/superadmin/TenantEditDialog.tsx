@@ -205,7 +205,7 @@ export const TenantEditDialog = ({ tenant, tariffs, onClose, onSave, onUpdate }:
                     <div>
                       <Label>Название ключа</Label>
                       <Input 
-                        placeholder="YANDEX_SPEECHKIT_API_KEY"
+                        placeholder="API_KEY_NAME"
                         value={newKey.key_name}
                         onChange={(e) => setNewKey({...newKey, key_name: e.target.value})}
                       />
