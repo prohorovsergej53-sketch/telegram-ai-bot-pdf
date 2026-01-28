@@ -17,7 +17,7 @@ interface TenantApiKeysCardProps {
 }
 
 interface ApiKey {
-  provider: 'yandex' | 'deepseek' | 'openrouter' | 'proxyapi';
+  provider: 'yandex' | 'deepseek' | 'openrouter' | 'proxyapi' | 'openai' | 'google';
   key_name: string;
   key_value: string;
   is_active: boolean;
@@ -31,6 +31,9 @@ const TenantApiKeysCard = ({ tenantId, tenantName, fz152Enabled = false }: Tenan
 
   const [yandexApiKey, setYandexApiKey] = useState('');
   const [yandexFolderId, setYandexFolderId] = useState('');
+  const [yandexSpeechApiKey, setYandexSpeechApiKey] = useState('');
+  const [openaiApiKey, setOpenaiApiKey] = useState('');
+  const [googleSpeechApiKey, setGoogleSpeechApiKey] = useState('');
   const [deepseekApiKey, setDeepseekApiKey] = useState('');
   const [openrouterApiKey, setOpenrouterApiKey] = useState('');
   const [proxyapiApiKey, setProxyapiApiKey] = useState('');
@@ -54,12 +57,18 @@ const TenantApiKeysCard = ({ tenantId, tenantName, fz152Enabled = false }: Tenan
         
         const yandexApi = data.keys.find((k: ApiKey) => k.provider === 'yandex' && k.key_name === 'api_key');
         const yandexFolder = data.keys.find((k: ApiKey) => k.provider === 'yandex' && k.key_name === 'folder_id');
+        const yandexSpeech = data.keys.find((k: ApiKey) => k.provider === 'yandex' && k.key_name === 'YANDEX_SPEECHKIT_API_KEY');
+        const openaiApi = data.keys.find((k: ApiKey) => k.provider === 'openai' && k.key_name === 'OPENAI_API_KEY');
+        const googleSpeech = data.keys.find((k: ApiKey) => k.provider === 'google' && k.key_name === 'GOOGLE_SPEECH_API_KEY');
         const deepseekApi = data.keys.find((k: ApiKey) => k.provider === 'deepseek' && k.key_name === 'api_key');
         const openrouterApi = data.keys.find((k: ApiKey) => k.provider === 'openrouter' && k.key_name === 'api_key');
         const proxyapiApi = data.keys.find((k: ApiKey) => k.provider === 'proxyapi' && k.key_name === 'api_key');
         
         console.log('[TenantApiKeysCard] Found keys:', {
           yandex: !!yandexApi,
+          yandexSpeech: !!yandexSpeech,
+          openai: !!openaiApi,
+          googleSpeech: !!googleSpeech,
           deepseek: !!deepseekApi,
           openrouter: !!openrouterApi,
           proxyapi: !!proxyapiApi
@@ -67,6 +76,9 @@ const TenantApiKeysCard = ({ tenantId, tenantName, fz152Enabled = false }: Tenan
         
         setYandexApiKey(yandexApi?.key_value || '');
         setYandexFolderId(yandexFolder?.key_value || '');
+        setYandexSpeechApiKey(yandexSpeech?.key_value || '');
+        setOpenaiApiKey(openaiApi?.key_value || '');
+        setGoogleSpeechApiKey(googleSpeech?.key_value || '');
         setDeepseekApiKey(deepseekApi?.key_value || '');
         setOpenrouterApiKey(openrouterApi?.key_value || '');
         setProxyapiApiKey(proxyapiApi?.key_value || '');
@@ -95,6 +107,15 @@ const TenantApiKeysCard = ({ tenantId, tenantName, fz152Enabled = false }: Tenan
       }
       if (yandexFolderId.trim() && !yandexFolderId.startsWith('***')) {
         keysToSave.push({ provider: 'yandex', key_name: 'folder_id', key_value: yandexFolderId.trim() });
+      }
+      if (yandexSpeechApiKey.trim() && !yandexSpeechApiKey.startsWith('***')) {
+        keysToSave.push({ provider: 'yandex', key_name: 'YANDEX_SPEECHKIT_API_KEY', key_value: yandexSpeechApiKey.trim() });
+      }
+      if (openaiApiKey.trim() && !openaiApiKey.startsWith('***')) {
+        keysToSave.push({ provider: 'openai', key_name: 'OPENAI_API_KEY', key_value: openaiApiKey.trim() });
+      }
+      if (googleSpeechApiKey.trim() && !googleSpeechApiKey.startsWith('***')) {
+        keysToSave.push({ provider: 'google', key_name: 'GOOGLE_SPEECH_API_KEY', key_value: googleSpeechApiKey.trim() });
       }
       if (deepseekApiKey.trim() && !deepseekApiKey.startsWith('***')) {
         keysToSave.push({ provider: 'deepseek', key_name: 'api_key', key_value: deepseekApiKey.trim() });
@@ -172,7 +193,7 @@ const TenantApiKeysCard = ({ tenantId, tenantName, fz152Enabled = false }: Tenan
         ) : (
           <>
             <div className="space-y-4">
-              {(yandexApiKey.startsWith('***') || yandexFolderId.startsWith('***') || deepseekApiKey.startsWith('***') || openrouterApiKey.startsWith('***') || proxyapiApiKey.startsWith('***')) && (
+              {(yandexApiKey.startsWith('***') || yandexFolderId.startsWith('***') || yandexSpeechApiKey.startsWith('***') || openaiApiKey.startsWith('***') || googleSpeechApiKey.startsWith('***') || deepseekApiKey.startsWith('***') || openrouterApiKey.startsWith('***') || proxyapiApiKey.startsWith('***')) && (
                 <div className="bg-green-50 border border-green-200 rounded-lg p-4">
                   <div className="flex items-start gap-2">
                     <Icon name="ShieldCheck" size={20} className="text-green-600 mt-0.5 flex-shrink-0" />
@@ -281,8 +302,124 @@ const TenantApiKeysCard = ({ tenantId, tenantName, fz152Enabled = false }: Tenan
                     </p>
                   )}
                 </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="yandex_speech_api_key" className="flex items-center gap-2">
+                    Yandex SpeechKit API Key
+                    {yandexSpeechApiKey && (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                        <Icon name="CheckCircle2" size={12} />
+                        Настроен
+                      </span>
+                    )}
+                    {!yandexSpeechApiKey && (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-600">
+                        <Icon name="CircleDashed" size={12} />
+                        Не настроен
+                      </span>
+                    )}
+                  </Label>
+                  <Input
+                    id="yandex_speech_api_key"
+                    type="password"
+                    value={yandexSpeechApiKey.startsWith('***') ? '' : yandexSpeechApiKey}
+                    onChange={(e) => setYandexSpeechApiKey(e.target.value)}
+                    placeholder="AQVN... (для распознавания речи)"
+                    className="font-mono text-sm"
+                  />
+                  {yandexSpeechApiKey && !yandexSpeechApiKey.startsWith('***') && (
+                    <p className="text-xs text-muted-foreground">
+                      Текущий: {maskKey(yandexSpeechApiKey)}
+                    </p>
+                  )}
+                  <p className="text-xs text-slate-500">Используется для распознавания голосовых сообщений (Yandex SpeechKit)</p>
+                </div>
               </div>
             </div>
+
+            {!fz152Enabled && (
+            <>
+            <div className="space-y-4">
+              <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
+                <div className="flex items-start gap-2">
+                  <Icon name="Mic" size={16} className="text-purple-600 mt-0.5" />
+                  <div className="text-sm text-purple-900">
+                    <p className="font-medium mb-1">Ключи для распознавания речи</p>
+                    <p className="text-purple-800">
+                      Необходимы для обработки голосовых и видео-сообщений в чатах
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <div className="space-y-2">
+                  <Label htmlFor="openai_api_key" className="flex items-center gap-2">
+                    OpenAI API Key (Whisper)
+                    {openaiApiKey && (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                        <Icon name="CheckCircle2" size={12} />
+                        Настроен
+                      </span>
+                    )}
+                    {!openaiApiKey && (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-600">
+                        <Icon name="CircleDashed" size={12} />
+                        Не настроен
+                      </span>
+                    )}
+                  </Label>
+                  <Input
+                    id="openai_api_key"
+                    type="password"
+                    value={openaiApiKey.startsWith('***') ? '' : openaiApiKey}
+                    onChange={(e) => setOpenaiApiKey(e.target.value)}
+                    placeholder="sk-proj-... (для Whisper STT)"
+                    className="font-mono text-sm"
+                  />
+                  {openaiApiKey && !openaiApiKey.startsWith('***') && (
+                    <p className="text-xs text-muted-foreground">
+                      Текущий: {maskKey(openaiApiKey)}
+                    </p>
+                  )}
+                  <p className="text-xs text-slate-500">Используется для распознавания речи через OpenAI Whisper ($0.006/мин)</p>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="google_speech_api_key" className="flex items-center gap-2">
+                    Google Speech API Key
+                    {googleSpeechApiKey && (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                        <Icon name="CheckCircle2" size={12} />
+                        Настроен
+                      </span>
+                    )}
+                    {!googleSpeechApiKey && (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-600">
+                        <Icon name="CircleDashed" size={12} />
+                        Не настроен
+                      </span>
+                    )}
+                  </Label>
+                  <Input
+                    id="google_speech_api_key"
+                    type="password"
+                    value={googleSpeechApiKey.startsWith('***') ? '' : googleSpeechApiKey}
+                    onChange={(e) => setGoogleSpeechApiKey(e.target.value)}
+                    placeholder="AIzaSy... (для Speech-to-Text)"
+                    className="font-mono text-sm"
+                  />
+                  {googleSpeechApiKey && !googleSpeechApiKey.startsWith('***') && (
+                    <p className="text-xs text-muted-foreground">
+                      Текущий: {maskKey(googleSpeechApiKey)}
+                    </p>
+                  )}
+                  <p className="text-xs text-slate-500">Используется для распознавания речи через Google Cloud ($0.006/15 сек)</p>
+                </div>
+              </div>
+            </div>
+            </>
+            )}
 
             {!fz152Enabled && (
             <>
