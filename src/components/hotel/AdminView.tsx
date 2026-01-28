@@ -26,6 +26,7 @@ import EmbeddingsSettings from './EmbeddingsSettings';
 import SupportChat from '@/components/SupportChat';
 import PublicChatLinkCard from './PublicChatLinkCard';
 import SpeechSettingsCard from './SpeechSettingsCard';
+import ProxySettingsCard from './ProxySettingsCard';
 import { Document, BACKEND_URLS } from './types';
 import { getTenantId, getTariffId, isSuperAdmin, getAdminUser, exitTenantView } from '@/lib/auth';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -228,6 +229,12 @@ const AdminView = ({ documents, isLoading, onFileUpload, onDeleteDocument, curre
                     tenantName={tenantName}
                     fz152Enabled={fz152Enabled && !superAdmin}
                   />
+                  {!fz152Enabled && currentTenantId && tenantName && (
+                    <ProxySettingsCard
+                      tenantId={currentTenantId}
+                      tenantName={tenantName}
+                    />
+                  )}
                   {superAdmin && (
                     <ChatTestCard
                       tenantId={currentTenantId}

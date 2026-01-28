@@ -1,4 +1,5 @@
 {
+  "manage-proxy-settings": "https://functions.poehali.dev/9e4ccf79-e896-4279-9f09-6bb78ed1b7cc",
   "speech-recognition": "https://functions.poehali.dev/66ab8736-2781-4c63-9c2e-09f2061f7c7a",
   "get-tenant-token-stats": "https://functions.poehali.dev/d58dbde4-5719-461b-87ad-6d97db9fdd51",
   "get-superadmin-chat-stats": "https://functions.poehali.dev/61fc762a-0e98-41b4-b1b4-406c5e73f78a",

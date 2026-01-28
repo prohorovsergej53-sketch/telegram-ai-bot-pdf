@@ -28,6 +28,54 @@ from quality_gate import (
     RAG_LOW_OVERLAP_START_TOPK5
 )
 
+
+def parse_proxy(proxy_string: str):
+    """Парсит прокси из формата login:pass@ip:port в dict для httpx"""
+    if not proxy_string or not proxy_string.strip():
+        return None
+    
+    try:
+        proxy_url = f'http://{proxy_string}'
+        return {
+            'http://': proxy_url,
+            'https://': proxy_url
+        }
+    except Exception as e:
+        print(f'Failed to parse proxy: {e}')
+        return None
+
+
+def get_proxy_settings(cur, tenant_id: int) -> dict:
+    """Загружает настройки прокси для DeepSeek, OpenRouter и ProxyAPI"""
+    cur.execute("""
+        SELECT 
+            use_proxy_deepseek, proxy_deepseek,
+            use_proxy_openrouter, proxy_openrouter,
+            use_proxy_proxyapi, proxy_proxyapi
+        FROM t_p56134400_telegram_ai_bot_pdf.tenant_settings
+        WHERE tenant_id = %s
+    """, (tenant_id,))
+    row = cur.fetchone()
+    
+    if not row:
+        return {}
+    
+    return {
+        'deepseek': {
+            'enabled': row[0] or False,
+            'proxy': parse_proxy(row[1]) if row[0] and row[1] else None
+        },
+        'openrouter': {
+            'enabled': row[2] or False,
+            'proxy': parse_proxy(row[3]) if row[2] and row[3] else None
+        },
+        'proxyapi': {
+            'enabled': row[4] or False,
+            'proxy': parse_proxy(row[5]) if row[4] and row[5] else None
+        }
+    }
+
+
 def get_provider_and_api_model(frontend_model: str, frontend_provider: str) -> tuple:
     """
     Возвращает (api_model, реальный_провайдер) на основе модели и провайдера с фронта.
@@ -156,6 +204,9 @@ def handler(event: dict, context) -> dict:
         
         # Обеспечиваем, что tenant_id - это integer
         tenant_id = int(tenant_id)
+
+        # Load proxy settings for AI providers
+        proxy_settings = get_proxy_settings(cur, tenant_id)
 
         # Загружаем дефолтный промпт из БД
         cur.execute("""
@@ -613,9 +664,17 @@ def handler(event: dict, context) -> dict:
                 working_model = chat_api_model
                 print(f"💰 OpenRouter платная модель: {chat_api_model}")
             
+            # Setup proxy for OpenRouter if enabled
+            openrouter_http_client = None
+            if proxy_settings.get('openrouter', {}).get('enabled') and proxy_settings['openrouter'].get('proxy'):
+                import httpx
+                openrouter_http_client = httpx.Client(proxies=proxy_settings['openrouter']['proxy'])
+                print(f"[chat] Using proxy for OpenRouter: {list(proxy_settings['openrouter']['proxy'].values())[0][:50]}...")
+            
             chat_client = OpenAI(
                 api_key=openrouter_key,
-                base_url="https://openrouter.ai/api/v1"
+                base_url="https://openrouter.ai/api/v1",
+                http_client=openrouter_http_client
             )
             openrouter_messages = [{"role": "system", "content": system_prompt}]
             for msg in history_to_use:
@@ -647,9 +706,18 @@ def handler(event: dict, context) -> dict:
             deepseek_key, error = get_tenant_api_key(tenant_id, 'deepseek', 'api_key')
             if error:
                 return error
+            
+            # Setup proxy for DeepSeek if enabled
+            deepseek_http_client = None
+            if proxy_settings.get('deepseek', {}).get('enabled') and proxy_settings['deepseek'].get('proxy'):
+                import httpx
+                deepseek_http_client = httpx.Client(proxies=proxy_settings['deepseek']['proxy'])
+                print(f"[chat] Using proxy for DeepSeek: {list(proxy_settings['deepseek']['proxy'].values())[0][:50]}...")
+            
             chat_client = OpenAI(
                 api_key=deepseek_key,
-                base_url="https://api.deepseek.com"
+                base_url="https://api.deepseek.com",
+                http_client=deepseek_http_client
             )
             deepseek_messages = [{"role": "system", "content": system_prompt}]
             for msg in history_to_use:
@@ -681,9 +749,17 @@ def handler(event: dict, context) -> dict:
             proxyapi_key, error = get_tenant_api_key(tenant_id, 'proxyapi', 'api_key')
             if error:
                 return error
+            # Setup proxy for ProxyAPI if enabled
+            proxyapi_http_client = None
+            if proxy_settings.get('proxyapi', {}).get('enabled') and proxy_settings['proxyapi'].get('proxy'):
+                import httpx
+                proxyapi_http_client = httpx.Client(proxies=proxy_settings['proxyapi']['proxy'])
+                print(f"[chat] Using proxy for ProxyAPI: {list(proxy_settings['proxyapi']['proxy'].values())[0][:50]}...")
+            
             chat_client = OpenAI(
                 api_key=proxyapi_key,
-                base_url="https://api.proxyapi.ru/openai/v1"
+                base_url="https://api.proxyapi.ru/openai/v1",
+                http_client=proxyapi_http_client
             )
             proxyapi_messages = [{"role": "system", "content": system_prompt}]
             for msg in history_to_use:

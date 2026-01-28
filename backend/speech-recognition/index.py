@@ -20,7 +20,7 @@ def get_db_connection():
 
 
 def get_tenant_settings(tenant_id: int) -> Dict[str, Any]:
-    """Получает настройки распознавания речи для тенанта"""
+    """Получает настройки распознавания речи для тенанта + прокси"""
     conn = get_db_connection()
     try:
         with conn.cursor() as cur:
@@ -28,7 +28,11 @@ def get_tenant_settings(tenant_id: int) -> Dict[str, Any]:
                 SELECT 
                     speech_recognition_enabled,
                     speech_recognition_provider,
-                    consent_enabled
+                    consent_enabled,
+                    use_proxy_openai,
+                    proxy_openai,
+                    use_proxy_google,
+                    proxy_google
                 FROM t_p56134400_telegram_ai_bot_pdf.tenant_settings
                 WHERE tenant_id = %s
             """, (tenant_id,))
@@ -38,13 +42,21 @@ def get_tenant_settings(tenant_id: int) -> Dict[str, Any]:
                 return {
                     'enabled': False,
                     'provider': 'yandex',
-                    'fz152_enabled': False
+                    'fz152_enabled': False,
+                    'use_proxy_openai': False,
+                    'proxy_openai': None,
+                    'use_proxy_google': False,
+                    'proxy_google': None
                 }
             
             return {
                 'enabled': row[0] or False,
                 'provider': row[1] or 'yandex',
-                'fz152_enabled': row[2] or False
+                'fz152_enabled': row[2] or False,
+                'use_proxy_openai': row[3] or False,
+                'proxy_openai': row[4],
+                'use_proxy_google': row[5] or False,
+                'proxy_google': row[6]
             }
     finally:
         conn.close()
@@ -67,6 +79,22 @@ def get_api_key(tenant_id: int, provider: str, key_name: str) -> Optional[str]:
             return row[0] if row else None
     finally:
         conn.close()
+
+
+def parse_proxy(proxy_string: str) -> Optional[Dict[str, str]]:
+    """Парсит прокси из формата login:pass@ip:port в dict для requests"""
+    if not proxy_string or not proxy_string.strip():
+        return None
+    
+    try:
+        proxy_url = f'http://{proxy_string}'
+        return {
+            'http': proxy_url,
+            'https': proxy_url
+        }
+    except Exception as e:
+        print(f'Failed to parse proxy: {e}')
+        return None
 
 
 def log_usage(tenant_id: int, provider: str, audio_duration_seconds: float, cost: float):
@@ -122,7 +150,7 @@ def transcribe_yandex(audio_base64: str, api_key: str, folder_id: str) -> str:
     return result.get('result', '')
 
 
-def transcribe_openai_whisper(audio_base64: str, api_key: str) -> str:
+def transcribe_openai_whisper(audio_base64: str, api_key: str, proxies: Optional[Dict[str, str]] = None) -> str:
     """Распознавание через OpenAI Whisper"""
     audio_bytes = base64.b64decode(audio_base64)
     
@@ -136,14 +164,17 @@ def transcribe_openai_whisper(audio_base64: str, api_key: str) -> str:
         'language': (None, 'ru')
     }
     
-    response = requests.post(url, headers=headers, files=files)
+    if proxies:
+        print(f'[speech-recognition] Using proxy for OpenAI: {list(proxies.values())[0][:50]}...')
+    
+    response = requests.post(url, headers=headers, files=files, proxies=proxies, timeout=60)
     response.raise_for_status()
     
     result = response.json()
     return result.get('text', '')
 
 
-def transcribe_google(audio_base64: str, api_key: str) -> str:
+def transcribe_google(audio_base64: str, api_key: str, proxies: Optional[Dict[str, str]] = None) -> str:
     """Распознавание через Google Speech-to-Text"""
     url = f'https://speech.googleapis.com/v1/speech:recognize?key={api_key}'
     
@@ -158,7 +189,10 @@ def transcribe_google(audio_base64: str, api_key: str) -> str:
         }
     }
     
-    response = requests.post(url, json=payload)
+    if proxies:
+        print(f'[speech-recognition] Using proxy for Google: {list(proxies.values())[0][:50]}...')
+    
+    response = requests.post(url, json=payload, proxies=proxies, timeout=60)
     response.raise_for_status()
     
     result = response.json()
@@ -348,8 +382,13 @@ def handler(event: dict, context) -> dict:
                     })
                 }
             
+            proxies = None
+            if settings.get('use_proxy_openai') and settings.get('proxy_openai'):
+                proxies = parse_proxy(settings['proxy_openai'])
+                print(f'[speech-recognition] OpenAI proxy enabled: {bool(proxies)}')
+            
             start_time = time.time()
-            text = transcribe_openai_whisper(audio_base64, api_key)
+            text = transcribe_openai_whisper(audio_base64, api_key, proxies)
             processing_time = time.time() - start_time
         
         elif provider == 'google':
@@ -367,8 +406,13 @@ def handler(event: dict, context) -> dict:
                     })
                 }
             
+            proxies = None
+            if settings.get('use_proxy_google') and settings.get('proxy_google'):
+                proxies = parse_proxy(settings['proxy_google'])
+                print(f'[speech-recognition] Google proxy enabled: {bool(proxies)}')
+            
             start_time = time.time()
-            text = transcribe_google(audio_base64, api_key)
+            text = transcribe_google(audio_base64, api_key, proxies)
             processing_time = time.time() - start_time
         
         else:
