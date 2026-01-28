@@ -82,14 +82,58 @@ def handler(event: dict, context) -> dict:
             message = obj.get('message', {})
             user_id = message.get('from_id')
             user_message = message.get('text', '')
+            
+            has_audio = 'attachments' in message and any(att.get('type') in ['audio_message', 'video'] for att in message.get('attachments', []))
 
-            if not user_message:
+            if not user_message and not has_audio:
                 return {
                     'statusCode': 200,
                     'headers': {'Content-Type': 'text/plain', 'Access-Control-Allow-Origin': '*'},
                     'body': 'ok',
                     'isBase64Encoded': False
                 }
+            
+            if has_audio and not user_message:
+                speech_url = 'https://functions.poehali.dev/66ab8736-2781-4c63-9c2e-09f2061f7c7a'
+                
+                try:
+                    check_response = requests.get(
+                        speech_url,
+                        headers={'X-Tenant-Id': str(tenant_id)},
+                        timeout=5
+                    )
+                    check_data = check_response.json()
+                    
+                    if not check_data.get('enabled', False):
+                        access_token, error = get_tenant_api_key(tenant_id, 'vk', 'access_token')
+                        if not error:
+                            vk_api_url = 'https://api.vk.com/method/messages.send'
+                            requests.post(
+                                vk_api_url,
+                                data={
+                                    'user_id': user_id,
+                                    'message': 'Извините, я понимаю только текстовые сообщения.',
+                                    'access_token': access_token,
+                                    'v': '5.131',
+                                    'random_id': 0
+                                },
+                                timeout=10
+                            )
+                        
+                        return {
+                            'statusCode': 200,
+                            'headers': {'Content-Type': 'text/plain', 'Access-Control-Allow-Origin': '*'},
+                            'body': 'ok',
+                            'isBase64Encoded': False
+                        }
+                except Exception as e:
+                    print(f'[vk-webhook] Speech check error: {e}')
+                    return {
+                        'statusCode': 200,
+                        'headers': {'Content-Type': 'text/plain', 'Access-Control-Allow-Origin': '*'},
+                        'body': 'ok',
+                        'isBase64Encoded': False
+                    }
 
             session_id = f"vk-{user_id}"
             chat_function_url = 'https://functions.poehali.dev/7b58f4fb-5db0-4f85-bb3b-55bafa4cbf73'

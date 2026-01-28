@@ -74,13 +74,58 @@ def handler(event: dict, context) -> dict:
         sender_user_id = message.get('sender', {}).get('user_id')
         user_message = message.get('body', {}).get('text', '')
         
-        if not chat_id or not user_message:
+        has_audio = message.get('body', {}).get('type') in ['voice', 'video']
+        
+        if not chat_id or (not user_message and not has_audio):
             return {
                 'statusCode': 200,
                 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
                 'body': json.dumps({'ok': True}),
                 'isBase64Encoded': False
             }
+        
+        if has_audio and not user_message:
+            speech_url = 'https://functions.poehali.dev/66ab8736-2781-4c63-9c2e-09f2061f7c7a'
+            
+            try:
+                check_response = requests.get(
+                    speech_url,
+                    headers={'X-Tenant-Id': str(tenant_id)},
+                    timeout=5
+                )
+                check_data = check_response.json()
+                
+                if not check_data.get('enabled', False):
+                    max_token, error = get_tenant_api_key(tenant_id, 'max', 'bot_token')
+                    if not error:
+                        max_api_url = 'https://api.max.ru/v1/messages'
+                        requests.post(
+                            max_api_url,
+                            headers={
+                                'Authorization': f'Bearer {max_token}',
+                                'Content-Type': 'application/json'
+                            },
+                            json={
+                                'recipient': {'chat_id': chat_id},
+                                'body': {'text': 'Извините, я понимаю только текстовые сообщения.'}
+                            },
+                            timeout=10
+                        )
+                    
+                    return {
+                        'statusCode': 200,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'ok': True}),
+                        'isBase64Encoded': False
+                    }
+            except Exception as e:
+                print(f'[max-webhook] Speech check error: {e}')
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'ok': True}),
+                    'isBase64Encoded': False
+                }
 
         session_id = f"max-{chat_id}"
         chat_function_url = 'https://functions.poehali.dev/7b58f4fb-5db0-4f85-bb3b-55bafa4cbf73'

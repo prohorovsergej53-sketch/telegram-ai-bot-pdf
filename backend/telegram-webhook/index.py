@@ -69,15 +69,57 @@ def handler(event: dict, context) -> dict:
         chat_id = message['chat']['id']
         user_message = message.get('text', '')
         
-        print(f'[telegram-webhook] chat_id={chat_id}, message={user_message}')
+        has_voice = 'voice' in message
+        has_video_note = 'video_note' in message
+        
+        print(f'[telegram-webhook] chat_id={chat_id}, message={user_message}, voice={has_voice}, video={has_video_note}')
 
-        if not user_message:
+        if not user_message and not has_voice and not has_video_note:
             return {
                 'statusCode': 200,
                 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
                 'body': json.dumps({'ok': True}),
                 'isBase64Encoded': False
             }
+        
+        if (has_voice or has_video_note) and not user_message:
+            speech_url = 'https://functions.poehali.dev/66ab8736-2781-4c63-9c2e-09f2061f7c7a'
+            
+            try:
+                check_response = requests.get(
+                    speech_url,
+                    headers={'X-Tenant-Id': str(tenant_id)},
+                    timeout=5
+                )
+                check_data = check_response.json()
+                
+                if not check_data.get('enabled', False):
+                    bot_token_temp, error = get_tenant_api_key(tenant_id, 'telegram', 'bot_token')
+                    if not error:
+                        telegram_api_url = f'https://api.telegram.org/bot{bot_token_temp}/sendMessage'
+                        requests.post(
+                            telegram_api_url,
+                            json={
+                                'chat_id': chat_id,
+                                'text': 'Извините, я понимаю только текстовые сообщения.'
+                            },
+                            timeout=10
+                        )
+                    
+                    return {
+                        'statusCode': 200,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'ok': True}),
+                        'isBase64Encoded': False
+                    }
+            except Exception as e:
+                print(f'[telegram-webhook] Speech check error: {e}')
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'ok': True}),
+                    'isBase64Encoded': False
+                }
 
         session_id = f"telegram-{chat_id}"
 
