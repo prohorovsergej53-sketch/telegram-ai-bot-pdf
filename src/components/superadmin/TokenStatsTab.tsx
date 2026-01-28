@@ -86,6 +86,16 @@ export function TokenStatsTab({ tenants }: TokenStatsTabProps) {
     return labels[type] || type;
   };
 
+  const getOperationIcon = (type: string) => {
+    const icons: Record<string, string> = {
+      embedding_create: 'Database',
+      embedding_query: 'Search',
+      gpt_response: 'MessageSquare',
+      speech_recognition: 'Mic'
+    };
+    return icons[type] || 'Activity';
+  };
+
   return (
     <div className="space-y-6">
       <Card>
@@ -95,7 +105,7 @@ export function TokenStatsTab({ tenants }: TokenStatsTabProps) {
             Статистика использования токенов
           </CardTitle>
           <CardDescription>
-            Отслеживайте расходы на API (Yandex Cloud, OpenAI, Google) по каждому тенанту
+            Отслеживайте расходы на API (эмбеддинги, GPT, распознавание речи) по каждому тенанту
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -208,9 +218,30 @@ export function TokenStatsTab({ tenants }: TokenStatsTabProps) {
                           <Card key={idx}>
                             <CardContent className="pt-4">
                               <div className="flex items-center justify-between mb-2">
-                                <div>
-                                  <div className="font-semibold">{getOperationTypeLabel(item.operationType)}</div>
-                                  <div className="text-sm text-slate-500">{item.model}</div>
+                                <div className="flex items-center gap-3">
+                                  <div className={`p-2 rounded-lg ${
+                                    item.operationType === 'speech_recognition' 
+                                      ? 'bg-purple-100' 
+                                      : item.operationType === 'gpt_response'
+                                      ? 'bg-blue-100'
+                                      : 'bg-green-100'
+                                  }`}>
+                                    <Icon 
+                                      name={getOperationIcon(item.operationType)} 
+                                      size={20} 
+                                      className={
+                                        item.operationType === 'speech_recognition' 
+                                          ? 'text-purple-600' 
+                                          : item.operationType === 'gpt_response'
+                                          ? 'text-blue-600'
+                                          : 'text-green-600'
+                                      }
+                                    />
+                                  </div>
+                                  <div>
+                                    <div className="font-semibold">{getOperationTypeLabel(item.operationType)}</div>
+                                    <div className="text-sm text-slate-500">{item.model}</div>
+                                  </div>
                                 </div>
                                 <div className="text-right">
                                   <div className="text-lg font-bold text-purple-600">{item.totalCost.toFixed(2)} ₽</div>
@@ -218,7 +249,7 @@ export function TokenStatsTab({ tenants }: TokenStatsTabProps) {
                                 </div>
                               </div>
                               <div className="text-sm text-slate-600">
-                                {item.totalTokens.toLocaleString()} токенов
+                                {item.totalTokens.toLocaleString()} {item.operationType === 'speech_recognition' ? 'секунд' : 'токенов'}
                               </div>
                             </CardContent>
                           </Card>

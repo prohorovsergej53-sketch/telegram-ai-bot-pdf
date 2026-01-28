@@ -25,6 +25,7 @@ import TokenCostCard from './TokenCostCard';
 import EmbeddingsSettings from './EmbeddingsSettings';
 import SupportChat from '@/components/SupportChat';
 import PublicChatLinkCard from './PublicChatLinkCard';
+import SpeechSettingsCard from './SpeechSettingsCard';
 import { Document, BACKEND_URLS } from './types';
 import { getTenantId, getTariffId, isSuperAdmin, getAdminUser, exitTenantView } from '@/lib/auth';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -210,6 +211,13 @@ const AdminView = ({ documents, isLoading, onFileUpload, onDeleteDocument, curre
                 <AiSettingsCard
                   currentTenantId={currentTenantId}
                   isSuperAdmin={superAdmin}
+                />
+              )}
+              {superAdmin && currentTenantId && (
+                <SpeechSettingsCard
+                  tenantId={currentTenantId}
+                  tenantName={tenantName}
+                  fz152Enabled={fz152Enabled}
                 />
               )}
               {currentTenantId && tenantName && (fz152Enabled || superAdmin) && (

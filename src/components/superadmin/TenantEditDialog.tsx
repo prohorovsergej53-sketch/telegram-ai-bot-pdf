@@ -30,13 +30,10 @@ interface ApiKey {
 export const TenantEditDialog = ({ tenant, tariffs, onClose, onSave, onUpdate }: TenantEditDialogProps) => {
   const [apiKeys, setApiKeys] = useState<ApiKey[]>([]);
   const [newKey, setNewKey] = useState({ provider: '', key_name: '', key_value: '' });
-  const [speechEnabled, setSpeechEnabled] = useState(false);
-  const [speechProvider, setSpeechProvider] = useState('yandex');
 
   useEffect(() => {
     if (tenant) {
       loadApiKeys();
-      loadSpeechSettings();
     }
   }, [tenant]);
 
@@ -60,20 +57,7 @@ export const TenantEditDialog = ({ tenant, tariffs, onClose, onSave, onUpdate }:
     }
   };
 
-  const loadSpeechSettings = async () => {
-    if (!tenant) return;
-    try {
-      const response = await fetch(`https://functions.poehali.dev/66ab8736-2781-4c63-9c2e-09f2061f7c7a`, {
-        method: 'GET',
-        headers: { 'X-Tenant-Id': tenant.id.toString() }
-      });
-      const data = await response.json();
-      setSpeechEnabled(data.enabled || false);
-      setSpeechProvider(data.provider || 'yandex');
-    } catch (error) {
-      console.error('Failed to load speech settings:', error);
-    }
-  };
+
 
   const addApiKey = async () => {
     if (!tenant || !newKey.provider || !newKey.key_name || !newKey.key_value) return;
@@ -114,24 +98,7 @@ export const TenantEditDialog = ({ tenant, tariffs, onClose, onSave, onUpdate }:
     }
   };
 
-  const saveSpeechSettings = async () => {
-    if (!tenant) return;
-    try {
-      await fetch(`https://functions.poehali.dev/66ab8736-2781-4c63-9c2e-09f2061f7c7a`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-Tenant-Id': tenant.id.toString() },
-        body: JSON.stringify({
-          enabled: speechEnabled,
-          provider: speechProvider
-        })
-      });
-    } catch (error) {
-      console.error('Failed to save speech settings:', error);
-    }
-  };
-
-  const handleSave = async () => {
-    await saveSpeechSettings();
+  const handleSave = () => {
     onSave();
   };
 
@@ -147,9 +114,8 @@ export const TenantEditDialog = ({ tenant, tariffs, onClose, onSave, onUpdate }:
           </DialogDescription>
         </DialogHeader>
         <Tabs defaultValue="general" className="py-4">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="general">Основное</TabsTrigger>
-            <TabsTrigger value="speech">Голос</TabsTrigger>
             <TabsTrigger value="keys">API ключи</TabsTrigger>
           </TabsList>
           
@@ -213,126 +179,6 @@ export const TenantEditDialog = ({ tenant, tariffs, onClose, onSave, onUpdate }:
               <Card className="p-3">
                 <div className="text-sm text-muted-foreground">Админов</div>
                 <div className="text-2xl font-semibold">{tenant.admins_count}</div>
-              </Card>
-            </div>
-          </TabsContent>
-
-          <TabsContent value="speech" className="space-y-4 mt-4">
-            <div className="space-y-4">
-              <div className="flex items-center justify-between p-4 border rounded-lg bg-slate-50">
-                <div className="flex items-center gap-3">
-                  <Icon name="Mic" size={20} className={speechEnabled ? 'text-blue-600' : 'text-gray-400'} />
-                  <div>
-                    <Label htmlFor="speech-enabled" className="cursor-pointer font-medium">Распознавание голоса</Label>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Включить обработку голосовых сообщений
-                    </p>
-                  </div>
-                </div>
-                <Switch 
-                  id="speech-enabled"
-                  checked={speechEnabled}
-                  onCheckedChange={setSpeechEnabled}
-                />
-              </div>
-
-              {speechEnabled && (
-                <div className="space-y-2">
-                  <Label htmlFor="speech-provider">Провайдер распознавания</Label>
-                  <Select 
-                    value={speechProvider} 
-                    onValueChange={setSpeechProvider}
-                    disabled={tenant.fz152_enabled}
-                  >
-                    <SelectTrigger id="speech-provider">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="yandex">
-                        <div className="flex items-center gap-2">
-                          <Icon name="Globe" size={16} />
-                          Yandex SpeechKit
-                        </div>
-                      </SelectItem>
-                      <SelectItem value="openai_whisper">
-                        <div className="flex items-center gap-2">
-                          <Icon name="Zap" size={16} />
-                          OpenAI Whisper
-                        </div>
-                      </SelectItem>
-                      <SelectItem value="google">
-                        <div className="flex items-center gap-2">
-                          <Icon name="Cloud" size={16} />
-                          Google Speech-to-Text
-                        </div>
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                  {tenant.fz152_enabled && (
-                    <p className="text-xs text-yellow-600 flex items-center gap-1">
-                      <Icon name="AlertCircle" size={14} />
-                      При включенном ФЗ-152 автоматически используется Яндекс
-                    </p>
-                  )}
-                </div>
-              )}
-
-              <Card className="p-4 bg-blue-50 border-blue-200">
-                <div className="flex gap-3">
-                  <Icon name="Info" size={20} className="text-blue-600 flex-shrink-0 mt-0.5" />
-                  <div className="text-sm space-y-3">
-                    <div>
-                      <p className="font-medium text-blue-900 mb-2">Требуемые API ключи:</p>
-                      <ul className="text-blue-700 space-y-1 text-xs">
-                        <li>• <strong>Yandex:</strong> YANDEX_SPEECHKIT_API_KEY, YANDEX_FOLDER_ID</li>
-                        <li>• <strong>OpenAI:</strong> OPENAI_API_KEY</li>
-                        <li>• <strong>Google:</strong> GOOGLE_SPEECH_API_KEY</li>
-                      </ul>
-                    </div>
-                    
-                    <div className="border-t border-blue-300 pt-2">
-                      <p className="font-medium text-blue-900 mb-2">Как получить ключи:</p>
-                      
-                      <div className="space-y-2">
-                        <details className="text-xs">
-                          <summary className="cursor-pointer font-medium text-blue-800 hover:text-blue-900">Yandex SpeechKit</summary>
-                          <ol className="mt-2 ml-4 space-y-1 list-decimal text-blue-700">
-                            <li>Зайдите в <a href="https://console.cloud.yandex.ru" target="_blank" rel="noopener" className="underline">Yandex Cloud Console</a></li>
-                            <li>Создайте сервисный аккаунт с ролью <code className="bg-blue-100 px-1">ai.speechkit-stt.user</code></li>
-                            <li>Создайте API-ключ для этого аккаунта</li>
-                            <li>Скопируйте: API-ключ и ID каталога (Folder ID)</li>
-                            <li>Стоимость: ~1₽ за 15 сек аудио</li>
-                          </ol>
-                        </details>
-                        
-                        <details className="text-xs">
-                          <summary className="cursor-pointer font-medium text-blue-800 hover:text-blue-900">OpenAI Whisper</summary>
-                          <ol className="mt-2 ml-4 space-y-1 list-decimal text-blue-700">
-                            <li>Зайдите на <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener" className="underline">platform.openai.com</a></li>
-                            <li>Создайте новый API-ключ</li>
-                            <li>Скопируйте ключ (показывается один раз!)</li>
-                            <li>Стоимость: $0.006 за минуту (~0.60₽)</li>
-                            <li>⚠️ Требует зарубежную карту, возможны блокировки из РФ</li>
-                          </ol>
-                        </details>
-                        
-                        <details className="text-xs">
-                          <summary className="cursor-pointer font-medium text-blue-800 hover:text-blue-900">Google Speech-to-Text</summary>
-                          <ol className="mt-2 ml-4 space-y-1 list-decimal text-blue-700">
-                            <li>Зайдите в <a href="https://console.cloud.google.com" target="_blank" rel="noopener" className="underline">Google Cloud Console</a></li>
-                            <li>Включите Speech-to-Text API</li>
-                            <li>Создайте учетные данные → API-ключ</li>
-                            <li>Скопируйте ключ</li>
-                            <li>Стоимость: $0.006 за 15 сек (~1.60₽ за минуту)</li>
-                            <li>⚠️ Возможны сложности с оплатой из РФ</li>
-                          </ol>
-                        </details>
-                      </div>
-                    </div>
-                    
-                    <p className="text-blue-600 font-medium">→ Добавьте ключи на вкладке "API ключи"</p>
-                  </div>
-                </div>
               </Card>
             </div>
           </TabsContent>
