@@ -67,22 +67,18 @@ def handler(event: dict, context) -> dict:
 
         message = body['message']
         chat_id = message['chat']['id']
-        user_message = message.get('text', '')
+        user_message = message.get('text', '').strip()
         
         has_voice = 'voice' in message
         has_video_note = 'video_note' in message
         
-        print(f'[telegram-webhook] chat_id={chat_id}, message={user_message}, voice={has_voice}, video={has_video_note}')
+        print(f'[telegram-webhook] chat_id={chat_id}, text="{user_message}", voice={has_voice}, video={has_video_note}')
 
-        if not user_message and not has_voice and not has_video_note:
-            return {
-                'statusCode': 200,
-                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                'body': json.dumps({'ok': True}),
-                'isBase64Encoded': False
-            }
-        
-        if (has_voice or has_video_note) and not user_message:
+        # Если уже есть текст - идём сразу в чат
+        if user_message:
+            print(f'[telegram-webhook] Text message detected, proceeding to chat')
+        # Если нет текста, но есть аудио - пытаемся распознать
+        elif has_voice or has_video_note:
             speech_url = 'https://functions.poehali.dev/66ab8736-2781-4c63-9c2e-09f2061f7c7a'
             
             try:
@@ -199,6 +195,25 @@ def handler(event: dict, context) -> dict:
                     'body': json.dumps({'ok': True}),
                     'isBase64Encoded': False
                 }
+        # Если нет ни текста, ни аудио - игнорируем (стикеры, фото и т.д.)
+        else:
+            print(f'[telegram-webhook] No text or audio, skipping')
+            return {
+                'statusCode': 200,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({'ok': True}),
+                'isBase64Encoded': False
+            }
+
+        # Если дошли сюда - значит у нас есть user_message (либо изначально текст, либо распознанный)
+        if not user_message:
+            print(f'[telegram-webhook] Empty message after all checks, skipping')
+            return {
+                'statusCode': 200,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({'ok': True}),
+                'isBase64Encoded': False
+            }
 
         session_id = f"telegram-{chat_id}"
 
