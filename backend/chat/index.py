@@ -827,6 +827,9 @@ def handler(event: dict, context) -> dict:
         }
 
     except Exception as e:
+        print(f'❌ [chat] Critical error: {e}')
+        import traceback
+        traceback.print_exc()
         return {
             'statusCode': 500,
             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
