@@ -26,7 +26,7 @@ interface ApiKey {
 const TenantApiKeysCard = ({ tenantId, tenantName, fz152Enabled = false }: TenantApiKeysCardProps) => {
   const [keys, setKeys] = useState<ApiKey[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [isSaving, setIsSaving] = useState(false);
+  const [savingKey, setSavingKey] = useState<string | null>(null);
   const { toast } = useToast();
 
   const [yandexApiKey, setYandexApiKey] = useState('');
@@ -97,51 +97,24 @@ const TenantApiKeysCard = ({ tenantId, tenantName, fz152Enabled = false }: Tenan
     }
   };
 
-  const handleSave = async () => {
-    setIsSaving(true);
+  const handleSaveKey = async (provider: string, keyName: string, keyValue: string, savingId: string) => {
+    if (!keyValue.trim() || keyValue.startsWith('***')) {
+      toast({
+        title: 'Внимание',
+        description: 'Введите новый ключ для сохранения',
+        variant: 'default'
+      });
+      return;
+    }
+
+    setSavingKey(savingId);
     try {
-      const keysToSave: Array<{provider: string, key_name: string, key_value: string}> = [];
-      
-      if (yandexApiKey.trim() && !yandexApiKey.startsWith('***')) {
-        keysToSave.push({ provider: 'yandex', key_name: 'api_key', key_value: yandexApiKey.trim() });
-      }
-      if (yandexFolderId.trim() && !yandexFolderId.startsWith('***')) {
-        keysToSave.push({ provider: 'yandex', key_name: 'folder_id', key_value: yandexFolderId.trim() });
-      }
-      if (yandexSpeechApiKey.trim() && !yandexSpeechApiKey.startsWith('***')) {
-        keysToSave.push({ provider: 'yandex', key_name: 'YANDEX_SPEECHKIT_API_KEY', key_value: yandexSpeechApiKey.trim() });
-      }
-      if (openaiApiKey.trim() && !openaiApiKey.startsWith('***')) {
-        keysToSave.push({ provider: 'openai', key_name: 'OPENAI_API_KEY', key_value: openaiApiKey.trim() });
-      }
-      if (googleSpeechApiKey.trim() && !googleSpeechApiKey.startsWith('***')) {
-        keysToSave.push({ provider: 'google', key_name: 'GOOGLE_SPEECH_API_KEY', key_value: googleSpeechApiKey.trim() });
-      }
-      if (deepseekApiKey.trim() && !deepseekApiKey.startsWith('***')) {
-        keysToSave.push({ provider: 'deepseek', key_name: 'api_key', key_value: deepseekApiKey.trim() });
-      }
-      if (openrouterApiKey.trim() && !openrouterApiKey.startsWith('***')) {
-        keysToSave.push({ provider: 'openrouter', key_name: 'api_key', key_value: openrouterApiKey.trim() });
-      }
-      if (proxyapiApiKey.trim() && !proxyapiApiKey.startsWith('***')) {
-        keysToSave.push({ provider: 'proxyapi', key_name: 'api_key', key_value: proxyapiApiKey.trim() });
-      }
-
-      if (keysToSave.length === 0) {
-        toast({
-          title: 'Внимание',
-          description: 'Заполните хотя бы один ключ',
-          variant: 'default'
-        });
-        return;
-      }
-
       const response = await authenticatedFetch(BACKEND_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           tenant_id: tenantId,
-          keys: keysToSave
+          keys: [{ provider, key_name: keyName, key_value: keyValue.trim() }]
         })
       });
 
@@ -150,11 +123,11 @@ const TenantApiKeysCard = ({ tenantId, tenantName, fz152Enabled = false }: Tenan
       if (response.ok && data.success) {
         toast({
           title: 'Успешно',
-          description: data.message || 'Ключи сохранены'
+          description: `Ключ ${keyName} сохранён`
         });
         await loadKeys();
       } else {
-        throw new Error(data.error || 'Не удалось сохранить ключи');
+        throw new Error(data.error || 'Не удалось сохранить ключ');
       }
     } catch (error: any) {
       toast({
@@ -163,7 +136,7 @@ const TenantApiKeysCard = ({ tenantId, tenantName, fz152Enabled = false }: Tenan
         variant: 'destructive'
       });
     } finally {
-      setIsSaving(false);
+      setSavingKey(null);
     }
   };
 
@@ -241,7 +214,7 @@ const TenantApiKeysCard = ({ tenantId, tenantName, fz152Enabled = false }: Tenan
               </div>
 
               <div className="space-y-3">
-                <div className="space-y-2">
+                <div className="space-y-2 border rounded-lg p-3 bg-slate-50">
                   <Label htmlFor="yandex_api_key" className="flex items-center gap-2">
                     Yandex API Key
                     {yandexApiKey && (
@@ -257,14 +230,28 @@ const TenantApiKeysCard = ({ tenantId, tenantName, fz152Enabled = false }: Tenan
                       </span>
                     )}
                   </Label>
-                  <Input
-                    id="yandex_api_key"
-                    type="password"
-                    value={yandexApiKey.startsWith('***') ? '' : yandexApiKey}
-                    onChange={(e) => setYandexApiKey(e.target.value)}
-                    placeholder="AQVN... (введите новый ключ)"
-                    className="font-mono text-sm"
-                  />
+                  <div className="flex gap-2">
+                    <Input
+                      id="yandex_api_key"
+                      type="password"
+                      value={yandexApiKey.startsWith('***') ? '' : yandexApiKey}
+                      onChange={(e) => setYandexApiKey(e.target.value)}
+                      placeholder="AQVN... (введите новый ключ)"
+                      className="font-mono text-sm"
+                    />
+                    <Button
+                      onClick={() => handleSaveKey('yandex', 'api_key', yandexApiKey, 'yandex_api')}
+                      disabled={savingKey === 'yandex_api'}
+                      size="sm"
+                      className="whitespace-nowrap"
+                    >
+                      {savingKey === 'yandex_api' ? (
+                        <Icon name="Loader2" size={14} className="animate-spin" />
+                      ) : (
+                        <Icon name="Save" size={14} />
+                      )}
+                    </Button>
+                  </div>
                   {yandexApiKey && !yandexApiKey.startsWith('***') && (
                     <p className="text-xs text-muted-foreground">
                       Текущий: {maskKey(yandexApiKey)}
@@ -272,7 +259,7 @@ const TenantApiKeysCard = ({ tenantId, tenantName, fz152Enabled = false }: Tenan
                   )}
                 </div>
 
-                <div className="space-y-2">
+                <div className="space-y-2 border rounded-lg p-3 bg-slate-50">
                   <Label htmlFor="yandex_folder_id" className="flex items-center gap-2">
                     Yandex Folder ID
                     {yandexFolderId && (
@@ -288,14 +275,28 @@ const TenantApiKeysCard = ({ tenantId, tenantName, fz152Enabled = false }: Tenan
                       </span>
                     )}
                   </Label>
-                  <Input
-                    id="yandex_folder_id"
-                    type="text"
-                    value={yandexFolderId.startsWith('***') ? '' : yandexFolderId}
-                    onChange={(e) => setYandexFolderId(e.target.value)}
-                    placeholder="b1g... (введите новый ID)"
-                    className="font-mono text-sm"
-                  />
+                  <div className="flex gap-2">
+                    <Input
+                      id="yandex_folder_id"
+                      type="text"
+                      value={yandexFolderId.startsWith('***') ? '' : yandexFolderId}
+                      onChange={(e) => setYandexFolderId(e.target.value)}
+                      placeholder="b1g... (введите новый ID)"
+                      className="font-mono text-sm"
+                    />
+                    <Button
+                      onClick={() => handleSaveKey('yandex', 'folder_id', yandexFolderId, 'yandex_folder')}
+                      disabled={savingKey === 'yandex_folder'}
+                      size="sm"
+                      className="whitespace-nowrap"
+                    >
+                      {savingKey === 'yandex_folder' ? (
+                        <Icon name="Loader2" size={14} className="animate-spin" />
+                      ) : (
+                        <Icon name="Save" size={14} />
+                      )}
+                    </Button>
+                  </div>
                   {yandexFolderId && !yandexFolderId.startsWith('***') && (
                     <p className="text-xs text-muted-foreground">
                       Текущий: {maskKey(yandexFolderId)}
@@ -303,7 +304,7 @@ const TenantApiKeysCard = ({ tenantId, tenantName, fz152Enabled = false }: Tenan
                   )}
                 </div>
 
-                <div className="space-y-2">
+                <div className="space-y-2 border rounded-lg p-3 bg-slate-50">
                   <Label htmlFor="yandex_speech_api_key" className="flex items-center gap-2">
                     Yandex SpeechKit API Key
                     {yandexSpeechApiKey && (
@@ -319,14 +320,28 @@ const TenantApiKeysCard = ({ tenantId, tenantName, fz152Enabled = false }: Tenan
                       </span>
                     )}
                   </Label>
-                  <Input
-                    id="yandex_speech_api_key"
-                    type="password"
-                    value={yandexSpeechApiKey.startsWith('***') ? '' : yandexSpeechApiKey}
-                    onChange={(e) => setYandexSpeechApiKey(e.target.value)}
-                    placeholder="AQVN... (для распознавания речи)"
-                    className="font-mono text-sm"
-                  />
+                  <div className="flex gap-2">
+                    <Input
+                      id="yandex_speech_api_key"
+                      type="password"
+                      value={yandexSpeechApiKey.startsWith('***') ? '' : yandexSpeechApiKey}
+                      onChange={(e) => setYandexSpeechApiKey(e.target.value)}
+                      placeholder="AQVN... (для распознавания речи)"
+                      className="font-mono text-sm"
+                    />
+                    <Button
+                      onClick={() => handleSaveKey('yandex', 'YANDEX_SPEECHKIT_API_KEY', yandexSpeechApiKey, 'yandex_speech')}
+                      disabled={savingKey === 'yandex_speech'}
+                      size="sm"
+                      className="whitespace-nowrap"
+                    >
+                      {savingKey === 'yandex_speech' ? (
+                        <Icon name="Loader2" size={14} className="animate-spin" />
+                      ) : (
+                        <Icon name="Save" size={14} />
+                      )}
+                    </Button>
+                  </div>
                   {yandexSpeechApiKey && !yandexSpeechApiKey.startsWith('***') && (
                     <p className="text-xs text-muted-foreground">
                       Текущий: {maskKey(yandexSpeechApiKey)}
@@ -353,7 +368,7 @@ const TenantApiKeysCard = ({ tenantId, tenantName, fz152Enabled = false }: Tenan
               </div>
 
               <div className="space-y-3">
-                <div className="space-y-2">
+                <div className="space-y-2 border rounded-lg p-3 bg-slate-50">
                   <Label htmlFor="openai_api_key" className="flex items-center gap-2">
                     OpenAI API Key (Whisper)
                     {openaiApiKey && (
@@ -369,14 +384,28 @@ const TenantApiKeysCard = ({ tenantId, tenantName, fz152Enabled = false }: Tenan
                       </span>
                     )}
                   </Label>
-                  <Input
-                    id="openai_api_key"
-                    type="password"
-                    value={openaiApiKey.startsWith('***') ? '' : openaiApiKey}
-                    onChange={(e) => setOpenaiApiKey(e.target.value)}
-                    placeholder="sk-proj-... (для Whisper STT)"
-                    className="font-mono text-sm"
-                  />
+                  <div className="flex gap-2">
+                    <Input
+                      id="openai_api_key"
+                      type="password"
+                      value={openaiApiKey.startsWith('***') ? '' : openaiApiKey}
+                      onChange={(e) => setOpenaiApiKey(e.target.value)}
+                      placeholder="sk-proj-... (для Whisper STT)"
+                      className="font-mono text-sm"
+                    />
+                    <Button
+                      onClick={() => handleSaveKey('openai', 'OPENAI_API_KEY', openaiApiKey, 'openai_api')}
+                      disabled={savingKey === 'openai_api'}
+                      size="sm"
+                      className="whitespace-nowrap"
+                    >
+                      {savingKey === 'openai_api' ? (
+                        <Icon name="Loader2" size={14} className="animate-spin" />
+                      ) : (
+                        <Icon name="Save" size={14} />
+                      )}
+                    </Button>
+                  </div>
                   {openaiApiKey && !openaiApiKey.startsWith('***') && (
                     <p className="text-xs text-muted-foreground">
                       Текущий: {maskKey(openaiApiKey)}
@@ -385,7 +414,7 @@ const TenantApiKeysCard = ({ tenantId, tenantName, fz152Enabled = false }: Tenan
                   <p className="text-xs text-slate-500">Используется для распознавания речи через OpenAI Whisper ($0.006/мин)</p>
                 </div>
 
-                <div className="space-y-2">
+                <div className="space-y-2 border rounded-lg p-3 bg-slate-50">
                   <Label htmlFor="google_speech_api_key" className="flex items-center gap-2">
                     Google Speech API Key
                     {googleSpeechApiKey && (
@@ -401,14 +430,28 @@ const TenantApiKeysCard = ({ tenantId, tenantName, fz152Enabled = false }: Tenan
                       </span>
                     )}
                   </Label>
-                  <Input
-                    id="google_speech_api_key"
-                    type="password"
-                    value={googleSpeechApiKey.startsWith('***') ? '' : googleSpeechApiKey}
-                    onChange={(e) => setGoogleSpeechApiKey(e.target.value)}
-                    placeholder="AIzaSy... (для Speech-to-Text)"
-                    className="font-mono text-sm"
-                  />
+                  <div className="flex gap-2">
+                    <Input
+                      id="google_speech_api_key"
+                      type="password"
+                      value={googleSpeechApiKey.startsWith('***') ? '' : googleSpeechApiKey}
+                      onChange={(e) => setGoogleSpeechApiKey(e.target.value)}
+                      placeholder="AIzaSy... (для Speech-to-Text)"
+                      className="font-mono text-sm"
+                    />
+                    <Button
+                      onClick={() => handleSaveKey('google', 'GOOGLE_SPEECH_API_KEY', googleSpeechApiKey, 'google_speech')}
+                      disabled={savingKey === 'google_speech'}
+                      size="sm"
+                      className="whitespace-nowrap"
+                    >
+                      {savingKey === 'google_speech' ? (
+                        <Icon name="Loader2" size={14} className="animate-spin" />
+                      ) : (
+                        <Icon name="Save" size={14} />
+                      )}
+                    </Button>
+                  </div>
                   {googleSpeechApiKey && !googleSpeechApiKey.startsWith('***') && (
                     <p className="text-xs text-muted-foreground">
                       Текущий: {maskKey(googleSpeechApiKey)}
@@ -450,7 +493,7 @@ const TenantApiKeysCard = ({ tenantId, tenantName, fz152Enabled = false }: Tenan
                 </div>
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-2 border rounded-lg p-3 bg-slate-50">
                 <Label htmlFor="deepseek_api_key" className="flex items-center gap-2">
                   DeepSeek API Key
                   {deepseekApiKey && (
@@ -466,14 +509,28 @@ const TenantApiKeysCard = ({ tenantId, tenantName, fz152Enabled = false }: Tenan
                     </span>
                   )}
                 </Label>
-                <Input
-                  id="deepseek_api_key"
-                  type="password"
-                  value={deepseekApiKey.startsWith('***') ? '' : deepseekApiKey}
-                  onChange={(e) => setDeepseekApiKey(e.target.value)}
-                  placeholder="sk-... (введите новый ключ)"
-                  className="font-mono text-sm"
-                />
+                <div className="flex gap-2">
+                  <Input
+                    id="deepseek_api_key"
+                    type="password"
+                    value={deepseekApiKey.startsWith('***') ? '' : deepseekApiKey}
+                    onChange={(e) => setDeepseekApiKey(e.target.value)}
+                    placeholder="sk-... (введите новый ключ)"
+                    className="font-mono text-sm"
+                  />
+                  <Button
+                    onClick={() => handleSaveKey('deepseek', 'api_key', deepseekApiKey, 'deepseek_api')}
+                    disabled={savingKey === 'deepseek_api'}
+                    size="sm"
+                    className="whitespace-nowrap"
+                  >
+                    {savingKey === 'deepseek_api' ? (
+                      <Icon name="Loader2" size={14} className="animate-spin" />
+                    ) : (
+                      <Icon name="Save" size={14} />
+                    )}
+                  </Button>
+                </div>
                 {deepseekApiKey && !deepseekApiKey.startsWith('***') && (
                   <p className="text-xs text-muted-foreground">
                     Текущий: {maskKey(deepseekApiKey)}
@@ -498,7 +555,7 @@ const TenantApiKeysCard = ({ tenantId, tenantName, fz152Enabled = false }: Tenan
                 </div>
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-2 border rounded-lg p-3 bg-slate-50">
                 <Label htmlFor="openrouter_api_key" className="flex items-center gap-2">
                   OpenRouter API Key
                   {openrouterApiKey && (
@@ -514,14 +571,28 @@ const TenantApiKeysCard = ({ tenantId, tenantName, fz152Enabled = false }: Tenan
                     </span>
                   )}
                 </Label>
-                <Input
-                  id="openrouter_api_key"
-                  type="password"
-                  value={openrouterApiKey.startsWith('***') ? '' : openrouterApiKey}
-                  onChange={(e) => setOpenrouterApiKey(e.target.value)}
-                  placeholder="sk-or-... (введите новый ключ)"
-                  className="font-mono text-sm"
-                />
+                <div className="flex gap-2">
+                  <Input
+                    id="openrouter_api_key"
+                    type="password"
+                    value={openrouterApiKey.startsWith('***') ? '' : openrouterApiKey}
+                    onChange={(e) => setOpenrouterApiKey(e.target.value)}
+                    placeholder="sk-or-... (введите новый ключ)"
+                    className="font-mono text-sm"
+                  />
+                  <Button
+                    onClick={() => handleSaveKey('openrouter', 'api_key', openrouterApiKey, 'openrouter_api')}
+                    disabled={savingKey === 'openrouter_api'}
+                    size="sm"
+                    className="whitespace-nowrap"
+                  >
+                    {savingKey === 'openrouter_api' ? (
+                      <Icon name="Loader2" size={14} className="animate-spin" />
+                    ) : (
+                      <Icon name="Save" size={14} />
+                    )}
+                  </Button>
+                </div>
                 {openrouterApiKey && !openrouterApiKey.startsWith('***') && (
                   <p className="text-xs text-muted-foreground">
                     Текущий: {maskKey(openrouterApiKey)}
@@ -546,7 +617,7 @@ const TenantApiKeysCard = ({ tenantId, tenantName, fz152Enabled = false }: Tenan
                 </div>
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-2 border rounded-lg p-3 bg-slate-50">
                 <Label htmlFor="proxyapi_api_key" className="flex items-center gap-2">
                   ProxyAPI Key
                   {proxyapiApiKey && (
@@ -562,14 +633,28 @@ const TenantApiKeysCard = ({ tenantId, tenantName, fz152Enabled = false }: Tenan
                     </span>
                   )}
                 </Label>
-                <Input
-                  id="proxyapi_api_key"
-                  type="password"
-                  value={proxyapiApiKey.startsWith('***') ? '' : proxyapiApiKey}
-                  onChange={(e) => setProxyapiApiKey(e.target.value)}
-                  placeholder="sk-... (введите новый ключ)"
-                  className="font-mono text-sm"
-                />
+                <div className="flex gap-2">
+                  <Input
+                    id="proxyapi_api_key"
+                    type="password"
+                    value={proxyapiApiKey.startsWith('***') ? '' : proxyapiApiKey}
+                    onChange={(e) => setProxyapiApiKey(e.target.value)}
+                    placeholder="sk-... (введите новый ключ)"
+                    className="font-mono text-sm"
+                  />
+                  <Button
+                    onClick={() => handleSaveKey('proxyapi', 'api_key', proxyapiApiKey, 'proxyapi_api')}
+                    disabled={savingKey === 'proxyapi_api'}
+                    size="sm"
+                    className="whitespace-nowrap"
+                  >
+                    {savingKey === 'proxyapi_api' ? (
+                      <Icon name="Loader2" size={14} className="animate-spin" />
+                    ) : (
+                      <Icon name="Save" size={14} />
+                    )}
+                  </Button>
+                </div>
                 {proxyapiApiKey && !proxyapiApiKey.startsWith('***') && (
                   <p className="text-xs text-muted-foreground">
                     Текущий: {maskKey(proxyapiApiKey)}
@@ -580,23 +665,7 @@ const TenantApiKeysCard = ({ tenantId, tenantName, fz152Enabled = false }: Tenan
             </>
             )}
 
-            <Button
-              onClick={handleSave}
-              disabled={isSaving}
-              className="w-full"
-            >
-              {isSaving ? (
-                <>
-                  <Icon name="Loader2" size={16} className="mr-2 animate-spin" />
-                  Сохранение...
-                </>
-              ) : (
-                <>
-                  <Icon name="Save" size={16} className="mr-2" />
-                  Сохранить ключи
-                </>
-              )}
-            </Button>
+
           </>
         )}
       </CardContent>
