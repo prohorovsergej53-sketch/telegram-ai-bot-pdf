@@ -280,14 +280,57 @@ export const TenantEditDialog = ({ tenant, tariffs, onClose, onSave, onUpdate }:
               <Card className="p-4 bg-blue-50 border-blue-200">
                 <div className="flex gap-3">
                   <Icon name="Info" size={20} className="text-blue-600 flex-shrink-0 mt-0.5" />
-                  <div className="text-sm space-y-2">
-                    <p className="font-medium text-blue-900">Требуемые API ключи:</p>
-                    <ul className="text-blue-700 space-y-1 text-xs">
-                      <li>• <strong>Yandex:</strong> YANDEX_SPEECHKIT_API_KEY, YANDEX_FOLDER_ID</li>
-                      <li>• <strong>OpenAI:</strong> OPENAI_API_KEY</li>
-                      <li>• <strong>Google:</strong> GOOGLE_SPEECH_API_KEY</li>
-                    </ul>
-                    <p className="text-blue-600 mt-2">Добавьте ключи на вкладке "API ключи"</p>
+                  <div className="text-sm space-y-3">
+                    <div>
+                      <p className="font-medium text-blue-900 mb-2">Требуемые API ключи:</p>
+                      <ul className="text-blue-700 space-y-1 text-xs">
+                        <li>• <strong>Yandex:</strong> YANDEX_SPEECHKIT_API_KEY, YANDEX_FOLDER_ID</li>
+                        <li>• <strong>OpenAI:</strong> OPENAI_API_KEY</li>
+                        <li>• <strong>Google:</strong> GOOGLE_SPEECH_API_KEY</li>
+                      </ul>
+                    </div>
+                    
+                    <div className="border-t border-blue-300 pt-2">
+                      <p className="font-medium text-blue-900 mb-2">Как получить ключи:</p>
+                      
+                      <div className="space-y-2">
+                        <details className="text-xs">
+                          <summary className="cursor-pointer font-medium text-blue-800 hover:text-blue-900">Yandex SpeechKit</summary>
+                          <ol className="mt-2 ml-4 space-y-1 list-decimal text-blue-700">
+                            <li>Зайдите в <a href="https://console.cloud.yandex.ru" target="_blank" rel="noopener" className="underline">Yandex Cloud Console</a></li>
+                            <li>Создайте сервисный аккаунт с ролью <code className="bg-blue-100 px-1">ai.speechkit-stt.user</code></li>
+                            <li>Создайте API-ключ для этого аккаунта</li>
+                            <li>Скопируйте: API-ключ и ID каталога (Folder ID)</li>
+                            <li>Стоимость: ~1₽ за 15 сек аудио</li>
+                          </ol>
+                        </details>
+                        
+                        <details className="text-xs">
+                          <summary className="cursor-pointer font-medium text-blue-800 hover:text-blue-900">OpenAI Whisper</summary>
+                          <ol className="mt-2 ml-4 space-y-1 list-decimal text-blue-700">
+                            <li>Зайдите на <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener" className="underline">platform.openai.com</a></li>
+                            <li>Создайте новый API-ключ</li>
+                            <li>Скопируйте ключ (показывается один раз!)</li>
+                            <li>Стоимость: $0.006 за минуту (~0.60₽)</li>
+                            <li>⚠️ Требует зарубежную карту, возможны блокировки из РФ</li>
+                          </ol>
+                        </details>
+                        
+                        <details className="text-xs">
+                          <summary className="cursor-pointer font-medium text-blue-800 hover:text-blue-900">Google Speech-to-Text</summary>
+                          <ol className="mt-2 ml-4 space-y-1 list-decimal text-blue-700">
+                            <li>Зайдите в <a href="https://console.cloud.google.com" target="_blank" rel="noopener" className="underline">Google Cloud Console</a></li>
+                            <li>Включите Speech-to-Text API</li>
+                            <li>Создайте учетные данные → API-ключ</li>
+                            <li>Скопируйте ключ</li>
+                            <li>Стоимость: $0.006 за 15 сек (~1.60₽ за минуту)</li>
+                            <li>⚠️ Возможны сложности с оплатой из РФ</li>
+                          </ol>
+                        </details>
+                      </div>
+                    </div>
+                    
+                    <p className="text-blue-600 font-medium">→ Добавьте ключи на вкладке "API ключи"</p>
                   </div>
                 </div>
               </Card>

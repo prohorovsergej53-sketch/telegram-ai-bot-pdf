@@ -80,7 +80,8 @@ export function TokenStatsTab({ tenants }: TokenStatsTabProps) {
     const labels: Record<string, string> = {
       embedding_create: 'Создание базы (эмбеддинги)',
       embedding_query: 'Запросы пользователей',
-      gpt_response: 'Генерация ответов GPT'
+      gpt_response: 'Генерация ответов GPT',
+      speech_recognition: 'Распознавание речи'
     };
     return labels[type] || type;
   };
@@ -94,7 +95,7 @@ export function TokenStatsTab({ tenants }: TokenStatsTabProps) {
             Статистика использования токенов
           </CardTitle>
           <CardDescription>
-            Отслеживайте расходы на API Yandex Cloud по каждому тенанту
+            Отслеживайте расходы на API (Yandex Cloud, OpenAI, Google) по каждому тенанту
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
