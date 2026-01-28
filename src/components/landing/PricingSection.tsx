@@ -24,6 +24,7 @@ export const PricingSection = ({ onPlanSelect }: PricingSectionProps) => {
   const premiumFeatures = [
     { text: 'Всё из тарифа Бизнес', included: true },
     { text: 'Подключим VK, MAX (даём инструкции для ключей)', included: true },
+    { text: 'Бот понимает голосовые в Telegram и MAX', included: true },
     { text: 'Подберём лучшую модель с учётом 152-ФЗ', included: true },
     { text: 'Обучим бота на 100 документах', included: true },
     { text: 'ВСЮ настройку делаем МЫ — вы только даёте информацию', included: true },
