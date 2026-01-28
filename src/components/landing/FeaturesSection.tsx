@@ -28,15 +28,6 @@ export const FeaturesSection = () => {
 
   const features = [
     {
-      icon: 'Zap',
-      title: 'Ответ за 3 секунды',
-      description: 'И клиент не уходит к конкурентам. Захватывает внимание сразу',
-      bgColor: 'bg-blue-100',
-      iconColor: 'text-primary',
-      value: '247%',
-      valueLabel: 'рост конверсии'
-    },
-    {
       icon: 'Clock',
       title: 'Работает 24/7/365',
       description: 'Даже в 3 ночи, в выходные, в праздники. Никогда не устаёт, не заболеет, не уйдёт в отпуск',
