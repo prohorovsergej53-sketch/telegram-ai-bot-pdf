@@ -355,7 +355,7 @@ def handler(event: dict, context) -> dict:
         
         if provider == 'yandex':
             api_key = get_api_key(tenant_id, 'yandex', 'YANDEX_SPEECHKIT_API_KEY')
-            folder_id = get_api_key(tenant_id, 'yandex', 'YANDEX_FOLDER_ID')
+            folder_id = get_api_key(tenant_id, 'yandex', 'folder_id')
             
             if not api_key or not folder_id:
                 return {
