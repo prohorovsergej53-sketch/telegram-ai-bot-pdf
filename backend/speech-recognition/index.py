@@ -8,6 +8,7 @@ import base64
 import psycopg2
 from typing import Dict, Any, Optional
 import requests
+import time
 
 
 def get_db_connection():
@@ -66,6 +67,39 @@ def get_api_key(tenant_id: int, provider: str, key_name: str) -> Optional[str]:
             return row[0] if row else None
     finally:
         conn.close()
+
+
+def log_usage(tenant_id: int, provider: str, audio_duration_seconds: float, cost: float):
+    """Записывает использование распознавания речи в token_usage"""
+    conn = get_db_connection()
+    try:
+        with conn.cursor() as cur:
+            cur.execute("""
+                INSERT INTO t_p56134400_telegram_ai_bot_pdf.token_usage 
+                (tenant_id, operation_type, model, tokens_used, cost_rubles, metadata)
+                VALUES (%s, %s, %s, %s, %s, %s)
+            """, (
+                tenant_id,
+                'speech_recognition',
+                provider,
+                int(audio_duration_seconds),
+                cost,
+                json.dumps({'audio_duration_seconds': audio_duration_seconds})
+            ))
+            conn.commit()
+    finally:
+        conn.close()
+
+
+def calculate_cost(provider: str, audio_duration_seconds: float) -> float:
+    """Рассчитывает стоимость распознавания"""
+    costs_per_second = {
+        'yandex': 1.0 / 15.0,
+        'openai_whisper': 0.006 / 60.0 * 100.0,
+        'google': 0.006 / 15.0 * 100.0
+    }
+    rate = costs_per_second.get(provider, 0.0)
+    return round(audio_duration_seconds * rate, 4)
 
 
 def transcribe_yandex(audio_base64: str, api_key: str, folder_id: str) -> str:
@@ -257,6 +291,7 @@ def handler(event: dict, context) -> dict:
         
         body = json.loads(event.get('body', '{}'))
         audio_base64 = body.get('audio')
+        audio_duration = body.get('duration_seconds', 0)
         
         if not audio_base64:
             return {
@@ -271,6 +306,10 @@ def handler(event: dict, context) -> dict:
         provider = settings['provider']
         if settings['fz152_enabled']:
             provider = 'yandex'
+        
+        if audio_duration == 0:
+            audio_bytes = base64.b64decode(audio_base64)
+            audio_duration = max(1.0, len(audio_bytes) / 16000.0)
         
         text = ''
         
@@ -290,7 +329,9 @@ def handler(event: dict, context) -> dict:
                     })
                 }
             
+            start_time = time.time()
             text = transcribe_yandex(audio_base64, api_key, folder_id)
+            processing_time = time.time() - start_time
         
         elif provider == 'openai_whisper':
             api_key = get_api_key(tenant_id, 'openai', 'OPENAI_API_KEY')
@@ -307,7 +348,9 @@ def handler(event: dict, context) -> dict:
                     })
                 }
             
+            start_time = time.time()
             text = transcribe_openai_whisper(audio_base64, api_key)
+            processing_time = time.time() - start_time
         
         elif provider == 'google':
             api_key = get_api_key(tenant_id, 'google', 'GOOGLE_SPEECH_API_KEY')
@@ -324,7 +367,9 @@ def handler(event: dict, context) -> dict:
                     })
                 }
             
+            start_time = time.time()
             text = transcribe_google(audio_base64, api_key)
+            processing_time = time.time() - start_time
         
         else:
             return {
@@ -336,6 +381,9 @@ def handler(event: dict, context) -> dict:
                 'body': json.dumps({'error': f'Unknown provider: {provider}'})
             }
         
+        cost = calculate_cost(provider, audio_duration)
+        log_usage(tenant_id, provider, audio_duration, cost)
+        
         return {
             'statusCode': 200,
             'headers': {
@@ -344,7 +392,10 @@ def handler(event: dict, context) -> dict:
             },
             'body': json.dumps({
                 'text': text,
-                'provider': provider
+                'provider': provider,
+                'duration_seconds': audio_duration,
+                'cost_rubles': cost,
+                'processing_time': round(processing_time, 2)
             })
         }
     
