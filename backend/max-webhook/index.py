@@ -74,7 +74,10 @@ def handler(event: dict, context) -> dict:
         sender_user_id = message.get('sender', {}).get('user_id')
         user_message = message.get('body', {}).get('text', '')
         
-        has_audio = message.get('body', {}).get('type') in ['voice', 'video']
+        # Проверяем наличие аудио в attachments
+        attachments = message.get('body', {}).get('attachments', [])
+        audio_attachment = next((att for att in attachments if att.get('type') == 'audio'), None)
+        has_audio = bool(audio_attachment)
         
         if not chat_id or (not user_message and not has_audio):
             return {
@@ -85,6 +88,7 @@ def handler(event: dict, context) -> dict:
             }
         
         if has_audio and not user_message:
+            import base64
             speech_url = 'https://functions.poehali.dev/66ab8736-2781-4c63-9c2e-09f2061f7c7a'
             
             try:
@@ -98,17 +102,13 @@ def handler(event: dict, context) -> dict:
                 if not check_data.get('enabled', False):
                     max_token, error = get_tenant_api_key(tenant_id, 'max', 'bot_token')
                     if not error:
-                        max_api_url = 'https://api.max.ru/v1/messages'
                         requests.post(
-                            max_api_url,
+                            f'https://platform-api.max.ru/messages?user_id={sender_user_id}',
                             headers={
-                                'Authorization': f'Bearer {max_token}',
+                                'Authorization': max_token,
                                 'Content-Type': 'application/json'
                             },
-                            json={
-                                'recipient': {'chat_id': chat_id},
-                                'body': {'text': 'Извините, я понимаю только текстовые сообщения.'}
-                            },
+                            json={'text': 'Извините, я понимаю только текстовые сообщения.'},
                             timeout=10
                         )
                     
@@ -118,8 +118,70 @@ def handler(event: dict, context) -> dict:
                         'body': json.dumps({'ok': True}),
                         'isBase64Encoded': False
                     }
+                
+                # Распознавание включено - скачиваем аудио и отправляем на распознавание
+                audio_url = audio_attachment['payload']['url']
+                print(f'[max-webhook] Downloading audio from: {audio_url[:80]}...')
+                
+                audio_response = requests.get(audio_url, timeout=30)
+                audio_response.raise_for_status()
+                audio_bytes = audio_response.content
+                audio_base64 = base64.b64encode(audio_bytes).decode('utf-8')
+                
+                print(f'[max-webhook] Audio downloaded, size: {len(audio_bytes)} bytes. Sending to speech recognition...')
+                
+                speech_response = requests.post(
+                    speech_url,
+                    headers={
+                        'X-Tenant-Id': str(tenant_id),
+                        'Content-Type': 'application/json'
+                    },
+                    json={
+                        'audio': audio_base64,
+                        'duration_seconds': 0
+                    },
+                    timeout=60
+                )
+                speech_response.raise_for_status()
+                speech_data = speech_response.json()
+                
+                user_message = speech_data.get('text', '')
+                print(f'[max-webhook] Speech recognition result: {user_message}')
+                
+                if not user_message:
+                    max_token, error = get_tenant_api_key(tenant_id, 'max', 'bot_token')
+                    if not error:
+                        requests.post(
+                            f'https://platform-api.max.ru/messages?user_id={sender_user_id}',
+                            headers={
+                                'Authorization': max_token,
+                                'Content-Type': 'application/json'
+                            },
+                            json={'text': 'Извините, не удалось распознать речь.'},
+                            timeout=10
+                        )
+                    
+                    return {
+                        'statusCode': 200,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'ok': True}),
+                        'isBase64Encoded': False
+                    }
+                
             except Exception as e:
-                print(f'[max-webhook] Speech check error: {e}')
+                print(f'[max-webhook] Speech recognition error: {e}')
+                max_token, error = get_tenant_api_key(tenant_id, 'max', 'bot_token')
+                if not error:
+                    requests.post(
+                        f'https://platform-api.max.ru/messages?user_id={sender_user_id}',
+                        headers={
+                            'Authorization': max_token,
+                            'Content-Type': 'application/json'
+                        },
+                        json={'text': 'Извините, произошла ошибка при распознавании речи.'},
+                        timeout=10
+                    )
+                
                 return {
                     'statusCode': 200,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
