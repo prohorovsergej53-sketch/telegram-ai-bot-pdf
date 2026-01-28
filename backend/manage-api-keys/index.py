@@ -76,6 +76,9 @@ def handler(event: dict, context) -> dict:
             # КРИТИЧНО: используем только tenant_id из авторизации, игнорируем body
             keys_to_save = body.get('keys', [])
             
+            print(f'[manage-api-keys] POST: tenant_id={tenant_id}, keys_count={len(keys_to_save)}')
+            print(f'[manage-api-keys] Keys to save: {json.dumps(keys_to_save, ensure_ascii=False)}')
+            
             if not keys_to_save:
                 return {
                     'statusCode': 400,
@@ -85,14 +88,18 @@ def handler(event: dict, context) -> dict:
                 }
             
             saved_count = 0
+            skipped_keys = []
             for key_data in keys_to_save:
                 provider = key_data.get('provider')
                 key_name = key_data.get('key_name')
                 key_value = key_data.get('key_value')
                 
                 if not all([provider, key_name, key_value]):
+                    skipped_keys.append(f'{provider}/{key_name}')
+                    print(f'[manage-api-keys] SKIPPED: provider={provider}, key_name={key_name}, has_value={bool(key_value)}')
                     continue
                 
+                print(f'[manage-api-keys] SAVING: tenant_id={tenant_id}, provider={provider}, key_name={key_name}')
                 cur.execute("""
                     INSERT INTO t_p56134400_telegram_ai_bot_pdf.tenant_api_keys 
                     (tenant_id, provider, key_name, key_value, is_active)
@@ -107,6 +114,7 @@ def handler(event: dict, context) -> dict:
             cur.close()
             conn.close()
             
+            print(f'[manage-api-keys] SUCCESS: saved={saved_count}, skipped={len(skipped_keys)}, skipped_list={skipped_keys}')
             return {
                 'statusCode': 200,
                 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
