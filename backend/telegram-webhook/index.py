@@ -92,6 +92,7 @@ def handler(event: dict, context) -> dict:
                     timeout=5
                 )
                 check_data = check_response.json()
+                print(f'[telegram-webhook] Speech settings: enabled={check_data.get("enabled")}, provider={check_data.get("provider")}')
                 
                 if not check_data.get('enabled', False):
                     bot_token_temp, error = get_tenant_api_key(tenant_id, 'telegram', 'bot_token')
@@ -112,8 +113,86 @@ def handler(event: dict, context) -> dict:
                         'body': json.dumps({'ok': True}),
                         'isBase64Encoded': False
                     }
+                
+                bot_token_for_audio, error = get_tenant_api_key(tenant_id, 'telegram', 'bot_token')
+                if error:
+                    print(f'[telegram-webhook] Failed to get bot token for audio download')
+                    return {
+                        'statusCode': 200,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'ok': True}),
+                        'isBase64Encoded': False
+                    }
+                
+                file_id = message.get('voice', {}).get('file_id') if has_voice else message.get('video_note', {}).get('file_id')
+                duration = message.get('voice', {}).get('duration', 0) if has_voice else message.get('video_note', {}).get('duration', 0)
+                
+                print(f'[telegram-webhook] Downloading audio: file_id={file_id}, duration={duration}s')
+                
+                file_info_url = f'https://api.telegram.org/bot{bot_token_for_audio}/getFile'
+                file_info_response = requests.get(file_info_url, params={'file_id': file_id}, timeout=10)
+                file_info_response.raise_for_status()
+                file_path = file_info_response.json()['result']['file_path']
+                
+                file_url = f'https://api.telegram.org/file/bot{bot_token_for_audio}/{file_path}'
+                audio_response = requests.get(file_url, timeout=30)
+                audio_response.raise_for_status()
+                
+                import base64
+                audio_base64 = base64.b64encode(audio_response.content).decode('utf-8')
+                print(f'[telegram-webhook] Audio downloaded: {len(audio_response.content)} bytes')
+                
+                transcribe_response = requests.post(
+                    speech_url,
+                    json={
+                        'audio': audio_base64,
+                        'duration_seconds': duration
+                    },
+                    headers={'X-Tenant-Id': str(tenant_id), 'Content-Type': 'application/json'},
+                    timeout=60
+                )
+                transcribe_response.raise_for_status()
+                transcribe_data = transcribe_response.json()
+                
+                user_message = transcribe_data.get('text', '').strip()
+                print(f'[telegram-webhook] Transcribed text: "{user_message}" (provider: {transcribe_data.get("provider")})')
+                
+                if not user_message:
+                    bot_token_temp, _ = get_tenant_api_key(tenant_id, 'telegram', 'bot_token')
+                    if bot_token_temp:
+                        telegram_api_url = f'https://api.telegram.org/bot{bot_token_temp}/sendMessage'
+                        requests.post(
+                            telegram_api_url,
+                            json={
+                                'chat_id': chat_id,
+                                'text': 'Извините, не удалось распознать речь. Попробуйте ещё раз.'
+                            },
+                            timeout=10
+                        )
+                    return {
+                        'statusCode': 200,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'ok': True}),
+                        'isBase64Encoded': False
+                    }
+                    
             except Exception as e:
-                print(f'[telegram-webhook] Speech check error: {e}')
+                print(f'[telegram-webhook] Speech recognition error: {e}')
+                import traceback
+                traceback.print_exc()
+                
+                bot_token_temp, _ = get_tenant_api_key(tenant_id, 'telegram', 'bot_token')
+                if bot_token_temp:
+                    telegram_api_url = f'https://api.telegram.org/bot{bot_token_temp}/sendMessage'
+                    requests.post(
+                        telegram_api_url,
+                        json={
+                            'chat_id': chat_id,
+                            'text': 'Извините, произошла ошибка при распознавании речи. Попробуйте отправить текстовое сообщение.'
+                        },
+                        timeout=10
+                    )
+                
                 return {
                     'statusCode': 200,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
