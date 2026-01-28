@@ -229,12 +229,10 @@ const AdminView = ({ documents, isLoading, onFileUpload, onDeleteDocument, curre
                     tenantName={tenantName}
                     fz152Enabled={fz152Enabled && !superAdmin}
                   />
-                  {!fz152Enabled && currentTenantId && tenantName && (
-                    <ProxySettingsCard
-                      tenantId={currentTenantId}
-                      tenantName={tenantName}
-                    />
-                  )}
+                  <ProxySettingsCard
+                    tenantId={currentTenantId}
+                    tenantName={tenantName}
+                  />
                   {superAdmin && (
                     <ChatTestCard
                       tenantId={currentTenantId}
