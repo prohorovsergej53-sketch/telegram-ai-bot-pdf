@@ -30,12 +30,18 @@ from quality_gate import (
 
 
 def parse_proxy(proxy_string: str):
-    """Парсит прокси из формата login:pass@ip:port в dict для httpx"""
+    """Парсит прокси из формата ip:port@login:pass в dict для httpx"""
     if not proxy_string or not proxy_string.strip():
         return None
     
     try:
-        proxy_url = f'http://{proxy_string}'
+        # Формат: ip:port@login:pass
+        if '@' in proxy_string:
+            ip_port, login_pass = proxy_string.split('@', 1)
+            proxy_url = f'http://{login_pass}@{ip_port}'
+        else:
+            proxy_url = f'http://{proxy_string}'
+        
         return {
             'http://': proxy_url,
             'https://': proxy_url

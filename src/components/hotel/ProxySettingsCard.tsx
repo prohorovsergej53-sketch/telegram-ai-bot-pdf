@@ -110,10 +110,10 @@ const ProxySettingsCard = ({ tenantId, tenantName }: ProxySettingsCardProps) => 
 
   const maskProxy = (proxy: string) => {
     if (!proxy) return '';
-    const match = proxy.match(/^(.+):(.+)@(.+):(\d+)$/);
+    const match = proxy.match(/^(.+):(\d+)@(.+):(.+)$/);
     if (match) {
-      const [, login, , ip, port] = match;
-      return `${login.substring(0, 2)}***:***@${ip}:${port}`;
+      const [, ip, port, login] = match;
+      return `${ip}:${port}@${login.substring(0, 2)}***:***`;
     }
     return '***';
   };
@@ -156,8 +156,8 @@ const ProxySettingsCard = ({ tenantId, tenantName }: ProxySettingsCardProps) => 
             <div className="space-y-3">
               <div>
                 <p className="font-semibold text-slate-700 mb-2">Формат прокси:</p>
-                <code className="block bg-slate-100 p-2 rounded">login:password@ip:port</code>
-                <p className="text-slate-600 mt-1">Пример: user123:pass456@45.67.89.123:8080</p>
+                <code className="block bg-slate-100 p-2 rounded">ip:port@login:password</code>
+                <p className="text-slate-600 mt-1">Пример: 45.67.89.123:8080@user123:pass456</p>
               </div>
               
               <div>
@@ -211,7 +211,7 @@ const ProxySettingsCard = ({ tenantId, tenantName }: ProxySettingsCardProps) => 
                   type="text"
                   value={settings.proxy_openai}
                   onChange={(e) => setSettings({ ...settings, proxy_openai: e.target.value })}
-                  placeholder="login:password@ip:port"
+                  placeholder="ip:port@login:password"
                   className="font-mono text-sm"
                 />
                 {settings.proxy_openai && (
@@ -254,7 +254,7 @@ const ProxySettingsCard = ({ tenantId, tenantName }: ProxySettingsCardProps) => 
                   type="text"
                   value={settings.proxy_google}
                   onChange={(e) => setSettings({ ...settings, proxy_google: e.target.value })}
-                  placeholder="login:password@ip:port"
+                  placeholder="ip:port@login:password"
                   className="font-mono text-sm"
                 />
                 {settings.proxy_google && (
@@ -297,7 +297,7 @@ const ProxySettingsCard = ({ tenantId, tenantName }: ProxySettingsCardProps) => 
                   type="text"
                   value={settings.proxy_deepseek}
                   onChange={(e) => setSettings({ ...settings, proxy_deepseek: e.target.value })}
-                  placeholder="login:password@ip:port"
+                  placeholder="ip:port@login:password"
                   className="font-mono text-sm"
                 />
                 {settings.proxy_deepseek && (
@@ -340,7 +340,7 @@ const ProxySettingsCard = ({ tenantId, tenantName }: ProxySettingsCardProps) => 
                   type="text"
                   value={settings.proxy_openrouter}
                   onChange={(e) => setSettings({ ...settings, proxy_openrouter: e.target.value })}
-                  placeholder="login:password@ip:port"
+                  placeholder="ip:port@login:password"
                   className="font-mono text-sm"
                 />
                 {settings.proxy_openrouter && (
@@ -383,7 +383,7 @@ const ProxySettingsCard = ({ tenantId, tenantName }: ProxySettingsCardProps) => 
                   type="text"
                   value={settings.proxy_proxyapi}
                   onChange={(e) => setSettings({ ...settings, proxy_proxyapi: e.target.value })}
-                  placeholder="login:password@ip:port"
+                  placeholder="ip:port@login:password"
                   className="font-mono text-sm"
                 />
                 {settings.proxy_proxyapi && (
